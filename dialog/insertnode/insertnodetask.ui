@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InsertNodeTask</class>
+ <widget class="QDialog" name="InsertNodeTask">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>352</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="11" column="1" rowspan="3" colspan="5">
+    <widget class="PlainTextEdit" name="plainTextEdit">
+     <property name="tabChangesFocus">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="labProperty">
+     <property name="text">
+      <string>Property</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="5">
+    <widget class="LineEdit" name="lineEditName">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="labDescription">
+     <property name="text">
+      <string>Description</string>
+     </property>
+     <property name="buddy">
+      <cstring>lineEditDescription</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labCode">
+     <property name="text">
+      <string>Code</string>
+     </property>
+     <property name="buddy">
+      <cstring>lineEditCode</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="5">
+    <widget class="QPushButton" name="pBtnOk">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&amp;Ok</string>
+     </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="5">
+    <widget class="LineEdit" name="lineEditDescription">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="5">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>-1</number>
+      </property>
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="rBtnDICD">
+        <property name="toolTip">
+         <string>Debit Increase, Credit Decrease</string>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;DICD</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="rBtnDDCI">
+        <property name="toolTip">
+         <string>Debit Decrease, Credit Increase</string>
+        </property>
+        <property name="text">
+         <string notr="true">DDC&amp;I</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>5</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="labName">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Name</string>
+     </property>
+     <property name="buddy">
+      <cstring>lineEditName</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="labType">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Type</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+     </property>
+     <property name="buddy">
+      <cstring>rBtnDICD</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="5">
+    <widget class="LineEdit" name="lineEditCode">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="labRule">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Rule</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+     </property>
+     <property name="buddy">
+      <cstring>rBtnDICD</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="4">
+    <widget class="QPushButton" name="pBtnCancel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&amp;Cancel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="5">
+    <widget class="QWidget" name="widgetProperty" native="true">
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item row="0" column="3">
+       <widget class="DateTimeEdit" name="dateTime">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labDateTime">
+        <property name="text">
+         <string>DateTime</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="DoubleSpinBox" name="dSpinBoxUnitCost">
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+        </property>
+        <property name="showGroupSeparator" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="stepType">
+         <enum>QAbstractSpinBox::StepType::AdaptiveDecimalStepType</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labUnitCost">
+        <property name="text">
+         <string>UnitCost</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="4">
+       <widget class="QWidget" name="widget" native="true">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="chkBoxFinished">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Finished</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="5">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <property name="spacing">
+       <number>-1</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="rBtnLeaf">
+        <property name="toolTip">
+         <string>Leaf</string>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;L</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="rBtnBranch">
+        <property name="toolTip">
+         <string>Branch</string>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;B</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QRadioButton" name="rBtnSupport">
+        <property name="toolTip">
+         <string>Support</string>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;S</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>5</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="labUnit">
+     <property name="text">
+      <string>Unit</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="labNote">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Note</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+     </property>
+     <property name="buddy">
+      <cstring>plainTextEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="5">
+    <widget class="QWidget" name="widgetUnit" native="true">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item row="0" column="4">
+       <widget class="QPushButton" name="pBtnColor">
+        <property name="text">
+         <string>Color</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0">
+       <widget class="ComboBox" name="comboUnit">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertPolicy::NoInsert</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="14" column="0" colspan="4">
+    <spacer name="horizontalSpacer_5">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>111</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">widget/combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">widget/lineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PlainTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">widget/plaintextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">widget/doublespinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DateTimeEdit</class>
+   <extends>QDateTimeEdit</extends>
+   <header location="global">widget/datetimeedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lineEditName</tabstop>
+  <tabstop>lineEditCode</tabstop>
+  <tabstop>plainTextEdit</tabstop>
+  <tabstop>pBtnOk</tabstop>
+  <tabstop>pBtnCancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pBtnCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>InsertNodeTask</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>506</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>492</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pBtnOk</sender>
+   <signal>clicked()</signal>
+   <receiver>InsertNodeTask</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>431</x>
+     <y>501</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>491</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

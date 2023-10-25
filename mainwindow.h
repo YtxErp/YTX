@@ -1,13 +1,49 @@
+/*
+ * Copyright (C) 2023 YtxErp
+ *
+ * This file is part of YTX.
+ *
+ * YTX is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * YTX is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with YTX. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "dialog/deletenode.h"
-#include "table/tablemodel.h"
-#include "tree/treemodel.h"
-#include "ui_mainwindow.h"
+#include <QFileInfo>
+#include <QLockFile>
 #include <QMainWindow>
+#include <QPointer>
+#include <QSettings>
 #include <QTableView>
-#include <QTreeView>
+#include <QTranslator>
+
+#include "component/data.h"
+#include "component/settings.h"
+#include "component/using.h"
+#include "database/mainwindowsqlite.h"
+#include "table/model/tablemodel.h"
+#include "table/model/tablemodelorder.h"
+#include "tree/model/treemodel.h"
+#include "ui_mainwindow.h"
+#include "widget/tablewidget/tablewidgetorder.h"
+#include "widget/treewidget/treewidget.h"
+
+template <typename T>
+concept TableWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
+    { t.Model() } -> std::convertible_to<QPointer<TableModel>>;
+    { t.View() } -> std::convertible_to<QPointer<QTableView>>;
+};
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,73 +58,196 @@ public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void do_actionNew();
-    void do_actionDelete();
-    void do_actionAppend();
-    void do_actionJump();
-    void do_actionEditNode();
+    bool ROpenFile(CString& file_path);
 
-    void do_releaseView(int index);
-    void do_treeView_doubleClicked(const QModelIndex& index);
-    void do_treeView_customContextMenuRequested(const QPoint& pos);
-
-    void do_actionLinkedDocument();
+public slots:
+    void on_actionInsertNode_triggered();
+    void on_actionAppendTrans_triggered();
 
 protected:
-    bool eventFilter(QObject* watched, QEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+
+private slots:
+    void on_actionRemove_triggered();
+    void on_actionAppendNode_triggered();
+    void on_actionEditNode_triggered();
+    void on_actionJump_triggered();
+    void on_actionSupportJump_triggered();
+    void on_actionAbout_triggered();
+    void on_actionPreferences_triggered();
+    void on_actionSearch_triggered();
+    void on_actionClearMenu_triggered();
+    void on_actionNewFile_triggered();
+    void on_actionOpenFile_triggered();
+    void on_actionExportStructure_triggered();
+    void on_actionExportXlsx_triggered();
+
+    void on_tabWidget_currentChanged(int index);
+    void on_tabWidget_tabBarDoubleClicked(int index);
+    void on_tabWidget_tabCloseRequested(int index);
+
+    void on_rBtnFinance_toggled(bool checked);
+    void on_rBtnSales_toggled(bool checked);
+    void on_rBtnTask_toggled(bool checked);
+    void on_rBtnStakeholder_toggled(bool checked);
+    void on_rBtnProduct_toggled(bool checked);
+    void on_rBtnPurchase_toggled(bool checked);
+
+    void RNodeLocation(int node_id);
+    void RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id);
+
+    void RUpdateSettings(CSettings& settings, CInterface& interface);
+    void RUpdateParty(int node_id, int party_id);
+    void RUpdateName(int node_id, CString& name, bool branch);
+    void RUpdateState();
+
+    void RFreeView(int node_id);
+    void REditTransDocument();
+    void REditNodeDocument();
+
+    void RTreeViewCustomContextMenuRequested(const QPoint& pos);
+    void RTreeViewDoubleClicked(const QModelIndex& index);
 
 private:
-    void IniContainer(QTabWidget* container);
-    void IniConnect();
+    void SetTabWidget();
+    void SetClearMenuAction();
 
-    void CreateTable(const TableInfo& info, QTabWidget* container, TreeModel* tree_model);
-    void CreateTableDelegate(QTableView* view, const QMultiMap<QString, int>& leaf_map, TreeModel* tree_model);
-    void IniTableView(QTableView* view);
-    void IniTableHeaderView(QTableView* view);
-    void IniTableConnect(TableModel* table, TreeModel* tree);
+    void SetConnect() const;
+    void SetAction() const;
 
-    QPair<QTreeView*, TreeModel*> CreateTree(const TreeInfo& info);
-    void CreateTreeDelegate(QTreeView* view);
-    void IniTreeView(QTreeView* view);
-    void IniTreeHeaderView(QTreeView* view);
+    void SetFinanceData();
+    void SetProductData();
+    void SetStakeholderData();
+    void SetTaskData();
+    void SetSalesData();
+    void SetPurchaseData();
 
-    void InsertRowInTree(QTreeView* view, TreeModel* model);
-    void InsertRowInTable(QWidget* widget);
+    void CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
+    void CreateTableSupport(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
+    void CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id, int party_id);
+    void DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
+    void DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
+    void DelegateStakeholder(PQTableView table_view) const;
+    void DelegateOrder(PQTableView table_view, CSettings* settings) const;
+    void SetView(PQTableView table_view) const;
 
-    void SwitchTab(int node_id);
+    void SetSupportView(PQTableView table_view) const;
+    void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void FreeView(QTableView* view);
+    void TableConnectFPT(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
+    void TableConnectOrder(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const;
+    void TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
 
-    void DeleteFromTableView(QWidget* widget);
-    void DeleteFromTreeView(QTreeView* view, TreeModel* model);
-    void IniDeleteNodeConnect(DeleteNode* dialog, TreeModel* model);
-    void ShowPlaceholderMsgBox(TreeModel* model, const QModelIndex& index);
-    void DeleteNodeAndRelatedView(TreeModel* model, const QModelIndex& index, int node_id);
+    void CreateSection(TreeWidget* tree_widget, TableHash& table_hash, CData& data, CSettings& settings, CString& name);
+    void SwitchSection(CTab& last_tab) const;
+    void UpdateLastTab() const;
 
-    QTableView* GetTableView(QWidget* widget);
-    TableModel* GetTableModel(QTableView* view);
+    void SetDelegate(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void DelegateFPTSO(PQTreeView tree_view, CInfo& info) const;
+    void DelegateFinance(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void DelegateTask(PQTreeView tree_view, CSettings& settings) const;
+    void DelegateProduct(PQTreeView tree_view, CSettings& settings) const;
+    void DelegateStakeholder(PQTreeView tree_view, CSettings& settings) const;
+    void DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
 
-    template <typename T>
-    bool HasSelection(T* view);
+    void SetView(PQTreeView tree_view) const;
+    void TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const;
 
-    bool IsTreeView(QWidget* widget);
-    bool IsTableView(QWidget* widget);
+    void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
+    void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task
+    void InsertNodeOrder(Node* node, const QModelIndex& parent, int row); // Purchase Sales
 
-    void RemoveOneLeaf(QMultiMap<QString, int>& leaf_map, int node_id);
+    template <TableWidgetLike T> void AppendTrans(T* widget);
+
+    void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
+    void SwitchTab(int node_id, int trans_id = 0) const;
+
+    void RemoveTrans(TableWidget* table_widget);
+    void RemoveNode(TreeWidget* tree_widget);
+    void RemoveNonBranch(PTreeModel tree_model, const QModelIndex& index, int node_id, int node_type);
+    void RemoveBranch(PTreeModel tree_model, const QModelIndex& index, int node_id);
+
+    void UpdateInterface(CInterface& interface);
+    void UpdateTranslate() const;
+    void UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool branch) const;
+
+    void LoadAndInstallTranslator(CString& language);
+    void ResizeColumn(QHeaderView* header, bool table_view = true) const;
+
+    void AppSettings();
+    bool LockFile(const QFileInfo& file_info);
+
+    void RestoreTab(PTreeModel tree_model, TableHash& table_hash, CIntSet& set, CData& data, CSettings& settings);
+
+    void EnableAction(bool enable);
+    void RestoreRecentFile();
+    void AddRecentFile(CString& file_path);
+
+    QStandardItemModel* CreateModelFromList(QStringList& list, QObject* parent = nullptr);
 
 private:
     Ui::MainWindow* ui {};
+    MainwindowSqlite sql_ {};
 
-    QHash<int, QTableView*> opened_table_view_ {};
+    QStringList recent_file_ {};
+    Section start_ {};
 
-    QString date_format_ {};
-    int decimal_ {};
-    QString home_dir_ {};
+    QTranslator qt_translator_ {};
+    QTranslator ytx_translator_ {};
+    Interface interface_ {};
 
-    QPair<QTreeView*, TreeModel*> financial_ {};
-    const QString kFinancialTable = "financial";
-    const QString kFinancialPathTable = "financial_path";
-    const QString kFinancialTransactionTable = "financial_transaction";
+    std::unique_ptr<QLockFile> lock_file_;
+    std::shared_ptr<QSettings> app_settings_ {};
+    std::shared_ptr<QSettings> file_settings_ {};
+
+    TreeWidget* tree_widget_ {};
+    TableHash* table_hash_ {};
+    QList<PDialog>* dialog_list_ {};
+    QHash<int, PDialog>* dialog_hash_ {};
+    Settings* settings_ {};
+    Data* data_ {};
+
+    TreeWidget* finance_tree_ {};
+    TableHash finance_table_hash_ {};
+    QList<PDialog> finance_dialog_list_ {};
+    QHash<int, PDialog> finance_dialog_hash_ {};
+    Settings finance_settings_ {};
+    Data finance_data_ {};
+
+    TreeWidget* product_tree_ {};
+    TableHash product_table_hash_ {};
+    QList<PDialog> product_dialog_list_ {};
+    QHash<int, PDialog> product_dialog_hash_ {};
+    Settings product_settings_ {};
+    Data product_data_ {};
+
+    TreeWidget* task_tree_ {};
+    TableHash task_table_hash_ {};
+    QList<PDialog> task_dialog_list_ {};
+    QHash<int, PDialog> task_dialog_hash_ {};
+    Settings task_settings_ {};
+    Data task_data_ {};
+
+    TreeWidget* stakeholder_tree_ {};
+    TableHash stakeholder_table_hash_ {};
+    QList<PDialog> stakeholder_dialog_list_ {};
+    QHash<int, PDialog> stakeholder_dialog_hash_ {};
+    Settings stakeholder_settings_ {};
+    Data stakeholder_data_ {};
+
+    TreeWidget* sales_tree_ {};
+    TableHash sales_table_hash_ {};
+    QList<PDialog> sales_dialog_list_ {};
+    QHash<int, PDialog> sales_dialog_hash_ {};
+    Settings sales_settings_ {};
+    Data sales_data_ {};
+
+    TreeWidget* purchase_tree_ {};
+    TableHash purchase_table_hash_ {};
+    QList<PDialog> purchase_dialog_list_ {};
+    QHash<int, PDialog> purchase_dialog_hash_ {};
+    Settings purchase_settings_ {};
+    Data purchase_data_ {};
 };
 #endif // MAINWINDOW_H

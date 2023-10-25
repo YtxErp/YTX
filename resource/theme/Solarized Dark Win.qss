@@ -1,0 +1,466 @@
+/* Solarized Dark Win.qss */
+
+/*--------------------------------------QWidget---------------------------------------------*/
+
+* {
+    color: #93A1A1;
+    background-color: #002B36;
+    alternate-background-color: #073642;
+    selection-background-color: #586E75;
+    selection-color: #EEE8D5;
+    gridline-color: #93A1A1;
+    placeholder-text-color: #586E75;
+    font-size: 12pt;
+}
+
+*:disabled {
+    color: #586E75;
+    gridline-color: #586E75;
+}
+
+*:focus { outline: none !important; }
+
+*::section, *::tab {
+    color: #93A1A1;
+}
+
+*::checked {
+    color: #2BB3EB;
+}
+
+*::section:disabled, *::checked:disabled {
+    color: #586E75;
+}
+
+/*--------------------------------------border-------------------------------------------------*/
+
+QPushButton, QGroupBox, QComboBox,
+QPlainTextEdit, QLineEdit,
+QTreeView, QTableView, QListView,
+QHeaderView::section, QTabBar::tab, QWidget#widgetProperty,
+QToolBar, QToolTip {
+    border: 1px solid #93A1A1;
+}
+
+/*-------------------------------------disabled border-----------------------------------------------*/
+
+QPushButton:disabled, QGroupBox:disabled, QComboBox:disabled,
+QPlainTextEdit:disabled, QLineEdit:disabled,
+QHeaderView::section:disabled {
+    border: 1px solid #586E75;
+}
+
+/*-------------------------------------border none-----------------------------------------------*/
+
+QPushButton#pBtnLink, QDialog#Preferences QGroupBox, QPushButton#pBtnColor,
+QTreeView::item
+{
+    border: none;
+}
+
+QSpinBox, QDoubleSpinBox, QDateEdit, QDateTimeEdit,
+QSpinBox:disabled, QDoubleSpinBox:disabled, QDateEdit:disabled, QDateTimeEdit:disabled
+{
+    border: none;
+}
+
+QHeaderView::section, QHeaderView::section:disabled {
+    border-top: none;
+    border-left: none;
+}
+
+QHeaderView::section:last, QHeaderView::section:last:disabled {
+    border-right: none;
+}
+
+QPushButton#pBtnRefresh {
+    border-top: none;
+    border-bottom: none;
+}
+
+QTabBar::tab, QTreeView#treeViewFPT, QGroupBox#treeWidgetOrder {
+    border-bottom: none;
+}
+
+QGroupBox#treeWidgetFPT, QTableView#tableViewOrder, QPushButton#pBtnCancelOrder, QPushButton#pBtnFinishOrder,
+QPushButton#pBtnSaveOrder {
+    border-top: none;
+}
+
+/*-------------------------------------border add-----------------------------------------------*/
+
+QDialog QComboBox, QDialog QLineEdit, QSpinBox#spinAmountDecimal, QSpinBox#spinCommonDecimal {
+    border: 1px solid #93A1A1;
+}
+
+QTableView QComboBox, QTableView QLineEdit
+{
+    border: none;
+}
+
+/*-------------------------------------hover color-----------------------------------------------*/
+
+QRadioButton:hover, QCheckBox:hover, QPushButton:hover, QTabBar::tab:hover {
+    color: #2BB3EB;
+}
+
+QTreeView::item:hover, QListWidget::item:hover {
+    background-color: #002B36;
+}
+
+/*--------------------------------------spacing-------------------------------------------------*/
+
+QCheckBox, QRadioButton {
+    spacing: 4px;
+}
+
+QToolBar, QMenuBar {
+    spacing: 2px;
+}
+
+/*--------------------------------------height-------------------------------------------------*/
+
+QTreeView::item {
+    height: 22px;
+}
+
+/*--------------------------------------font size-------------------------------------------------*/
+
+DoubleSpinBox#dSpinAmount {
+    font-size: 24pt;
+}
+
+/*--------------------------------------min-width-------------------------------------------------*/
+
+QTabBar::tab, QHeaderView::section:horizontal {
+    min-width: 60px;
+}
+
+QComboBox#comboDateTime, DateTimeEdit#dateTimeEdit
+{
+    min-width: 160px;
+}
+
+ DateEdit#dateEditStart,  DateEdit#dateEditEnd
+{
+    min-width: 100px;
+}
+
+/*--------------------------------------background color----------------------------------------*/
+
+QToolTip, QHeaderView::section, QDialog QCheckBox::indicator, QMenuBar::item:selected {
+    background-color: #002B36;
+}
+
+QToolBar::separator {
+    background-color: #93A1A1;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background-color: transparent;
+}
+
+QTreeView::item:selected, QListView::item:selected, QTreeView QCheckBox, QTableView QCheckBox {
+    background-color: #586E75;
+}
+
+/*-------------------------------------color---------------------------------------------------*/
+
+QToolTip, QTabBar::tab:selected, QMenuBar::item:selected, QPushButton#pBtnFinishOrder:checked {
+    color: #2BB3EB;
+}
+
+/*-------------------------------------------arrow--------------------------------------------------*/
+
+*::down-arrow {
+    image: url(:/solarized_dark/solarized_dark/down.png);
+}
+
+*::up-arrow {
+    image: url(:/solarized_dark/solarized_dark/up.png);
+}
+
+*:left-arrow {
+    image: url(:/solarized_dark/solarized_dark/left.png);
+}
+
+*::right-arrow {
+    image: url(:/solarized_dark/solarized_dark/right.png);
+}
+
+*::down-arrow:disabled {
+    image: url(:/solarized_dark/solarized_dark/down-disabled.png);
+}
+
+*::up-arrow:disabled {
+    image: url(:/solarized_dark/solarized_dark/up-disabled.png);
+}
+
+*:left-arrow:disabled {
+    image: url(:/solarized_dark/solarized_dark/left-disabled.png);
+}
+
+*::right-arrow:disabled {
+    image: url(:/solarized_dark/solarized_dark/right-disabled.png);
+}
+
+/*-------------------------------------------padding--------------------------------------------------*/
+
+QTabBar::tab  {
+    padding: 2px;
+}
+
+QPushButton {
+    padding: 4px 8px;
+}
+
+QMenuBar::item {
+    padding: 2px 4px;
+}
+
+/*-------------------------------------------------------------indicator-----------------------------------------------------------*/
+
+*::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+*::indicator:unchecked {
+    image: url(:/solarized_dark/solarized_dark/uncheck.png);
+}
+
+*::indicator:checked {
+    image: url(:/solarized_dark/solarized_dark/check.png);
+}
+
+QRadioButton::indicator:unchecked:disabled, QCheckBox::indicator:unchecked:disabled {
+    image: url(:/solarized_dark/solarized_dark/uncheck-disabled.png);
+}
+
+QRadioButton::indicator:checked:disabled, QCheckBox::indicator:checked:disabled {
+    image: url(:/solarized_dark/solarized_dark/check-disabled.png);
+}
+
+/*--------------------------------------branch--------------------------------------------------*/
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    image: url(:/solarized_dark/solarized_dark/branch-close.png);
+    padding: 4px;
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+    border-image: none;
+    image: url(:/solarized_dark/solarized_dark/branch-open.png);
+    padding: 4px;
+}
+
+/*-------------------------------------QToolBar---------------------------------------------------*/
+
+QToolBar::separator:horizontal {
+    width: 1px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+QToolBar::separator:vertical {
+    height: 1px;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+QToolBar::handle {
+    width: 16px;
+    height: 16px;
+    margin: 8px;
+    image: url(:/solarized_dark/solarized_dark/handle-2.png)
+}
+
+/*---------------------------------------QTabBar::tab--------------------------------------------*/
+
+QTabBar::tab:!selected {
+    margin-top: 4px;
+}
+
+QTabBar::close-button {
+    subcontrol-position: right;
+    image: url(:/solarized_dark/solarized_dark/close.png);
+}
+
+QTabBar::close-button:hover {
+    image: url(:/solarized_dark/solarized_dark/close-hover.png);
+}
+
+QTabBar::close-button:pressed {
+    border-style: ridge;
+    background-color: #586E75;
+    color: #002B36;
+}
+
+/*--------------------------------------QPushButton-------------------------------------------------*/
+
+QPushButton:pressed {
+    border-style: grove;
+    background-color: #586E75;
+    color: #002B36;
+}
+
+QPushButton#pBtnDocumentDir, QPushButton#pBtnLink {
+    text-align: left;
+}
+
+QPushButton#pBtnLink:pressed {
+    background-color: transparent;
+    color: #93A1A1;
+}
+
+/*-----------------------------------------QScrollBar Horizontal-----------------------------------------------*/
+
+QScrollBar:horizontal {
+    height: 16px;
+    background: #002B36;
+    margin: 0px 24px 0 24px;
+}
+
+QScrollBar::handle:horizontal {
+    border: 1px solid #93A1A1;
+    min-width: 24px;
+}
+
+QScrollBar:handle:horizontal:disabled {
+    border: 1px solid #586E75;
+}
+
+QScrollBar::add-line:horizontal {
+    border: 1px solid #93A1A1;
+    border-right: none;
+    width: 24px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:horizontal:disabled {
+    border: 1px solid #586E75;
+    border-right: none;
+}
+
+QScrollBar::sub-line:horizontal {
+    border: 1px solid #93A1A1;
+    border-left: none;
+    width: 24px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal:disabled {
+    border: 1px solid #586E75;
+    border-left: none;
+}
+
+QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    width: 8px;
+    height: 8px;
+}
+
+/*-----------------------------------------Order, Stakeholder QScrollBar Horizontal-----------------------------------------------*/
+
+QTreeView#treeViewStakeholder QScrollBar::handle:horizontal,
+QTreeView#treeViewStakeholder QScrollBar::add-line:horizontal,
+QTreeView#treeViewStakeholder QScrollBar::sub-line:horizontal,
+QTreeView#treeViewOrder QScrollBar::handle:horizontal,
+QTreeView#treeViewOrder QScrollBar::add-line:horizontal,
+QTreeView#treeViewOrder QScrollBar::sub-line:horizontal,
+QTableView#searchViewTrans QScrollBar::handle:horizontal,
+QTableView#searchViewTrans QScrollBar::add-line:horizontal,
+QTableView#searchViewTrans QScrollBar::sub-line:horizontal,
+QTableView#searchViewNode QScrollBar::handle:horizontal,
+QTableView#searchViewNode QScrollBar::add-line:horizontal,
+QTableView#searchViewNode QScrollBar::sub-line:horizontal
+{
+    border-bottom: none;
+}
+
+/*-----------------------------------------QScrollBar Vertical-----------------------------------------------*/
+
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    width: 8px;
+    height: 8px;
+}
+
+QScrollBar:vertical {
+    background: #002B36;
+    width: 16px;
+    margin: 24px 0 24px 0;
+}
+
+QScrollBar::handle:vertical {
+    border: 1px solid #93A1A1;
+    border-right: none;
+    min-height: 24px;
+}
+
+QScrollBar:handle:vertical:disabled {
+    border: 1px solid #586E75;
+    border-right: none;
+}
+
+QScrollBar::sub-line:vertical {
+    border: 1px solid #93A1A1;
+    border-right: none;
+    border-top: none;
+    height: 24px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical:disabled {
+    border: 1px solid #586E75;
+    border-right: none;
+    border-top: none;
+}
+
+QScrollBar::add-line:vertical {
+    border: 1px solid #93A1A1;
+    border-right: none;
+    border-bottom: none;
+    height: 24px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:vertical {
+    border: 1px solid #586E75;
+    border-right: none;
+    border-bottom: none;
+}
+
+/*-------------------------------------------QHeaderView---------------------------------------------*/
+
+QHeaderView::up-arrow, QHeaderView::down-arrow {
+    image: none;
+    width: 0px;
+    height: 0px;
+}
+
+QSpinBox::up-button, QSpinBox::down-button,
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+    width: 0px;
+    height: 0px;
+}
+
+/*-------------------------------------QMenuBar------------------------------------------------------------*/
+
+QMenuBar::item {
+    border-radius: 4px;
+}
+
+/*-------------------------------------QSplitter------------------------------------------------------------*/
+
+QSplitter::handle {
+    image: url(:/solarized_dark/solarized_dark/handle-1.png);
+    margin: 2px;
+    width: 8px;
+    height: 8px;
+}

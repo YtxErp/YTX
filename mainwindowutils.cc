@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QTimer>
 
 QString MainWindowUtils::ResourceFile()
 {
@@ -250,6 +251,16 @@ void MainWindowUtils::ExportColumns(CString& source, CString& destination, CStri
     QSqlDatabase::removeDatabase("destination_connection");
 
     qDebug() << "Columns copied successfully from" << source << "to" << destination;
+}
+
+void MainWindowUtils::Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout)
+{
+    auto* box { new QMessageBox(icon, title, text, QMessageBox::NoButton) };
+    QTimer::singleShot(timeout, box, &QMessageBox::accept);
+    QObject::connect(box, &QMessageBox::finished, box, &QMessageBox::deleteLater);
+
+    box->setModal(false);
+    box->show();
 }
 
 QString MainWindowUtils::GeneratePlaceholder(const QVariantList& values)

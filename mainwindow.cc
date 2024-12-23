@@ -140,7 +140,8 @@ bool MainWindow::ROpenFile(CString& file_path)
     const QFileInfo file_info(file_path);
 
     if (!MainWindowUtils::IsValidFile(file_info)) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Invalid file: %1").arg(file_path), kThreeThousand);
+        MainWindowUtils::Message(
+            QMessageBox::Critical, tr("Invalid File"), tr("The file \"%1\" is invalid. Please check the file and try again.").arg(file_path), kThreeThousand);
         return false;
     }
 
@@ -900,7 +901,7 @@ void MainWindow::EnableAction(bool enable)
     ui->actionSupportJump->setEnabled(enable);
     ui->actionRemove->setEnabled(enable);
     ui->actionAppendTrans->setEnabled(enable);
-    ui->actionExportCsv->setEnabled(enable);
+    ui->actionExportCSV->setEnabled(enable);
     ui->actionExportStructure->setEnabled(enable);
 }
 
@@ -972,10 +973,11 @@ bool MainWindow::LockFile(const QFileInfo& file_info)
     lock_file_ = std::make_unique<QLockFile>(lock_file_path);
 
     if (!lock_file_->tryLock(100)) {
-        TreeModelUtils::ShowTemporaryTooltip(
-            tr("Unable to open database file. Ensure no other instance of the application is using the file: %1").arg(file_info.absoluteFilePath()),
+        MainWindowUtils::Message(QMessageBox::Critical, tr("Lock Failed"),
+            tr("Unable to lock the file \"%1\". Please ensure no other instance of the application or process is accessing it and try again.")
+                .arg(file_info.absoluteFilePath()),
             kThreeThousand);
-        qCritical() << "Unable to lock database file. Ensure no other instance of the application is using the file:" << lock_file_path;
+
         lock_file_.reset();
         return false;
     }
@@ -2218,7 +2220,7 @@ void MainWindow::on_rBtnFinance_toggled(bool checked)
     start_ = Section::kFinance;
 
     if (!lock_file_) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Please open the file first."), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
         return;
     }
 
@@ -2244,7 +2246,7 @@ void MainWindow::on_rBtnSales_toggled(bool checked)
     start_ = Section::kSales;
 
     if (!lock_file_) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Please open the file first."), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
         return;
     }
 
@@ -2270,7 +2272,7 @@ void MainWindow::on_rBtnTask_toggled(bool checked)
     start_ = Section::kTask;
 
     if (!lock_file_) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Please open the file first."), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
         return;
     }
 
@@ -2296,7 +2298,7 @@ void MainWindow::on_rBtnStakeholder_toggled(bool checked)
     start_ = Section::kStakeholder;
 
     if (!lock_file_) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Please open the file first."), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
         return;
     }
 
@@ -2322,7 +2324,7 @@ void MainWindow::on_rBtnProduct_toggled(bool checked)
     start_ = Section::kProduct;
 
     if (!lock_file_) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Please open the file first."), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
         return;
     }
 
@@ -2348,7 +2350,7 @@ void MainWindow::on_rBtnPurchase_toggled(bool checked)
     start_ = Section::kPurchase;
 
     if (!lock_file_) {
-        TreeModelUtils::ShowTemporaryTooltip(tr("Please open the file first."), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
         return;
     }
 
@@ -2415,13 +2417,37 @@ void MainWindow::on_actionExportStructure_triggered()
     if (!MainWindowUtils::NewFile(sql_, destination))
         return;
 
-    QStringList tables { kFinance, kStakeholder, kTask, kProduct };
-    QStringList columns { kName, kRule, kType, kUnit, kRemoved };
-    MainWindowUtils::ExportColumns(source, destination, tables, columns);
+    auto future = QtConcurrent::run([source, destination]() {
+        try {
+            QStringList tables { kFinance, kStakeholder, kTask, kProduct };
+            QStringList columns { kName, kRule, kType, kUnit, kRemoved };
+            MainWindowUtils::ExportColumns(source, destination, tables, columns);
 
-    tables = { kFinancePath, kStakeholderPath, kTaskPath, kProductPath };
-    columns = { kAncestor, kDescendant, kDistance };
-    MainWindowUtils::ExportColumns(source, destination, tables, columns);
+            tables = { kFinancePath, kStakeholderPath, kTaskPath, kProductPath };
+            columns = { kAncestor, kDescendant, kDistance };
+            MainWindowUtils::ExportColumns(source, destination, tables, columns);
+
+            return true;
+        } catch (const std::exception& e) {
+            qWarning() << "Export failed:" << e.what();
+            return false;
+        }
+    });
+
+    auto* watcher = new QFutureWatcher<bool>(this);
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [watcher, destination]() {
+        watcher->deleteLater();
+
+        bool success { watcher->future().result() };
+        if (success) {
+            MainWindowUtils::Message(QMessageBox::Information, tr("Export Completed"), tr("Export completed successfully."), kThreeThousand);
+        } else {
+            QFile::remove(destination);
+            MainWindowUtils::Message(QMessageBox::Critical, tr("Export Failed"), tr("Export failed. The file has been deleted."), kThreeThousand);
+        }
+    });
+
+    watcher->setFuture(future);
 }
 
-void MainWindow::on_actionExportCsv_triggered() { }
+void MainWindow::on_actionExportCSV_triggered() { }

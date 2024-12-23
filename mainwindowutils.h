@@ -21,6 +21,7 @@
 #define MAINWINDOWUTILS_H
 
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QSettings>
 #include <QWidget>
 
@@ -45,6 +46,7 @@ public:
 
     static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);
     static void ExportColumns(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
+    static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
 
     static bool CopyFile(CString& source, CString& destination);
     static bool NewFile(MainwindowSqlite& sql, QString& file_path);

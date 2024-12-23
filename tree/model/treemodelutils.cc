@@ -6,7 +6,7 @@
 
 #include "component/constvalue.h"
 #include "global/resourcepool.h"
-#include "widget/temporarylabel.h"
+#include "mainwindowutils.h"
 
 void TreeModelUtils::UpdateBranchUnitF(const Node* root, Node* node)
 {
@@ -143,40 +143,12 @@ QString TreeModelUtils::ConstructPathFPTS(const Node* root, const Node* node, CS
     return tmp.join(separator);
 }
 
-void TreeModelUtils::ShowTemporaryTooltip(CString& message, int duration)
-{
-    auto* label { new TemporaryLabel(message) };
-    label->setWindowFlags(Qt::ToolTip);
-    label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    label->setWordWrap(true);
-    label->setAttribute(Qt::WA_DeleteOnClose);
-    label->adjustSize();
-
-    const int extra_space = 12 * 2;
-    label->resize(label->width() + extra_space, label->height() + extra_space);
-    label->setContentsMargins(12, 0, 0, 0);
-
-    QWidget* mainWindow { QApplication::activeWindow() };
-    if (mainWindow) {
-        QRect parent_rect { mainWindow->geometry() };
-        QPoint center_point { parent_rect.center() - QPoint(label->width() / 2, label->height() / 2) };
-        label->move(center_point);
-    }
-
-    label->show();
-
-    QTimer* timer { new QTimer(label) };
-    timer->setSingleShot(true);
-    QObject::connect(timer, &QTimer::timeout, label, &QLabel::close);
-    timer->start(duration);
-
-    QObject::connect(label, &QLabel::destroyed, timer, [timer]() { timer->stop(); });
-}
-
 bool TreeModelUtils::IsInternalReferencedFPTS(Sqlite* sql, int node_id, CString& message)
 {
     if (sql->InternalReference(node_id)) {
-        TreeModelUtils::ShowTemporaryTooltip(QObject::tr("%1 it is internal referenced.").arg(message), kThreeThousand);
+        MainWindowUtils::Message(
+            QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it is internally referenced.").arg(message), kThreeThousand);
+
         return true;
     }
 
@@ -186,7 +158,8 @@ bool TreeModelUtils::IsInternalReferencedFPTS(Sqlite* sql, int node_id, CString&
 bool TreeModelUtils::IsSupportReferencedFPTS(Sqlite* sql, int node_id, CString& message)
 {
     if (sql->SupportReferenceFPTS(node_id)) {
-        TreeModelUtils::ShowTemporaryTooltip(QObject::tr("%1 it is support referenced.").arg(message), kThreeThousand);
+        MainWindowUtils::Message(
+            QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it is support referenced.").arg(message), kThreeThousand);
         return true;
     }
 
@@ -196,7 +169,8 @@ bool TreeModelUtils::IsSupportReferencedFPTS(Sqlite* sql, int node_id, CString& 
 bool TreeModelUtils::IsExternalReferencedPS(Sqlite* sql, int node_id, CString& message)
 {
     if (sql->ExternalReference(node_id)) {
-        TreeModelUtils::ShowTemporaryTooltip(QObject::tr("%1 it is external referenced.").arg(message), kThreeThousand);
+        MainWindowUtils::Message(
+            QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it is external referenced.").arg(message), kThreeThousand);
         return true;
     }
 
@@ -206,7 +180,8 @@ bool TreeModelUtils::IsExternalReferencedPS(Sqlite* sql, int node_id, CString& m
 bool TreeModelUtils::HasChildrenFPTS(Node* node, CString& message)
 {
     if (!node->children.isEmpty()) {
-        ShowTemporaryTooltip(QObject::tr("%1 it has children nodes.").arg(message), kThreeThousand);
+        MainWindowUtils::Message(
+            QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it has children nodes.").arg(message), kThreeThousand);
         return true;
     }
 
@@ -216,7 +191,7 @@ bool TreeModelUtils::HasChildrenFPTS(Node* node, CString& message)
 bool TreeModelUtils::IsOpenedFPTS(CTableHash& hash, int node_id, CString& message)
 {
     if (hash.contains(node_id)) {
-        ShowTemporaryTooltip(QObject::tr("%1 it is opened.").arg(message), kThreeThousand);
+        MainWindowUtils::Message(QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it is opened.").arg(message), kThreeThousand);
         return true;
     }
 

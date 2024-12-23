@@ -186,8 +186,8 @@
      <property name="title">
       <string>Export</string>
      </property>
-     <addaction name="actionExportXlsx"/>
-     <addaction name="actionExportNode"/>
+     <addaction name="actionExportCsv"/>
+     <addaction name="actionExportStructure"/>
     </widget>
     <addaction name="actionAbout"/>
     <addaction name="separator"/>
@@ -406,17 +406,20 @@
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="actionExportXlsx">
+  <action name="actionExportCsv">
    <property name="text">
-    <string>Export Xlsx</string>
+    <string>Export CSV...</string>
    </property>
    <property name="toolTip">
-    <string>Export Xlsx</string>
+    <string>Export CSV...</string>
    </property>
   </action>
-  <action name="actionExportNode">
+  <action name="actionExportStructure">
    <property name="text">
-    <string>Export Node</string>
+    <string>Export Structure</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Structure</string>
    </property>
   </action>
  </widget>

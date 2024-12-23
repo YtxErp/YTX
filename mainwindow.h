@@ -80,7 +80,7 @@ private slots:
     void on_actionClearMenu_triggered();
     void on_actionNewFile_triggered();
     void on_actionOpenFile_triggered();
-    void on_actionExportNode_triggered();
+    void on_actionExportStructure_triggered();
 
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);
@@ -108,7 +108,7 @@ private slots:
     void RTreeViewCustomContextMenuRequested(const QPoint& pos);
     void RTreeViewDoubleClicked(const QModelIndex& index);
 
-    void on_actionExportXlsx_triggered();
+    void on_actionExportCsv_triggered();
 
 private:
     void SetTabWidget();

@@ -900,6 +900,8 @@ void MainWindow::EnableAction(bool enable)
     ui->actionSupportJump->setEnabled(enable);
     ui->actionRemove->setEnabled(enable);
     ui->actionAppendTrans->setEnabled(enable);
+    ui->actionExportCsv->setEnabled(enable);
+    ui->actionExportStructure->setEnabled(enable);
 }
 
 QStandardItemModel* MainWindow::CreateModelFromList(QStringList& list, QObject* parent)
@@ -2403,13 +2405,15 @@ void MainWindow::on_actionAppendTrans_triggered()
     }
 }
 
-void MainWindow::on_actionExportNode_triggered()
+void MainWindow::on_actionExportStructure_triggered()
 {
-    QString destination { QFileDialog::getSaveFileName(this, tr("Export Node"), QDir::homePath(), "*.ytx") };
-    if (!MainWindowUtils::NewFile(sql_, destination))
+    CString& source { SqlConnection::Instance().DatabaseName() };
+    if (source.isEmpty())
         return;
 
-    CString& source { SqlConnection::Instance().DatabaseName() };
+    QString destination { QFileDialog::getSaveFileName(this, tr("Export Structure"), QDir::homePath(), "*.ytx") };
+    if (!MainWindowUtils::NewFile(sql_, destination))
+        return;
 
     QStringList tables { kFinance, kStakeholder, kTask, kProduct };
     QStringList columns { kName, kRule, kType, kUnit, kRemoved };
@@ -2420,4 +2424,4 @@ void MainWindow::on_actionExportNode_triggered()
     MainWindowUtils::ExportColumns(source, destination, tables, columns);
 }
 
-void MainWindow::on_actionExportXlsx_triggered() { }
+void MainWindow::on_actionExportCsv_triggered() { }

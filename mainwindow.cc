@@ -51,6 +51,7 @@
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "dialog/search.h"
+#include "document.h"
 #include "global/resourcepool.h"
 #include "global/signalstation.h"
 #include "global/sqlconnection.h"
@@ -901,7 +902,7 @@ void MainWindow::EnableAction(bool enable)
     ui->actionSupportJump->setEnabled(enable);
     ui->actionRemove->setEnabled(enable);
     ui->actionAppendTrans->setEnabled(enable);
-    ui->actionExportCSV->setEnabled(enable);
+    ui->actionExportXlsx->setEnabled(enable);
     ui->actionExportStructure->setEnabled(enable);
 }
 
@@ -2450,4 +2451,20 @@ void MainWindow::on_actionExportStructure_triggered()
     watcher->setFuture(future);
 }
 
-void MainWindow::on_actionExportCSV_triggered() { }
+void MainWindow::on_actionExportXlsx_triggered()
+{
+    QString destination { QFileDialog::getSaveFileName(this, tr("Export Section"), QDir::homePath(), "*.xlsx") };
+
+    if (!destination.endsWith(".xlsx", Qt::CaseInsensitive))
+        destination += ".xlsx";
+
+    if (QFile::exists(destination)) {
+        qDebug() << "Destination file already exists. Overwriting:" << destination;
+        QFile::remove(destination);
+    }
+
+    yxlsx::Document d(destination);
+    auto book1 { d.GetWorkbook() };
+    book1->CurrentWorksheet()->Write(1, 1, "Hello YTX!");
+    d.Save();
+}

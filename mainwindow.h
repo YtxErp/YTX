@@ -81,7 +81,7 @@ private slots:
     void on_actionNewFile_triggered();
     void on_actionOpenFile_triggered();
     void on_actionExportStructure_triggered();
-    void on_actionExportCSV_triggered();
+    void on_actionExportXlsx_triggered();
 
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);

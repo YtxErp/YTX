@@ -186,7 +186,7 @@
      <property name="title">
       <string>Export</string>
      </property>
-     <addaction name="actionExportCSV"/>
+     <addaction name="actionExportXlsx"/>
      <addaction name="actionExportStructure"/>
     </widget>
     <addaction name="actionAbout"/>
@@ -406,12 +406,12 @@
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="actionExportCSV">
+  <action name="actionExportXlsx">
    <property name="text">
-    <string>Export CSV...</string>
+    <string>Export Xlsx...</string>
    </property>
    <property name="toolTip">
-    <string>Export CSV...</string>
+    <string>Export Xlsx...</string>
    </property>
   </action>
   <action name="actionExportStructure">

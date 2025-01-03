@@ -8,9 +8,19 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 add_definitions(-DQT_DISABLE_DEPRECATED_UP_TO=0x060500)
 
+include(FetchContent)
+
+FetchContent_Declare(
+  YXlsx
+  GIT_REPOSITORY https://github.com/YtxErp/YXlsx.git
+  SOURCE_SUBDIR  YXlsx
+)
+FetchContent_MakeAvailable(YXlsx)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wconversion -Wno-shorten-64-to-32")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -44,4 +54,4 @@ endif()
 qt6_add_translations(${PROJECT_NAME}
   TS_FILES resource/I18N/ytx_zh_CN.ts)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Gui Qt6::Concurrent)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Gui Qt6::Concurrent YXlsx::YXlsx)

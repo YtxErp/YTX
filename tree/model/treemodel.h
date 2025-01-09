@@ -32,15 +32,10 @@ class TreeModel : public QAbstractItemModel {
 
 public:
     virtual ~TreeModel();
+    TreeModel() = delete;
 
 protected:
     explicit TreeModel(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent = nullptr);
-
-    TreeModel() = delete;
-    TreeModel(const TreeModel&) = delete;
-    TreeModel& operator=(const TreeModel&) = delete;
-    TreeModel(TreeModel&&) = delete;
-    TreeModel& operator=(TreeModel&&) = delete;
 
 signals:
     // send to SignalStation

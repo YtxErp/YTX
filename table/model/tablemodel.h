@@ -32,6 +32,7 @@ class TableModel : public QAbstractItemModel {
 
 public:
     virtual ~TableModel();
+    TableModel() = delete;
 
 protected:
     TableModel(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent = nullptr);

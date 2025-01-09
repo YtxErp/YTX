@@ -2463,8 +2463,8 @@ void MainWindow::on_actionExportXlsx_triggered()
         QFile::remove(destination);
     }
 
-    yxlsx::Document d(destination);
+    yxlsx::Document d(destination, this);
     auto book1 { d.GetWorkbook() };
-    book1->CurrentWorksheet()->Write(1, 1, "Hello YTX!");
+    book1->GetCurrentWorksheet()->Write(1, 1, "Hello YTX!");
     d.Save();
 }

@@ -389,7 +389,7 @@ bool TreeModelStakeholder::RemoveNode(int row, const QModelIndex& parent)
 
     switch (node->type) {
     case kTypeBranch: {
-        for (auto* child : node->children) {
+        for (auto* child : std::as_const(node->children)) {
             child->parent = parent_node;
             parent_node->children.emplace_back(child);
         }

@@ -79,7 +79,7 @@ QStringList TreeModel::ChildrenNameFPTS(int node_id, int exclude_child) const
     QStringList list {};
     list.reserve(node->children.size());
 
-    for (const auto* child : node->children) {
+    for (const auto* child : std::as_const(node->children)) {
         if (child->id != exclude_child)
             list.emplaceBack(child->name);
     }

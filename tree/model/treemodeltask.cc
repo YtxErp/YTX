@@ -11,7 +11,7 @@ TreeModelTask::TreeModelTask(Sqlite* sql, CInfo& info, int default_unit, CTableH
 
 TreeModelTask::~TreeModelTask() { qDeleteAll(node_hash_); }
 
-void TreeModelTask::RUpdateLeafValueOne(int node_id, double diff, CString& node_field)
+void TreeModelTask::RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
 {
     auto* node { node_hash_.value(node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf || diff == 0.0 || node->unit != kUnitProd)

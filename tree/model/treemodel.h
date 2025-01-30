@@ -48,7 +48,7 @@ signals:
     void SSearch();
 
     // send to Mainwindow
-    void SUpdateName(int node_id, CString& name, bool branch);
+    void SUpdateName(int node_id, const QString& name, bool branch);
     void SUpdateDSpinBox();
 
 public slots:
@@ -58,7 +58,7 @@ public slots:
 
     // receive from  TableModel
     void RSearch() { emit SSearch(); }
-    virtual void RUpdateLeafValueOne(int node_id, double diff, CString& node_field)
+    virtual void RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(diff);

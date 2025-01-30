@@ -9,7 +9,7 @@ TreeModelOrder::TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CTabl
     ConstructTree();
 }
 
-void TreeModelOrder::RUpdateLeafValueOne(int node_id, double diff, CString& node_field)
+void TreeModelOrder::RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
 {
     auto* node { node_hash_.value(node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf || diff == 0.0)

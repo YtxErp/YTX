@@ -1776,7 +1776,7 @@ void MainWindow::REditNodeDocument()
         data_->sql->UpdateField(data_->info.node, document_pointer->join(kSemicolon), kDocument, id);
 }
 
-void MainWindow::RUpdateName(int node_id, CString& name, bool branch)
+void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
 {
     auto model { tree_widget_->Model() };
     auto* widget { ui->tabWidget };
@@ -1819,7 +1819,7 @@ void MainWindow::RUpdateName(int node_id, CString& name, bool branch)
         UpdateStakeholderReference(nodes, branch);
 }
 
-void MainWindow::RUpdateSettings(CSettings& settings, CInterface& interface)
+void MainWindow::RUpdateSettings(const Settings& settings, const Interface& interface)
 {
     bool resize_column { false };
 

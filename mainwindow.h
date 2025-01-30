@@ -97,9 +97,9 @@ private slots:
     void RNodeLocation(int node_id);
     void RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id);
 
-    void RUpdateSettings(CSettings& settings, CInterface& interface);
+    void RUpdateSettings(const Settings& settings, const Interface& interface);
     void RUpdateParty(int node_id, int party_id);
-    void RUpdateName(int node_id, CString& name, bool branch);
+    void RUpdateName(int node_id, const QString& name, bool branch);
     void RUpdateState();
 
     void RFreeView(int node_id);

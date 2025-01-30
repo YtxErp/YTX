@@ -106,6 +106,7 @@ bool TreeModelFinance::RemoveNode(int row, const QModelIndex& parent)
 
     emit SSearch();
     emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
+    emit SUpdateDSpinBox();
 
     ResourcePool<Node>::Instance().Recycle(node);
     node_hash_.remove(node_id);

@@ -994,8 +994,11 @@ void MainWindow::RemoveBranch(PTreeModel tree_model, const QModelIndex& index, i
     msg.setInformativeText(tr("The branch will be removed, and its direct children will be promoted to the same level."));
     msg.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
 
-    if (msg.exec() == QMessageBox::Ok)
+    if (msg.exec() == QMessageBox::Ok) {
         tree_model->RemoveNode(index.row(), index.parent());
+        data_->sql->RemoveNode(node_id, kTypeBranch);
+        tree_widget_->RUpdateDSpinBox();
+    }
 }
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)

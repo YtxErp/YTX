@@ -54,7 +54,8 @@ private:
     CInfo& info_ {};
     CSettings& settings_ {};
 
-    bool equal_unit { false };
+    bool dynamic_unit_is_not_default_but_equal_ { false };
+    bool static_unit_is_default_ { false };
 };
 
 #endif // TREEWIDGETFPT_H

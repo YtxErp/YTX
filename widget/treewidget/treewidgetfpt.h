@@ -20,6 +20,8 @@
 #ifndef TREEWIDGETFPT_H
 #define TREEWIDGETFPT_H
 
+#include <QDoubleSpinBox>
+
 #include "component/info.h"
 #include "component/settings.h"
 #include "treewidget.h"
@@ -32,7 +34,7 @@ class TreeWidgetFPT final : public TreeWidget {
     Q_OBJECT
 
 public slots:
-    void RUpdateDSpinBox() override;
+    void RUpdateStatusValue() override;
 
 public:
     TreeWidgetFPT(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
@@ -40,12 +42,16 @@ public:
 
     QPointer<QTreeView> View() const override;
     QPointer<TreeModel> Model() const override { return model_; };
-    void SetStatus() override;
+    void UpdateStatus() override;
 
 private:
-    void DynamicStatus(int lhs_node_id, int rhs_node_id);
-    void StaticStatus(int node_id);
+    void UpdateStaticStatus();
+    void UpdateDynamicStatus();
+
+    void UpdateDynamicValue(int lhs_node_id, int rhs_node_id);
+    void UpdateStaticValue(int node_id);
     double Operate(double lhs, double rhs, const QString& operation);
+    void ResetStatus(QDoubleSpinBox* spin_box, bool& flags);
 
 private:
     Ui::TreeWidgetFPT* ui;

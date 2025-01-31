@@ -43,7 +43,7 @@ void TreeModelTask::RUpdateLeafValue(
     sql_->UpdateNodeValue(node);
     TreeModelUtils::UpdateAncestorValueFPT(root_, node, initial_diff, final_diff);
 
-    emit SUpdateDSpinBox();
+    emit SUpdateStatusValue();
 }
 
 void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
@@ -72,7 +72,7 @@ void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
         TreeModelUtils::UpdateAncestorValueFPT(root_, node, initial_diff, final_diff);
     }
 
-    emit SUpdateDSpinBox();
+    emit SUpdateStatusValue();
 }
 
 QVariant TreeModelTask::data(const QModelIndex& index, int role) const
@@ -364,7 +364,7 @@ bool TreeModelTask::RemoveNode(int row, const QModelIndex& parent)
 
     emit SSearch();
     emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
-    emit SUpdateDSpinBox();
+    emit SUpdateStatusValue();
 
     ResourcePool<Node>::Instance().Recycle(node);
     node_hash_.remove(node_id);

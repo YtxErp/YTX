@@ -30,12 +30,12 @@ class TreeWidget : public QWidget {
     Q_OBJECT
 
 public slots:
-    virtual void RUpdateDSpinBox() { };
+    virtual void RUpdateStatusValue() { };
 
 public:
     virtual ~TreeWidget() = default;
 
-    virtual void SetStatus() { };
+    virtual void UpdateStatus() { };
     virtual QPointer<QTreeView> View() const = 0;
     virtual QPointer<TreeModel> Model() const = 0;
 

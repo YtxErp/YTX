@@ -49,7 +49,7 @@ signals:
 
     // send to Mainwindow
     void SUpdateName(int node_id, const QString& name, bool branch);
-    void SUpdateDSpinBox();
+    void SUpdateStatusValue();
 
 public slots:
     // receive from Sqlite

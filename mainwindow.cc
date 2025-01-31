@@ -729,7 +729,7 @@ void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
 
     connect(model, &TreeModel::SUpdateName, this, &MainWindow::RUpdateName);
 
-    connect(model, &TreeModel::SUpdateDSpinBox, tree_widget, &TreeWidget::RUpdateDSpinBox);
+    connect(model, &TreeModel::SUpdateStatusValue, tree_widget, &TreeWidget::RUpdateStatusValue);
 
     connect(model, &TreeModel::SResizeColumnToContents, view, &QTreeView::resizeColumnToContents);
 
@@ -997,7 +997,7 @@ void MainWindow::RemoveBranch(PTreeModel tree_model, const QModelIndex& index, i
     if (msg.exec() == QMessageBox::Ok) {
         tree_model->RemoveNode(index.row(), index.parent());
         data_->sql->RemoveNode(node_id, kTypeBranch);
-        tree_widget_->RUpdateDSpinBox();
+        tree_widget_->RUpdateStatusValue();
     }
 }
 
@@ -1837,7 +1837,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
         if (update_default_unit)
             tree_widget_->Model()->UpdateDefaultUnit(settings.default_unit);
 
-        tree_widget_->SetStatus();
+        tree_widget_->UpdateStatus();
         sql_.UpdateSettings(settings, start_);
     }
 

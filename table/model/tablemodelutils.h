@@ -29,29 +29,48 @@
 class TableModelUtils {
 public:
     template <typename T>
-    static bool UpdateField(Sqlite* sql, TransShadow* trans_shadow, CString& table, const T& value, CString& field, T* TransShadow::* member,
+    static bool UpdateField(Sqlite* sql, TransShadow* trans_shadow, CString& table, CString& field, const T& value, T* TransShadow::* member,
         const std::function<void()>& action = {})
     {
-        assert(sql && "Sqlite pointer is null");
-        assert(trans_shadow && "TransShadow pointer is null");
-        assert(member && "Member pointer is null");
+        if (!sql || !trans_shadow || !member) {
+            qWarning() << "Invalid input parameters: Sqlite, TransShadow or Member pointer is null.";
+            return false;
+        }
 
         T*& member_ptr { std::invoke(member, trans_shadow) };
 
-        assert(member_ptr && "Member pointer must not be null");
+        if (!member_ptr) {
+            qWarning() << "Member pointer must not be null.";
+            return false;
+        }
 
+        // Skip if value is the same as current value
         if (*member_ptr == value)
             return false;
 
         *member_ptr = value;
-        assert(trans_shadow->rhs_node && "Rhs_node pointer is null");
 
-        if (*trans_shadow->rhs_node == 0)
+        // If lhs_node or rhs_node is invalid, skip updating the database
+        if (!trans_shadow->lhs_node || !trans_shadow->rhs_node || *trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0) {
+            return true; // Return without updating SQLite
+        }
+
+        try {
+            sql->UpdateField(table, value, field, *trans_shadow->id);
+        } catch (const std::exception& e) {
+            qWarning() << "Failed to update SQLite: " << e.what();
             return false;
+        }
 
-        sql->UpdateField(table, value, field, *trans_shadow->id);
-        if (action)
-            action();
+        // Execute additional action if provided
+        if (action) {
+            try {
+                action();
+            } catch (const std::exception& e) {
+                qWarning() << "Failed to execute action: " << e.what();
+                return false;
+            }
+        }
 
         return true;
     }

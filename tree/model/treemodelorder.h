@@ -34,11 +34,10 @@ public:
 
 signals:
     void SUpdateData(int node_id, TreeEnumOrder column, const QVariant& value);
+    void SUpdateLeafValueOne(int node_id, double diff, const QString& node_field);
 
 public slots:
-    void RUpdateLeafValueOne(int node_id, double diff, const QString& node_field) override; // first
-    void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff) override;
-
+    void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff) override;
     void RUpdateStakeholder(int old_node_id, int new_node_id) override;
     void RUpdateFinished(int node_id, bool checked);
 

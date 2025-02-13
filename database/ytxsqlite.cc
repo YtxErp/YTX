@@ -99,13 +99,13 @@ void YtxSqlite::NewFile(CString& file_path)
     QString stakeholder_path = Path(kStakeholderPath);
     QString stakeholder_trans = TransStakeholder();
 
-    QString purchase = NodePurchase();
+    QString purchase = NodeOrder(kPurchase);
     QString purchase_path = Path(kPurchasePath);
-    QString purchase_trans = TransPurchase();
+    QString purchase_trans = TransOrder(kPurchaseTrans);
 
-    QString sales = NodeSales();
+    QString sales = NodeOrder(kSales);
     QString sales_path = Path(kSalesPath);
-    QString sales_trans = TransSales();
+    QString sales_trans = TransOrder(kSalesTrans);
 
     QString settings = QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS settings (
@@ -170,8 +170,8 @@ QString YtxSqlite::NodeFinance()
         rule             BOOLEAN    DEFAULT 0,
         type             INTEGER,
         unit             INTEGER,
-        initial_total    NUMERIC,
-        final_total      NUMERIC,
+        foreign_total    NUMERIC,
+        local_total      NUMERIC,
         removed          BOOLEAN    DEFAULT 0
     );
     )");
@@ -193,6 +193,7 @@ QString YtxSqlite::NodeStakeholder()
         employee          INTEGER,
         payment_term      INTEGER,
         tax_rate          NUMERIC,
+        amount            NUMERIC,
         removed           BOOLEAN    DEFAULT 0
     );
     )");
@@ -244,15 +245,13 @@ QString YtxSqlite::NodeTask()
     )");
 }
 
-QString YtxSqlite::NodeSales()
+QString YtxSqlite::NodeOrder(CString& order)
 {
     return QStringLiteral(R"(
-    CREATE TABLE IF NOT EXISTS sales (
+    CREATE TABLE IF NOT EXISTS %1 (
         id                INTEGER PRIMARY KEY AUTOINCREMENT,
         name              TEXT,
-        code              TEXT,
         description       TEXT,
-        note              TEXT,
         rule              BOOLEAN    DEFAULT 0,
         type              INTEGER,
         unit              INTEGER,
@@ -263,37 +262,12 @@ QString YtxSqlite::NodeSales()
         second            NUMERIC,
         discount          NUMERIC,
         finished          BOOLEAN    DEFAULT 0,
-        amount            NUMERIC,
-        settled           NUMERIC,
+        gross_amount      NUMERIC,
+        net_amount        NUMERIC,
         removed           BOOLEAN    DEFAULT 0
     );
-    )");
-}
-
-QString YtxSqlite::NodePurchase()
-{
-    return QStringLiteral(R"(
-    CREATE TABLE IF NOT EXISTS purchase (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
-        name              TEXT,
-        code              TEXT,
-        description       TEXT,
-        note              TEXT,
-        rule              BOOLEAN    DEFAULT 0,
-        type              INTEGER,
-        unit              INTEGER,
-        party             INTEGER,
-        employee          INTEGER,
-        date_time         TEXT,
-        first             NUMERIC,
-        second            NUMERIC,
-        discount          NUMERIC,
-        finished          BOOLEAN    DEFAULT 0,
-        amount            NUMERIC,
-        settled           NUMERIC,
-        removed           BOOLEAN    DEFAULT 0
-    );
-    )");
+    )")
+        .arg(order);
 }
 
 QString YtxSqlite::Path(CString& table_name)
@@ -332,10 +306,10 @@ QString YtxSqlite::TransFinance()
     )");
 }
 
-QString YtxSqlite::TransSales()
+QString YtxSqlite::TransOrder(CString& order)
 {
     return QStringLiteral(R"(
-    CREATE TABLE IF NOT EXISTS sales_transaction (
+    CREATE TABLE IF NOT EXISTS %1 (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
         code                TEXT,
         inside_product      INTEGER,
@@ -345,35 +319,14 @@ QString YtxSqlite::TransSales()
         unit_price          NUMERIC,
         lhs_node            INTEGER,
         discount_price      NUMERIC,
-        amount              NUMERIC,
+        gross_amount        NUMERIC,
         discount            NUMERIC,
-        settled             NUMERIC,
+        net_amount          NUMERIC,
         outside_product     INTEGER,
         removed             BOOLEAN    DEFAULT 0
     );
-    )");
-}
-
-QString YtxSqlite::TransPurchase()
-{
-    return QStringLiteral(R"(
-    CREATE TABLE IF NOT EXISTS purchase_transaction (
-        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-        code                TEXT,
-        inside_product      INTEGER,
-        first               NUMERIC,
-        second              NUMERIC,
-        description         TEXT,
-        unit_price          NUMERIC,
-        lhs_node            INTEGER,
-        discount_price      NUMERIC,
-        amount              NUMERIC,
-        discount            NUMERIC,
-        settled             NUMERIC,
-        outside_product     INTEGER,
-        removed             BOOLEAN    DEFAULT 0
-    );
-    )");
+    )")
+        .arg(order);
 }
 
 QString YtxSqlite::TransStakeholder()

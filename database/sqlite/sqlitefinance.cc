@@ -30,8 +30,8 @@ void SqliteFinance::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->rule = query.value(QStringLiteral("rule")).toBool();
     node->type = query.value(QStringLiteral("type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
-    node->initial_total = query.value(QStringLiteral("initial_total")).toDouble();
-    node->final_total = query.value(QStringLiteral("final_total")).toDouble();
+    node->initial_total = query.value(QStringLiteral("foreign_total")).toDouble();
+    node->final_total = query.value(QStringLiteral("local_total")).toDouble();
 }
 
 void SqliteFinance::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
@@ -88,7 +88,7 @@ void SqliteFinance::UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QS
 QString SqliteFinance::QSReadNode() const
 {
     return QStringLiteral(R"(
-    SELECT name, id, code, description, note, rule, type, unit, initial_total, final_total
+    SELECT name, id, code, description, note, rule, type, unit, foreign_total, local_total
     FROM finance
     WHERE removed = 0
     )");
@@ -271,15 +271,15 @@ QString SqliteFinance::QSUpdateNodeValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE finance SET
-        initial_total = :initial_total, final_total = :final_total
+        foreign_total = :foreign_total, local_total = :local_total
     WHERE id = :node_id
     )");
 }
 
 void SqliteFinance::UpdateNodeValueBindFPTO(const Node* node, QSqlQuery& query) const
 {
-    query.bindValue(":initial_total", node->initial_total);
-    query.bindValue(":final_total", node->final_total);
+    query.bindValue(":foreign_total", node->initial_total);
+    query.bindValue(":local_total", node->final_total);
     query.bindValue(":node_id", node->id);
 }
 

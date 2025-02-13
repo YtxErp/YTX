@@ -226,28 +226,28 @@ Qt::ItemFlags TreeModelTask::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
+
     const TreeEnumTask kColumn { index.column() };
-
-    const bool finished { index.siblingAtColumn(std::to_underlying(TreeEnumTask::kFinished)).data().toBool() };
-    if (!finished)
-        flags |= Qt::ItemIsEditable;
-
     switch (kColumn) {
     case TreeEnumTask::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
-        flags &= ~Qt::ItemIsEditable;
         break;
-    case TreeEnumTask::kQuantity:
-    case TreeEnumTask::kAmount:
-    case TreeEnumTask::kFinished:
-    case TreeEnumTask::kColor:
-    case TreeEnumTask::kUnitCost:
-    case TreeEnumTask::kDocument:
-        flags &= ~Qt::ItemIsEditable;
+    case TreeEnumTask::kDescription:
+    case TreeEnumTask::kCode:
+    case TreeEnumTask::kNote:
+    case TreeEnumTask::kType:
+    case TreeEnumTask::kRule:
+    case TreeEnumTask::kUnit:
+    case TreeEnumTask::kDateTime:
+        flags |= Qt::ItemIsEditable;
         break;
     default:
         break;
     }
+
+    const bool finished { index.siblingAtColumn(std::to_underlying(TreeEnumTask::kFinished)).data().toBool() };
+    if (finished)
+        flags &= ~Qt::ItemIsEditable;
 
     return flags;
 }

@@ -165,7 +165,6 @@ inline void Node::Reset()
 
 struct NodeShadow {
     void Reset();
-    void Set(Node* node);
 
     QString* name {};
     int* id {};
@@ -215,34 +214,6 @@ inline void NodeShadow::Reset()
 
     final_total = nullptr;
     initial_total = nullptr;
-}
-
-inline void NodeShadow::Set(Node* node)
-{
-    if (node) {
-        name = &node->name;
-        id = &node->id;
-        code = &node->code;
-        description = &node->description;
-        note = &node->note;
-        rule = &node->rule;
-        type = &node->type;
-        unit = &node->unit;
-
-        first = &node->first;
-        second = &node->second;
-        discount = &node->discount;
-        finished = &node->finished;
-
-        date_time = &node->date_time;
-        color = &node->color;
-        document = &node->document;
-        employee = &node->employee;
-        party = &node->party;
-
-        final_total = &node->final_total;
-        initial_total = &node->initial_total;
-    }
 }
 
 using NodeHash = QHash<int, Node*>;

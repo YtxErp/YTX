@@ -118,7 +118,7 @@ void TreeModel::SetNodeShadowOrder(NodeShadow* node_shadow, int node_id) const
 
     auto it { node_hash_.constFind(node_id) };
     if (it != node_hash_.constEnd() && it.value())
-        node_shadow->Set(it.value());
+        SetNodeShadowOrder(node_shadow, it.value());
 }
 
 void TreeModel::SetNodeShadowOrder(NodeShadow* node_shadow, Node* node) const
@@ -126,7 +126,28 @@ void TreeModel::SetNodeShadowOrder(NodeShadow* node_shadow, Node* node) const
     if (!node_shadow || !node)
         return;
 
-    node_shadow->Set(node);
+    node_shadow->name = &node->name;
+    node_shadow->id = &node->id;
+    node_shadow->code = &node->code;
+    node_shadow->description = &node->description;
+    node_shadow->note = &node->note;
+    node_shadow->rule = &node->rule;
+    node_shadow->type = &node->type;
+    node_shadow->unit = &node->unit;
+
+    node_shadow->first = &node->first;
+    node_shadow->second = &node->second;
+    node_shadow->discount = &node->discount;
+    node_shadow->finished = &node->finished;
+
+    node_shadow->date_time = &node->date_time;
+    node_shadow->color = &node->color;
+    node_shadow->document = &node->document;
+    node_shadow->employee = &node->employee;
+    node_shadow->party = &node->party;
+
+    node_shadow->final_total = &node->final_total;
+    node_shadow->initial_total = &node->initial_total;
 }
 
 void TreeModel::UpdateSeparatorFPTS(CString& old_separator, CString& new_separator)

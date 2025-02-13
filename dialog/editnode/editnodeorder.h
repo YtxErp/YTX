@@ -42,10 +42,11 @@ signals:
     void SUpdateFinished(int node_id, bool checked);
     void SUpdateParty(int node_id, int party_id);
 
+    void SUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
+
 public slots:
     void accept() override;
-    void RUpdateLeafValueOne(int node_id, double diff); // first
-    void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff);
+    void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
     void RUpdateData(int node_id, TreeEnumOrder column, const QVariant& value);
 
 public:
@@ -63,7 +64,7 @@ private slots:
     void on_rBtnMonthly_toggled(bool checked);
     void on_rBtnPending_toggled(bool checked);
 
-    void on_pBtnInsertParty_clicked();
+    void on_pBtnInsert_clicked();
     void on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time);
     void on_lineDescription_editingFinished();
 

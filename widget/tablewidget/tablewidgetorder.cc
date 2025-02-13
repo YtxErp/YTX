@@ -65,11 +65,6 @@ void TableWidgetOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVar
     case TreeEnumOrder::kUnit:
         IniUnit(value.toInt());
         break;
-    case TreeEnumOrder::kParty: {
-        int party_index { ui->comboParty->findData(value.toInt()) };
-        ui->comboParty->setCurrentIndex(party_index);
-        break;
-    }
     case TreeEnumOrder::kEmployee: {
         int employee_index { ui->comboEmployee->findData(value.toInt()) };
         ui->comboEmployee->setCurrentIndex(employee_index);
@@ -90,6 +85,7 @@ void TableWidgetOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVar
             ui->pBtnPrint->setDefault(true);
             ui->tableViewOrder->clearSelection();
         }
+
         break;
     }
     default:
@@ -97,15 +93,27 @@ void TableWidgetOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVar
     }
 }
 
-void TableWidgetOrder::RUpdateLeafValueOne(int /*node_id*/, double diff) { ui->dSpinFirst->setValue(ui->dSpinFirst->value() + diff); }
-
-void TableWidgetOrder::RUpdateLeafValue(int /*node_id*/, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff)
+void TableWidgetOrder::RUpdateLeafValue(
+    int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff)
 {
-    ui->dSpinFirst->setValue(ui->dSpinFirst->value() + first_diff);
-    ui->dSpinSecond->setValue(ui->dSpinSecond->value() + second_diff);
-    ui->dSpinAmount->setValue(ui->dSpinAmount->value() + amount_diff);
-    ui->dSpinDiscount->setValue(ui->dSpinDiscount->value() + discount_diff);
-    ui->dSpinSettled->setValue(ui->dSpinSettled->value() + (*node_shadow_->unit == kUnitIM ? settled_diff : 0.0));
+    if (node_id_ != node_id)
+        return;
+
+    const double adjusted_net_amount_diff { *node_shadow_->unit == kUnitIM ? net_amount_diff : 0.0 };
+
+    *node_shadow_->first += first_diff;
+    *node_shadow_->second += second_diff;
+    *node_shadow_->initial_total += gross_amount_diff;
+    *node_shadow_->discount += discount_diff;
+    *node_shadow_->final_total += adjusted_net_amount_diff;
+
+    ui->dSpinFirst->setValue(*node_shadow_->first);
+    ui->dSpinSecond->setValue(*node_shadow_->second);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinDiscount->setValue(*node_shadow_->discount);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+
+    emit SUpdateLeafValue(node_id_, first_diff, second_diff, gross_amount_diff, discount_diff, adjusted_net_amount_diff);
 }
 
 void TableWidgetOrder::IniDialog()
@@ -120,26 +128,26 @@ void TableWidgetOrder::IniDialog()
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
 
-    ui->dSpinDiscount->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinAmount->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinSettled->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinSecond->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinFirst->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+    ui->dSpinDiscount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinGrossAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinNetAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinSecond->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinFirst->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
 
     ui->dSpinDiscount->setDecimals(settings_->amount_decimal);
-    ui->dSpinAmount->setDecimals(settings_->amount_decimal);
-    ui->dSpinSettled->setDecimals(settings_->amount_decimal);
+    ui->dSpinGrossAmount->setDecimals(settings_->amount_decimal);
+    ui->dSpinNetAmount->setDecimals(settings_->amount_decimal);
     ui->dSpinSecond->setDecimals(settings_->common_decimal);
     ui->dSpinFirst->setDecimals(settings_->common_decimal);
 }
 
 void TableWidgetOrder::IniData()
 {
-    ui->dSpinSettled->setValue(*node_shadow_->final_total);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
     ui->dSpinDiscount->setValue(*node_shadow_->discount);
     ui->dSpinFirst->setValue(*node_shadow_->first);
     ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
 
     ui->chkBoxRefund->setChecked(*node_shadow_->rule);
     ui->chkBoxBranch->setChecked(false);
@@ -172,12 +180,12 @@ void TableWidgetOrder::LockWidgets(bool finished)
     ui->labelParty->setEnabled(enable);
     ui->comboParty->setEnabled(enable);
 
-    ui->pBtnInsertParty->setEnabled(enable);
+    ui->pBtnInsert->setEnabled(enable);
 
-    ui->labelSettled->setEnabled(enable);
-    ui->dSpinSettled->setEnabled(enable);
+    ui->labelNetAmount->setEnabled(enable);
+    ui->dSpinNetAmount->setEnabled(enable);
 
-    ui->dSpinAmount->setEnabled(enable);
+    ui->dSpinGrossAmount->setEnabled(enable);
 
     ui->labelDiscount->setEnabled(enable);
     ui->dSpinDiscount->setEnabled(enable);
@@ -242,7 +250,25 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 void TableWidgetOrder::on_chkBoxRefund_toggled(bool checked)
 {
     *node_shadow_->rule = checked;
+
+    *node_shadow_->first *= -1;
+    *node_shadow_->second *= -1;
+    *node_shadow_->initial_total *= -1;
+    *node_shadow_->discount *= -1;
+    *node_shadow_->final_total *= -1;
+
+    ui->dSpinFirst->setValue(*node_shadow_->first);
+    ui->dSpinSecond->setValue(*node_shadow_->second);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinDiscount->setValue(*node_shadow_->discount);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+
     sql_->UpdateField(info_node_, checked, kRule, node_id_);
+    sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
+    sql_->UpdateField(info_node_, *node_shadow_->initial_total, kGrossAmount, node_id_);
+    sql_->UpdateField(info_node_, *node_shadow_->first, kFirst, node_id_);
+    sql_->UpdateField(info_node_, *node_shadow_->second, kSecond, node_id_);
+    sql_->UpdateField(info_node_, *node_shadow_->discount, kDiscount, node_id_);
 }
 
 void TableWidgetOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
@@ -257,12 +283,12 @@ void TableWidgetOrder::on_rBtnCash_toggled(bool checked)
         return;
 
     *node_shadow_->unit = kUnitIM;
-
     *node_shadow_->final_total = *node_shadow_->initial_total - *node_shadow_->discount;
-    ui->dSpinSettled->setValue(*node_shadow_->final_total);
+
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
 
     sql_->UpdateField(info_node_, kUnitIM, kUnit, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->final_total, kSettled, node_id_);
+    sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
@@ -271,12 +297,12 @@ void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
         return;
 
     *node_shadow_->unit = kUnitMS;
-
     *node_shadow_->final_total = 0.0;
-    ui->dSpinSettled->setValue(0.0);
+
+    ui->dSpinNetAmount->setValue(0.0);
 
     sql_->UpdateField(info_node_, kUnitMS, kUnit, node_id_);
-    sql_->UpdateField(info_node_, 0.0, kSettled, node_id_);
+    sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnPending_toggled(bool checked)
@@ -285,15 +311,15 @@ void TableWidgetOrder::on_rBtnPending_toggled(bool checked)
         return;
 
     *node_shadow_->unit = kUnitPEND;
-
     *node_shadow_->final_total = 0.0;
-    ui->dSpinSettled->setValue(0.0);
+
+    ui->dSpinNetAmount->setValue(0.0);
 
     sql_->UpdateField(info_node_, kUnitPEND, kUnit, node_id_);
-    sql_->UpdateField(info_node_, 0.0, kSettled, node_id_);
+    sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
 }
 
-void TableWidgetOrder::on_pBtnInsertParty_clicked()
+void TableWidgetOrder::on_pBtnInsert_clicked()
 {
     const auto& name { ui->comboParty->currentText() };
     if (name.isEmpty() || ui->comboParty->currentIndex() != -1)

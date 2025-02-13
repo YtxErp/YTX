@@ -71,20 +71,19 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
 
     switch (kColumn) {
     case TableEnumTask::kDateTime:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kDateTime, &TransShadow::date_time);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDateTime, value.toString(), &TransShadow::date_time);
         break;
     case TableEnumTask::kCode:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kCode, &TransShadow::code);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
     case TableEnumTask::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toBool(), kState, &TransShadow::state);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
     case TableEnumTask::kDescription:
-        TableModelUtils::UpdateField(
-            sql_, trans_shadow, info_.trans, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
         break;
     case TableEnumTask::kSupportID:
-        sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toInt(), kSupportID, &TransShadow::support_id);
+        sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kSupportID, value.toInt(), &TransShadow::support_id);
         break;
     case TableEnumTask::kUnitCost:
         rat_changed = UpdateRatio(trans_shadow, value.toDouble());

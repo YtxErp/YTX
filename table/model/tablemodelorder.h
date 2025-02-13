@@ -47,29 +47,6 @@ public:
     bool removeRows(int row, int, const QModelIndex& parent = QModelIndex()) override;
 
 private:
-    template <typename T>
-    bool UpdateField(TransShadow* trans_shadow, const T& value, CString& field, T* TransShadow::* member, const std::function<void()>& action = {}) const
-    {
-        if (trans_shadow == nullptr || trans_shadow->*member == nullptr || *(trans_shadow->*member) == value)
-            return false;
-
-        *(trans_shadow->*member) = value;
-
-        if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
-            return false;
-
-        try {
-            sql_->UpdateField(info_.trans, value, field, *trans_shadow->id);
-            if (action)
-                action();
-        } catch (const std::exception& e) {
-            qWarning() << "Failed in UpdateField" << e.what();
-            return false;
-        }
-
-        return true;
-    }
-
     bool UpdateInsideProduct(TransShadow* trans_shadow, int value);
     bool UpdateOutsideProduct(TransShadow* trans_shadow, int value);
 

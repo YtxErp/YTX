@@ -9,8 +9,6 @@
 
 SqliteOrder::SqliteOrder(CInfo& info, QObject* parent)
     : Sqlite(info, parent)
-    , node_ { info.node }
-    , trans_ { info.trans }
 {
 }
 
@@ -145,20 +143,20 @@ void SqliteOrder::RRemoveNode(int node_id, int /*node_type*/)
 QString SqliteOrder::QSReadNode() const
 {
     return QStringLiteral(R"(
-    SELECT name, id, code, description, note, rule, type, unit, party, employee, date_time, first, second, discount, finished, amount, settled
+    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
     FROM %1
     WHERE ((DATE(date_time) BETWEEN :start_date AND :end_date) OR type = 1) AND removed = 0
     )")
-        .arg(node_);
+        .arg(info_.node);
 }
 
 QString SqliteOrder::QSWriteNode() const
 {
     return QStringLiteral(R"(
-    INSERT INTO %1 (name, code, description, note, rule, type, unit, party, employee, date_time, first, second, discount, finished, amount, settled)
-    VALUES (:name, :code, :description, :note, :rule, :type, :unit, :party, :employee, :date_time, :first, :second, :discount, :finished, :amount, :settled)
+    INSERT INTO %1 (name, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount)
+    VALUES (:name, :description, :rule, :type, :unit, :party, :employee, :date_time, :first, :second, :discount, :finished, :gross_amount, :net_amount)
     )")
-        .arg(node_);
+        .arg(info_.node);
 }
 
 QString SqliteOrder::QSRemoveNodeSecond() const
@@ -168,7 +166,7 @@ QString SqliteOrder::QSRemoveNodeSecond() const
         removed = 1
     WHERE lhs_node = :node_id
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSInternalReference() const
@@ -177,26 +175,26 @@ QString SqliteOrder::QSInternalReference() const
     SELECT COUNT(*) FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSReadNodeTrans() const
 {
     return QStringLiteral(R"(
-    SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, amount, discount, settled, outside_product, discount_price
+    SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
     FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSWriteNodeTrans() const
 {
     return QStringLiteral(R"(
-    INSERT INTO %1 (code, inside_product, unit_price, second, description, lhs_node, first, amount, discount, settled, outside_product, discount_price)
-    VALUES (:code, :inside_product, :unit_price, :second, :description, :lhs_node, :first, :amount, :discount, :settled, :outside_product, :discount_price)
+    INSERT INTO %1 (code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price)
+    VALUES (:code, :inside_product, :unit_price, :second, :description, :lhs_node, :first, :gross_amount, :discount, :net_amount, :outside_product, :discount_price)
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSUpdateProductReferenceSO() const
@@ -206,7 +204,7 @@ QString SqliteOrder::QSUpdateProductReferenceSO() const
         inside_product = :new_node_id
     WHERE inside_product = :old_node_id
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSUpdateStakeholderReferenceO() const
@@ -227,27 +225,27 @@ QString SqliteOrder::QSUpdateStakeholderReferenceO() const
 
     COMMIT;
     )")
-        .arg(node_, trans_);
+        .arg(info_.node, info_.trans);
 }
 
 QString SqliteOrder::QSSearchTrans() const
 {
     return QStringLiteral(R"(
-    SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, amount, discount, settled, outside_product, discount_price
+    SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
     FROM %1
     WHERE (first = :text OR second = :text OR description LIKE :description) AND removed = 0
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSUpdateTransValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE %1 SET
-        second = :second, amount = :amount, discount = :discount, settled = :settled
+        second = :second, gross_amount = :gross_amount, discount = :discount, net_amount = :net_amount
     WHERE id = :trans_id
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::QSNodeTransToRemove() const
@@ -256,17 +254,17 @@ QString SqliteOrder::QSNodeTransToRemove() const
     SELECT lhs_node, id FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
-        .arg(trans_);
+        .arg(info_.trans);
 }
 
 QString SqliteOrder::SearchNodeQS(CString& in_list) const
 {
     return QStringLiteral(R"(
-    SELECT name, id, code, description, note, rule, type, unit, party, employee, date_time, first, second, discount, finished, amount, settled
+    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
     FROM %1
     WHERE party IN (%2) AND removed = 0
     )")
-        .arg(node_, in_list);
+        .arg(info_.node, in_list);
 }
 
 void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
@@ -278,9 +276,9 @@ void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) co
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":first"), *trans_shadow->lhs_debit);
-    query.bindValue(QStringLiteral(":amount"), *trans_shadow->rhs_credit);
+    query.bindValue(QStringLiteral(":gross_amount"), *trans_shadow->rhs_credit);
     query.bindValue(QStringLiteral(":discount"), *trans_shadow->rhs_debit);
-    query.bindValue(QStringLiteral(":settled"), *trans_shadow->settled);
+    query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->net_amount);
     query.bindValue(QStringLiteral(":outside_product"), *trans_shadow->support_id);
     query.bindValue(QStringLiteral(":discount_price"), *trans_shadow->discount_price);
 }
@@ -294,8 +292,8 @@ void SqliteOrder::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
     trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
-    trans->rhs_credit = query.value(QStringLiteral("amount")).toDouble();
-    trans->settled = query.value(QStringLiteral("settled")).toDouble();
+    trans->rhs_credit = query.value(QStringLiteral("gross_amount")).toDouble();
+    trans->net_amount = query.value(QStringLiteral("net_amount")).toDouble();
     trans->rhs_debit = query.value(QStringLiteral("discount")).toDouble();
     trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
     trans->discount_price = query.value(QStringLiteral("discount_price")).toDouble();
@@ -347,9 +345,9 @@ void SqliteOrder::UpdateStakeholderReferenceO(int old_node_id, int new_node_id) 
 void SqliteOrder::UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":second"), *trans_shadow->lhs_credit);
-    query.bindValue(QStringLiteral(":amount"), *trans_shadow->rhs_credit);
+    query.bindValue(QStringLiteral(":gross_amount"), *trans_shadow->rhs_credit);
     query.bindValue(QStringLiteral(":discount"), *trans_shadow->rhs_debit);
-    query.bindValue(QStringLiteral(":settled"), *trans_shadow->settled);
+    query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->net_amount);
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
@@ -357,18 +355,19 @@ QString SqliteOrder::QSUpdateNodeValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE %1 SET
-        amount = :amount, settled = :settled, second = :second, discount = :discount
+        gross_amount = :gross_amount, net_amount = :net_amount, second = :second, discount = :discount, first = :first
     WHERE id = :node_id
     )")
-        .arg(node_);
+        .arg(info_.node);
 }
 
 void SqliteOrder::UpdateNodeValueBindFPTO(const Node* node, QSqlQuery& query) const
 {
-    query.bindValue(QStringLiteral(":amount"), node->initial_total);
+    query.bindValue(QStringLiteral(":gross_amount"), node->initial_total);
     query.bindValue(QStringLiteral(":second"), node->second);
+    query.bindValue(QStringLiteral(":first"), node->first);
     query.bindValue(QStringLiteral(":discount"), node->discount);
-    query.bindValue(QStringLiteral(":settled"), node->final_total);
+    query.bindValue(QStringLiteral(":net_amount"), node->final_total);
     query.bindValue(QStringLiteral(":node_id"), node->id);
 }
 
@@ -376,9 +375,7 @@ void SqliteOrder::ReadNodeQuery(Node* node, const QSqlQuery& query) const
 {
     node->id = query.value(QStringLiteral("id")).toInt();
     node->name = query.value(QStringLiteral("name")).toString();
-    node->code = query.value(QStringLiteral("code")).toString();
     node->description = query.value(QStringLiteral("description")).toString();
-    node->note = query.value(QStringLiteral("note")).toString();
     node->rule = query.value(QStringLiteral("rule")).toBool();
     node->type = query.value(QStringLiteral("type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
@@ -389,16 +386,14 @@ void SqliteOrder::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->second = query.value(QStringLiteral("second")).toDouble();
     node->discount = query.value(QStringLiteral("discount")).toDouble();
     node->finished = query.value(QStringLiteral("finished")).toBool();
-    node->initial_total = query.value(QStringLiteral("amount")).toDouble();
-    node->final_total = query.value(QStringLiteral("settled")).toDouble();
+    node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
+    node->final_total = query.value(QStringLiteral("net_amount")).toDouble();
 }
 
 void SqliteOrder::WriteNodeBind(Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":name"), node->name);
-    query.bindValue(QStringLiteral(":code"), node->code);
     query.bindValue(QStringLiteral(":description"), node->description);
-    query.bindValue(QStringLiteral(":note"), node->note);
     query.bindValue(QStringLiteral(":rule"), node->rule);
     query.bindValue(QStringLiteral(":type"), node->type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
@@ -409,6 +404,6 @@ void SqliteOrder::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":second"), node->second);
     query.bindValue(QStringLiteral(":discount"), node->discount);
     query.bindValue(QStringLiteral(":finished"), node->finished);
-    query.bindValue(QStringLiteral(":amount"), node->initial_total);
-    query.bindValue(QStringLiteral(":settled"), node->final_total);
+    query.bindValue(QStringLiteral(":gross_amount"), node->initial_total);
+    query.bindValue(QStringLiteral(":net_amount"), node->final_total);
 }

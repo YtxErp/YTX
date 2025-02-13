@@ -69,8 +69,6 @@ private:
     QString SearchNodeQS(CString& in_list) const;
 
 private:
-    CString& node_;
-    CString& trans_;
     NodeHash node_hash_buffer_ {};
 };
 

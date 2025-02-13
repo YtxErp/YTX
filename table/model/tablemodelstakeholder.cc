@@ -136,26 +136,25 @@ bool TableModelStakeholder::setData(const QModelIndex& index, const QVariant& va
 
     switch (kColumn) {
     case TableEnumStakeholder::kDateTime:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kDateTime, &TransShadow::date_time);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDateTime, value.toString(), &TransShadow::date_time);
         break;
     case TableEnumStakeholder::kCode:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kCode, &TransShadow::code);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
     case TableEnumStakeholder::kInsideProduct:
         rhs_changed = UpdateInsideProduct(trans_shadow, value.toInt());
         break;
     case TableEnumStakeholder::kUnitPrice:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toDouble(), kUnitPrice, &TransShadow::unit_price);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kUnitPrice, value.toDouble(), &TransShadow::unit_price);
         break;
     case TableEnumStakeholder::kDescription:
-        TableModelUtils::UpdateField(
-            sql_, trans_shadow, info_.trans, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
         break;
     case TableEnumStakeholder::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toBool(), kState, &TransShadow::state);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
     case TableEnumStakeholder::kOutsideProduct:
-        hel_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toInt(), kOutsideProduct, &TransShadow::support_id);
+        hel_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kOutsideProduct, value.toInt(), &TransShadow::support_id);
         break;
     default:
         return false;

@@ -12,34 +12,34 @@ TreeModelFinance::TreeModelFinance(Sqlite* sql, CInfo& info, int default_unit, C
 TreeModelFinance::~TreeModelFinance() { qDeleteAll(node_hash_); }
 
 void TreeModelFinance::RUpdateLeafValue(
-    int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double /*settled_diff*/)
+    int node_id, double foreign_debit_diff, double foreign_credit_diff, double local_debit_diff, double local_credit_diff, double /*settled_diff*/)
 {
     auto* node { TreeModelUtils::GetNodeByID(node_hash_, node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
-    if (initial_credit_diff == 0 && initial_debit_diff == 0 && final_debit_diff == 0 && final_credit_diff == 0)
+    if (foreign_credit_diff == 0 && foreign_debit_diff == 0 && local_debit_diff == 0 && local_credit_diff == 0)
         return;
 
     bool rule { node->rule };
 
-    double initial_diff { (rule ? 1 : -1) * (initial_credit_diff - initial_debit_diff) };
-    double final_diff { (rule ? 1 : -1) * (final_credit_diff - final_debit_diff) };
+    double foreign_diff { (rule ? 1 : -1) * (foreign_credit_diff - foreign_debit_diff) };
+    double local_diff { (rule ? 1 : -1) * (local_credit_diff - local_debit_diff) };
 
-    node->initial_total += initial_diff;
-    node->final_total += final_diff;
+    node->initial_total += foreign_diff;
+    node->final_total += local_diff;
 
     sql_->UpdateNodeValue(node);
-    TreeModelUtils::UpdateAncestorValueFPT(root_, node, initial_diff, final_diff);
+    TreeModelUtils::UpdateAncestorValueFPT(root_, node, foreign_diff, local_diff);
     emit SUpdateStatusValue();
 }
 
 void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
 {
-    double old_final_total {};
-    double old_initial_total {};
-    double final_diff {};
-    double initial_diff {};
+    double old_local_total {};
+    double old_foreign_total {};
+    double local_diff {};
+    double foreign_diff {};
     Node* node {};
 
     for (int node_id : node_list) {
@@ -48,16 +48,16 @@ void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
         if (!node || node->type != kTypeLeaf)
             continue;
 
-        old_final_total = node->final_total;
-        old_initial_total = node->initial_total;
+        old_local_total = node->final_total;
+        old_foreign_total = node->initial_total;
 
         sql_->LeafTotal(node);
         sql_->UpdateNodeValue(node);
 
-        final_diff = node->final_total - old_final_total;
-        initial_diff = node->initial_total - old_initial_total;
+        local_diff = node->final_total - old_local_total;
+        foreign_diff = node->initial_total - old_foreign_total;
 
-        TreeModelUtils::UpdateAncestorValueFPT(root_, node, initial_diff, final_diff);
+        TreeModelUtils::UpdateAncestorValueFPT(root_, node, foreign_diff, local_diff);
     }
 
     emit SUpdateStatusValue();
@@ -219,9 +219,9 @@ QVariant TreeModelFinance::data(const QModelIndex& index, int role) const
         return node->type;
     case TreeEnumFinance::kUnit:
         return node->unit;
-    case TreeEnumFinance::kInitialTotal:
+    case TreeEnumFinance::kForeignTotal:
         return node->unit == root_->unit ? QVariant() : node->initial_total;
-    case TreeEnumFinance::kFinalTotal:
+    case TreeEnumFinance::kLocalTotal:
         return node->final_total;
     default:
         return QVariant();
@@ -288,9 +288,9 @@ void TreeModelFinance::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
         case TreeEnumFinance::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
-        case TreeEnumFinance::kInitialTotal:
+        case TreeEnumFinance::kForeignTotal:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
-        case TreeEnumFinance::kFinalTotal:
+        case TreeEnumFinance::kLocalTotal:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -315,8 +315,8 @@ Qt::ItemFlags TreeModelFinance::flags(const QModelIndex& index) const
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         flags &= ~Qt::ItemIsEditable;
         break;
-    case TreeEnumFinance::kInitialTotal:
-    case TreeEnumFinance::kFinalTotal:
+    case TreeEnumFinance::kForeignTotal:
+    case TreeEnumFinance::kLocalTotal:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:

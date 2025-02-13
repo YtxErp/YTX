@@ -26,7 +26,7 @@ void TableModelSupport::RAppendSupportTrans(const TransShadow* trans_shadow)
     new_trans_shadow->state = trans_shadow->state;
     new_trans_shadow->unit_price = trans_shadow->unit_price;
     new_trans_shadow->discount_price = trans_shadow->discount_price;
-    new_trans_shadow->settled = trans_shadow->settled;
+    new_trans_shadow->net_amount = trans_shadow->net_amount;
     new_trans_shadow->support_id = trans_shadow->support_id;
 
     new_trans_shadow->lhs_ratio = trans_shadow->lhs_ratio;
@@ -133,17 +133,16 @@ bool TableModelSupport::setData(const QModelIndex& index, const QVariant& value,
 
     switch (kColumn) {
     case TableEnumSupport::kDateTime:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kDateTime, &TransShadow::date_time);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDateTime, value.toString(), &TransShadow::date_time);
         break;
     case TableEnumSupport::kCode:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kCode, &TransShadow::code);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
     case TableEnumSupport::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toBool(), kState, &TransShadow::state);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
     case TableEnumSupport::kDescription:
-        TableModelUtils::UpdateField(
-            sql_, trans_shadow, info_.trans, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
         break;
     default:
         return false;

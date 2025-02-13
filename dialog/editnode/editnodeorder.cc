@@ -75,11 +75,6 @@ void EditNodeOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVarian
     case TreeEnumOrder::kUnit:
         IniUnit(value.toInt());
         break;
-    case TreeEnumOrder::kParty: {
-        int party_index { ui->comboParty->findData(value.toInt()) };
-        ui->comboParty->setCurrentIndex(party_index);
-        break;
-    }
     case TreeEnumOrder::kEmployee: {
         int employee_index { ui->comboEmployee->findData(value.toInt()) };
         ui->comboEmployee->setCurrentIndex(employee_index);
@@ -100,6 +95,7 @@ void EditNodeOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVarian
             ui->pBtnPrint->setDefault(true);
             ui->tableViewOrder->clearSelection();
         }
+
         break;
     }
     default:
@@ -109,18 +105,26 @@ void EditNodeOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVarian
 
 QPointer<TableModel> EditNodeOrder::Model() { return order_table_; }
 
-void EditNodeOrder::RUpdateLeafValueOne(int /*node_id*/, double diff) { ui->dSpinFirst->setValue(ui->dSpinFirst->value() + diff); }
-
-void EditNodeOrder::RUpdateLeafValue(int /*node_id*/, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff)
+void EditNodeOrder::RUpdateLeafValue(
+    int /*node_id*/, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff)
 {
-    if (*node_shadow_->type != kTypeLeaf)
-        return;
+    const double adjusted_net_amount_diff { *node_shadow_->unit == kUnitIM ? net_amount_diff : 0.0 };
 
-    ui->dSpinFirst->setValue(ui->dSpinFirst->value() + first_diff);
-    ui->dSpinSecond->setValue(ui->dSpinSecond->value() + second_diff);
-    ui->dSpinAmount->setValue(ui->dSpinAmount->value() + amount_diff);
-    ui->dSpinDiscount->setValue(ui->dSpinDiscount->value() + discount_diff);
-    ui->dSpinSettled->setValue(ui->dSpinSettled->value() + (*node_shadow_->unit == kUnitIM ? settled_diff : 0.0));
+    *node_shadow_->first += first_diff;
+    *node_shadow_->second += second_diff;
+    *node_shadow_->initial_total += gross_amount_diff;
+    *node_shadow_->discount += discount_diff;
+    *node_shadow_->final_total += adjusted_net_amount_diff;
+
+    ui->dSpinFirst->setValue(*node_shadow_->first);
+    ui->dSpinSecond->setValue(*node_shadow_->second);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinDiscount->setValue(*node_shadow_->discount);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+
+    if (node_id_ != 0) {
+        emit SUpdateLeafValue(node_id_, first_diff, second_diff, gross_amount_diff, discount_diff, adjusted_net_amount_diff);
+    }
 }
 
 QPointer<QTableView> EditNodeOrder::View() { return ui->tableViewOrder; }
@@ -140,15 +144,15 @@ void EditNodeOrder::IniDialog(CSettings* settings)
     *node_shadow_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
     ui->comboParty->lineEdit()->setValidator(&LineEdit::kInputValidator);
 
-    ui->dSpinDiscount->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinAmount->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinSettled->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinSecond->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dSpinFirst->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+    ui->dSpinDiscount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinGrossAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinNetAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinSecond->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinFirst->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
 
     ui->dSpinDiscount->setDecimals(settings->amount_decimal);
-    ui->dSpinAmount->setDecimals(settings->amount_decimal);
-    ui->dSpinSettled->setDecimals(settings->amount_decimal);
+    ui->dSpinGrossAmount->setDecimals(settings->amount_decimal);
+    ui->dSpinNetAmount->setDecimals(settings->amount_decimal);
     ui->dSpinSecond->setDecimals(settings->common_decimal);
     ui->dSpinFirst->setDecimals(settings->common_decimal);
 
@@ -170,6 +174,9 @@ void EditNodeOrder::accept()
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);
         ui->tableViewOrder->clearSelection();
+
+        emit SUpdateLeafValue(
+            node_id_, *node_shadow_->first, *node_shadow_->second, *node_shadow_->initial_total, *node_shadow_->discount, *node_shadow_->final_total);
     }
 }
 
@@ -183,12 +190,12 @@ void EditNodeOrder::LockWidgets(bool finished, bool branch)
     ui->labParty->setEnabled(basic_enable);
     ui->comboParty->setEnabled(basic_enable);
 
-    ui->pBtnInsertParty->setEnabled(not_branch_enable);
+    ui->pBtnInsert->setEnabled(not_branch_enable);
 
-    ui->labSettled->setEnabled(not_branch_enable);
-    ui->dSpinSettled->setEnabled(not_branch_enable);
+    ui->labNetAmount->setEnabled(not_branch_enable);
+    ui->dSpinNetAmount->setEnabled(not_branch_enable);
 
-    ui->dSpinAmount->setEnabled(not_branch_enable);
+    ui->dSpinGrossAmount->setEnabled(not_branch_enable);
 
     ui->labDiscount->setEnabled(not_branch_enable);
     ui->dSpinDiscount->setEnabled(not_branch_enable);
@@ -255,10 +262,9 @@ void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
         ui->pBtnFinishOrder->setEnabled(true);
-    }
-
-    if (node_id_ != 0)
+    } else {
         sql_->UpdateField(info_node_, arg1, kName, node_id_);
+    }
 }
 
 void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
@@ -276,10 +282,9 @@ void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
         ui->pBtnFinishOrder->setEnabled(true);
-    }
-
-    if (node_id_ != 0)
+    } else {
         sql_->UpdateField(info_node_, party_id, kParty, node_id_);
+    }
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
@@ -295,8 +300,26 @@ void EditNodeOrder::on_chkBoxRefund_toggled(bool checked)
 {
     *node_shadow_->rule = checked;
 
-    if (node_id_ != 0)
+    *node_shadow_->first *= -1;
+    *node_shadow_->second *= -1;
+    *node_shadow_->initial_total *= -1;
+    *node_shadow_->discount *= -1;
+    *node_shadow_->final_total *= -1;
+
+    ui->dSpinFirst->setValue(*node_shadow_->first);
+    ui->dSpinSecond->setValue(*node_shadow_->second);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinDiscount->setValue(*node_shadow_->discount);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+
+    if (node_id_ != 0) {
         sql_->UpdateField(info_node_, checked, kRule, node_id_);
+        sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
+        sql_->UpdateField(info_node_, *node_shadow_->initial_total, kGrossAmount, node_id_);
+        sql_->UpdateField(info_node_, *node_shadow_->first, kFirst, node_id_);
+        sql_->UpdateField(info_node_, *node_shadow_->second, kSecond, node_id_);
+        sql_->UpdateField(info_node_, *node_shadow_->discount, kDiscount, node_id_);
+    }
 }
 
 void EditNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
@@ -313,13 +336,12 @@ void EditNodeOrder::on_rBtnCash_toggled(bool checked)
         return;
 
     *node_shadow_->unit = kUnitIM;
-
     *node_shadow_->final_total = *node_shadow_->initial_total - *node_shadow_->discount;
-    ui->dSpinSettled->setValue(*node_shadow_->final_total);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
 
     if (node_id_ != 0) {
         sql_->UpdateField(info_node_, kUnitIM, kUnit, node_id_);
-        sql_->UpdateField(info_node_, *node_shadow_->final_total, kSettled, node_id_);
+        sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
     }
 }
 
@@ -329,13 +351,12 @@ void EditNodeOrder::on_rBtnMonthly_toggled(bool checked)
         return;
 
     *node_shadow_->unit = kUnitMS;
-
     *node_shadow_->final_total = 0.0;
-    ui->dSpinSettled->setValue(0.0);
+    ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
         sql_->UpdateField(info_node_, kUnitMS, kUnit, node_id_);
-        sql_->UpdateField(info_node_, 0.0, kSettled, node_id_);
+        sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
     }
 }
 
@@ -345,17 +366,16 @@ void EditNodeOrder::on_rBtnPending_toggled(bool checked)
         return;
 
     *node_shadow_->unit = kUnitPEND;
-
     *node_shadow_->final_total = 0.0;
-    ui->dSpinSettled->setValue(0.0);
+    ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
         sql_->UpdateField(info_node_, kUnitPEND, kUnit, node_id_);
-        sql_->UpdateField(info_node_, 0.0, kSettled, node_id_);
+        sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
     }
 }
 
-void EditNodeOrder::on_pBtnInsertParty_clicked()
+void EditNodeOrder::on_pBtnInsert_clicked()
 {
     const auto& name { ui->comboParty->currentText() };
     if (*node_shadow_->type == kTypeBranch || name.isEmpty() || ui->comboParty->currentIndex() != -1)

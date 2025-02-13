@@ -443,21 +443,17 @@ void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* tabl
 {
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
     connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
-
-    connect(table_model, &TableModel::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
-    connect(table_model, &TableModel::SUpdateLeafValueOne, tree_model, &TreeModel::RUpdateLeafValueOne);
-
     connect(table_model, &TableModel::SUpdateLeafValue, widget, &TableWidgetOrder::RUpdateLeafValue);
-    connect(table_model, &TableModel::SUpdateLeafValueOne, widget, &TableWidgetOrder::RUpdateLeafValueOne);
 
     assert(dynamic_cast<TreeModelOrder*>(tree_model.data()) && "Tree Model is not TreeModelOrder");
     auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
-
     connect(tree_model_order, &TreeModelOrder::SUpdateData, widget, &TableWidgetOrder::RUpdateData);
+
     connect(widget, &TableWidgetOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
     connect(widget, &TableWidgetOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);
     connect(widget, &TableWidgetOrder::SUpdateParty, this, &MainWindow::RUpdateParty);
     connect(widget, &TableWidgetOrder::SUpdateParty, table_model, &TableModelOrder::RUpdateParty);
+    connect(widget, &TableWidgetOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 }
 
 void MainWindow::TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
@@ -544,9 +540,9 @@ void MainWindow::DelegateOrder(PQTableView table_view, CSettings* settings) cons
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kSecond), quantity);
 
     auto* amount { new DoubleSpinR(settings->amount_decimal, true, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kGrossAmount), amount);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kSettled), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kNetAmount), amount);
 }
 
 void MainWindow::CreateSection(TreeWidget* tree_widget, TableHash& table_hash, CData& data, CSettings& settings, CString& name)
@@ -626,10 +622,10 @@ void MainWindow::DelegateFPTSO(PQTreeView tree_view, CInfo& info) const
 void MainWindow::DelegateFinance(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* final_total { new DoubleSpinUnitR(settings.amount_decimal, false, settings.default_unit, info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kFinalTotal), final_total);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kLocalTotal), final_total);
 
     auto* initial_total { new FinanceForeignR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kInitialTotal), initial_total);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kForeignTotal), initial_total);
 }
 
 void MainWindow::DelegateTask(PQTreeView tree_view, CSettings& settings) const
@@ -691,11 +687,11 @@ void MainWindow::DelegateStakeholder(PQTreeView tree_view, CSettings& settings) 
 void MainWindow::DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* rule { new TreeCombo(info.rule_map, info.rule_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kRule), rule);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kRule), rule);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kAmount), amount);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kSettled), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kGrossAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kNetAmount), amount);
 
     auto* discount { new DoubleSpinUnitR(settings.amount_decimal, true, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kDiscount), discount);
@@ -1339,6 +1335,7 @@ void MainWindow::SetSalesData()
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
+    connect(model, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne);
 }
 
 void MainWindow::SetPurchaseData()
@@ -1380,6 +1377,7 @@ void MainWindow::SetPurchaseData()
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
+    connect(model, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne);
 }
 
 void MainWindow::SetAction() const
@@ -1707,20 +1705,19 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     });
 
     connect(table_model, &TableModel::SResizeColumnToContents, dialog->View(), &QTableView::resizeColumnToContents);
-
-    connect(table_model, &TableModel::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
-    connect(table_model, &TableModel::SUpdateLeafValueOne, tree_model, &TreeModel::RUpdateLeafValueOne);
-
     connect(table_model, &TableModel::SUpdateLeafValue, dialog, &EditNodeOrder::RUpdateLeafValue);
-    connect(table_model, &TableModel::SUpdateLeafValueOne, dialog, &EditNodeOrder::RUpdateLeafValueOne);
 
     assert(dynamic_cast<TreeModelOrder*>(tree_widget_->Model().data()) && "Model is not TreeModelOrder");
     auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
     connect(tree_model_order, &TreeModelOrder::SUpdateData, dialog, &EditNodeOrder::RUpdateData);
+    connect(tree_model_order, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne, Qt::UniqueConnection);
+
     connect(dialog, &EditNodeOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
+
     connect(dialog, &EditNodeOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);
     connect(dialog, &EditNodeOrder::SUpdateNodeID, table_model, &TableModelOrder::RUpdateNodeID);
     connect(dialog, &EditNodeOrder::SUpdateParty, table_model, &TableModelOrder::RUpdateParty);
+    connect(dialog, &EditNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 
     dialog_list_->append(dialog);
 

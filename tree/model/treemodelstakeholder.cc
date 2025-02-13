@@ -24,6 +24,21 @@ void TreeModelStakeholder::RUpdateStakeholder(int old_node_id, int new_node_id)
     }
 }
 
+void TreeModelStakeholder::RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
+{
+    auto* node { node_hash_.value(node_id) };
+    if (!node || node == root_ || node->type != kTypeLeaf || diff == 0.0)
+        return;
+
+    node->initial_total += diff;
+
+    sql_->UpdateField(info_.node, node->initial_total, node_field, node_id);
+
+    for (Node* current = node->parent; current && current != root_; current = current->parent) {
+        current->initial_total += diff;
+    }
+}
+
 void TreeModelStakeholder::UpdateNodeFPTS(const Node* tmp_node)
 {
     if (!tmp_node)
@@ -363,6 +378,8 @@ void TreeModelStakeholder::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
         case TreeEnumStakeholder::kTaxRate:
             return (order == Qt::AscendingOrder) ? (lhs->second < rhs->second) : (lhs->second > rhs->second);
+        case TreeEnumStakeholder::kAmount:
+            return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
         default:
             return false;
         }
@@ -459,6 +476,8 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
         return node->first == 0 || skip ? QVariant() : node->first;
     case TreeEnumStakeholder::kTaxRate:
         return node->second == 0 ? QVariant() : node->second;
+    case TreeEnumStakeholder::kAmount:
+        return node->initial_total == 0 ? QVariant() : node->initial_total;
     default:
         return QVariant();
     }
@@ -525,6 +544,9 @@ Qt::ItemFlags TreeModelStakeholder::flags(const QModelIndex& index) const
     switch (kColumn) {
     case TreeEnumStakeholder::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+        flags &= ~Qt::ItemIsEditable;
+        break;
+    case TreeEnumStakeholder::kAmount:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:

@@ -33,7 +33,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
 
     stakeholder.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"),
         QObject::tr("Rule"), QObject::tr("Type"), QObject::tr("Unit"), QObject::tr("Deadline"), QObject::tr("Employee"), QObject::tr("PaymentPeriod"),
-        QObject::tr("TaxRate"), {} };
+        QObject::tr("TaxRate"), QObject::tr("Amount"), {} };
     stakeholder.trans_header = { QObject::tr("ID"), QObject::tr("DateTime"), QObject::tr("UnitPrice"), QObject::tr("Code"), QObject::tr("Description"),
         QObject::tr("OutsideProduct"), QObject::tr("D"), QObject::tr("S"), QObject::tr("InsideProduct"), QObject::tr("PlaceHolder") };
     stakeholder.search_trans_header
@@ -56,12 +56,12 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("UnitCost"), {}, {}, {}, QObject::tr("Quantity"), QObject::tr("Amount") };
     task.support_header = finance.support_header;
 
-    sales.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"), QObject::tr("Rule"),
-        QObject::tr("Type"), QObject::tr("Unit"), QObject::tr("Party"), QObject::tr("Employee"), QObject::tr("DateTime"), QObject::tr("First"),
-        QObject::tr("Second"), QObject::tr("Finished"), QObject::tr("Amount"), QObject::tr("Discount"), QObject::tr("Settled"), {} };
+    sales.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Party"), QObject::tr("Description"), QObject::tr("Employee"),
+        QObject::tr("Rule"), QObject::tr("Type"), QObject::tr("Unit"), QObject::tr("DateTime"), QObject::tr("First"), QObject::tr("Second"),
+        QObject::tr("Finished"), QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount"), {} };
     sales.trans_header = { QObject::tr("ID"), QObject::tr("InsideProduct"), QObject::tr("OutsideProduct"), QObject::tr("Code"), QObject::tr("Description"),
-        QObject::tr("Color"), QObject::tr("First"), QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("Amount"), QObject::tr("DiscountPrice"),
-        QObject::tr("Discount"), QObject::tr("Settled") };
+        QObject::tr("Color"), QObject::tr("First"), QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("GrossAmount"), QObject::tr("DiscountPrice"),
+        QObject::tr("Discount"), QObject::tr("NetAmount") };
     sales.search_trans_header = { QObject::tr("ID"), {}, QObject::tr("Code"), QObject::tr("InsideProduct"), {}, QObject::tr("First"), QObject::tr("Second"),
         QObject::tr("Description"), QObject::tr("UnitPrice"), QObject::tr("LhsNode"), QObject::tr("DiscountPrice"), QObject::tr("Settled"), {}, {},
         QObject::tr("Amount"), QObject::tr("Discount"), {}, QObject::tr("OutsideProduct") };

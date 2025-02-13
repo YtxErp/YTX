@@ -40,8 +40,7 @@ private:
     QString NodeStakeholder();
     QString NodeProduct();
     QString NodeTask();
-    QString NodeSales();
-    QString NodePurchase();
+    QString NodeOrder(CString& order);
 
     QString Path(CString& table_name);
 
@@ -49,8 +48,7 @@ private:
     QString TransTask();
     QString TransProduct();
     QString TransStakeholder();
-    QString TransSales();
-    QString TransPurchase();
+    QString TransOrder(CString& order);
 
 private:
     QSqlDatabase* db_ {};

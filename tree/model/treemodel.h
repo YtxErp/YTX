@@ -65,14 +65,14 @@ public slots:
         Q_UNUSED(node_field);
     }
     virtual void RUpdateLeafValue(
-        int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double settled_diff)
+        int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double net_amount_diff)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(initial_debit_diff);
         Q_UNUSED(initial_credit_diff);
         Q_UNUSED(final_debit_diff);
         Q_UNUSED(final_credit_diff);
-        Q_UNUSED(settled_diff);
+        Q_UNUSED(net_amount_diff);
     }
 
     virtual void RUpdateStakeholder(int old_node_id, int new_node_id)

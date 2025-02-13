@@ -9,49 +9,23 @@ TreeModelOrder::TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CTabl
     ConstructTree();
 }
 
-void TreeModelOrder::RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
-{
-    auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf || diff == 0.0)
-        return;
-
-    node->first += diff;
-
-    sql_->UpdateField(info_.node, node->first, node_field, node_id);
-
-    const int column { std::to_underlying(TreeEnumOrder::kFirst) };
-
-    auto index { GetIndex(node_id) };
-    emit dataChanged(index.siblingAtColumn(column), index.siblingAtColumn(column));
-
-    if (node->finished)
-        UpdateAncestorValueOrder(node, diff);
-}
-
-void TreeModelOrder::RUpdateLeafValue(int node_id, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff)
+void TreeModelOrder::RUpdateLeafValue(
+    int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff)
 {
     auto* node { node_hash_.value(node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
-    if (first_diff == 0 && second_diff == 0 && amount_diff == 0 && discount_diff == 0 && settled_diff == 0)
+    if (first_diff == 0 && second_diff == 0 && gross_amount_diff == 0 && discount_diff == 0 && net_amount_diff == 0)
         return;
-
-    double settled { node->unit == kUnitIM ? settled_diff : 0.0 };
-
-    node->first += first_diff;
-    node->second += second_diff;
-    node->discount += discount_diff;
-    node->initial_total += amount_diff;
-    node->final_total += settled;
 
     sql_->UpdateNodeValue(node);
 
     auto index { GetIndex(node->id) };
-    emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kSettled)));
+    emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kNetAmount)));
 
     if (node->finished)
-        UpdateAncestorValueOrder(node, first_diff, second_diff, amount_diff, discount_diff, settled);
+        UpdateAncestorValueOrder(node, first_diff, second_diff, gross_amount_diff, discount_diff, net_amount_diff);
 }
 
 void TreeModelOrder::RUpdateStakeholder(int old_node_id, int new_node_id)
@@ -78,6 +52,9 @@ void TreeModelOrder::RUpdateFinished(int node_id, bool checked)
     int coefficient = checked ? 1 : -1;
     UpdateAncestorValueOrder(node, coefficient * node->first, coefficient * node->second, coefficient * node->initial_total, coefficient * node->discount,
         coefficient * node->final_total);
+
+    if (node->unit != kUnitIM)
+        emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
 }
 
 void TreeModelOrder::UpdateAncestorValueOrder(Node* node, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff)
@@ -90,7 +67,7 @@ void TreeModelOrder::UpdateAncestorValueOrder(Node* node, double first_diff, dou
 
     const int unit { node->unit };
     const int column_begin { std::to_underlying(TreeEnumOrder::kFirst) };
-    int column_end { std::to_underlying(TreeEnumOrder::kSettled) };
+    int column_end { std::to_underlying(TreeEnumOrder::kNetAmount) };
 
     // 确定需要更新的列范围
     if (second_diff == 0.0 && amount_diff == 0.0 && discount_diff == 0.0 && settled_diff == 0.0)
@@ -183,13 +160,13 @@ bool TreeModelOrder::UpdateRuleFPTO(Node* node, bool value)
     node->final_total = -node->final_total;
 
     auto index { GetIndex(node->id) };
-    emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kSettled)));
+    emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kNetAmount)));
 
     sql_->UpdateField(info_.node, node->first, kFirst, node->id);
     sql_->UpdateField(info_.node, node->second, kSecond, node->id);
     sql_->UpdateField(info_.node, node->discount, kDiscount, node->id);
-    sql_->UpdateField(info_.node, node->initial_total, kAmount, node->id);
-    sql_->UpdateField(info_.node, node->final_total, kSettled, node->id);
+    sql_->UpdateField(info_.node, node->initial_total, kGrossAmount, node->id);
+    sql_->UpdateField(info_.node, node->final_total, kNetAmount, node->id);
 
     return true;
 }
@@ -216,9 +193,9 @@ bool TreeModelOrder::UpdateUnit(Node* node, int value)
     }
 
     sql_->UpdateField(info_.node, value, kUnit, node->id);
-    sql_->UpdateField(info_.node, node->final_total, kAmount, node->id);
+    sql_->UpdateField(info_.node, node->final_total, kGrossAmount, node->id);
 
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumOrder::kSettled));
+    emit SResizeColumnToContents(std::to_underlying(TreeEnumOrder::kNetAmount));
     return true;
 }
 
@@ -234,6 +211,8 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
 
     node->finished = value;
     emit SUpdateData(node->id, TreeEnumOrder::kFinished, value);
+    if (node->unit != kUnitIM)
+        emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
     sql_->UpdateField(info_.node, value, kFinished, node->id);
     return true;
 }
@@ -276,12 +255,8 @@ void TreeModelOrder::sort(int column, Qt::SortOrder order)
         switch (kColumn) {
         case TreeEnumOrder::kName:
             return (order == Qt::AscendingOrder) ? (lhs->name < rhs->name) : (lhs->name > rhs->name);
-        case TreeEnumOrder::kCode:
-            return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
         case TreeEnumOrder::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TreeEnumOrder::kNote:
-            return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
         case TreeEnumOrder::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
         case TreeEnumOrder::kType:
@@ -302,9 +277,9 @@ void TreeModelOrder::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
         case TreeEnumOrder::kFinished:
             return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
-        case TreeEnumOrder::kAmount:
+        case TreeEnumOrder::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
-        case TreeEnumOrder::kSettled:
+        case TreeEnumOrder::kNetAmount:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -329,9 +304,6 @@ bool TreeModelOrder::InsertNode(int row, const QModelIndex& parent, Node* node)
 
     sql_->WriteNode(parent_node->id, node);
     node_hash_.insert(node->id, node);
-
-    if (node->type == kTypeLeaf && node->finished)
-        UpdateAncestorValueOrder(node, node->first, node->second, node->initial_total, node->discount, node->final_total);
 
     emit SSearch();
     return true;
@@ -391,12 +363,8 @@ QVariant TreeModelOrder::data(const QModelIndex& index, int role) const
         return node->name;
     case TreeEnumOrder::kID:
         return node->id;
-    case TreeEnumOrder::kCode:
-        return node->code;
     case TreeEnumOrder::kDescription:
         return node->description;
-    case TreeEnumOrder::kNote:
-        return node->note;
     case TreeEnumOrder::kRule:
         return branch ? -1 : node->rule;
     case TreeEnumOrder::kType:
@@ -417,9 +385,9 @@ QVariant TreeModelOrder::data(const QModelIndex& index, int role) const
         return node->discount == 0 ? QVariant() : node->discount;
     case TreeEnumOrder::kFinished:
         return !branch && node->finished ? node->finished : QVariant();
-    case TreeEnumOrder::kAmount:
+    case TreeEnumOrder::kGrossAmount:
         return node->initial_total;
-    case TreeEnumOrder::kSettled:
+    case TreeEnumOrder::kNetAmount:
         return node->final_total;
     default:
         return QVariant();
@@ -438,14 +406,8 @@ bool TreeModelOrder::setData(const QModelIndex& index, const QVariant& value, in
     const TreeEnumOrder kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumOrder::kCode:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
-        break;
     case TreeEnumOrder::kDescription:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
-        break;
-    case TreeEnumOrder::kNote:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
         break;
     case TreeEnumOrder::kRule:
         UpdateRuleFPTO(node, value.toBool());
@@ -480,29 +442,28 @@ Qt::ItemFlags TreeModelOrder::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
+
     const TreeEnumOrder kColumn { index.column() };
-
-    const bool finished { index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFinished)).data().toBool() };
-    if (!finished)
-        flags |= Qt::ItemIsEditable;
-
     switch (kColumn) {
     case TreeEnumOrder::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
-        flags &= ~Qt::ItemIsEditable;
         break;
-    case TreeEnumOrder::kType:
-    case TreeEnumOrder::kFinished:
-    case TreeEnumOrder::kFirst:
-    case TreeEnumOrder::kSecond:
-    case TreeEnumOrder::kDiscount:
-    case TreeEnumOrder::kAmount:
-    case TreeEnumOrder::kSettled:
-        flags &= ~Qt::ItemIsEditable;
+    case TreeEnumOrder::kDescription:
+    case TreeEnumOrder::kUnit:
+    case TreeEnumOrder::kDateTime:
+    case TreeEnumOrder::kRule:
+    case TreeEnumOrder::kEmployee:
+        flags |= Qt::ItemIsEditable;
         break;
     default:
         break;
     }
+
+    const bool non_editable { index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kType)).data().toBool()
+        || index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFinished)).data().toBool() };
+
+    if (non_editable)
+        flags &= ~Qt::ItemIsEditable;
 
     return flags;
 }

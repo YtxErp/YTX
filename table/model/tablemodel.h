@@ -40,8 +40,8 @@ protected:
 signals:
     // send to TreeModel
     void SUpdateLeafValueOne(int node_id, double diff, const QString& node_field);
-    void SUpdateLeafValue(
-        int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double settled_diff = 0.0);
+    void SUpdateLeafValue(int node_id, double initial_debit_diff = 0.0, double initial_credit_diff = 0.0, double final_debit_diff = 0.0,
+        double final_credit_diff = 0.0, double settled_diff = 0.0);
     void SSearch();
 
     // send to SignalStation

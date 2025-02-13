@@ -98,12 +98,12 @@ public:
     int columnCount(const QModelIndex& parent = QModelIndex()) const override
     {
         Q_UNUSED(parent);
-        return info_.tree_header.size();
+        return info_.node_header.size();
     }
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override
     {
         if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-            return info_.tree_header.at(section);
+            return info_.node_header.at(section);
         }
 
         return QVariant();

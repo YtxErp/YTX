@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOWSQLITE_H
-#define MAINWINDOWSQLITE_H
+#ifndef YTXSQLITE_H
+#define YTXSQLITE_H
 
 #include <QSqlDatabase>
 
@@ -26,10 +26,10 @@
 #include "component/settings.h"
 #include "component/using.h"
 
-class MainwindowSqlite {
+class YtxSqlite {
 public:
-    MainwindowSqlite() = default;
-    explicit MainwindowSqlite(Section section);
+    YtxSqlite() = default;
+    explicit YtxSqlite(Section section);
 
     void QuerySettings(Settings& settings, Section section);
     void UpdateSettings(CSettings& settings, Section section);
@@ -45,15 +45,15 @@ private:
 
     QString Path(CString& table_name);
 
-    QString TransactionFinance();
-    QString TransactionTask();
-    QString TransactionProduct();
-    QString TransactionStakeholder();
-    QString TransactionSales();
-    QString TransactionPurchase();
+    QString TransFinance();
+    QString TransTask();
+    QString TransProduct();
+    QString TransStakeholder();
+    QString TransSales();
+    QString TransPurchase();
 
 private:
     QSqlDatabase* db_ {};
 };
 
-#endif // MAINWINDOWSQLITE_H
+#endif // YTXSQLITE_H

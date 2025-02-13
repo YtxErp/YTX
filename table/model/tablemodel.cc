@@ -297,12 +297,12 @@ QModelIndex TableModel::parent(const QModelIndex& /*index*/) const { return QMod
 
 int TableModel::rowCount(const QModelIndex& /*parent*/) const { return trans_shadow_list_.size(); }
 
-int TableModel::columnCount(const QModelIndex& /*parent*/) const { return info_.table_header.size(); }
+int TableModel::columnCount(const QModelIndex& /*parent*/) const { return info_.trans_header.size(); }
 
 QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return info_.table_header.at(section);
+        return info_.trans_header.at(section);
 
     return QVariant();
 }

@@ -31,7 +31,7 @@
 #include "component/data.h"
 #include "component/settings.h"
 #include "component/using.h"
-#include "database/mainwindowsqlite.h"
+#include "database/ytxsqlite.h"
 #include "table/model/tablemodel.h"
 #include "table/model/tablemodelorder.h"
 #include "tree/model/treemodel.h"
@@ -188,7 +188,7 @@ private:
 
 private:
     Ui::MainWindow* ui {};
-    MainwindowSqlite sql_ {};
+    YtxSqlite sql_ {};
 
     QStringList recent_file_ {};
     Section start_ {};

@@ -118,7 +118,7 @@ bool MainWindowUtils::CopyFile(CString& source, CString& destination)
     return true;
 }
 
-bool MainWindowUtils::NewFile(MainwindowSqlite& sql, QString& file_path)
+bool MainWindowUtils::NewFile(YtxSqlite& sql, QString& file_path)
 {
     if (file_path.isEmpty())
         return false;

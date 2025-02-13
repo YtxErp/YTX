@@ -772,7 +772,7 @@ bool Sqlite::RemoveTrans(int trans_id)
     SET removed = 1
     WHERE id = :trans_id
 )")
-                    .arg(info_.transaction);
+                    .arg(info_.trans);
 
     query.prepare(part);
     query.bindValue(QStringLiteral(":trans_id"), trans_id);
@@ -857,8 +857,8 @@ bool Sqlite::UpdateState(Check state) const
     const bool is_not_reverse { state != Check::kReverse };
 
     // 构建 SQL 查询字符串，调整三元运算符顺序，避免重复判断
-    const auto string { is_not_reverse ? QStringLiteral("UPDATE %1 SET state = :value").arg(info_.transaction)
-                                       : QStringLiteral("UPDATE %1 SET state = NOT state").arg(info_.transaction) };
+    const auto string { is_not_reverse ? QStringLiteral("UPDATE %1 SET state = :value").arg(info_.trans)
+                                       : QStringLiteral("UPDATE %1 SET state = NOT state").arg(info_.trans) };
 
     query.prepare(string);
 

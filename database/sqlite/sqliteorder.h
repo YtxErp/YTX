@@ -70,7 +70,7 @@ private:
 
 private:
     CString& node_;
-    CString& transaction_;
+    CString& trans_;
     NodeHash node_hash_buffer_ {};
 };
 

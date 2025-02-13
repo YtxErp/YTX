@@ -291,7 +291,7 @@ bool TreeModelProduct::UpdateName(Node* node, CString& value)
 
 void TreeModelProduct::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.tree_header.size())
+    if (column <= -1 || column >= info_.node_header.size())
         return;
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {

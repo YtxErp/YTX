@@ -69,20 +69,20 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
 
     switch (kColumn) {
     case TableEnumProduct::kDateTime:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toString(), kDateTime, &TransShadow::date_time);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kDateTime, &TransShadow::date_time);
         break;
     case TableEnumProduct::kCode:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toString(), kCode, &TransShadow::code);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kCode, &TransShadow::code);
         break;
     case TableEnumProduct::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toBool(), kState, &TransShadow::state);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toBool(), kState, &TransShadow::state);
         break;
     case TableEnumProduct::kDescription:
         TableModelUtils::UpdateField(
-            sql_, trans_shadow, info_.transaction, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
+            sql_, trans_shadow, info_.trans, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
         break;
     case TableEnumProduct::kSupportID:
-        sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toInt(), kSupportID, &TransShadow::support_id);
+        sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toInt(), kSupportID, &TransShadow::support_id);
         break;
     case TableEnumProduct::kUnitCost:
         rat_changed = UpdateRatio(trans_shadow, value.toDouble());
@@ -168,7 +168,7 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
 
 void TableModelProduct::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.table_header.size() - 1)
+    if (column <= -1 || column >= info_.trans_header.size() - 1)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {
@@ -338,7 +338,7 @@ bool TableModelProduct::UpdateRatio(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    sql_->UpdateField(info_.transaction, value, kUnitCost, *trans_shadow->id);
+    sql_->UpdateField(info_.trans, value, kUnitCost, *trans_shadow->id);
 
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * diff, *trans_shadow->lhs_credit * diff);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * diff, *trans_shadow->rhs_credit * diff);

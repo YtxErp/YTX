@@ -162,7 +162,7 @@ bool MainWindow::ROpenFile(CString& file_path)
     file_settings_ = std::make_unique<QSettings>(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + kSlash + complete_base_name + kSuffixINI, QSettings::IniFormat);
 
-    sql_ = MainwindowSqlite(start_);
+    sql_ = YtxSqlite(start_);
     SetFinanceData();
     SetTaskData();
     SetProductData();
@@ -1148,7 +1148,7 @@ void MainWindow::SetFinanceData()
     info.section = section;
     info.node = kFinance;
     info.path = kFinancePath;
-    info.transaction = kFinanceTransaction;
+    info.trans = kFinanceTrans;
 
     QStringList unit_list { tr("CNY"), tr("HKD"), tr("USD"), tr("GBP"), tr("JPY"), tr("CAD"), tr("AUD"), tr("EUR") };
     QStringList unit_symbol_list { "¥", "$", "$", "£", "¥", "$", "$", "€" };
@@ -1189,7 +1189,7 @@ void MainWindow::SetProductData()
     info.section = section;
     info.node = kProduct;
     info.path = kProductPath;
-    info.transaction = kProductTransaction;
+    info.trans = kProductTrans;
 
     // POS: Position, PC: Piece, SF: SquareFeet
     QStringList unit_list { {}, tr("POS"), tr("BOX"), tr("PC"), tr("SET"), tr("SF") };
@@ -1228,7 +1228,7 @@ void MainWindow::SetStakeholderData()
     info.section = section;
     info.node = kStakeholder;
     info.path = kStakeholderPath;
-    info.transaction = kStakeholderTransaction;
+    info.trans = kStakeholderTrans;
 
     // EMP: EMPLOYEE, CUST: CUSTOMER, VEND: VENDOR, PROD: PRODUCT
     QStringList unit_list { tr("CUST"), tr("EMP"), tr("VEND"), tr("PROD") };
@@ -1271,7 +1271,7 @@ void MainWindow::SetTaskData()
     info.section = section;
     info.node = kTask;
     info.path = kTaskPath;
-    info.transaction = kTaskTransaction;
+    info.trans = kTaskTrans;
 
     // PROD: PRODUCT, STKH: STAKEHOLDER
     QStringList unit_list { tr("CUST"), tr("EMP"), tr("VEND"), tr("PROD") };
@@ -1309,7 +1309,7 @@ void MainWindow::SetSalesData()
     info.section = section;
     info.node = kSales;
     info.path = kSalesPath;
-    info.transaction = kSalesTransaction;
+    info.trans = kSalesTrans;
 
     // IM: IMMEDIATE, MS: MONTHLY SETTLEMENT, PEND: PENDING
     QStringList unit_list { tr("IS"), tr("MS"), tr("PEND") };
@@ -1350,7 +1350,7 @@ void MainWindow::SetPurchaseData()
     info.section = section;
     info.node = kPurchase;
     info.path = kPurchasePath;
-    info.transaction = kPurchaseTransaction;
+    info.trans = kPurchaseTrans;
 
     // IM: IMMEDIATE, MS: MONTHLY SETTLEMENT, PEND: PENDING
     QStringList unit_list { tr("IM"), tr("MS"), tr("PEND") };
@@ -1750,7 +1750,7 @@ void MainWindow::REditTransDocument()
     auto* dialog { new EditDocument(document_pointer, document_dir, this) };
 
     if (dialog->exec() == QDialog::Accepted)
-        data_->sql->UpdateField(data_->info.transaction, document_pointer->join(kSemicolon), kDocument, trans_id);
+        data_->sql->UpdateField(data_->info.trans, document_pointer->join(kSemicolon), kDocument, trans_id);
 }
 
 void MainWindow::REditNodeDocument()

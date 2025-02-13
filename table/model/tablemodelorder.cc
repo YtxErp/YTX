@@ -192,7 +192,7 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
             emit SUpdateLeafValue(*trans_shadow->lhs_node, *trans_shadow->lhs_debit, *trans_shadow->lhs_credit, *trans_shadow->rhs_credit,
                 *trans_shadow->rhs_debit, *trans_shadow->settled);
         } else
-            sql_->UpdateField(info_.transaction, value.toInt(), kInsideProduct, *trans_shadow->id);
+            sql_->UpdateField(info_.trans, value.toInt(), kInsideProduct, *trans_shadow->id);
     }
 
     if (fir_changed)
@@ -224,7 +224,7 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
 void TableModelOrder::sort(int column, Qt::SortOrder order)
 {
     // ignore subtotal column
-    if (column <= -1 || column >= info_.table_header.size() - 1)
+    if (column <= -1 || column >= info_.trans_header.size() - 1)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {
@@ -329,7 +329,7 @@ bool TableModelOrder::UpdateOutsideProduct(TransShadow* trans_shadow, int value)
     CrossSearch(trans_shadow, value, false);
 
     if (old_rhs_node) {
-        sql_->UpdateField(info_.transaction, value, kOutsideProduct, *trans_shadow->id);
+        sql_->UpdateField(info_.trans, value, kOutsideProduct, *trans_shadow->id);
     }
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kUnitPrice));
@@ -356,7 +356,7 @@ bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return false;
 
-    sql_->UpdateField(info_.transaction, value, kUnitPrice, *trans_shadow->id);
+    sql_->UpdateField(info_.trans, value, kUnitPrice, *trans_shadow->id);
     sql_->UpdateTransValue(trans_shadow);
     return true;
 }
@@ -377,7 +377,7 @@ bool TableModelOrder::UpdateDiscountPrice(TransShadow* trans_shadow, double valu
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return false;
 
-    sql_->UpdateField(info_.transaction, value, kDiscountPrice, *trans_shadow->id);
+    sql_->UpdateField(info_.trans, value, kDiscountPrice, *trans_shadow->id);
     sql_->UpdateTransValue(trans_shadow);
     return true;
 }

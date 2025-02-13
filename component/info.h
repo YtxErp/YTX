@@ -31,10 +31,10 @@ struct Info {
 
     QString node {}; // SQL database node table name, also used as QSettings section name, be carefull with it
     QString path {}; // SQL database node_path table name
-    QString transaction {}; // SQL database node_transaction table name
+    QString trans {}; // SQL database node_transaction table name
 
-    QStringList tree_header {};
-    QStringList table_header {};
+    QStringList node_header {};
+    QStringList trans_header {};
     QStringList support_header {};
 
     QStringList search_trans_header {};

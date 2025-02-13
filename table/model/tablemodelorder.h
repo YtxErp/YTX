@@ -59,7 +59,7 @@ private:
             return false;
 
         try {
-            sql_->UpdateField(info_.transaction, value, field, *trans_shadow->id);
+            sql_->UpdateField(info_.trans, value, field, *trans_shadow->id);
             if (action)
                 action();
         } catch (const std::exception& e) {

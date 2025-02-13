@@ -133,17 +133,17 @@ bool TableModelSupport::setData(const QModelIndex& index, const QVariant& value,
 
     switch (kColumn) {
     case TableEnumSupport::kDateTime:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toString(), kDateTime, &TransShadow::date_time);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kDateTime, &TransShadow::date_time);
         break;
     case TableEnumSupport::kCode:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toString(), kCode, &TransShadow::code);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kCode, &TransShadow::code);
         break;
     case TableEnumSupport::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toBool(), kState, &TransShadow::state);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toBool(), kState, &TransShadow::state);
         break;
     case TableEnumSupport::kDescription:
         TableModelUtils::UpdateField(
-            sql_, trans_shadow, info_.transaction, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
+            sql_, trans_shadow, info_.trans, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
         break;
     default:
         return false;

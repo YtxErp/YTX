@@ -1,4 +1,4 @@
-#include "mainwindowsqlite.h"
+#include "ytxsqlite.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -6,12 +6,12 @@
 #include "component/constvalue.h"
 #include "global/sqlconnection.h"
 
-MainwindowSqlite::MainwindowSqlite(Section section)
+YtxSqlite::YtxSqlite(Section section)
     : db_ { SqlConnection::Instance().Allocate(section) }
 {
 }
 
-void MainwindowSqlite::QuerySettings(Settings& settings, Section section)
+void YtxSqlite::QuerySettings(Settings& settings, Section section)
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -44,7 +44,7 @@ void MainwindowSqlite::QuerySettings(Settings& settings, Section section)
     }
 }
 
-void MainwindowSqlite::UpdateSettings(CSettings& settings, Section section)
+void YtxSqlite::UpdateSettings(CSettings& settings, Section section)
 {
     auto part = QStringLiteral(R"(
     UPDATE settings SET
@@ -76,7 +76,7 @@ void MainwindowSqlite::UpdateSettings(CSettings& settings, Section section)
     }
 }
 
-void MainwindowSqlite::NewFile(CString& file_path)
+void YtxSqlite::NewFile(CString& file_path)
 {
     QSqlDatabase db { QSqlDatabase::addDatabase(kQSQLITE) };
     db.setDatabaseName(file_path);
@@ -85,27 +85,27 @@ void MainwindowSqlite::NewFile(CString& file_path)
 
     QString finance = NodeFinance();
     QString finance_path = Path(kFinancePath);
-    QString finance_transaction = TransactionFinance();
+    QString finance_trans = TransFinance();
 
     QString product = NodeProduct();
     QString product_path = Path(kProductPath);
-    QString product_transaction = TransactionProduct();
+    QString product_trans = TransProduct();
 
     QString task = NodeTask();
     QString task_path = Path(kTaskPath);
-    QString task_transaction = TransactionTask();
+    QString task_trans = TransTask();
 
     QString stakeholder = NodeStakeholder();
     QString stakeholder_path = Path(kStakeholderPath);
-    QString stakeholder_transaction = TransactionStakeholder();
+    QString stakeholder_trans = TransStakeholder();
 
     QString purchase = NodePurchase();
     QString purchase_path = Path(kPurchasePath);
-    QString purchase_transaction = TransactionPurchase();
+    QString purchase_trans = TransPurchase();
 
     QString sales = NodeSales();
     QString sales_path = Path(kSalesPath);
-    QString sales_transaction = TransactionSales();
+    QString sales_trans = TransSales();
 
     QString settings = QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS settings (
@@ -129,10 +129,10 @@ void MainwindowSqlite::NewFile(CString& file_path)
     QSqlQuery query {};
     if (db.transaction()) {
         // Execute each table creation query
-        if (query.exec(finance) && query.exec(finance_path) && query.exec(finance_transaction) && query.exec(product) && query.exec(product_path)
-            && query.exec(product_transaction) && query.exec(stakeholder) && query.exec(stakeholder_path) && query.exec(stakeholder_transaction)
-            && query.exec(task) && query.exec(task_path) && query.exec(task_transaction) && query.exec(purchase) && query.exec(purchase_path)
-            && query.exec(purchase_transaction) && query.exec(sales) && query.exec(sales_path) && query.exec(sales_transaction) && query.exec(settings)) {
+        if (query.exec(finance) && query.exec(finance_path) && query.exec(finance_trans) && query.exec(product) && query.exec(product_path)
+            && query.exec(product_trans) && query.exec(stakeholder) && query.exec(stakeholder_path) && query.exec(stakeholder_trans) && query.exec(task)
+            && query.exec(task_path) && query.exec(task_trans) && query.exec(purchase) && query.exec(purchase_path) && query.exec(purchase_trans)
+            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(settings)) {
             // Commit the transaction if all queries are successful
             if (db.commit()) {
                 for (int i = 0; i != 6; ++i) {
@@ -158,7 +158,7 @@ void MainwindowSqlite::NewFile(CString& file_path)
     db.close();
 }
 
-QString MainwindowSqlite::NodeFinance()
+QString YtxSqlite::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
@@ -177,7 +177,7 @@ QString MainwindowSqlite::NodeFinance()
     )");
 }
 
-QString MainwindowSqlite::NodeStakeholder()
+QString YtxSqlite::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
@@ -198,7 +198,7 @@ QString MainwindowSqlite::NodeStakeholder()
     )");
 }
 
-QString MainwindowSqlite::NodeProduct()
+QString YtxSqlite::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
@@ -220,7 +220,7 @@ QString MainwindowSqlite::NodeProduct()
 )");
 }
 
-QString MainwindowSqlite::NodeTask()
+QString YtxSqlite::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
@@ -244,7 +244,7 @@ QString MainwindowSqlite::NodeTask()
     )");
 }
 
-QString MainwindowSqlite::NodeSales()
+QString YtxSqlite::NodeSales()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS sales (
@@ -270,7 +270,7 @@ QString MainwindowSqlite::NodeSales()
     )");
 }
 
-QString MainwindowSqlite::NodePurchase()
+QString YtxSqlite::NodePurchase()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS purchase (
@@ -296,7 +296,7 @@ QString MainwindowSqlite::NodePurchase()
     )");
 }
 
-QString MainwindowSqlite::Path(CString& table_name)
+QString YtxSqlite::Path(CString& table_name)
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -308,7 +308,7 @@ QString MainwindowSqlite::Path(CString& table_name)
         .arg(table_name);
 }
 
-QString MainwindowSqlite::TransactionFinance()
+QString YtxSqlite::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
@@ -332,7 +332,7 @@ QString MainwindowSqlite::TransactionFinance()
     )");
 }
 
-QString MainwindowSqlite::TransactionSales()
+QString YtxSqlite::TransSales()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS sales_transaction (
@@ -354,7 +354,7 @@ QString MainwindowSqlite::TransactionSales()
     )");
 }
 
-QString MainwindowSqlite::TransactionPurchase()
+QString YtxSqlite::TransPurchase()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS purchase_transaction (
@@ -376,7 +376,7 @@ QString MainwindowSqlite::TransactionPurchase()
     )");
 }
 
-QString MainwindowSqlite::TransactionStakeholder()
+QString YtxSqlite::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
@@ -395,7 +395,7 @@ QString MainwindowSqlite::TransactionStakeholder()
     )");
 }
 
-QString MainwindowSqlite::TransactionTask()
+QString YtxSqlite::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
@@ -418,7 +418,7 @@ QString MainwindowSqlite::TransactionTask()
     )");
 }
 
-QString MainwindowSqlite::TransactionProduct()
+QString YtxSqlite::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (

@@ -10,7 +10,7 @@
 SqliteOrder::SqliteOrder(CInfo& info, QObject* parent)
     : Sqlite(info, parent)
     , node_ { info.node }
-    , transaction_ { info.transaction }
+    , trans_ { info.trans }
 {
 }
 
@@ -168,7 +168,7 @@ QString SqliteOrder::QSRemoveNodeSecond() const
         removed = 1
     WHERE lhs_node = :node_id
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSInternalReference() const
@@ -177,7 +177,7 @@ QString SqliteOrder::QSInternalReference() const
     SELECT COUNT(*) FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSReadNodeTrans() const
@@ -187,7 +187,7 @@ QString SqliteOrder::QSReadNodeTrans() const
     FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSWriteNodeTrans() const
@@ -196,7 +196,7 @@ QString SqliteOrder::QSWriteNodeTrans() const
     INSERT INTO %1 (code, inside_product, unit_price, second, description, lhs_node, first, amount, discount, settled, outside_product, discount_price)
     VALUES (:code, :inside_product, :unit_price, :second, :description, :lhs_node, :first, :amount, :discount, :settled, :outside_product, :discount_price)
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSUpdateProductReferenceSO() const
@@ -206,7 +206,7 @@ QString SqliteOrder::QSUpdateProductReferenceSO() const
         inside_product = :new_node_id
     WHERE inside_product = :old_node_id
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSUpdateStakeholderReferenceO() const
@@ -227,7 +227,7 @@ QString SqliteOrder::QSUpdateStakeholderReferenceO() const
 
     COMMIT;
     )")
-        .arg(node_, transaction_);
+        .arg(node_, trans_);
 }
 
 QString SqliteOrder::QSSearchTrans() const
@@ -237,7 +237,7 @@ QString SqliteOrder::QSSearchTrans() const
     FROM %1
     WHERE (first = :text OR second = :text OR description LIKE :description) AND removed = 0
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSUpdateTransValueFPTO() const
@@ -247,7 +247,7 @@ QString SqliteOrder::QSUpdateTransValueFPTO() const
         second = :second, amount = :amount, discount = :discount, settled = :settled
     WHERE id = :trans_id
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::QSNodeTransToRemove() const
@@ -256,7 +256,7 @@ QString SqliteOrder::QSNodeTransToRemove() const
     SELECT lhs_node, id FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
-        .arg(transaction_);
+        .arg(trans_);
 }
 
 QString SqliteOrder::SearchNodeQS(CString& in_list) const

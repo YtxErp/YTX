@@ -68,20 +68,20 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
 
     switch (kColumn) {
     case TableEnumFinance::kDateTime:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toString(), kDateTime, &TransShadow::date_time);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kDateTime, &TransShadow::date_time);
         break;
     case TableEnumFinance::kCode:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toString(), kCode, &TransShadow::code);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toString(), kCode, &TransShadow::code);
         break;
     case TableEnumFinance::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toBool(), kState, &TransShadow::state);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toBool(), kState, &TransShadow::state);
         break;
     case TableEnumFinance::kDescription:
         TableModelUtils::UpdateField(
-            sql_, trans_shadow, info_.transaction, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
+            sql_, trans_shadow, info_.trans, value.toString(), kDescription, &TransShadow::description, [this]() { emit SSearch(); });
         break;
     case TableEnumFinance::kSupportID:
-        sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.transaction, value.toInt(), kSupportID, &TransShadow::support_id);
+        sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, value.toInt(), kSupportID, &TransShadow::support_id);
         break;
     case TableEnumFinance::kLhsRatio:
         rat_changed = UpdateRatio(trans_shadow, value.toDouble());
@@ -164,7 +164,7 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
 
 void TableModelFinance::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.table_header.size() - 1)
+    if (column <= -1 || column >= info_.trans_header.size() - 1)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {

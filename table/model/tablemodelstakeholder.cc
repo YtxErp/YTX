@@ -180,9 +180,6 @@ bool TableModelStakeholder::setData(const QModelIndex& index, const QVariant& va
         }
     }
 
-    if (trans_shadow_list_.size() == 1)
-        emit SResizeColumnToContents(std::to_underlying(TableEnumStakeholder::kDateTime));
-
     emit SResizeColumnToContents(index.column());
     return true;
 }

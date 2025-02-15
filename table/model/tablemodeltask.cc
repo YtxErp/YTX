@@ -101,34 +101,29 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         return false;
     }
 
-    if (old_rhs_node == 0) {
-        if (rhs_changed) {
-            sql_->WriteTrans(trans_shadow);
-            TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
+    if (old_rhs_node == 0 && rhs_changed) {
+        sql_->WriteTrans(trans_shadow);
+        TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
 
-            emit SResizeColumnToContents(std::to_underlying(TableEnumTask::kSubtotal));
-            emit SAppendOneTrans(info_.section, trans_shadow);
+        emit SResizeColumnToContents(std::to_underlying(TableEnumTask::kSubtotal));
+        emit SAppendOneTrans(info_.section, trans_shadow);
 
-            emit SUpdateLeafValueOne(*trans_shadow->rhs_node, *trans_shadow->unit_price, kUnitCost);
-            emit SUpdateLeafValueOne(node_id_, *trans_shadow->unit_price, kUnitCost);
+        emit SUpdateLeafValueOne(*trans_shadow->rhs_node, *trans_shadow->unit_price, kUnitCost);
+        emit SUpdateLeafValueOne(node_id_, *trans_shadow->unit_price, kUnitCost);
 
-            double ratio { *trans_shadow->lhs_ratio };
-            double debit { *trans_shadow->lhs_debit };
-            double credit { *trans_shadow->lhs_credit };
-            emit SUpdateLeafValue(node_id_, debit, credit, ratio * debit, ratio * credit);
+        double ratio { *trans_shadow->lhs_ratio };
+        double debit { *trans_shadow->lhs_debit };
+        double credit { *trans_shadow->lhs_credit };
+        emit SUpdateLeafValue(node_id_, debit, credit, ratio * debit, ratio * credit);
 
-            ratio = *trans_shadow->rhs_ratio;
-            debit = *trans_shadow->rhs_debit;
-            credit = *trans_shadow->rhs_credit;
-            emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
+        ratio = *trans_shadow->rhs_ratio;
+        debit = *trans_shadow->rhs_debit;
+        credit = *trans_shadow->rhs_credit;
+        emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
 
-            if (*trans_shadow->support_id != 0) {
-                emit SAppendSupportTrans(info_.section, trans_shadow);
-            }
+        if (*trans_shadow->support_id != 0) {
+            emit SAppendSupportTrans(info_.section, trans_shadow);
         }
-
-        emit SResizeColumnToContents(index.column());
-        return true;
     }
 
     if (deb_changed || cre_changed || rat_changed) {
@@ -151,7 +146,7 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         }
     }
 
-    if (rhs_changed) {
+    if (old_rhs_node != 0 && rhs_changed) {
         sql_->UpdateTransValue(trans_shadow);
         emit SRemoveOneTrans(info_.section, old_rhs_node, *trans_shadow->id);
         emit SAppendOneTrans(info_.section, trans_shadow);

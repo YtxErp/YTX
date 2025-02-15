@@ -168,8 +168,6 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
         return false;
     }
 
-    emit SResizeColumnToContents(index.column());
-
     if (fir_changed)
         emit SUpdateLeafValue(*trans_shadow->lhs_node, value.toDouble() - old_first);
 
@@ -206,6 +204,7 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
             sql_->UpdateField(info_.trans, value.toInt(), kInsideProduct, *trans_shadow->id);
     }
 
+    emit SResizeColumnToContents(index.column());
     return true;
 }
 

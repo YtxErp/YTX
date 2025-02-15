@@ -38,7 +38,7 @@ void TableModel::RRule(int node_id, bool rule)
     if (node_id_ != node_id || rule_ == rule)
         return;
 
-    for (auto* trans_shadow : trans_shadow_list_)
+    for (auto* trans_shadow : std::as_const(trans_shadow_list_))
         trans_shadow->subtotal = -trans_shadow->subtotal;
 
     rule_ = rule;

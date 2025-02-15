@@ -169,7 +169,7 @@ void EditNodeOrder::accept()
         node_id_ = *node_shadow_->id;
 
         if (*node_shadow_->type == kTypeLeaf)
-            emit SUpdateNodeID(node_id_);
+            emit SUpdateLhsNode(node_id_);
 
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);

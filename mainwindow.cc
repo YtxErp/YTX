@@ -1715,7 +1715,7 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     connect(dialog, &EditNodeOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
 
     connect(dialog, &EditNodeOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);
-    connect(dialog, &EditNodeOrder::SUpdateNodeID, table_model, &TableModelOrder::RUpdateNodeID);
+    connect(dialog, &EditNodeOrder::SUpdateLhsNode, table_model, &TableModelOrder::RUpdateLhsNode);
     connect(dialog, &EditNodeOrder::SUpdateParty, table_model, &TableModelOrder::RUpdateParty);
     connect(dialog, &EditNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 

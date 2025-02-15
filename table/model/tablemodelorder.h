@@ -34,7 +34,7 @@ public:
     ~TableModelOrder() override = default;
 
 public slots:
-    void RUpdateNodeID(int node_id);
+    void RUpdateLhsNode(int node_id);
     void RUpdateFinished(int node_id, bool checked);
     void RUpdateParty(int node_id, int party_id);
 

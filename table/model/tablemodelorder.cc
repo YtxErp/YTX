@@ -18,7 +18,7 @@ TableModelOrder::TableModelOrder(
         sqlite_stakeholder_->ReadTrans(party_id_);
 }
 
-void TableModelOrder::RUpdateNodeID(int node_id)
+void TableModelOrder::RUpdateLhsNode(int node_id)
 {
     if (node_id_ != 0 || node_id <= 0)
         return;

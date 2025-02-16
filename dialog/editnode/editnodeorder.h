@@ -51,7 +51,7 @@ signals:
 public slots:
     void accept() override;
     void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
-    void RUpdateData(int node_id, TreeEnumOrder column, const QVariant& value);
+    void RSyncOneValue(int node_id, int column, const QVariant& value);
 
 public:
     QPointer<TableModel> Model();

@@ -447,7 +447,7 @@ void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* tabl
 
     assert(dynamic_cast<TreeModelOrder*>(tree_model.data()) && "Tree Model is not TreeModelOrder");
     auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
-    connect(tree_model_order, &TreeModelOrder::SUpdateData, widget, &TableWidgetOrder::RUpdateData);
+    connect(tree_model_order, &TreeModel::SSyncOneValue, widget, &TableWidgetOrder::RSyncOneValue);
 
     connect(widget, &TableWidgetOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
     connect(widget, &TableWidgetOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);
@@ -1709,7 +1709,7 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
 
     assert(dynamic_cast<TreeModelOrder*>(tree_widget_->Model().data()) && "Model is not TreeModelOrder");
     auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
-    connect(tree_model_order, &TreeModelOrder::SUpdateData, dialog, &EditNodeOrder::RUpdateData);
+    connect(tree_model_order, &TreeModel::SSyncOneValue, dialog, &EditNodeOrder::RSyncOneValue);
     connect(tree_model_order, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne, Qt::UniqueConnection);
 
     connect(dialog, &EditNodeOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);

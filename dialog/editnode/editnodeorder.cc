@@ -58,14 +58,15 @@ EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
 
 EditNodeOrder::~EditNodeOrder() { delete ui; }
 
-void EditNodeOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVariant& value)
+void EditNodeOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
 {
     if (node_id != node_id_)
         return;
 
     SignalBlocker blocker(this);
+    const TreeEnumOrder kColumn { column };
 
-    switch (column) {
+    switch (kColumn) {
     case TreeEnumOrder::kDescription:
         ui->lineDescription->setText(value.toString());
         break;

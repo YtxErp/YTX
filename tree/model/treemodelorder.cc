@@ -210,7 +210,7 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
         coefficient * node->final_total);
 
     node->finished = value;
-    emit SUpdateData(node->id, TreeEnumOrder::kFinished, value);
+    emit SSyncOneValue(node->id, std::to_underlying(TreeEnumOrder::kFinished), value);
     if (node->unit != kUnitIM)
         emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
     sql_->UpdateField(info_.node, value, kFinished, node->id);
@@ -432,7 +432,7 @@ bool TreeModelOrder::setData(const QModelIndex& index, const QVariant& value, in
     }
 
     emit SResizeColumnToContents(index.column());
-    emit SUpdateData(node->id, kColumn, value);
+    emit SSyncOneValue(node->id, index.column(), value);
     return true;
 }
 

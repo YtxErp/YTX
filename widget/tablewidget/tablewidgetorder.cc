@@ -48,14 +48,15 @@ TableWidgetOrder::~TableWidgetOrder()
 
 QPointer<QTableView> TableWidgetOrder::View() const { return ui->tableViewOrder; }
 
-void TableWidgetOrder::RUpdateData(int node_id, TreeEnumOrder column, const QVariant& value)
+void TableWidgetOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
 {
     if (node_id != node_id_)
         return;
 
     SignalBlocker blocker(this);
+    const TreeEnumOrder kColumn { column };
 
-    switch (column) {
+    switch (kColumn) {
     case TreeEnumOrder::kDescription:
         ui->lineDescription->setText(value.toString());
         break;

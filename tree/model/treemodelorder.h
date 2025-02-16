@@ -33,7 +33,6 @@ public:
     ~TreeModelOrder() override = default;
 
 signals:
-    void SUpdateData(int node_id, TreeEnumOrder column, const QVariant& value);
     void SUpdateLeafValueOne(int node_id, double diff, const QString& node_field);
 
 public slots:

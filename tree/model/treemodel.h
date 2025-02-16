@@ -51,6 +51,9 @@ signals:
     void SUpdateName(int node_id, const QString& name, bool branch);
     void SUpdateStatusValue();
 
+    // send to TableWidgetOrder, EditNodeOrder
+    void SSyncOneValue(int node_id, int column, const QVariant& value);
+
 public slots:
     // receive from Sqlite
     void RRemoveNode(int node_id);

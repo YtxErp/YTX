@@ -34,11 +34,7 @@ public:
     ~TableModelOrder() override = default;
 
 public slots:
-    void RUpdateLhsNode(int node_id);
-    void RUpdateFinished(int node_id, bool checked);
-    void RUpdateParty(int node_id, int party_id);
-
-    virtual void RSyncOneValue(int node_id, int column = 0, const QVariant& value = QVariant()) override;
+    void RSyncOneValue(int node_id, int column, const QVariant& value) override;
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -57,6 +53,10 @@ private:
     bool UpdateSecond(TransShadow* trans_shadow, double value);
 
     void CrossSearch(TransShadow* trans_shadow, int product_id, bool is_inside) const;
+
+    void UpdateLhsNode(int node_id);
+    void UpdateFinished(int node_id, bool checked);
+    void UpdateParty(int node_id, int party_id);
 
 private:
     const TreeModelProduct* product_tree_ {};

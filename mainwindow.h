@@ -98,7 +98,7 @@ private slots:
     void RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id);
 
     void RUpdateSettings(const Settings& settings, const Interface& interface);
-    void RUpdateParty(int node_id, int party_id);
+    void RSyncOneValue(int node_id, int column, const QVariant& value);
     void RUpdateName(int node_id, const QString& name, bool branch);
     void RUpdateState();
 

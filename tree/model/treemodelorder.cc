@@ -41,15 +41,18 @@ void TreeModelOrder::RUpdateStakeholder(int old_node_id, int new_node_id)
     }
 }
 
-void TreeModelOrder::RUpdateFinished(int node_id, bool checked)
+void TreeModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
 {
+    if (column != std::to_underlying(TreeEnumOrder::kFinished))
+        return;
+
     auto it { node_hash_.constFind(node_id) };
     if (it == node_hash_.constEnd())
         return;
 
     auto* node { it.value() };
 
-    int coefficient = checked ? 1 : -1;
+    int coefficient = value.toBool() ? 1 : -1;
     UpdateAncestorValueOrder(node, coefficient * node->first, coefficient * node->second, coefficient * node->initial_total, coefficient * node->discount,
         coefficient * node->final_total);
 

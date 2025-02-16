@@ -63,8 +63,12 @@ void EditNodeOrder::RSyncOneValue(int node_id, int column, const QVariant& value
     if (node_id != node_id_)
         return;
 
-    SignalBlocker blocker(this);
     const TreeEnumOrder kColumn { column };
+
+    if (kColumn == TreeEnumOrder::kFinished)
+        emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), value.toBool());
+
+    SignalBlocker blocker(this);
 
     switch (kColumn) {
     case TreeEnumOrder::kDescription:
@@ -170,7 +174,7 @@ void EditNodeOrder::accept()
         node_id_ = *node_shadow_->id;
 
         if (*node_shadow_->type == kTypeLeaf)
-            emit SUpdateLhsNode(node_id_);
+            emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumOrder::kID), node_id_);
 
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);
@@ -278,7 +282,7 @@ void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
         return;
 
     *node_shadow_->party = party_id;
-    emit SUpdateParty(node_id_, party_id);
+    emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
@@ -411,7 +415,7 @@ void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     sql_->UpdateField(info_node_, checked, kFinished, node_id_);
     if (*node_shadow_->type == kTypeLeaf)
-        emit SUpdateFinished(node_id_, checked);
+        emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
     ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
 

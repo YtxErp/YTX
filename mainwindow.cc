@@ -445,15 +445,14 @@ void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* tabl
     connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
     connect(table_model, &TableModel::SUpdateLeafValue, widget, &TableWidgetOrder::RUpdateLeafValue);
 
-    assert(dynamic_cast<TreeModelOrder*>(tree_model.data()) && "Tree Model is not TreeModelOrder");
-    auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
-    connect(tree_model_order, &TreeModel::SSyncOneValue, widget, &TableWidgetOrder::RSyncOneValue);
+    connect(tree_model, &TreeModel::SSyncOneValue, widget, &TableWidgetOrder::RSyncOneValue);
 
-    connect(widget, &TableWidgetOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
-    connect(widget, &TableWidgetOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);
-    connect(widget, &TableWidgetOrder::SUpdateParty, this, &MainWindow::RUpdateParty);
-    connect(widget, &TableWidgetOrder::SUpdateParty, table_model, &TableModelOrder::RUpdateParty);
+    connect(widget, &TableWidgetOrder::SSyncOneValue, tree_model, &TreeModel::RSyncOneValue);
     connect(widget, &TableWidgetOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
+
+    connect(widget, &TableWidgetOrder::SSyncOneValue, table_model, &TableModel::RSyncOneValue);
+    connect(widget, &TableWidgetOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
+    connect(widget, &TableWidgetOrder::SSyncOneValue, this, &MainWindow::RSyncOneValue);
 }
 
 void MainWindow::TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
@@ -1708,15 +1707,10 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     connect(table_model, &TableModel::SUpdateLeafValue, dialog, &EditNodeOrder::RUpdateLeafValue);
 
     connect(tree_model, &TreeModel::SSyncOneValue, dialog, &EditNodeOrder::RSyncOneValue);
-    connect(tree_model, &TreeModel::SSyncOneValue, stakeholder_tree_->Model(), &TreeModel::RSyncOneValue);
 
-    assert(dynamic_cast<TreeModelOrder*>(tree_widget_->Model().data()) && "Model is not TreeModelOrder");
-    auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
-    connect(dialog, &EditNodeOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
-
-    connect(dialog, &EditNodeOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);
-    connect(dialog, &EditNodeOrder::SUpdateLhsNode, table_model, &TableModelOrder::RUpdateLhsNode);
-    connect(dialog, &EditNodeOrder::SUpdateParty, table_model, &TableModelOrder::RUpdateParty);
+    connect(dialog, &EditNodeOrder::SSyncOneValue, tree_model, &TreeModel::RSyncOneValue);
+    connect(dialog, &EditNodeOrder::SSyncOneValue, table_model, &TableModel::RSyncOneValue);
+    connect(dialog, &EditNodeOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
     connect(dialog, &EditNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 
     dialog_list_->append(dialog);
@@ -2103,8 +2097,13 @@ void MainWindow::RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id)
     SwitchTab(id, trans_id);
 }
 
-void MainWindow::RUpdateParty(int node_id, int party_id)
+void MainWindow::RSyncOneValue(int node_id, int column, const QVariant& value)
 {
+    if (column != std::to_underlying(TreeEnumOrder::kParty))
+        return;
+
+    const int party_id { value.toInt() };
+
     auto model { stakeholder_tree_->Model() };
     auto* widget { ui->tabWidget };
     auto* tab_bar { widget->tabBar() };

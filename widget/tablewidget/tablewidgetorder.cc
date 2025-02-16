@@ -53,8 +53,12 @@ void TableWidgetOrder::RSyncOneValue(int node_id, int column, const QVariant& va
     if (node_id != node_id_)
         return;
 
-    SignalBlocker blocker(this);
     const TreeEnumOrder kColumn { column };
+
+    if (kColumn == TreeEnumOrder::kFinished)
+        emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), value.toBool());
+
+    SignalBlocker blocker(this);
 
     switch (kColumn) {
     case TreeEnumOrder::kDescription:
@@ -236,7 +240,7 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
     *node_shadow_->party = party_id;
     sql_->UpdateField(info_node_, party_id, kParty, node_id_);
-    emit SUpdateParty(node_id_, party_id);
+    emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
@@ -355,7 +359,7 @@ void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     *node_shadow_->finished = checked;
     sql_->UpdateField(info_node_, checked, kFinished, node_id_);
-    emit SUpdateFinished(node_id_, checked);
+    emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
     ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
 

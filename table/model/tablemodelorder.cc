@@ -18,7 +18,7 @@ TableModelOrder::TableModelOrder(
         sqlite_stakeholder_->ReadTrans(party_id_);
 }
 
-void TableModelOrder::RUpdateLhsNode(int node_id)
+void TableModelOrder::UpdateLhsNode(int node_id)
 {
     if (node_id_ != 0 || node_id <= 0)
         return;
@@ -45,7 +45,7 @@ void TableModelOrder::RUpdateLhsNode(int node_id)
         sql_->WriteTransRangeO(trans_shadow_list_);
 }
 
-void TableModelOrder::RUpdateFinished(int node_id, bool checked)
+void TableModelOrder::UpdateFinished(int node_id, bool checked)
 {
     if (node_id != node_id_ || !checked)
         return;
@@ -68,16 +68,33 @@ void TableModelOrder::RUpdateFinished(int node_id, bool checked)
     update_price_.clear();
 }
 
-void TableModelOrder::RUpdateParty(int node_id, int party_id)
+void TableModelOrder::UpdateParty(int node_id, int party_id)
 {
-    if (node_id_ != node_id)
+    if (node_id_ != node_id || party_id_ == party_id)
         return;
 
     party_id_ = party_id;
     sqlite_stakeholder_->ReadTrans(party_id);
 }
 
-void TableModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value) { }
+void TableModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
+{
+    const TreeEnumOrder kColumn { column };
+
+    switch (kColumn) {
+    case TreeEnumOrder::kID:
+        UpdateLhsNode(node_id);
+        break;
+    case TreeEnumOrder::kParty:
+        UpdateParty(node_id, value.toInt());
+        break;
+    case TreeEnumOrder::kFinished:
+        UpdateFinished(node_id, value.toBool());
+        break;
+    default:
+        break;
+    }
+}
 
 QVariant TableModelOrder::data(const QModelIndex& index, int role) const
 {

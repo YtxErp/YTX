@@ -38,11 +38,11 @@ public:
     ~TableWidgetOrder();
 
 signals:
-    // send to TableModelOrder and TreeModelOrder
-    void SUpdateFinished(int node_id, bool checked);
+    // send to TableModelOrder, TreeModelOrder and MainWindow
+    void SSyncOneValue(int node_id, int column, const QVariant& value);
 
-    // send to TableModelOrder and MainWindow
-    void SUpdateParty(int node_id, int party_id);
+    // send to TableModelOrder
+    void SSyncFinished(int node_id, int column, const QVariant& value);
 
     // send to TreeModelOrder
     void SUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);

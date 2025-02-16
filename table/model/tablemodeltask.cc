@@ -108,8 +108,8 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         emit SResizeColumnToContents(std::to_underlying(TableEnumTask::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
 
-        emit SUpdateLeafValueOne(*trans_shadow->rhs_node, *trans_shadow->unit_price, kUnitCost);
-        emit SUpdateLeafValueOne(node_id_, *trans_shadow->unit_price, kUnitCost);
+        emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->unit_price);
+        emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->unit_price);
 
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
@@ -259,8 +259,8 @@ bool TableModelTask::removeRows(int row, int /*count*/, const QModelIndex& paren
         sql_->RemoveTrans(trans_id);
 
         QTimer::singleShot(50, this, [this, rhs_node_id, unit_cost]() {
-            emit SUpdateLeafValueOne(rhs_node_id, -unit_cost, kUnitCost);
-            emit SUpdateLeafValueOne(node_id_, -unit_cost, kUnitCost);
+            emit SSyncOneValue(rhs_node_id, std::to_underlying(TableEnumTask::kUnitCost), -unit_cost);
+            emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), -unit_cost);
         });
     }
 
@@ -345,8 +345,8 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * diff, *trans_shadow->lhs_credit * diff);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * diff, *trans_shadow->rhs_credit * diff);
 
-    emit SUpdateLeafValueOne(*trans_shadow->rhs_node, diff, kUnitCost);
-    emit SUpdateLeafValueOne(node_id_, diff, kUnitCost);
+    emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), diff);
+    emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), diff);
 
     return true;
 }

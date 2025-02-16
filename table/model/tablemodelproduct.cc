@@ -106,9 +106,6 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
         emit SResizeColumnToContents(std::to_underlying(TableEnumProduct::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
 
-        emit SUpdateLeafValueOne(*trans_shadow->rhs_node, *trans_shadow->unit_price, kUnitCost);
-        emit SUpdateLeafValueOne(node_id_, *trans_shadow->unit_price, kUnitCost);
-
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
         double credit { *trans_shadow->lhs_credit };

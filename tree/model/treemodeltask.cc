@@ -11,17 +11,6 @@ TreeModelTask::TreeModelTask(Sqlite* sql, CInfo& info, int default_unit, CTableH
 
 TreeModelTask::~TreeModelTask() { qDeleteAll(node_hash_); }
 
-void TreeModelTask::RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
-{
-    auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf || diff == 0.0 || node->unit != kUnitProd)
-        return;
-
-    node->first += (node->rule ? 1 : -1) * diff;
-
-    sql_->UpdateField(info_.node, node->first, node_field, node_id);
-}
-
 void TreeModelTask::RUpdateLeafValue(
     int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double /*settled_diff*/)
 {
@@ -73,6 +62,24 @@ void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
     }
 
     emit SUpdateStatusValue();
+}
+
+void TreeModelTask::RSyncOneValue(int node_id, int column, const QVariant& value)
+{
+    if (column != std::to_underlying(TreeEnumTask::kUnitCost) || node_id <= 0 || value.isValid())
+        return;
+
+    const double diff { value.toDouble() };
+    if (diff == 0.0)
+        return;
+
+    auto* node { node_hash_.value(node_id) };
+    if (!node || node == root_ || node->type != kTypeLeaf || node->unit != kUnitProd)
+        return;
+
+    node->first += (node->rule ? 1 : -1) * diff;
+
+    sql_->UpdateField(info_.node, node->first, kUnitCost, node_id);
 }
 
 QVariant TreeModelTask::data(const QModelIndex& index, int role) const

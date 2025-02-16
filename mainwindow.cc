@@ -427,7 +427,7 @@ void MainWindow::TableConnectFPT(PQTableView table_view, PTableModel table_model
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
 
     connect(table_model, &TableModel::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
-    connect(table_model, &TableModel::SUpdateLeafValueOne, tree_model, &TreeModel::RUpdateLeafValueOne);
+    connect(table_model, &TableModel::SSyncOneValue, tree_model, &TreeModel::RSyncOneValue);
 
     connect(table_model, &TableModel::SRemoveOneTrans, &SignalStation::Instance(), &SignalStation::RRemoveOneTrans);
     connect(table_model, &TableModel::SAppendOneTrans, &SignalStation::Instance(), &SignalStation::RAppendOneTrans);
@@ -1335,7 +1335,7 @@ void MainWindow::SetSalesData()
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(model, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne);
+    connect(model, &TreeModel::SSyncOneValue, stakeholder_tree_->Model(), &TreeModel::RSyncOneValue);
 }
 
 void MainWindow::SetPurchaseData()
@@ -1377,7 +1377,7 @@ void MainWindow::SetPurchaseData()
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(model, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne);
+    connect(model, &TreeModel::SSyncOneValue, stakeholder_tree_->Model(), &TreeModel::RSyncOneValue);
 }
 
 void MainWindow::SetAction() const
@@ -1707,11 +1707,11 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     connect(table_model, &TableModel::SResizeColumnToContents, dialog->View(), &QTableView::resizeColumnToContents);
     connect(table_model, &TableModel::SUpdateLeafValue, dialog, &EditNodeOrder::RUpdateLeafValue);
 
+    connect(tree_model, &TreeModel::SSyncOneValue, dialog, &EditNodeOrder::RSyncOneValue);
+    connect(tree_model, &TreeModel::SSyncOneValue, stakeholder_tree_->Model(), &TreeModel::RSyncOneValue);
+
     assert(dynamic_cast<TreeModelOrder*>(tree_widget_->Model().data()) && "Model is not TreeModelOrder");
     auto* tree_model_order { static_cast<TreeModelOrder*>(tree_model.data()) };
-    connect(tree_model_order, &TreeModel::SSyncOneValue, dialog, &EditNodeOrder::RSyncOneValue);
-    connect(tree_model_order, &TreeModelOrder::SUpdateLeafValueOne, stakeholder_tree_->Model(), &TreeModel::RUpdateLeafValueOne, Qt::UniqueConnection);
-
     connect(dialog, &EditNodeOrder::SUpdateFinished, tree_model_order, &TreeModelOrder::RUpdateFinished);
 
     connect(dialog, &EditNodeOrder::SUpdateFinished, table_model, &TableModelOrder::RUpdateFinished);

@@ -77,6 +77,8 @@ void TableModelOrder::RUpdateParty(int node_id, int party_id)
     sqlite_stakeholder_->ReadTrans(party_id);
 }
 
+void TableModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value) { }
+
 QVariant TableModelOrder::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)

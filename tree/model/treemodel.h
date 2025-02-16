@@ -61,12 +61,13 @@ public slots:
 
     // receive from  TableModel
     void RSearch() { emit SSearch(); }
-    virtual void RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
+    virtual void RSyncOneValue(int node_id, int column, const QVariant& value)
     {
         Q_UNUSED(node_id);
-        Q_UNUSED(diff);
-        Q_UNUSED(node_field);
+        Q_UNUSED(column);
+        Q_UNUSED(value);
     }
+
     virtual void RUpdateLeafValue(
         int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double net_amount_diff)
     {

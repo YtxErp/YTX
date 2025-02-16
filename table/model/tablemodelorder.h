@@ -38,6 +38,8 @@ public slots:
     void RUpdateFinished(int node_id, bool checked);
     void RUpdateParty(int node_id, int party_id);
 
+    virtual void RSyncOneValue(int node_id, int column = 0, const QVariant& value = QVariant()) override;
+
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;

@@ -24,15 +24,21 @@ void TreeModelStakeholder::RUpdateStakeholder(int old_node_id, int new_node_id)
     }
 }
 
-void TreeModelStakeholder::RUpdateLeafValueOne(int node_id, double diff, const QString& node_field)
+void TreeModelStakeholder::RSyncOneValue(int node_id, int column, const QVariant& value)
 {
+    if (column != std::to_underlying(TreeEnumStakeholder::kAmount) || node_id <= 0 || value.isValid())
+        return;
+
+    const double diff { value.toDouble() };
+    if (diff == 0.0)
+        return;
+
     auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf || diff == 0.0)
+    if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
     node->initial_total += diff;
-
-    sql_->UpdateField(info_.node, node->initial_total, node_field, node_id);
+    sql_->UpdateField(info_.node, node->initial_total, kAmount, node_id);
 
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
         current->initial_total += diff;

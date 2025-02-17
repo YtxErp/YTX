@@ -629,7 +629,7 @@ void Sqlite::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) co
     trans_shadow->support_id = &trans->support_id;
     trans_shadow->discount_price = &trans->discount_price;
     trans_shadow->unit_price = &trans->unit_price;
-    trans_shadow->net_amount = &trans->net_amount;
+    trans_shadow->discount = &trans->discount;
 
     trans_shadow->lhs_node = &(left ? trans->lhs_node : trans->rhs_node);
     trans_shadow->lhs_ratio = &(left ? trans->lhs_ratio : trans->rhs_ratio);
@@ -716,9 +716,9 @@ bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
         second_list.emplaceBack(*trans_shadow->lhs_credit);
         lhs_node_list.emplaceBack(*trans_shadow->lhs_node);
         first_list.emplaceBack(*trans_shadow->lhs_debit);
-        gross_amount_list.emplaceBack(*trans_shadow->rhs_credit);
-        discount_list.emplaceBack(*trans_shadow->rhs_debit);
-        net_amount_list.emplaceBack(*trans_shadow->net_amount);
+        gross_amount_list.emplaceBack(*trans_shadow->rhs_debit);
+        discount_list.emplaceBack(*trans_shadow->discount);
+        net_amount_list.emplaceBack(*trans_shadow->rhs_credit);
         outside_product_list.emplaceBack(*trans_shadow->support_id);
         discount_price_list.emplaceBack(*trans_shadow->discount_price);
     }

@@ -42,7 +42,7 @@ struct Trans {
     int support_id {};
     double discount_price {};
     double unit_price {};
-    double net_amount {};
+    double discount {};
 
     void Reset()
     {
@@ -63,7 +63,7 @@ struct Trans {
         support_id = 0;
         discount_price = 0.0;
         unit_price = 0.0;
-        net_amount = 0.0;
+        discount = 0.0;
     }
 };
 
@@ -85,7 +85,7 @@ struct TransShadow {
     int* support_id {};
     double* discount_price {};
     double* unit_price {};
-    double* net_amount {};
+    double* discount {};
 
     double subtotal {};
 
@@ -108,7 +108,7 @@ struct TransShadow {
         support_id = nullptr;
         discount_price = nullptr;
         unit_price = nullptr;
-        net_amount = nullptr;
+        discount = nullptr;
 
         subtotal = 0.0;
     }

@@ -276,9 +276,9 @@ void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) co
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":first"), *trans_shadow->lhs_debit);
-    query.bindValue(QStringLiteral(":gross_amount"), *trans_shadow->rhs_credit);
-    query.bindValue(QStringLiteral(":discount"), *trans_shadow->rhs_debit);
-    query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->net_amount);
+    query.bindValue(QStringLiteral(":gross_amount"), *trans_shadow->rhs_debit);
+    query.bindValue(QStringLiteral(":discount"), *trans_shadow->discount);
+    query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->rhs_credit);
     query.bindValue(QStringLiteral(":outside_product"), *trans_shadow->support_id);
     query.bindValue(QStringLiteral(":discount_price"), *trans_shadow->discount_price);
 }
@@ -292,9 +292,9 @@ void SqliteOrder::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
     trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
-    trans->rhs_credit = query.value(QStringLiteral("gross_amount")).toDouble();
-    trans->net_amount = query.value(QStringLiteral("net_amount")).toDouble();
-    trans->rhs_debit = query.value(QStringLiteral("discount")).toDouble();
+    trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
+    trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
+    trans->discount = query.value(QStringLiteral("discount")).toDouble();
     trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
     trans->discount_price = query.value(QStringLiteral("discount_price")).toDouble();
 }
@@ -345,9 +345,9 @@ void SqliteOrder::UpdateStakeholderReferenceO(int old_node_id, int new_node_id) 
 void SqliteOrder::UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":second"), *trans_shadow->lhs_credit);
-    query.bindValue(QStringLiteral(":gross_amount"), *trans_shadow->rhs_credit);
-    query.bindValue(QStringLiteral(":discount"), *trans_shadow->rhs_debit);
-    query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->net_amount);
+    query.bindValue(QStringLiteral(":gross_amount"), *trans_shadow->rhs_debit);
+    query.bindValue(QStringLiteral(":discount"), *trans_shadow->discount);
+    query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->rhs_credit);
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 

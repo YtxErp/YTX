@@ -130,7 +130,7 @@ private:
     void DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
     void DelegateStakeholder(PQTableView table_view) const;
     void DelegateOrder(PQTableView table_view, CSettings* settings) const;
-    void SetView(PQTableView table_view) const;
+    void SetView(PQTableView table_view, Section section) const;
 
     void SetSupportView(PQTableView table_view) const;
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;

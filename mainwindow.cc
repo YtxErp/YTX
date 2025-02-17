@@ -336,7 +336,7 @@ void MainWindow::CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, C
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetView(view);
+    SetView(view, section);
     DelegateFPTS(view, tree_model, settings);
 
     switch (section) {
@@ -413,7 +413,7 @@ void MainWindow::CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, 
     tab_bar->setTabToolTip(tab_index, stakeholder_tree_->Model()->GetPath(party_id));
 
     auto view { widget->View() };
-    SetView(view);
+    SetView(view, section);
 
     TableConnectOrder(view, model, tree_model, widget);
     DelegateOrder(view, settings);
@@ -1049,7 +1049,7 @@ void MainWindow::SetTabWidget()
     }
 }
 
-void MainWindow::SetView(PQTableView view) const
+void MainWindow::SetView(PQTableView view, Section section) const
 {
     view->setSortingEnabled(true);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -1058,9 +1058,12 @@ void MainWindow::SetView(PQTableView view) const
     view->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::CurrentChanged);
     view->setColumnHidden(std::to_underlying(TableEnum::kID), false);
 
+    const int column { (section == Section::kSales || section == Section::kPurchase) ? std::to_underlying(TableEnumOrder::kDescription)
+                                                                                     : std::to_underlying(TableEnum::kDescription) };
+
     auto* h_header { view->horizontalHeader() };
     h_header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    h_header->setSectionResizeMode(std::to_underlying(TableEnum::kDescription), QHeaderView::Stretch);
+    h_header->setSectionResizeMode(column, QHeaderView::Stretch);
 
     auto* v_header { view->verticalHeader() };
     v_header->setDefaultSectionSize(kRowHeight);
@@ -1715,7 +1718,7 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
 
     dialog_list_->append(dialog);
 
-    SetView(dialog->View());
+    SetView(dialog->View(), Section::kSales);
     DelegateOrder(dialog->View(), settings_);
     dialog->show();
 }

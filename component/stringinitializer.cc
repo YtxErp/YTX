@@ -59,9 +59,9 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     sales.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Party"), QObject::tr("Description"), QObject::tr("Employee"),
         QObject::tr("Rule"), QObject::tr("Type"), QObject::tr("Unit"), QObject::tr("DateTime"), QObject::tr("First"), QObject::tr("Second"),
         QObject::tr("Finished"), QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount"), {} };
-    sales.trans_header = { QObject::tr("ID"), QObject::tr("InsideProduct"), QObject::tr("OutsideProduct"), QObject::tr("Code"), QObject::tr("Description"),
-        QObject::tr("Color"), QObject::tr("First"), QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("GrossAmount"), QObject::tr("DiscountPrice"),
-        QObject::tr("Discount"), QObject::tr("NetAmount") };
+    sales.trans_header = { QObject::tr("ID"), QObject::tr("Inside"), QObject::tr("Outside"), QObject::tr("First"), QObject::tr("Second"),
+        QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Description"), QObject::tr("Code"), QObject::tr("Color"),
+        QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount") };
     sales.search_trans_header = { QObject::tr("ID"), {}, QObject::tr("Code"), QObject::tr("InsideProduct"), {}, QObject::tr("First"), QObject::tr("Second"),
         QObject::tr("Description"), QObject::tr("UnitPrice"), QObject::tr("LhsNode"), QObject::tr("DiscountPrice"), QObject::tr("Settled"), {}, {},
         QObject::tr("Amount"), QObject::tr("Discount"), {}, QObject::tr("OutsideProduct") };

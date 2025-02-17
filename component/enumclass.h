@@ -51,14 +51,14 @@ enum class TableEnumOrder {
     kID,
     kInsideProduct,
     kOutsideProduct,
-    kCode,
-    kDescription,
-    kColor,
     kFirst,
     kSecond,
     kUnitPrice,
-    kGrossAmount,
     kDiscountPrice,
+    kDescription,
+    kCode,
+    kColor,
+    kGrossAmount,
     kDiscount,
     kNetAmount
 };

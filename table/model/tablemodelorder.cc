@@ -18,6 +18,13 @@ TableModelOrder::TableModelOrder(
         sqlite_stakeholder_->ReadTrans(party_id_);
 }
 
+TableModelOrder::~TableModelOrder()
+{
+    if (node_id_ != 0) {
+        UpdateFinished(node_id_, true);
+    }
+}
+
 void TableModelOrder::UpdateLhsNode(int node_id)
 {
     if (node_id_ != 0 || node_id <= 0)
@@ -27,45 +34,19 @@ void TableModelOrder::UpdateLhsNode(int node_id)
     if (trans_shadow_list_.isEmpty())
         return;
 
-    TransShadow* trans_shadow {};
+    PurifyTransShadow(node_id);
 
-    for (auto i { trans_shadow_list_.size() - 1 }; i >= 0; --i) {
-        trans_shadow = trans_shadow_list_.at(i);
-        if (*trans_shadow->rhs_node == 0) {
-            beginRemoveRows(QModelIndex(), i, i);
-            ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
-            endRemoveRows();
-        } else {
-            *trans_shadow->lhs_node = node_id;
-        }
-    }
-
-    // 一次向数据库添加多条交易
     if (!trans_shadow_list_.isEmpty())
         sql_->WriteTransRangeO(trans_shadow_list_);
 }
 
 void TableModelOrder::UpdateFinished(int node_id, bool checked)
 {
-    if (node_id != node_id_ || !checked)
+    if (node_id != node_id_ || !checked || sync_price_.isEmpty())
         return;
 
-    TransShadow* trans_shadow {};
-    for (auto i { trans_shadow_list_.size() - 1 }; i >= 0; --i) {
-        trans_shadow = trans_shadow_list_.at(i);
-        if (*trans_shadow->rhs_node == 0) {
-            beginRemoveRows(QModelIndex(), i, i);
-            ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
-            endRemoveRows();
-        }
-    }
-
-    // 遍历trans_shadow_list，对比exclusive_price_，检测是否存在inside_product_id, 不存在添加，存在更新
-    for (auto it = update_price_.cbegin(); it != update_price_.cend(); ++it) {
-        sqlite_stakeholder_->UpdatePrice(*node_shadow_->party, it.key(), *node_shadow_->date_time, it.value());
-    }
-
-    update_price_.clear();
+    PurifyTransShadow();
+    UpdatePrice();
 }
 
 void TableModelOrder::UpdateParty(int node_id, int party_id)
@@ -75,6 +56,16 @@ void TableModelOrder::UpdateParty(int node_id, int party_id)
 
     party_id_ = party_id;
     sqlite_stakeholder_->ReadTrans(party_id);
+}
+
+void TableModelOrder::UpdatePrice()
+{
+    // 遍历trans_shadow_list，对比exclusive_price_，检测是否存在inside_product_id, 不存在添加，存在更新
+    for (auto it = sync_price_.cbegin(); it != sync_price_.cend(); ++it) {
+        sqlite_stakeholder_->UpdatePrice(*node_shadow_->party, it.key(), *node_shadow_->date_time, it.value());
+    }
+
+    sync_price_.clear();
 }
 
 void TableModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
@@ -357,7 +348,7 @@ bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kGrossAmount));
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kNetAmount));
-    update_price_.insert(*trans_shadow->rhs_node, value);
+    sync_price_.insert(*trans_shadow->rhs_node, value);
 
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return true;
@@ -410,6 +401,22 @@ bool TableModelOrder::UpdateSecond(TransShadow* trans_shadow, double value)
 
     sql_->UpdateTransValue(trans_shadow);
     return true;
+}
+
+void TableModelOrder::PurifyTransShadow(int lhs_node_id)
+{
+    TransShadow* trans_shadow {};
+
+    for (auto i { trans_shadow_list_.size() - 1 }; i >= 0; --i) {
+        trans_shadow = trans_shadow_list_.at(i);
+        if (*trans_shadow->rhs_node == 0) {
+            beginRemoveRows(QModelIndex(), i, i);
+            ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
+            endRemoveRows();
+        } else if (lhs_node_id != 0) {
+            *trans_shadow->lhs_node = lhs_node_id;
+        }
+    }
 }
 
 void TableModelOrder::CrossSearch(TransShadow* trans_shadow, int product_id, bool is_inside) const

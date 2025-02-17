@@ -31,7 +31,7 @@ class TableModelOrder final : public TableModel {
 public:
     TableModelOrder(Sqlite* sql, bool rule, int node_id, CInfo& info, const NodeShadow* node_shadow, CTreeModel* product_tree, Sqlite* sqlite_stakeholder,
         QObject* parent = nullptr);
-    ~TableModelOrder() override = default;
+    ~TableModelOrder() override;
 
 public slots:
     void RSyncOneValue(int node_id, int column, const QVariant& value) override;
@@ -51,17 +51,19 @@ private:
     bool UpdateUnitPrice(TransShadow* trans_shadow, double value);
     bool UpdateDiscountPrice(TransShadow* trans_shadow, double value);
     bool UpdateSecond(TransShadow* trans_shadow, double value);
+    void PurifyTransShadow(int lhs_node_id = 0);
 
     void CrossSearch(TransShadow* trans_shadow, int product_id, bool is_inside) const;
 
     void UpdateLhsNode(int node_id);
     void UpdateFinished(int node_id, bool checked);
     void UpdateParty(int node_id, int party_id);
+    void UpdatePrice();
 
 private:
     const TreeModelProduct* product_tree_ {};
     SqliteStakeholder* sqlite_stakeholder_ {};
-    QHash<int, double> update_price_ {}; // inside_product_id, exclusive_price
+    QHash<int, double> sync_price_ {}; // inside_product_id, exclusive_price
     const NodeShadow* node_shadow_ {};
     int party_id_ {};
 };

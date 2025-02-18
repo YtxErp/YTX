@@ -103,7 +103,7 @@ QVariant TableModelStakeholder::data(const QModelIndex& index, int role) const
     case TableEnumStakeholder::kCode:
         return *trans_shadow->code;
     case TableEnumStakeholder::kUnitPrice:
-        return *trans_shadow->unit_price == 0 ? QVariant() : *trans_shadow->unit_price;
+        return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
     case TableEnumStakeholder::kDescription:
         return *trans_shadow->description;
     case TableEnumStakeholder::kDocument:
@@ -145,7 +145,7 @@ bool TableModelStakeholder::setData(const QModelIndex& index, const QVariant& va
         rhs_changed = UpdateInsideProduct(trans_shadow, value.toInt());
         break;
     case TableEnumStakeholder::kUnitPrice:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kUnitPrice, value.toDouble(), &TransShadow::unit_price);
+        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kUnitPrice, value.toDouble(), &TransShadow::lhs_ratio);
         break;
     case TableEnumStakeholder::kDescription:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
@@ -199,7 +199,7 @@ void TableModelStakeholder::sort(int column, Qt::SortOrder order)
         case TableEnumStakeholder::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
         case TableEnumStakeholder::kUnitPrice:
-            return (order == Qt::AscendingOrder) ? (*lhs->unit_price < *rhs->unit_price) : (*lhs->unit_price > *rhs->unit_price);
+            return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
         case TableEnumStakeholder::kDescription:
             return (order == Qt::AscendingOrder) ? (*lhs->description < *rhs->description) : (*lhs->description > *rhs->description);
         case TableEnumStakeholder::kDocument:

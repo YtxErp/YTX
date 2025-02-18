@@ -627,8 +627,8 @@ void Sqlite::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) co
     trans_shadow->document = &trans->document;
     trans_shadow->description = &trans->description;
     trans_shadow->support_id = &trans->support_id;
-    trans_shadow->discount_price = &trans->discount_price;
-    trans_shadow->unit_price = &trans->unit_price;
+    trans_shadow->rhs_ratio = &trans->rhs_ratio;
+    trans_shadow->lhs_ratio = &trans->lhs_ratio;
     trans_shadow->discount = &trans->discount;
 
     trans_shadow->lhs_node = &(left ? trans->lhs_node : trans->rhs_node);
@@ -711,7 +711,7 @@ bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
     for (const TransShadow* trans_shadow : list) {
         code_list.emplaceBack(*trans_shadow->code);
         inside_product_list.emplaceBack(*trans_shadow->rhs_node);
-        unit_price_list.emplaceBack(*trans_shadow->unit_price);
+        unit_price_list.emplaceBack(*trans_shadow->lhs_ratio);
         description_list.emplaceBack(*trans_shadow->description);
         second_list.emplaceBack(*trans_shadow->lhs_credit);
         lhs_node_list.emplaceBack(*trans_shadow->lhs_node);
@@ -720,13 +720,13 @@ bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
         discount_list.emplaceBack(*trans_shadow->discount);
         net_amount_list.emplaceBack(*trans_shadow->rhs_credit);
         outside_product_list.emplaceBack(*trans_shadow->support_id);
-        discount_price_list.emplaceBack(*trans_shadow->discount_price);
+        discount_price_list.emplaceBack(*trans_shadow->rhs_ratio);
     }
 
     // 批量绑定 QVariantList
     query.bindValue(QStringLiteral(":code"), code_list);
     query.bindValue(QStringLiteral(":inside_product"), inside_product_list);
-    query.bindValue(QStringLiteral(":unit_price"), unit_price_list);
+    query.bindValue(QStringLiteral(":lhs_ratio"), unit_price_list);
     query.bindValue(QStringLiteral(":description"), description_list);
     query.bindValue(QStringLiteral(":second"), second_list);
     query.bindValue(QStringLiteral(":lhs_node"), lhs_node_list);
@@ -735,7 +735,7 @@ bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
     query.bindValue(QStringLiteral(":discount"), discount_list);
     query.bindValue(QStringLiteral(":net_amount"), net_amount_list);
     query.bindValue(QStringLiteral(":outside_product"), outside_product_list);
-    query.bindValue(QStringLiteral(":discount_price"), discount_price_list);
+    query.bindValue(QStringLiteral(":rhs_ratio"), discount_price_list);
 
     // 执行批量插入
     if (!query.execBatch()) {

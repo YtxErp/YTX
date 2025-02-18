@@ -103,7 +103,7 @@ QVariant TableModelOrder::data(const QModelIndex& index, int role) const
     case TableEnumOrder::kInsideProduct:
         return *trans_shadow->rhs_node == 0 ? QVariant() : *trans_shadow->rhs_node;
     case TableEnumOrder::kUnitPrice:
-        return *trans_shadow->unit_price == 0 ? QVariant() : *trans_shadow->unit_price;
+        return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
     case TableEnumOrder::kSecond:
         return *trans_shadow->lhs_credit == 0 ? QVariant() : *trans_shadow->lhs_credit;
     case TableEnumOrder::kDescription:
@@ -119,7 +119,7 @@ QVariant TableModelOrder::data(const QModelIndex& index, int role) const
     case TableEnumOrder::kGrossAmount:
         return *trans_shadow->rhs_debit == 0 ? QVariant() : *trans_shadow->rhs_debit;
     case TableEnumOrder::kDiscountPrice:
-        return *trans_shadow->discount_price == 0 ? QVariant() : *trans_shadow->discount_price;
+        return *trans_shadow->rhs_ratio == 0 ? QVariant() : *trans_shadow->rhs_ratio;
     case TableEnumOrder::kOutsideProduct:
         return *trans_shadow->support_id == 0 ? QVariant() : *trans_shadow->support_id;
     default:
@@ -233,7 +233,7 @@ void TableModelOrder::sort(int column, Qt::SortOrder order)
         case TableEnumOrder::kInsideProduct:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_node < *rhs->rhs_node) : (*lhs->rhs_node > *rhs->rhs_node);
         case TableEnumOrder::kUnitPrice:
-            return (order == Qt::AscendingOrder) ? (*lhs->unit_price < *rhs->unit_price) : (*lhs->unit_price > *rhs->unit_price);
+            return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
         case TableEnumOrder::kFirst:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_debit < *rhs->lhs_debit) : (*lhs->lhs_debit > *rhs->lhs_debit);
         case TableEnumOrder::kSecond:
@@ -243,7 +243,7 @@ void TableModelOrder::sort(int column, Qt::SortOrder order)
         case TableEnumOrder::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_debit < *rhs->rhs_debit) : (*lhs->rhs_debit > *rhs->rhs_debit);
         case TableEnumOrder::kDiscountPrice:
-            return (order == Qt::AscendingOrder) ? (*lhs->discount_price < *rhs->discount_price) : (*lhs->discount_price > *rhs->discount_price);
+            return (order == Qt::AscendingOrder) ? (*lhs->rhs_ratio < *rhs->rhs_ratio) : (*lhs->rhs_ratio > *rhs->rhs_ratio);
         case TableEnumOrder::kOutsideProduct:
             return (order == Qt::AscendingOrder) ? (*lhs->support_id < *rhs->support_id) : (*lhs->support_id > *rhs->support_id);
         case TableEnumOrder::kDiscount:
@@ -338,13 +338,13 @@ bool TableModelOrder::UpdateOutsideProduct(TransShadow* trans_shadow, int value)
 
 bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
 {
-    if (std::abs(*trans_shadow->unit_price - value) < kTolerance)
+    if (std::abs(*trans_shadow->lhs_ratio - value) < kTolerance)
         return false;
 
-    double diff { *trans_shadow->lhs_credit * (value - *trans_shadow->unit_price) };
+    double diff { *trans_shadow->lhs_credit * (value - *trans_shadow->lhs_ratio) };
     *trans_shadow->rhs_credit += diff;
     *trans_shadow->rhs_debit += diff;
-    *trans_shadow->unit_price = value;
+    *trans_shadow->lhs_ratio = value;
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kGrossAmount));
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kNetAmount));
@@ -360,13 +360,13 @@ bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
 
 bool TableModelOrder::UpdateDiscountPrice(TransShadow* trans_shadow, double value)
 {
-    if (std::abs(*trans_shadow->discount_price - value) < kTolerance)
+    if (std::abs(*trans_shadow->rhs_ratio - value) < kTolerance)
         return false;
 
-    double diff { *trans_shadow->lhs_credit * (value - *trans_shadow->discount_price) };
+    double diff { *trans_shadow->lhs_credit * (value - *trans_shadow->rhs_ratio) };
     *trans_shadow->rhs_credit -= diff;
     *trans_shadow->discount += diff;
-    *trans_shadow->discount_price = value;
+    *trans_shadow->rhs_ratio = value;
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kDiscount));
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kNetAmount));
@@ -385,9 +385,9 @@ bool TableModelOrder::UpdateSecond(TransShadow* trans_shadow, double value)
         return false;
 
     double diff { value - *trans_shadow->lhs_credit };
-    *trans_shadow->rhs_debit += *trans_shadow->unit_price * diff;
-    *trans_shadow->discount += *trans_shadow->discount_price * diff;
-    *trans_shadow->rhs_credit += (*trans_shadow->unit_price - *trans_shadow->discount_price) * diff;
+    *trans_shadow->rhs_debit += *trans_shadow->lhs_ratio * diff;
+    *trans_shadow->discount += *trans_shadow->rhs_ratio * diff;
+    *trans_shadow->rhs_credit += (*trans_shadow->lhs_ratio - *trans_shadow->rhs_ratio) * diff;
 
     *trans_shadow->lhs_credit = value;
 
@@ -427,6 +427,6 @@ void TableModelOrder::CrossSearch(TransShadow* trans_shadow, int product_id, boo
     if (sqlite_stakeholder_->CrossSearch(trans_shadow, *node_shadow_->party, product_id, is_inside))
         return;
 
-    *trans_shadow->unit_price = is_inside ? product_tree_->First(product_id) : 0.0;
+    *trans_shadow->lhs_ratio = is_inside ? product_tree_->First(product_id) : 0.0;
     is_inside ? * trans_shadow->support_id = 0 : * trans_shadow->rhs_node = 0;
 }

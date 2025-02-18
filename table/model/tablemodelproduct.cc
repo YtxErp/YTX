@@ -27,7 +27,7 @@ QVariant TableModelProduct::data(const QModelIndex& index, int role) const
     case TableEnumProduct::kCode:
         return *trans_shadow->code;
     case TableEnumProduct::kUnitCost:
-        return *trans_shadow->unit_price == 0 ? QVariant() : *trans_shadow->unit_price;
+        return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
     case TableEnumProduct::kDescription:
         return *trans_shadow->description;
     case TableEnumProduct::kSupportID:
@@ -171,7 +171,7 @@ void TableModelProduct::sort(int column, Qt::SortOrder order)
         case TableEnumProduct::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
         case TableEnumProduct::kUnitCost:
-            return (order == Qt::AscendingOrder) ? (*lhs->unit_price < *rhs->unit_price) : (*lhs->unit_price > *rhs->unit_price);
+            return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
         case TableEnumProduct::kDescription:
             return (order == Qt::AscendingOrder) ? (*lhs->description < *rhs->description) : (*lhs->description > *rhs->description);
         case TableEnumProduct::kSupportID:
@@ -234,7 +234,7 @@ bool TableModelProduct::removeRows(int row, int /*count*/, const QModelIndex& pa
     endRemoveRows();
 
     if (rhs_node_id != 0) {
-        double unit_cost { *trans_shadow->unit_price };
+        double unit_cost { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
         double credit { *trans_shadow->lhs_credit };
         emit SUpdateLeafValue(node_id_, -debit, -credit, -unit_cost * debit, -unit_cost * credit);
@@ -275,7 +275,7 @@ bool TableModelProduct::UpdateDebit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double unit_cost { *trans_shadow->unit_price };
+    double unit_cost { *trans_shadow->lhs_ratio };
     double quantity_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
     double quantity_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
     double amount_debit_diff { quantity_debit_diff * unit_cost };
@@ -305,7 +305,7 @@ bool TableModelProduct::UpdateCredit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double unit_cost { *trans_shadow->unit_price };
+    double unit_cost { *trans_shadow->lhs_ratio };
     double quantity_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
     double quantity_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
     double amount_debit_diff { quantity_debit_diff * unit_cost };
@@ -319,12 +319,12 @@ bool TableModelProduct::UpdateCredit(TransShadow* trans_shadow, double value)
 
 bool TableModelProduct::UpdateRatio(TransShadow* trans_shadow, double value)
 {
-    double unit_cost { *trans_shadow->unit_price };
+    double unit_cost { *trans_shadow->lhs_ratio };
     if (std::abs(unit_cost - value) < kTolerance || value < 0)
         return false;
 
     double diff { value - unit_cost };
-    *trans_shadow->unit_price = value;
+    *trans_shadow->lhs_ratio = value;
 
     if (*trans_shadow->rhs_node == 0)
         return false;

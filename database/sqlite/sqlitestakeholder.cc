@@ -94,7 +94,7 @@ bool SqliteStakeholder::CrossSearch(TransShadow* order_trans_shadow, int party_i
     }
 
     if (latest_trans) {
-        *order_trans_shadow->unit_price = latest_trans->unit_price;
+        *order_trans_shadow->lhs_ratio = latest_trans->lhs_ratio;
 
         if (is_inside) {
             *order_trans_shadow->support_id = latest_trans->support_id;
@@ -122,7 +122,7 @@ bool SqliteStakeholder::UpdatePrice(int party_id, int inside_product_id, CString
     }
 
     if (latest_trans) {
-        latest_trans->unit_price = value;
+        latest_trans->lhs_ratio = value;
         latest_trans->date_time = date_time;
         UpdateDateTimePrice(date_time, value, latest_trans->id);
         return true;
@@ -134,7 +134,7 @@ bool SqliteStakeholder::UpdatePrice(int party_id, int inside_product_id, CString
 
     trans->lhs_node = party_id;
     trans->rhs_node = inside_product_id;
-    trans->unit_price = value;
+    trans->lhs_ratio = value;
     trans->date_time = date_time;
 
     if (WriteTrans(trans)) {
@@ -412,7 +412,7 @@ void SqliteStakeholder::WriteTransBind(Trans* trans, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":date_time"), trans->date_time);
     query.bindValue(QStringLiteral(":code"), trans->code);
     query.bindValue(QStringLiteral(":lhs_node"), trans->lhs_node);
-    query.bindValue(QStringLiteral(":unit_price"), trans->unit_price);
+    query.bindValue(QStringLiteral(":unit_price"), trans->lhs_ratio);
     query.bindValue(QStringLiteral(":description"), trans->description);
     query.bindValue(QStringLiteral(":state"), trans->state);
     query.bindValue(QStringLiteral(":document"), trans->document.join(kSemicolon));
@@ -444,7 +444,7 @@ void SqliteStakeholder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& que
     query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
     query.bindValue(QStringLiteral(":code"), *trans_shadow->code);
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
-    query.bindValue(QStringLiteral(":unit_price"), *trans_shadow->unit_price);
+    query.bindValue(QStringLiteral(":unit_price"), *trans_shadow->lhs_ratio);
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
     query.bindValue(QStringLiteral(":state"), *trans_shadow->state);
     query.bindValue(QStringLiteral(":document"), trans_shadow->document->join(kSemicolon));
@@ -515,7 +515,7 @@ void SqliteStakeholder::ReadTransQuery(Trans* trans, const QSqlQuery& query) con
     trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
     trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
-    trans->unit_price = query.value(QStringLiteral("unit_price")).toDouble();
+    trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->state = query.value(QStringLiteral("state")).toBool();

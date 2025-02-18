@@ -59,11 +59,11 @@ QVariant SearchTransModel::data(const QModelIndex& index, int role) const
     case TableEnumSearch::kDescription:
         return trans->description;
     case TableEnumSearch::kUnitPrice:
-        return trans->unit_price == 0 ? QVariant() : trans->unit_price;
+        return trans->lhs_ratio == 0 ? QVariant() : trans->lhs_ratio;
     case TableEnumSearch::kSupportID:
         return trans->support_id == 0 ? QVariant() : trans->support_id;
     case TableEnumSearch::kDiscountPrice:
-        return trans->discount_price == 0 ? QVariant() : trans->discount_price;
+        return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
     case TableEnumSearch::kDiscount:
         return trans->discount == 0 ? QVariant() : trans->discount;
     case TableEnumSearch::kRhsNode:
@@ -115,11 +115,11 @@ void SearchTransModel::sort(int column, Qt::SortOrder order)
         case TableEnumSearch::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case TableEnumSearch::kUnitPrice:
-            return (order == Qt::AscendingOrder) ? (lhs->unit_price < rhs->unit_price) : (lhs->unit_price > rhs->unit_price);
+            return (order == Qt::AscendingOrder) ? (lhs->lhs_ratio < rhs->lhs_ratio) : (lhs->lhs_ratio > rhs->lhs_ratio);
         case TableEnumSearch::kSupportID:
             return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
         case TableEnumSearch::kDiscountPrice:
-            return (order == Qt::AscendingOrder) ? (lhs->discount_price < rhs->discount_price) : (lhs->discount_price > rhs->discount_price);
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
         case TableEnumSearch::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
         case TableEnumSearch::kDocument:

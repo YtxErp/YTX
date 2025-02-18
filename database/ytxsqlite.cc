@@ -257,6 +257,7 @@ QString YtxSqlite::NodeOrder(CString& order)
         unit              INTEGER,
         party             INTEGER,
         employee          INTEGER,
+        payment_id        INTEGER,
         date_time         TEXT,
         first             NUMERIC,
         second            NUMERIC,

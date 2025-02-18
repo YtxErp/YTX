@@ -271,7 +271,7 @@ void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) co
 {
     query.bindValue(QStringLiteral(":code"), *trans_shadow->code);
     query.bindValue(QStringLiteral(":inside_product"), *trans_shadow->rhs_node);
-    query.bindValue(QStringLiteral(":unit_price"), *trans_shadow->unit_price);
+    query.bindValue(QStringLiteral(":unit_price"), *trans_shadow->lhs_ratio);
     query.bindValue(QStringLiteral(":second"), *trans_shadow->lhs_credit);
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
@@ -280,14 +280,14 @@ void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) co
     query.bindValue(QStringLiteral(":discount"), *trans_shadow->discount);
     query.bindValue(QStringLiteral(":net_amount"), *trans_shadow->rhs_credit);
     query.bindValue(QStringLiteral(":outside_product"), *trans_shadow->support_id);
-    query.bindValue(QStringLiteral(":discount_price"), *trans_shadow->discount_price);
+    query.bindValue(QStringLiteral(":discount_price"), *trans_shadow->rhs_ratio);
 }
 
 void SqliteOrder::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
 {
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
-    trans->unit_price = query.value(QStringLiteral("unit_price")).toDouble();
+    trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
     trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
@@ -296,7 +296,7 @@ void SqliteOrder::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
     trans->discount = query.value(QStringLiteral("discount")).toDouble();
     trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
-    trans->discount_price = query.value(QStringLiteral("discount_price")).toDouble();
+    trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
 }
 
 void SqliteOrder::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_id*/, QSqlQuery& query)

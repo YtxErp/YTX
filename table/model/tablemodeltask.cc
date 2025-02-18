@@ -29,7 +29,7 @@ QVariant TableModelTask::data(const QModelIndex& index, int role) const
     case TableEnumTask::kCode:
         return *trans_shadow->code;
     case TableEnumTask::kUnitCost:
-        return *trans_shadow->unit_price == 0 ? QVariant() : *trans_shadow->unit_price;
+        return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
     case TableEnumTask::kDescription:
         return *trans_shadow->description;
     case TableEnumTask::kSupportID:
@@ -108,8 +108,8 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         emit SResizeColumnToContents(std::to_underlying(TableEnumTask::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
 
-        emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->unit_price);
-        emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->unit_price);
+        emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->lhs_ratio);
+        emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->lhs_ratio);
 
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
@@ -176,7 +176,7 @@ void TableModelTask::sort(int column, Qt::SortOrder order)
         case TableEnumTask::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
         case TableEnumTask::kUnitCost:
-            return (order == Qt::AscendingOrder) ? (*lhs->unit_price < *rhs->unit_price) : (*lhs->unit_price > *rhs->unit_price);
+            return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
         case TableEnumTask::kDescription:
             return (order == Qt::AscendingOrder) ? (*lhs->description < *rhs->description) : (*lhs->description > *rhs->description);
         case TableEnumTask::kSupportID:
@@ -239,7 +239,7 @@ bool TableModelTask::removeRows(int row, int /*count*/, const QModelIndex& paren
     endRemoveRows();
 
     if (rhs_node_id != 0) {
-        double unit_cost { *trans_shadow->unit_price };
+        double unit_cost { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
         double credit { *trans_shadow->lhs_credit };
         emit SUpdateLeafValue(node_id_, -debit, -credit, -unit_cost * debit, -unit_cost * credit);
@@ -286,7 +286,7 @@ bool TableModelTask::UpdateDebit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double unit_cost { *trans_shadow->unit_price };
+    double unit_cost { *trans_shadow->lhs_ratio };
     double quantity_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
     double quantity_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
     double amount_debit_diff { quantity_debit_diff * unit_cost };
@@ -316,7 +316,7 @@ bool TableModelTask::UpdateCredit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double unit_cost { *trans_shadow->unit_price };
+    double unit_cost { *trans_shadow->lhs_ratio };
     double quantity_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
     double quantity_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
     double amount_debit_diff { quantity_debit_diff * unit_cost };
@@ -330,12 +330,12 @@ bool TableModelTask::UpdateCredit(TransShadow* trans_shadow, double value)
 
 bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
 {
-    double unit_cost { *trans_shadow->unit_price };
+    double unit_cost { *trans_shadow->lhs_ratio };
     if (std::abs(unit_cost - value) < kTolerance || value < 0)
         return false;
 
     double diff { value - unit_cost };
-    *trans_shadow->unit_price = value;
+    *trans_shadow->lhs_ratio = value;
 
     if (*trans_shadow->rhs_node == 0)
         return false;

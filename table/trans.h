@@ -40,8 +40,6 @@ struct Trans {
 
     // order
     int support_id {};
-    double discount_price {};
-    double unit_price {};
     double discount {};
 
     void Reset()
@@ -61,8 +59,6 @@ struct Trans {
         state = false;
         document.clear();
         support_id = 0;
-        discount_price = 0.0;
-        unit_price = 0.0;
         discount = 0.0;
     }
 };
@@ -83,8 +79,6 @@ struct TransShadow {
     double* rhs_ratio {};
     int* rhs_node {};
     int* support_id {};
-    double* discount_price {};
-    double* unit_price {};
     double* discount {};
 
     double subtotal {};
@@ -106,8 +100,6 @@ struct TransShadow {
         state = nullptr;
         document = nullptr;
         support_id = nullptr;
-        discount_price = nullptr;
-        unit_price = nullptr;
         discount = nullptr;
 
         subtotal = 0.0;

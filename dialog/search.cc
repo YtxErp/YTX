@@ -116,14 +116,15 @@ void Search::HideTableColumn(QTableView* view, Section section)
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kUnitPrice), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscountPrice), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSettled), true);
+        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
         break;
     case Section::kTask:
     case Section::kProduct:
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscountPrice), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsRatio), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSettled), true);
+        view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsRatio), true);
+        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
         break;
     case Section::kStakeholder:
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsRatio), true);
@@ -133,7 +134,7 @@ void Search::HideTableColumn(QTableView* view, Section section)
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsRatio), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsDebit), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsCredit), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSettled), true);
+        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
         break;
     case Section::kPurchase:
     case Section::kSales:
@@ -196,7 +197,7 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsDebit), value);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsCredit), value);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsCredit), value);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kSettled), value);
+    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDiscount), value);
 
     auto* ratio { new DoubleSpinR(settings_->common_decimal, true, view) };
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsRatio), ratio);

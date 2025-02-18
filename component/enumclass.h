@@ -75,7 +75,7 @@ enum class TableEnumSearch {
     kUnitPrice,
     kSupportID,
     kDiscountPrice,
-    kSettled,
+    kDiscount,
     kDocument,
     kState,
     kRhsCredit,

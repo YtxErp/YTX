@@ -64,7 +64,7 @@ QVariant SearchTransModel::data(const QModelIndex& index, int role) const
         return trans->support_id == 0 ? QVariant() : trans->support_id;
     case TableEnumSearch::kDiscountPrice:
         return trans->discount_price == 0 ? QVariant() : trans->discount_price;
-    case TableEnumSearch::kSettled:
+    case TableEnumSearch::kDiscount:
         return trans->discount == 0 ? QVariant() : trans->discount;
     case TableEnumSearch::kRhsNode:
         return trans->rhs_node;
@@ -114,24 +114,27 @@ void SearchTransModel::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
         case TableEnumSearch::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TableEnumSearch::kRhsNode:
-            return (order == Qt::AscendingOrder) ? (lhs->rhs_node < rhs->rhs_node) : (lhs->rhs_node > rhs->rhs_node);
-        case TableEnumSearch::kRhsRatio:
-            return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
-        case TableEnumSearch::kRhsDebit:
-            return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
-        case TableEnumSearch::kRhsCredit:
-            return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
-        case TableEnumSearch::kState:
-            return (order == Qt::AscendingOrder) ? (lhs->state < rhs->state) : (lhs->state > rhs->state);
-        case TableEnumSearch::kDocument:
-            return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
         case TableEnumSearch::kUnitPrice:
             return (order == Qt::AscendingOrder) ? (lhs->unit_price < rhs->unit_price) : (lhs->unit_price > rhs->unit_price);
         case TableEnumSearch::kSupportID:
             return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
         case TableEnumSearch::kDiscountPrice:
             return (order == Qt::AscendingOrder) ? (lhs->discount_price < rhs->discount_price) : (lhs->discount_price > rhs->discount_price);
+        case TableEnumSearch::kDiscount:
+            return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
+        case TableEnumSearch::kDocument:
+            return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
+        case TableEnumSearch::kState:
+            return (order == Qt::AscendingOrder) ? (lhs->state < rhs->state) : (lhs->state > rhs->state);
+        case TableEnumSearch::kRhsCredit:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
+        case TableEnumSearch::kRhsDebit:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
+        case TableEnumSearch::kRhsRatio:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
+        case TableEnumSearch::kRhsNode:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_node < rhs->rhs_node) : (lhs->rhs_node > rhs->rhs_node);
+
         default:
             return false;
         }

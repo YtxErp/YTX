@@ -151,7 +151,7 @@ private:
     void DelegateStakeholder(PQTreeView tree_view, CSettings& settings) const;
     void DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
 
-    void SetView(PQTreeView tree_view) const;
+    void SetView(PQTreeView tree_view, CInfo& info) const;
     void TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);

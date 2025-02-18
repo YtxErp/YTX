@@ -570,7 +570,7 @@ void MainWindow::CreateSection(TreeWidget* tree_widget, TableHash& table_hash, C
         break;
     }
 
-    SetView(view);
+    SetView(view, info);
 }
 
 void MainWindow::SetDelegate(PQTreeView tree_view, CInfo& info, CSettings& settings) const
@@ -1408,8 +1408,12 @@ void MainWindow::SetAction() const
     ui->actionCheckReverse->setProperty(kCheck, std::to_underlying(Check::kReverse));
 }
 
-void MainWindow::SetView(PQTreeView tree_view) const
+void MainWindow::SetView(PQTreeView tree_view, CInfo& info) const
 {
+    tree_view->setColumnHidden(std::to_underlying(TreeEnum::kID), false);
+    if (info.section == Section::kSales || info.section == Section::kPurchase)
+        tree_view->setColumnHidden(std::to_underlying(TreeEnumOrder::kParty), false);
+
     tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
     tree_view->setDragDropMode(QAbstractItemView::InternalMove);
     tree_view->setEditTriggers(QAbstractItemView::DoubleClicked);
@@ -1417,12 +1421,11 @@ void MainWindow::SetView(PQTreeView tree_view) const
     tree_view->setSortingEnabled(true);
     tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
     tree_view->setExpandsOnDoubleClick(true);
-    tree_view->setColumnHidden(std::to_underlying(TreeEnum::kID), false);
 
     auto* header { tree_view->header() };
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
     header->setSectionResizeMode(std::to_underlying(TreeEnum::kDescription), QHeaderView::Stretch);
-    header->setStretchLastSection(true);
+    header->setStretchLastSection(false);
     header->setDefaultAlignment(Qt::AlignCenter);
 }
 

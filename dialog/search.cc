@@ -62,6 +62,8 @@ void Search::IniConnect()
 
 void Search::HideTreeColumn(QTableView* view, Section section)
 {
+    view->setColumnHidden(std::to_underlying(TreeEnumSearch::kID), false);
+
     switch (section) {
     case Section::kFinance:
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kParty), true);
@@ -102,6 +104,8 @@ void Search::HideTreeColumn(QTableView* view, Section section)
     case Section::kPurchase:
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kColor), true);
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
+        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kCode), true);
+        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kNote), true);
         break;
     default:
         break;
@@ -110,6 +114,8 @@ void Search::HideTreeColumn(QTableView* view, Section section)
 
 void Search::HideTableColumn(QTableView* view, Section section)
 {
+    view->setColumnHidden(std::to_underlying(TableEnumSearch::kID), false);
+
     switch (section) {
     case Section::kFinance:
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kUnitPrice), true);
@@ -183,8 +189,6 @@ void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
     auto* value { new DoubleSpinR(settings_->amount_decimal, true, view) };
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kFirst), value);
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kSecond), value);
-
-    view->setColumnHidden(std::to_underlying(TreeEnumSearch::kID), false);
 }
 
 void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
@@ -228,8 +232,6 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
 
     auto* state { new CheckBoxR(view) };
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kState), state);
-
-    view->setColumnHidden(std::to_underlying(TableEnumSearch::kID), false);
 }
 
 void Search::IniView(QTableView* view)

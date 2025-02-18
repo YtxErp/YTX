@@ -10,6 +10,23 @@ TableModelFinance::TableModelFinance(Sqlite* sql, bool rule, int node_id, CInfo&
         sql_->ReadNodeTrans(trans_shadow_list_, node_id);
 }
 
+bool TableModelFinance::insertRows(int row, int /*count*/, const QModelIndex& parent)
+{
+    // just register trans_shadow in this function
+    // while set rhs node in setData function, register trans to sql_'s trans_hash_
+    auto* trans_shadow { sql_->AllocateTransShadow() };
+
+    *trans_shadow->lhs_node = node_id_;
+    *trans_shadow->lhs_ratio = 1.0;
+    *trans_shadow->rhs_ratio = 1.0;
+
+    beginInsertRows(parent, row, row);
+    trans_shadow_list_.emplaceBack(trans_shadow);
+    endInsertRows();
+
+    return true;
+}
+
 QVariant TableModelFinance::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)

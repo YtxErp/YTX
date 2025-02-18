@@ -290,7 +290,7 @@ QString YtxSqlite::TransFinance()
         date_time      DATE,
         code           TEXT,
         lhs_node       INTEGER,
-        lhs_ratio      NUMERIC    DEFAULT 1.0    CHECK (lhs_ratio   > 0),
+        lhs_ratio      NUMERIC                   CHECK (lhs_ratio   > 0),
         lhs_debit      NUMERIC                   CHECK (lhs_debit  >= 0),
         lhs_credit     NUMERIC                   CHECK (lhs_credit >= 0),
         description    TEXT,
@@ -299,7 +299,7 @@ QString YtxSqlite::TransFinance()
         state          BOOLEAN    DEFAULT 0,
         rhs_credit     NUMERIC                   CHECK (rhs_credit >= 0),
         rhs_debit      NUMERIC                   CHECK (rhs_debit  >= 0),
-        rhs_ratio      NUMERIC    DEFAULT 1.0    CHECK (rhs_ratio   > 0),
+        rhs_ratio      NUMERIC                   CHECK (rhs_ratio   > 0),
         rhs_node       INTEGER,
         removed        BOOLEAN    DEFAULT 0
     );

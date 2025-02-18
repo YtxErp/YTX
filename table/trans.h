@@ -27,7 +27,7 @@ struct Trans {
     QString date_time {};
     QString code {};
     int lhs_node {};
-    double lhs_ratio { 1.0 };
+    double lhs_ratio {};
     double lhs_debit {};
     double lhs_credit {};
     QString description {};
@@ -35,7 +35,7 @@ struct Trans {
     bool state { false };
     double rhs_credit {};
     double rhs_debit {};
-    double rhs_ratio { 1.0 };
+    double rhs_ratio {};
     int rhs_node {};
 
     // order
@@ -50,12 +50,12 @@ struct Trans {
         date_time.clear();
         code.clear();
         lhs_node = 0;
-        lhs_ratio = 1.0;
+        lhs_ratio = 0.0;
         lhs_debit = 0.0;
         lhs_credit = 0.0;
         description.clear();
         rhs_node = 0;
-        rhs_ratio = 1.0;
+        rhs_ratio = 0.0;
         rhs_debit = 0.0;
         rhs_credit = 0.0;
         state = false;

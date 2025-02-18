@@ -12,8 +12,8 @@ TreeWidgetFPT::TreeWidgetFPT(TreeModel* model, CInfo& info, CSettings& settings,
 {
     ui->setupUi(this);
     ui->treeViewFPT->setModel(model);
-    ui->dspin_box_dynamic_->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
-    ui->dspin_box_static_->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+    ui->dspin_box_dynamic_->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dspin_box_static_->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     UpdateStatus();
 }
 

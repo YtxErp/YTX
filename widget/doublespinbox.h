@@ -49,10 +49,6 @@ protected:
             return;
         }
 
-        if (cleanText().isEmpty()) {
-            setValue(0.0);
-        }
-
         QDoubleSpinBox::keyPressEvent(event);
     }
 };

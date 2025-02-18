@@ -38,13 +38,6 @@ public:
 
 protected:
     void wheelEvent(QWheelEvent* event) override { event->ignore(); }
-    void keyPressEvent(QKeyEvent* event) override
-    {
-        if (cleanText().isEmpty())
-            setValue(0);
-
-        QSpinBox::keyPressEvent(event);
-    }
 };
 
 #endif // SPINBOX_H

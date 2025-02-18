@@ -122,7 +122,7 @@ QTreeView::item {
 
 /*--------------------------------------font size-------------------------------------------------*/
 
-DoubleSpinBox#dSpinAmount {
+DoubleSpinBox#dSpinGrossAmount {
     font-size: 24pt;
 }
 

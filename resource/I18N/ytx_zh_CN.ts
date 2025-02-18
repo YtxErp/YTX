@@ -19,7 +19,7 @@
     </message>
     <message>
         <location line="+38"/>
-        <source>YTX 0.1.4</source>
+        <source>YTX 0.1.5</source>
         <translation></translation>
     </message>
     <message>

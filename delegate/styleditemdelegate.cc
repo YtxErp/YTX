@@ -17,11 +17,11 @@ void StyledItemDelegate::updateEditorGeometry(QWidget* editor, const QStyleOptio
     editor->setGeometry(option.rect);
 }
 
-QSize StyledItemDelegate::CalculateTextSize(CString& text, const QStyleOptionViewItem& option)
+QSize StyledItemDelegate::CalculateTextSize(CString& text, const QStyleOptionViewItem& option, int coefficient)
 {
     const int text_margin { QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, option.widget) };
     const QFontMetrics fm(option.font);
-    const int width { std::max(fm.horizontalAdvance(text) + coefficient_ * text_margin, option.rect.width()) };
+    const int width { std::max(fm.horizontalAdvance(text) + coefficient * text_margin, option.rect.width()) };
     const int height { std::max(fm.height(), option.rect.height()) };
 
     return QSize(width, height);

@@ -15,7 +15,7 @@ void FinanceForeignR::paint(QPainter* painter, const QStyleOptionViewItem& optio
     PaintText(Format(index), painter, option, index, Qt::AlignRight | Qt::AlignVCenter);
 }
 
-QSize FinanceForeignR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const { return CalculateTextSize(Format(index), option); }
+QSize FinanceForeignR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const { return CalculateTextSize(Format(index), option, 16); }
 
 QString FinanceForeignR::Format(const QModelIndex& index) const
 {

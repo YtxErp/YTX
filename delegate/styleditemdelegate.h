@@ -31,23 +31,13 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 protected:
-    static QSize CalculateTextSize(CString& text, const QStyleOptionViewItem& option);
+    static QSize CalculateTextSize(CString& text, const QStyleOptionViewItem& option, int coefficient = 8);
 
     void PaintText(CString& text, QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, Qt::Alignment alignment) const;
     void PaintCheckBox(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
 protected:
     static const QLocale locale_;
-
-private:
-    static constexpr int coefficient_ =
-#ifdef Q_OS_WIN
-        6;
-#elif defined(Q_OS_MACOS)
-        3;
-#else
-        1;
-#endif
 };
 
 #endif // STYLEDITEMDELEGATE_H

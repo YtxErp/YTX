@@ -37,11 +37,11 @@ void TreeModelStakeholder::RSyncOneValue(int node_id, int column, const QVariant
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
-    node->initial_total += diff;
-    sql_->UpdateField(info_.node, node->initial_total, kAmount, node_id);
+    node->final_total += diff;
+    sql_->UpdateField(info_.node, node->final_total, kAmount, node_id);
 
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
-        current->initial_total += diff;
+        current->final_total += diff;
     }
 }
 
@@ -385,7 +385,7 @@ void TreeModelStakeholder::sort(int column, Qt::SortOrder order)
         case TreeEnumStakeholder::kTaxRate:
             return (order == Qt::AscendingOrder) ? (lhs->second < rhs->second) : (lhs->second > rhs->second);
         case TreeEnumStakeholder::kAmount:
-            return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
+            return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
         }
@@ -483,7 +483,7 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
     case TreeEnumStakeholder::kTaxRate:
         return node->second == 0 ? QVariant() : node->second;
     case TreeEnumStakeholder::kAmount:
-        return node->initial_total == 0 ? QVariant() : node->initial_total;
+        return node->final_total == 0 ? QVariant() : node->final_total;
     default:
         return QVariant();
     }

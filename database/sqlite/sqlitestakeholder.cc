@@ -196,7 +196,7 @@ void SqliteStakeholder::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":deadline"), node->date_time);
     query.bindValue(QStringLiteral(":payment_term"), node->first);
     query.bindValue(QStringLiteral(":tax_rate"), node->second);
-    query.bindValue(QStringLiteral(":amount"), node->initial_total);
+    query.bindValue(QStringLiteral(":amount"), node->final_total);
 }
 
 QString SqliteStakeholder::QSRemoveNodeSecond() const
@@ -507,7 +507,7 @@ void SqliteStakeholder::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->date_time = query.value(QStringLiteral("deadline")).toString();
     node->first = query.value(QStringLiteral("payment_term")).toInt();
     node->second = query.value(QStringLiteral("tax_rate")).toDouble();
-    node->initial_total = query.value(QStringLiteral("amount")).toDouble();
+    node->final_total = query.value(QStringLiteral("amount")).toDouble();
 }
 
 void SqliteStakeholder::ReadTransQuery(Trans* trans, const QSqlQuery& query) const

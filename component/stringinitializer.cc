@@ -42,7 +42,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
 
     stakeholder.search_node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"),
         QObject::tr("Rule"), QObject::tr("Type"), QObject::tr("Category"), {}, QObject::tr("Employee"), QObject::tr("Deadline"), {}, {},
-        QObject::tr("PaymentPeriod"), QObject::tr("TaxRate"), {}, {}, {}, {} };
+        QObject::tr("PaymentPeriod"), QObject::tr("TaxRate"), {}, {}, {}, QObject::tr("Amount") };
     stakeholder.search_trans_header
         = { QObject::tr("ID"), QObject::tr("DateTime"), QObject::tr("Code"), QObject::tr("InsideProduct"), {}, {}, {}, QObject::tr("Description"),
               QObject::tr("UnitPrice"), QObject::tr("SupportID"), {}, {}, QObject::tr("D"), QObject::tr("S"), {}, {}, {}, QObject::tr("OutsideProduct") };

@@ -670,6 +670,9 @@ void MainWindow::DelegateProduct(PQTreeView tree_view, CSettings& settings) cons
 
 void MainWindow::DelegateStakeholder(PQTreeView tree_view, CSettings& settings) const
 {
+    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kAmount), amount);
+
     auto* payment_term { new Spin(0, std::numeric_limits<int>::max(), tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kPaymentTerm), payment_term);
 

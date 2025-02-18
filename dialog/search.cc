@@ -96,7 +96,6 @@ void Search::HideTreeColumn(QTableView* view, Section section)
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDiscount), true);
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinished), true);
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kInitialTotal), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinalTotal), true);
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
         break;
     case Section::kSales:

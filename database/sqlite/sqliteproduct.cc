@@ -186,6 +186,7 @@ void SqliteProduct::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->rhs_credit = query.value(QStringLiteral("rhs_credit")).toDouble();
 
     trans->lhs_ratio = query.value(QStringLiteral("unit_cost")).toDouble();
+    trans->rhs_ratio = trans->lhs_ratio;
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);

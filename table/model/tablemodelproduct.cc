@@ -325,6 +325,7 @@ bool TableModelProduct::UpdateRatio(TransShadow* trans_shadow, double value)
 
     double diff { value - unit_cost };
     *trans_shadow->lhs_ratio = value;
+    *trans_shadow->rhs_ratio = value;
 
     if (*trans_shadow->rhs_node == 0)
         return false;

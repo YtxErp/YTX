@@ -1152,7 +1152,7 @@ void MainWindow::SetFinanceData()
     info.path = kFinancePath;
     info.trans = kFinanceTrans;
 
-    QStringList unit_list { tr("CNY"), tr("HKD"), tr("USD"), tr("GBP"), tr("JPY"), tr("CAD"), tr("AUD"), tr("EUR") };
+    QStringList unit_list { "CNY", "HKD", "USD", "GBP", "JPY", "CAD", "AUD", "EUR" };
     QStringList unit_symbol_list { "¥", "$", "$", "£", "¥", "$", "$", "€" };
     QStringList rule_list { "DICD", "DDCI" };
     QStringList type_list { "L", "B", "S" };
@@ -1194,7 +1194,7 @@ void MainWindow::SetProductData()
     info.trans = kProductTrans;
 
     // POS: Position, PC: Piece, SF: SquareFeet
-    QStringList unit_list { {}, tr("POS"), tr("BOX"), tr("PC"), tr("SET"), tr("SF") };
+    QStringList unit_list { {}, "POS", "SF", "PC", "BOX" };
     QStringList rule_list { "DICD", "DDCI" };
     QStringList type_list { "L", "B", "S" };
 

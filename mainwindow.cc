@@ -69,7 +69,7 @@
 #include "tree/model/treemodeltask.h"
 #include "ui_mainwindow.h"
 #include "widget/tablewidget/tablewidgetfpts.h"
-#include "widget/treewidget/treewidgetf.h"
+#include "widget/treewidget/treewidgetfinance.h"
 #include "widget/treewidget/treewidgetorder.h"
 #include "widget/treewidget/treewidgetpt.h"
 #include "widget/treewidget/treewidgetstakeholder.h"
@@ -1177,7 +1177,7 @@ void MainWindow::SetFinanceData()
     sql = new SqliteFinance(info, this);
 
     auto* model { new TreeModelFinance(sql, info, finance_settings_.default_unit, finance_table_hash_, interface_.separator, this) };
-    finance_tree_ = new TreeWidgetF(model, info, finance_settings_, this);
+    finance_tree_ = new TreeWidgetFinance(model, info, finance_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
 }

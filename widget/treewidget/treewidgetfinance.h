@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TREEWIDGETF_H
-#define TREEWIDGETF_H
+#ifndef TREEWIDGETFINANCE_H
+#define TREEWIDGETFINANCE_H
 
 #include <QDoubleSpinBox>
 
@@ -27,18 +27,18 @@
 #include "treewidget.h"
 
 namespace Ui {
-class TreeWidgetF;
+class TreeWidgetFinance;
 }
 
-class TreeWidgetF final : public TreeWidget {
+class TreeWidgetFinance final : public TreeWidget {
     Q_OBJECT
 
 public slots:
     void RUpdateStatusValue() override;
 
 public:
-    TreeWidgetF(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
-    ~TreeWidgetF() override;
+    TreeWidgetFinance(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
+    ~TreeWidgetFinance() override;
 
     QPointer<QTreeView> View() const override;
     QPointer<TreeModel> Model() const override { return model_; };
@@ -54,7 +54,7 @@ private:
     void ResetStatus(QDoubleSpinBox* spin_box, bool& flags);
 
 private:
-    Ui::TreeWidgetF* ui;
+    Ui::TreeWidgetFinance* ui;
 
     TreeModel* model_ {};
     CInfo& info_ {};
@@ -64,4 +64,4 @@ private:
     bool static_unit_is_default_ { false };
 };
 
-#endif // TREEWIDGETF_H
+#endif // TREEWIDGETFINANCE_H

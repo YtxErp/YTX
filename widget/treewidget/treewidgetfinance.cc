@@ -1,11 +1,11 @@
-#include "treewidgetf.h"
+#include "treewidgetfinance.h"
 
 #include "component/constvalue.h"
-#include "ui_treewidgetf.h"
+#include "ui_treewidgetfinance.h"
 
-TreeWidgetF::TreeWidgetF(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
+TreeWidgetFinance::TreeWidgetFinance(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
     : TreeWidget(parent)
-    , ui(new Ui::TreeWidgetF)
+    , ui(new Ui::TreeWidgetFinance)
     , model_ { model }
     , info_ { info }
     , settings_ { settings }
@@ -17,15 +17,15 @@ TreeWidgetF::TreeWidgetF(TreeModel* model, CInfo& info, CSettings& settings, QWi
     UpdateStatus();
 }
 
-TreeWidgetF::~TreeWidgetF() { delete ui; }
+TreeWidgetFinance::~TreeWidgetFinance() { delete ui; }
 
-void TreeWidgetF::UpdateStatus()
+void TreeWidgetFinance::UpdateStatus()
 {
     UpdateStaticStatus();
     UpdateDynamicStatus();
 }
 
-void TreeWidgetF::UpdateStaticStatus()
+void TreeWidgetFinance::UpdateStaticStatus()
 {
     ui->dspin_box_static_->setDecimals(settings_.amount_decimal);
     ui->lable_static_->setText(settings_.static_label);
@@ -44,7 +44,7 @@ void TreeWidgetF::UpdateStaticStatus()
     UpdateStaticValue(static_node_id);
 }
 
-void TreeWidgetF::UpdateDynamicStatus()
+void TreeWidgetFinance::UpdateDynamicStatus()
 {
     const int default_unit { settings_.default_unit };
 
@@ -67,15 +67,15 @@ void TreeWidgetF::UpdateDynamicStatus()
     UpdateDynamicValue(dynamic_node_id_lhs, dynamic_node_id_rhs);
 }
 
-QPointer<QTreeView> TreeWidgetF::View() const { return ui->treeViewFPT; }
+QPointer<QTreeView> TreeWidgetFinance::View() const { return ui->treeViewFPT; }
 
-void TreeWidgetF::RUpdateStatusValue()
+void TreeWidgetFinance::RUpdateStatusValue()
 {
     UpdateStaticValue(settings_.static_node);
     UpdateDynamicValue(settings_.dynamic_node_lhs, settings_.dynamic_node_rhs);
 }
 
-void TreeWidgetF::UpdateDynamicValue(int lhs_node_id, int rhs_node_id)
+void TreeWidgetFinance::UpdateDynamicValue(int lhs_node_id, int rhs_node_id)
 {
     if (lhs_node_id == 0 && rhs_node_id == 0)
         return;
@@ -89,7 +89,7 @@ void TreeWidgetF::UpdateDynamicValue(int lhs_node_id, int rhs_node_id)
     ui->dspin_box_dynamic_->setValue(total);
 }
 
-void TreeWidgetF::UpdateStaticValue(int node_id)
+void TreeWidgetFinance::UpdateStaticValue(int node_id)
 {
     if (node_id == 0)
         return;
@@ -97,7 +97,7 @@ void TreeWidgetF::UpdateStaticValue(int node_id)
     ui->dspin_box_static_->setValue(static_unit_is_default_ ? model_->FinalTotalFPT(node_id) : model_->InitialTotalFPT(node_id));
 }
 
-double TreeWidgetF::Operate(double lhs, double rhs, const QString& operation)
+double TreeWidgetFinance::Operate(double lhs, double rhs, const QString& operation)
 {
     switch (operation.at(0).toLatin1()) {
     case '+':
@@ -109,7 +109,7 @@ double TreeWidgetF::Operate(double lhs, double rhs, const QString& operation)
     }
 }
 
-void TreeWidgetF::ResetStatus(QDoubleSpinBox* spin_box, bool& flags)
+void TreeWidgetFinance::ResetStatus(QDoubleSpinBox* spin_box, bool& flags)
 {
     spin_box->setPrefix(kEmptyString);
     spin_box->setValue(0.0);

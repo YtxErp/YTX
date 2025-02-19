@@ -95,7 +95,8 @@ public:
     static bool IsOpenedFPTS(CTableHash& hash, int node_id, CString& message);
 
     static void UpdateBranchUnitF(const Node* root, Node* node);
-    static void UpdateAncestorValueFPT(const Node* root, Node* node, double initial_diff, double final_diff);
+    static void UpdateAncestorValueFinance(const Node* root, Node* node, double initial_diff, double final_diff);
+    static void UpdateAncestorValuePT(const Node* root, Node* node, double initial_diff, double final_diff);
 
     static bool IsInternalReferencedFPTS(Sqlite* sql, int node_id, CString& message);
     static bool IsSupportReferencedFPTS(Sqlite* sql, int node_id, CString& message);

@@ -30,7 +30,7 @@ void TreeModelFinance::RUpdateLeafValue(
     node->final_total += local_diff;
 
     sql_->UpdateNodeValue(node);
-    TreeModelUtils::UpdateAncestorValueFPT(root_, node, foreign_diff, local_diff);
+    TreeModelUtils::UpdateAncestorValueFinance(root_, node, foreign_diff, local_diff);
     emit SUpdateStatusValue();
 }
 
@@ -57,7 +57,7 @@ void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
         local_diff = node->final_total - old_local_total;
         foreign_diff = node->initial_total - old_foreign_total;
 
-        TreeModelUtils::UpdateAncestorValueFPT(root_, node, foreign_diff, local_diff);
+        TreeModelUtils::UpdateAncestorValueFinance(root_, node, foreign_diff, local_diff);
     }
 
     emit SUpdateStatusValue();
@@ -92,7 +92,7 @@ bool TreeModelFinance::RemoveNode(int row, const QModelIndex& parent)
 
     } break;
     case kTypeLeaf: {
-        TreeModelUtils::UpdateAncestorValueFPT(root_, node, -node->initial_total, -node->final_total);
+        TreeModelUtils::UpdateAncestorValueFinance(root_, node, -node->initial_total, -node->final_total);
         TreeModelUtils::RemoveItemFromModel(leaf_model_, node_id);
         leaf_path_.remove(node_id);
     } break;
@@ -351,11 +351,11 @@ bool TreeModelFinance::dropMimeData(const QMimeData* data, Qt::DropAction action
 
     if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
         node->parent->children.removeAt(source_row);
-        TreeModelUtils::UpdateAncestorValueFPT(root_, node, -node->initial_total, -node->final_total);
+        TreeModelUtils::UpdateAncestorValueFinance(root_, node, -node->initial_total, -node->final_total);
 
         destination_parent->children.insert(begin_row, node);
         node->parent = destination_parent;
-        TreeModelUtils::UpdateAncestorValueFPT(root_, node, node->initial_total, node->final_total);
+        TreeModelUtils::UpdateAncestorValueFinance(root_, node, node->initial_total, node->final_total);
 
         endMoveRows();
     }
@@ -390,7 +390,7 @@ void TreeModelFinance::ConstructTree()
             branch_path_.insert(node->id, path);
             break;
         case kTypeLeaf:
-            TreeModelUtils::UpdateAncestorValueFPT(root_, node, node->initial_total, node->final_total);
+            TreeModelUtils::UpdateAncestorValueFinance(root_, node, node->initial_total, node->final_total);
             leaf_path_.insert(node->id, path);
             break;
         case kTypeSupport:

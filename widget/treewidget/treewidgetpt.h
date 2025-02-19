@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TREEWIDGETFPT_H
-#define TREEWIDGETFPT_H
+#ifndef TREEWIDGETPT_H
+#define TREEWIDGETPT_H
 
 #include <QDoubleSpinBox>
 
@@ -27,18 +27,18 @@
 #include "treewidget.h"
 
 namespace Ui {
-class TreeWidgetFPT;
+class TreeWidgetPT;
 }
 
-class TreeWidgetFPT final : public TreeWidget {
+class TreeWidgetPT final : public TreeWidget {
     Q_OBJECT
 
 public slots:
     void RUpdateStatusValue() override;
 
 public:
-    TreeWidgetFPT(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
-    ~TreeWidgetFPT() override;
+    TreeWidgetPT(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
+    ~TreeWidgetPT() override;
 
     QPointer<QTreeView> View() const override;
     QPointer<TreeModel> Model() const override { return model_; };
@@ -51,17 +51,14 @@ private:
     void UpdateDynamicValue(int lhs_node_id, int rhs_node_id);
     void UpdateStaticValue(int node_id);
     double Operate(double lhs, double rhs, const QString& operation);
-    void ResetStatus(QDoubleSpinBox* spin_box, bool& flags);
+    void ResetStatus(QDoubleSpinBox* spin_box);
 
 private:
-    Ui::TreeWidgetFPT* ui;
+    Ui::TreeWidgetPT* ui;
 
     TreeModel* model_ {};
     CInfo& info_ {};
     CSettings& settings_ {};
-
-    bool dynamic_unit_is_not_default_but_equal_ { false };
-    bool static_unit_is_default_ { false };
 };
 
-#endif // TREEWIDGETFPT_H
+#endif // TREEWIDGETPT_H

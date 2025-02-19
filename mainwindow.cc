@@ -69,8 +69,9 @@
 #include "tree/model/treemodeltask.h"
 #include "ui_mainwindow.h"
 #include "widget/tablewidget/tablewidgetfpts.h"
-#include "widget/treewidget/treewidgetfpt.h"
+#include "widget/treewidget/treewidgetf.h"
 #include "widget/treewidget/treewidgetorder.h"
+#include "widget/treewidget/treewidgetpt.h"
 #include "widget/treewidget/treewidgetstakeholder.h"
 
 MainWindow::MainWindow(QWidget* parent)
@@ -1176,7 +1177,7 @@ void MainWindow::SetFinanceData()
     sql = new SqliteFinance(info, this);
 
     auto* model { new TreeModelFinance(sql, info, finance_settings_.default_unit, finance_table_hash_, interface_.separator, this) };
-    finance_tree_ = new TreeWidgetFPT(model, info, finance_settings_, this);
+    finance_tree_ = new TreeWidgetF(model, info, finance_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
 }
@@ -1215,7 +1216,7 @@ void MainWindow::SetProductData()
     sql = new SqliteProduct(info, this);
 
     auto* model { new TreeModelProduct(sql, info, product_settings_.default_unit, product_table_hash_, interface_.separator, this) };
-    product_tree_ = new TreeWidgetFPT(model, info, product_settings_, this);
+    product_tree_ = new TreeWidgetPT(model, info, product_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
 }
@@ -1297,7 +1298,7 @@ void MainWindow::SetTaskData()
     sql = new SqliteTask(info, this);
 
     auto* model { new TreeModelTask(sql, info, task_settings_.default_unit, task_table_hash_, interface_.separator, this) };
-    task_tree_ = new TreeWidgetFPT(model, info, task_settings_, this);
+    task_tree_ = new TreeWidgetPT(model, info, task_settings_, this);
     connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
 }
 

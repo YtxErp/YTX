@@ -790,9 +790,10 @@ void MainWindow::RemoveNode(TreeWidget* tree_widget)
     const int node_type { index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() };
 
     if (node_type == kTypeBranch) {
-        if (model->ChildrenEmpty(node_id))
+        if (model->ChildrenEmpty(node_id)) {
             model->RemoveNode(index.row(), index.parent());
-        else
+            data_->sql->RemoveNode(node_id, kTypeBranch);
+        } else
             RemoveBranch(model, index, node_id);
 
         return;

@@ -55,7 +55,7 @@ Welcome! I’d like to introduce you to YTX, a stand-alone software designed to 
 | purchase        |   id    |     X     |  code   | lhs_node | unit_price |   first   |   second   | description  | outside_product | discount  |      X      |    X    | net_amount | gross_amount | discount_price | inside_product |
 | EnumOrder       |   kID   |     X     |  kCode  |    X     | kUnitPrice |  kFirst   |  kSecond   | kDescription | kOutsideProduct | kDiscount |      X      |    X    | kNetAmount | kGrossAmount | kDiscountPrice | kInsideProduct |
 |                 |         |           |         |          |            |           |            |              |                 |           |             |         |            |              |                |                |
-| sales           |   id    |     X     |  code   | lhs_node |     X      |   first   |   second   | description  | outside_product | discount  |      X      |    X    | net_amount | gross_amount | discount_price | inside_product |
+| sales           |   id    |     X     |  code   | lhs_node | unit_price |   first   |   second   | description  | outside_product | discount  |      X      |    X    | net_amount | gross_amount | discount_price | inside_product |
 | EnumOrder       |   kID   |     X     |  kCode  |    X     | kUnitPrice |  kFirst   |  kSecond   | kDescription | kOutsideProduct | kDiscount |      X      |    X    | kNetAmount | kGrossAmount | kDiscountPrice | kInsideProduct |
 
 ### Build Requirements

@@ -36,7 +36,7 @@ public:
     ~RemoveNode();
 
 signals:
-    // send to tree model
+    // send to sqlite
     void SRemoveNode(int node_id, int node_type);
     void SReplaceNode(int old_node_id, int new_node_id, int node_type);
 

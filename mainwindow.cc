@@ -790,12 +790,7 @@ void MainWindow::RemoveNode(TreeWidget* tree_widget)
     const int node_type { index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() };
 
     if (node_type == kTypeBranch) {
-        if (model->ChildrenEmpty(node_id)) {
-            model->RemoveNode(index.row(), index.parent());
-            data_->sql->RemoveNode(node_id, kTypeBranch);
-        } else
-            RemoveBranch(model, index, node_id);
-
+        RemoveBranch(model, index, node_id);
         return;
     }
 
@@ -860,8 +855,8 @@ void MainWindow::RemoveNonBranch(PTreeModel tree_model, const QModelIndex& index
 {
     tree_model->RemoveNode(index.row(), index.parent());
     data_->sql->RemoveNode(node_id, node_type);
-    auto* widget { table_hash_->value(node_id) };
 
+    auto* widget { table_hash_->value(node_id) };
     if (widget) {
         MainWindowUtils::FreeWidget(widget);
         table_hash_->remove(node_id);
@@ -997,7 +992,6 @@ void MainWindow::RemoveBranch(PTreeModel tree_model, const QModelIndex& index, i
     if (msg.exec() == QMessageBox::Ok) {
         tree_model->RemoveNode(index.row(), index.parent());
         data_->sql->RemoveNode(node_id, kTypeBranch);
-        tree_widget_->RUpdateStatusValue();
     }
 }
 

@@ -16,8 +16,8 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("RhsCredit"), QObject::tr("RhsDebit"), QObject::tr("RhsFXRate"), QObject::tr("RhsNode") };
 
     finance.support_header = { QObject::tr("ID"), QObject::tr("DateTime"), QObject::tr("Code"), QObject::tr("LhsNode"), QObject::tr("LhsRatio"),
-        QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("UnitPrice"), QObject::tr("D"), QObject::tr("S"),
-        QObject::tr("RhsCredit"), QObject::tr("RhsDebit"), QObject::tr("RhsRatio"), QObject::tr("RhsNode") };
+        QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
+        QObject::tr("RhsDebit"), QObject::tr("RhsRatio"), QObject::tr("RhsNode") };
 
     product.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"), QObject::tr("Rule"),
         QObject::tr("Type"), QObject::tr("Unit"), QObject::tr("Color"), QObject::tr("UnitPrice"), QObject::tr("Commission"), QObject::tr("Quantity"),

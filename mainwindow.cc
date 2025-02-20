@@ -1127,7 +1127,6 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
     auto* ratio { new DoubleSpinR(settings->common_decimal, true, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsRatio), ratio);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsRatio), ratio);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kUnitPrice), ratio);
 
     auto* node_name { new SearchPathTableR(tree_model, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsNode), node_name);

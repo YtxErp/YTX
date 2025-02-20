@@ -44,8 +44,6 @@ void TableModelSupport::RAppendSupportTrans(const TransShadow* trans_shadow)
     beginInsertRows(QModelIndex(), row, row);
     trans_shadow_list_.emplaceBack(new_trans_shadow);
     endInsertRows();
-
-    // todo 可能需要额外计算
 }
 
 void TableModelSupport::RRemoveSupportTrans(int support_id, int trans_id)
@@ -95,19 +93,17 @@ QVariant TableModelSupport::data(const QModelIndex& index, int role) const
     case TableEnumSupport::kLhsNode:
         return *trans_shadow->lhs_node;
     case TableEnumSupport::kLhsRatio:
-        return *trans_shadow->lhs_ratio;
+        return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
     case TableEnumSupport::kLhsDebit:
         return *trans_shadow->lhs_debit == 0 ? QVariant() : *trans_shadow->lhs_debit;
     case TableEnumSupport::kLhsCredit:
         return *trans_shadow->lhs_credit == 0 ? QVariant() : *trans_shadow->lhs_credit;
     case TableEnumSupport::kDescription:
         return *trans_shadow->description;
-    case TableEnumSupport::kUnitPrice:
-        return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
     case TableEnumSupport::kRhsNode:
         return *trans_shadow->rhs_node;
     case TableEnumSupport::kRhsRatio:
-        return *trans_shadow->rhs_ratio;
+        return *trans_shadow->rhs_ratio == 0 ? QVariant() : *trans_shadow->rhs_ratio;
     case TableEnumSupport::kRhsDebit:
         return *trans_shadow->rhs_debit == 0 ? QVariant() : *trans_shadow->rhs_debit;
     case TableEnumSupport::kRhsCredit:
@@ -187,8 +183,6 @@ void TableModelSupport::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (*lhs->state < *rhs->state) : (*lhs->state > *rhs->state);
         case TableEnumSupport::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document->size() < rhs->document->size()) : (lhs->document->size() > rhs->document->size());
-        case TableEnumSupport::kUnitPrice:
-            return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
         default:
             return false;
         }

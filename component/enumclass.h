@@ -93,7 +93,6 @@ enum class TableEnumSupport {
     kLhsDebit,
     kLhsCredit,
     kDescription,
-    kUnitPrice,
     kDocument,
     kState,
     kRhsCredit,

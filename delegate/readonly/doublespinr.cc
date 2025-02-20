@@ -1,9 +1,10 @@
 #include "doublespinr.h"
 
-DoubleSpinR::DoubleSpinR(const int& decimal, bool ignore_zero, QObject* parent)
+DoubleSpinR::DoubleSpinR(const int& decimal, bool ignore_zero, int coefficient, QObject* parent)
     : StyledItemDelegate { parent }
     , decimal_ { decimal }
     , ignore_zero_ { ignore_zero }
+    , coefficient_ { coefficient }
 {
 }
 
@@ -19,5 +20,5 @@ void DoubleSpinR::paint(QPainter* painter, const QStyleOptionViewItem& option, c
 QSize DoubleSpinR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     const double value { index.data().toDouble() };
-    return CalculateTextSize(locale_.toString(value, 'f', decimal_), option, 16);
+    return CalculateTextSize(locale_.toString(value, 'f', decimal_), option, coefficient_);
 }

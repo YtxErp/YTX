@@ -25,6 +25,8 @@ inline constexpr long long kBatchSize = 50;
 inline constexpr int kHundred = 100;
 inline constexpr int kRowHeight = 24;
 inline constexpr int kThreeThousand = 3000;
+inline constexpr int kCoefficient8 = 8;
+inline constexpr int kCoefficient16 = 16;
 inline constexpr long long kMaxRecentFile = 10;
 
 // Constants for rule

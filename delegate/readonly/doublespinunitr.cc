@@ -18,7 +18,10 @@ void DoubleSpinUnitR::paint(QPainter* painter, const QStyleOptionViewItem& optio
     PaintText(Format(index), painter, option, index, Qt::AlignRight | Qt::AlignVCenter);
 }
 
-QSize DoubleSpinUnitR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const { return { CalculateTextSize(Format(index), option, 16) }; }
+QSize DoubleSpinUnitR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    return { CalculateTextSize(Format(index), option, kCoefficient16) };
+}
 
 QString DoubleSpinUnitR::Format(const QModelIndex& index) const
 {

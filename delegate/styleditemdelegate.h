@@ -23,6 +23,7 @@
 #include <QLocale>
 #include <QStyledItemDelegate>
 
+#include "component/constvalue.h"
 #include "component/using.h"
 
 class StyledItemDelegate : public QStyledItemDelegate {
@@ -31,7 +32,7 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 protected:
-    static QSize CalculateTextSize(CString& text, const QStyleOptionViewItem& option, int coefficient = 8);
+    static QSize CalculateTextSize(CString& text, const QStyleOptionViewItem& option, int coefficient = kCoefficient8);
 
     void PaintText(CString& text, QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, Qt::Alignment alignment) const;
     void PaintCheckBox(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;

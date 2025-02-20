@@ -24,13 +24,14 @@
 
 class DoubleSpinR final : public StyledItemDelegate {
 public:
-    DoubleSpinR(const int& decimal, bool ignore_zero, QObject* parent = nullptr);
+    DoubleSpinR(const int& decimal, bool ignore_zero, int coefficient, QObject* parent = nullptr);
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
     const int& decimal_ {};
-    bool ignore_zero_ {};
+    const bool ignore_zero_ {};
+    const int coefficient_ {};
 };
 
 #endif // DOUBLESPINR_H

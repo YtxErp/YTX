@@ -341,6 +341,7 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const TreeEnumProduct kColumn { index.column() };
+    bool is_not_leaf { node->type != kTypeLeaf };
 
     switch (kColumn) {
     case TreeEnumProduct::kName:
@@ -362,11 +363,11 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
     case TreeEnumProduct::kColor:
         return node->color;
     case TreeEnumProduct::kCommission:
-        return node->second == 0 ? QVariant() : node->second;
+        return node->second == 0 || is_not_leaf ? QVariant() : node->second;
     case TreeEnumProduct::kUnitPrice:
-        return node->first == 0 ? QVariant() : node->first;
+        return node->first == 0 || is_not_leaf ? QVariant() : node->first;
     case TreeEnumProduct::kQuantity:
-        return node->initial_total == 0 ? QVariant() : node->initial_total;
+        return node->initial_total;
     case TreeEnumProduct::kAmount:
         return node->final_total;
     default:
@@ -408,10 +409,10 @@ bool TreeModelProduct::setData(const QModelIndex& index, const QVariant& value, 
         UpdateUnit(node, value.toInt());
         break;
     case TreeEnumProduct::kCommission:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kCommission, &Node::second);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kCommission, &Node::second, true);
         break;
     case TreeEnumProduct::kUnitPrice:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kUnitPrice, &Node::first);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kUnitPrice, &Node::first, true);
         break;
     default:
         return false;

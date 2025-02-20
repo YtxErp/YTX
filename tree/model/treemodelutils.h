@@ -28,10 +28,15 @@
 
 class TreeModelUtils {
 public:
-    template <typename T> static bool UpdateField(Sqlite* sql, Node* node, CString& table, const T& value, CString& field, T Node::* member)
+    template <typename T>
+    static bool UpdateField(Sqlite* sql, Node* node, CString& table, const T& value, CString& field, T Node::* member, bool allow_leaf_only = false)
     {
         assert(sql && "Sqlite pointer is null");
         assert(node && "Node pointer is null");
+
+        if (allow_leaf_only && node->type != kTypeLeaf) {
+            return false;
+        }
 
         T& current_value { std::invoke(member, node) };
 

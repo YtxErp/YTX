@@ -337,7 +337,7 @@ void MainWindow::CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, C
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetView(view, section);
+    SetTableView(view, std::to_underlying(TableEnum::kDescription));
     DelegateFPTS(view, tree_model, settings);
 
     switch (section) {
@@ -380,7 +380,7 @@ void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetSupportView(view);
+    SetTableView(view, std::to_underlying(TableEnumSupport::kDescription));
     DelegateSupport(view, tree_model, settings);
 
     table_hash->insert(node_id, widget);
@@ -414,7 +414,7 @@ void MainWindow::CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, 
     tab_bar->setTabToolTip(tab_index, stakeholder_tree_->Model()->GetPath(party_id));
 
     auto view { widget->View() };
-    SetView(view, section);
+    SetTableView(view, std::to_underlying(TableEnumOrder::kDescription));
 
     TableConnectOrder(view, model, tree_model, widget);
     DelegateOrder(view, settings);
@@ -571,7 +571,7 @@ void MainWindow::CreateSection(TreeWidget* tree_widget, TableHash& table_hash, C
         break;
     }
 
-    SetView(view, info);
+    SetTreeView(view, info);
 }
 
 void MainWindow::SetDelegate(PQTreeView tree_view, CInfo& info, CSettings& settings) const
@@ -1053,7 +1053,7 @@ void MainWindow::SetTabWidget()
     }
 }
 
-void MainWindow::SetView(PQTableView view, Section section) const
+void MainWindow::SetTableView(PQTableView view, int stretch_column) const
 {
     view->setSortingEnabled(true);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -1062,11 +1062,8 @@ void MainWindow::SetView(PQTableView view, Section section) const
     view->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::CurrentChanged);
     view->setColumnHidden(std::to_underlying(TableEnum::kID), false);
 
-    const int column { (section == Section::kSales || section == Section::kPurchase) ? std::to_underlying(TableEnumOrder::kDescription)
-                                                                                     : std::to_underlying(TableEnum::kDescription) };
-
     auto* h_header { view->horizontalHeader() };
-    ResizeColumn(h_header, column);
+    ResizeColumn(h_header, stretch_column);
 
     auto* v_header { view->verticalHeader() };
     v_header->setDefaultSectionSize(kRowHeight);
@@ -1076,28 +1073,6 @@ void MainWindow::SetView(PQTableView view, Section section) const
     view->scrollToBottom();
     view->setCurrentIndex(QModelIndex());
     view->sortByColumn(std::to_underlying(TableEnum::kDateTime), Qt::AscendingOrder); // will run function: AccumulateSubtotal while sorting
-}
-
-void MainWindow::SetSupportView(PQTableView view) const
-{
-    view->setSortingEnabled(true);
-    view->setSelectionMode(QAbstractItemView::SingleSelection);
-    view->setSelectionBehavior(QAbstractItemView::SelectRows);
-    view->setAlternatingRowColors(true);
-    view->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::CurrentChanged);
-    view->setColumnHidden(std::to_underlying(TableEnumSupport::kID), false);
-
-    auto* h_header { view->horizontalHeader() };
-    ResizeColumn(h_header, std::to_underlying(TableEnumSupport::kDescription));
-
-    auto* v_header { view->verticalHeader() };
-    v_header->setDefaultSectionSize(kRowHeight);
-    v_header->setSectionResizeMode(QHeaderView::Fixed);
-    v_header->setHidden(true);
-
-    view->scrollToBottom();
-    view->setCurrentIndex(QModelIndex());
-    view->sortByColumn(std::to_underlying(TableEnum::kDateTime), Qt::AscendingOrder);
 }
 
 void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const
@@ -1406,7 +1381,7 @@ void MainWindow::SetAction() const
     ui->actionCheckReverse->setProperty(kCheck, std::to_underlying(Check::kReverse));
 }
 
-void MainWindow::SetView(PQTreeView tree_view, CInfo& info) const
+void MainWindow::SetTreeView(PQTreeView tree_view, CInfo& info) const
 {
     tree_view->setColumnHidden(std::to_underlying(TreeEnum::kID), false);
     if (info.section == Section::kSales || info.section == Section::kPurchase)
@@ -1721,7 +1696,7 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
 
     dialog_list_->append(dialog);
 
-    SetView(dialog->View(), Section::kSales);
+    SetTableView(dialog->View(), std::to_underlying(TableEnumOrder::kDescription));
     DelegateOrder(dialog->View(), settings_);
     dialog->show();
 }
@@ -1845,7 +1820,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
             auto* header { table_widget->View()->horizontalHeader() };
 
             int column { std::to_underlying(TableEnum::kDescription) };
-            const auto* model { table_widget->Model().data() };
+            auto* model { table_widget->Model().data() };
 
             if (qobject_cast<TableModelSupport*>(model) || qobject_cast<TableModelOrder*>(model)) {
                 column = std::to_underlying(TableEnumOrder::kDescription);

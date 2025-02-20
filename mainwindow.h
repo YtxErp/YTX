@@ -130,9 +130,8 @@ private:
     void DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
     void DelegateStakeholder(PQTableView table_view) const;
     void DelegateOrder(PQTableView table_view, CSettings* settings) const;
-    void SetView(PQTableView table_view, Section section) const;
+    void SetTableView(PQTableView table_view, int stretch_column) const;
 
-    void SetSupportView(PQTableView table_view) const;
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
     void TableConnectFPT(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
@@ -151,7 +150,7 @@ private:
     void DelegateStakeholder(PQTreeView tree_view, CSettings& settings) const;
     void DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
 
-    void SetView(PQTreeView tree_view, CInfo& info) const;
+    void SetTreeView(PQTreeView tree_view, CInfo& info) const;
     void TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);

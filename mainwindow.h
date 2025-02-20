@@ -173,7 +173,7 @@ private:
     void UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool branch) const;
 
     void LoadAndInstallTranslator(CString& language);
-    void ResizeColumn(QHeaderView* header, bool table_view = true) const;
+    void ResizeColumn(QHeaderView* header, int stretch_column) const;
 
     void AppSettings();
     bool LockFile(const QFileInfo& file_info);

@@ -1066,8 +1066,7 @@ void MainWindow::SetView(PQTableView view, Section section) const
                                                                                      : std::to_underlying(TableEnum::kDescription) };
 
     auto* h_header { view->horizontalHeader() };
-    h_header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    h_header->setSectionResizeMode(column, QHeaderView::Stretch);
+    ResizeColumn(h_header, column);
 
     auto* v_header { view->verticalHeader() };
     v_header->setDefaultSectionSize(kRowHeight);
@@ -1089,8 +1088,7 @@ void MainWindow::SetSupportView(PQTableView view) const
     view->setColumnHidden(std::to_underlying(TableEnumSupport::kID), false);
 
     auto* h_header { view->horizontalHeader() };
-    h_header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    h_header->setSectionResizeMode(std::to_underlying(TableEnumSupport::kDescription), QHeaderView::Stretch);
+    ResizeColumn(h_header, std::to_underlying(TableEnumSupport::kDescription));
 
     auto* v_header { view->verticalHeader() };
     v_header->setDefaultSectionSize(kRowHeight);
@@ -1423,8 +1421,7 @@ void MainWindow::SetView(PQTreeView tree_view, CInfo& info) const
     tree_view->setExpandsOnDoubleClick(true);
 
     auto* header { tree_view->header() };
-    header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(std::to_underlying(TreeEnum::kDescription), QHeaderView::Stretch);
+    ResizeColumn(header, std::to_underlying(TreeEnum::kDescription));
     header->setStretchLastSection(false);
     header->setDefaultAlignment(Qt::AlignCenter);
 }
@@ -1846,13 +1843,21 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
 
         if (auto* table_widget = dynamic_cast<TableWidget*>(current_widget)) {
             auto* header { table_widget->View()->horizontalHeader() };
-            ResizeColumn(header, true);
+
+            int column { std::to_underlying(TableEnum::kDescription) };
+            const auto* model { table_widget->Model().data() };
+
+            if (qobject_cast<TableModelSupport*>(model) || qobject_cast<TableModelOrder*>(model)) {
+                column = std::to_underlying(TableEnumOrder::kDescription);
+            }
+
+            ResizeColumn(header, column);
             return;
         }
 
         if (auto* tree_widget = dynamic_cast<TreeWidget*>(current_widget)) {
             auto* header { tree_widget->View()->header() };
-            ResizeColumn(header, false);
+            ResizeColumn(header, std::to_underlying(TreeEnum::kDescription));
         }
     }
 }
@@ -2018,12 +2023,10 @@ void MainWindow::LoadAndInstallTranslator(CString& language)
         qApp->installTranslator(&qt_translator_);
 }
 
-void MainWindow::ResizeColumn(QHeaderView* header, bool table_view) const
+void MainWindow::ResizeColumn(QHeaderView* header, int stretch_column) const
 {
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    table_view ? header->setSectionResizeMode(std::to_underlying(TableEnum::kDescription), QHeaderView::Stretch)
-               : header->setSectionResizeMode(std::to_underlying(TreeEnum::kDescription), QHeaderView::Stretch);
-    ;
+    header->setSectionResizeMode(stretch_column, QHeaderView::Stretch);
 }
 
 void MainWindow::AppSettings()

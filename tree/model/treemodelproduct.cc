@@ -86,9 +86,9 @@ void TreeModelProduct::UpdateNodeFPTS(const Node* tmp_node)
     TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->description, kDescription, &Node::description);
     TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->code, kCode, &Node::code);
     TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->note, kNote, &Node::note);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->first, kUnitPrice, &Node::first);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->second, kCommission, &Node::second);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->color, kColor, &Node::color);
+    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->first, kUnitPrice, &Node::first, true);
+    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->second, kCommission, &Node::second, true);
+    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->color, kColor, &Node::color, true);
 }
 
 bool TreeModelProduct::RemoveNode(int row, const QModelIndex& parent)
@@ -361,7 +361,7 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
     case TreeEnumProduct::kUnit:
         return node->unit;
     case TreeEnumProduct::kColor:
-        return node->color;
+        return is_not_leaf ? QVariant() : node->color;
     case TreeEnumProduct::kCommission:
         return is_not_leaf || node->second == 0 ? QVariant() : node->second;
     case TreeEnumProduct::kUnitPrice:
@@ -403,7 +403,7 @@ bool TreeModelProduct::setData(const QModelIndex& index, const QVariant& value, 
         UpdateTypeFPTS(node, value.toInt());
         break;
     case TreeEnumProduct::kColor:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color, true);
         break;
     case TreeEnumProduct::kUnit:
         UpdateUnit(node, value.toInt());

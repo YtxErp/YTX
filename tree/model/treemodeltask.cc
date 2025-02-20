@@ -92,6 +92,7 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const TreeEnumTask kColumn { index.column() };
+    bool is_not_leaf { node->type != kTypeLeaf };
 
     switch (kColumn) {
     case TreeEnumTask::kName:
@@ -111,17 +112,17 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
     case TreeEnumTask::kUnit:
         return node->unit;
     case TreeEnumTask::kColor:
-        return node->color;
+        return is_not_leaf ? QVariant() : node->color;
     case TreeEnumTask::kDateTime:
-        return node->date_time;
+        return is_not_leaf ? QVariant() : node->date_time;
     case TreeEnumTask::kFinished:
-        return node->finished ? node->finished : QVariant();
+        return is_not_leaf || !node->finished ? QVariant() : node->finished;
     case TreeEnumTask::kUnitCost:
-        return node->first == 0 ? QVariant() : node->first;
-    case TreeEnumTask::kQuantity:
-        return node->initial_total == 0 ? QVariant() : node->initial_total;
+        return is_not_leaf || node->first == 0 ? QVariant() : node->first;
     case TreeEnumTask::kDocument:
-        return node->document.isEmpty() ? QVariant() : node->document.size();
+        return is_not_leaf || node->document.isEmpty() ? QVariant() : node->document.size();
+    case TreeEnumTask::kQuantity:
+        return node->initial_total;
     case TreeEnumTask::kAmount:
         return node->final_total;
     default:
@@ -155,23 +156,18 @@ bool TreeModelTask::setData(const QModelIndex& index, const QVariant& value, int
         break;
     case TreeEnumTask::kType:
         UpdateTypeFPTS(node, value.toInt());
-        emit dataChanged(
-            index.siblingAtColumn(std::to_underlying(TreeEnumTask::kDateTime)), index.siblingAtColumn(std::to_underlying(TreeEnumTask::kDateTime)));
         break;
     case TreeEnumTask::kColor:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color, true);
         break;
     case TreeEnumTask::kDateTime:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDateTime, &Node::date_time);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDateTime, &Node::date_time, true);
         break;
     case TreeEnumTask::kUnit:
         UpdateUnit(node, value.toInt());
         break;
-    case TreeEnumTask::kUnitCost:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kUnitCost, &Node::first);
-        break;
     case TreeEnumTask::kFinished:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kFinished, &Node::finished);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kFinished, &Node::finished, true);
         break;
     default:
         return false;
@@ -323,9 +319,9 @@ void TreeModelTask::UpdateNodeFPTS(const Node* tmp_node)
     TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->description, kDescription, &Node::description);
     TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->code, kCode, &Node::code);
     TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->note, kNote, &Node::note);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->color, kColor, &Node::color);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->date_time, kDateTime, &Node::date_time);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->finished, kFinished, &Node::finished);
+    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->color, kColor, &Node::color, true);
+    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->date_time, kDateTime, &Node::date_time, true);
+    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->finished, kFinished, &Node::finished, true);
 }
 
 bool TreeModelTask::RemoveNode(int row, const QModelIndex& parent)
@@ -344,7 +340,7 @@ bool TreeModelTask::RemoveNode(int row, const QModelIndex& parent)
 
     switch (node->type) {
     case kTypeBranch: {
-        for (auto* child : node->children) {
+        for (auto* child : std::as_const(node->children)) {
             child->parent = parent_node;
             parent_node->children.emplace_back(child);
         }

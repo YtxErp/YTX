@@ -363,9 +363,9 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
     case TreeEnumProduct::kColor:
         return node->color;
     case TreeEnumProduct::kCommission:
-        return node->second == 0 || is_not_leaf ? QVariant() : node->second;
+        return is_not_leaf || node->second == 0 ? QVariant() : node->second;
     case TreeEnumProduct::kUnitPrice:
-        return node->first == 0 || is_not_leaf ? QVariant() : node->first;
+        return is_not_leaf || node->first == 0 ? QVariant() : node->first;
     case TreeEnumProduct::kQuantity:
         return node->initial_total;
     case TreeEnumProduct::kAmount:

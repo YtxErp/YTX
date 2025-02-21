@@ -1323,7 +1323,7 @@ void MainWindow::SetPurchaseData()
     info.trans = kPurchaseTrans;
 
     // IM: IMMEDIATE, MS: MONTHLY SETTLEMENT, PEND: PENDING
-    QStringList unit_list { tr("IM"), tr("MS"), tr("PEND") };
+    QStringList unit_list { tr("IS"), tr("MS"), tr("PEND") };
     // SO: SALES ORDER, RO: REFUND ORDER
     QStringList rule_list { "SO", "RO" };
     QStringList type_list { "L", "B" };

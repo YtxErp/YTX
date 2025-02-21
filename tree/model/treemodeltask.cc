@@ -365,12 +365,12 @@ bool TreeModelTask::RemoveNode(int row, const QModelIndex& parent)
         break;
     }
 
+    ResourcePool<Node>::Instance().Recycle(node);
+    node_hash_.remove(node_id);
+
     emit SSearch();
     emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
     emit SUpdateStatusValue();
-
-    ResourcePool<Node>::Instance().Recycle(node);
-    node_hash_.remove(node_id);
 
     return true;
 }

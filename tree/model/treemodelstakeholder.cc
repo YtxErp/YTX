@@ -436,11 +436,11 @@ bool TreeModelStakeholder::RemoveNode(int row, const QModelIndex& parent)
         break;
     }
 
-    emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumStakeholder::kName));
-
     ResourcePool<Node>::Instance().Recycle(node);
     node_hash_.remove(node_id);
+
+    emit SSearch();
+    emit SResizeColumnToContents(std::to_underlying(TreeEnumStakeholder::kName));
 
     return true;
 }

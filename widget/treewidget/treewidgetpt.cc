@@ -3,11 +3,10 @@
 #include "component/constvalue.h"
 #include "ui_treewidgetpt.h"
 
-TreeWidgetPT::TreeWidgetPT(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
+TreeWidgetPT::TreeWidgetPT(TreeModel* model, CSettings& settings, QWidget* parent)
     : TreeWidget(parent)
     , ui(new Ui::TreeWidgetPT)
     , model_ { model }
-    , info_ { info }
     , settings_ { settings }
 {
     ui->setupUi(this);
@@ -32,13 +31,11 @@ void TreeWidgetPT::UpdateStaticStatus()
 
     const int static_node_id { settings_.static_node };
 
-    if (!model_->Contains(static_node_id)) {
-        ResetStatus(ui->dspin_box_static_);
-        return;
+    if (model_->Contains(static_node_id)) {
+        UpdateStaticValue(static_node_id);
+    } else {
+        ui->dspin_box_static_->setValue(0.0);
     }
-
-    ui->dspin_box_static_->setSuffix(info_.unit_map.value(model_->Unit(static_node_id), kEmptyString));
-    UpdateStaticValue(static_node_id);
 }
 
 void TreeWidgetPT::UpdateDynamicStatus()
@@ -49,17 +46,11 @@ void TreeWidgetPT::UpdateDynamicStatus()
     const int dynamic_node_id_lhs { settings_.dynamic_node_lhs };
     const int dynamic_node_id_rhs { settings_.dynamic_node_rhs };
 
-    if (!model_->Contains(dynamic_node_id_lhs) && !model_->Contains(dynamic_node_id_rhs)) {
-        ResetStatus(ui->dspin_box_dynamic_);
-        return;
+    if (model_->Contains(dynamic_node_id_lhs) || model_->Contains(dynamic_node_id_rhs)) {
+        UpdateDynamicValue(dynamic_node_id_lhs, dynamic_node_id_rhs);
+    } else {
+        ui->dspin_box_dynamic_->setValue(0.0);
     }
-
-    const int lhs_unit { model_->Unit(dynamic_node_id_lhs) };
-    const int rhs_unit { model_->Unit(dynamic_node_id_rhs) };
-    const int unit { lhs_unit == rhs_unit ? lhs_unit : 0 };
-
-    ui->dspin_box_dynamic_->setSuffix(info_.unit_map.value(unit, kEmptyString));
-    UpdateDynamicValue(dynamic_node_id_lhs, dynamic_node_id_rhs);
 }
 
 QPointer<QTreeView> TreeWidgetPT::View() const { return ui->treeViewFPT; }
@@ -103,5 +94,3 @@ double TreeWidgetPT::Operate(double lhs, double rhs, const QString& operation)
         return 0.0;
     }
 }
-
-void TreeWidgetPT::ResetStatus(QDoubleSpinBox* spin_box) { spin_box->setValue(0.0); }

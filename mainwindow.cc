@@ -1183,7 +1183,7 @@ void MainWindow::SetProductData()
     sql = new SqliteProduct(info, this);
 
     auto* model { new TreeModelProduct(sql, info, product_settings_.default_unit, product_table_hash_, interface_.separator, this) };
-    product_tree_ = new TreeWidgetPT(model, info, product_settings_, this);
+    product_tree_ = new TreeWidgetPT(model, product_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
 }
@@ -1265,7 +1265,7 @@ void MainWindow::SetTaskData()
     sql = new SqliteTask(info, this);
 
     auto* model { new TreeModelTask(sql, info, task_settings_.default_unit, task_table_hash_, interface_.separator, this) };
-    task_tree_ = new TreeWidgetPT(model, info, task_settings_, this);
+    task_tree_ = new TreeWidgetPT(model, task_settings_, this);
     connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
 }
 

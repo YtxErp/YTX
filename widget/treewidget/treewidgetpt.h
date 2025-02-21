@@ -22,7 +22,6 @@
 
 #include <QDoubleSpinBox>
 
-#include "component/info.h"
 #include "component/settings.h"
 #include "treewidget.h"
 
@@ -37,7 +36,7 @@ public slots:
     void RUpdateStatusValue() override;
 
 public:
-    TreeWidgetPT(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
+    TreeWidgetPT(TreeModel* model, CSettings& settings, QWidget* parent = nullptr);
     ~TreeWidgetPT() override;
 
     QPointer<QTreeView> View() const override;
@@ -51,13 +50,11 @@ private:
     void UpdateDynamicValue(int lhs_node_id, int rhs_node_id);
     void UpdateStaticValue(int node_id);
     double Operate(double lhs, double rhs, const QString& operation);
-    void ResetStatus(QDoubleSpinBox* spin_box);
 
 private:
     Ui::TreeWidgetPT* ui;
 
     TreeModel* model_ {};
-    CInfo& info_ {};
     CSettings& settings_ {};
 };
 

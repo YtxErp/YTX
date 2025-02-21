@@ -346,8 +346,8 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * diff, *trans_shadow->lhs_credit * diff);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * diff, *trans_shadow->rhs_credit * diff);
 
-    emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), diff);
-    emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), diff);
+    emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TreeEnumTask::kUnitCost), diff);
+    emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumTask::kUnitCost), diff);
 
     return true;
 }

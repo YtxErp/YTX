@@ -66,7 +66,7 @@ void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
 
 void TreeModelTask::RSyncOneValue(int node_id, int column, const QVariant& value)
 {
-    if (column != std::to_underlying(TreeEnumTask::kUnitCost) || node_id <= 0 || value.isValid())
+    if (column != std::to_underlying(TreeEnumTask::kUnitCost) || node_id <= 0 || !value.isValid())
         return;
 
     const double diff { value.toDouble() };
@@ -77,8 +77,7 @@ void TreeModelTask::RSyncOneValue(int node_id, int column, const QVariant& value
     if (!node || node == root_ || node->type != kTypeLeaf || node->unit != kUnitProd)
         return;
 
-    node->first += (node->rule ? 1 : -1) * diff;
-
+    node->first += diff;
     sql_->UpdateField(info_.node, node->first, kUnitCost, node_id);
 }
 

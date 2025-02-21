@@ -56,7 +56,7 @@ void TreeModelOrder::RSyncOneValue(int node_id, int column, const QVariant& valu
     UpdateAncestorValueOrder(node, coefficient * node->first, coefficient * node->second, coefficient * node->initial_total, coefficient * node->discount,
         coefficient * node->final_total);
 
-    if (node->unit != kUnitIM)
+    if (node->unit != std::to_underlying(UnitOrder::kIS))
         emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
 }
 
@@ -182,13 +182,14 @@ bool TreeModelOrder::UpdateUnit(Node* node, int value)
         return false;
 
     node->unit = value;
+    const UnitOrder unit { value };
 
-    switch (value) {
-    case kUnitIM:
+    switch (unit) {
+    case UnitOrder::kIS:
         node->final_total = node->initial_total - node->discount;
         break;
-    case kUnitPEND:
-    case kUnitMS:
+    case UnitOrder::kPEND:
+    case UnitOrder::kMS:
         node->final_total = 0.0;
         break;
     default:
@@ -214,7 +215,7 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
 
     node->finished = value;
     emit SSyncOneValue(node->id, std::to_underlying(TreeEnumOrder::kFinished), value);
-    if (node->unit != kUnitIM)
+    if (node->unit != std::to_underlying(UnitOrder::kIS))
         emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
     sql_->UpdateField(info_.node, value, kFinished, node->id);
     return true;
@@ -506,7 +507,7 @@ bool TreeModelOrder::dropMimeData(const QMimeData* data, Qt::DropAction action, 
         destination_parent->children.insert(begin_row, node);
         node->unit = destination_parent->unit;
         node->parent = destination_parent;
-        node->final_total = node->unit == kUnitIM ? node->initial_total - node->discount : 0.0;
+        node->final_total = node->unit == std::to_underlying(UnitOrder::kIS) ? node->initial_total - node->discount : 0.0;
 
         if (node->finished)
             UpdateAncestorValueOrder(node, node->first, node->second, node->initial_total, node->discount, node->final_total);

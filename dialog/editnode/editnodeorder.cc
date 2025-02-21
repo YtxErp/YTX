@@ -113,7 +113,7 @@ QPointer<TableModel> EditNodeOrder::Model() { return order_table_; }
 void EditNodeOrder::RUpdateLeafValue(
     int /*node_id*/, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff)
 {
-    const double adjusted_net_amount_diff { *node_shadow_->unit == kUnitIM ? net_amount_diff : 0.0 };
+    const double adjusted_net_amount_diff { *node_shadow_->unit == std::to_underlying(UnitOrder::kIS) ? net_amount_diff : 0.0 };
 
     *node_shadow_->first += first_diff;
     *node_shadow_->second += second_diff;
@@ -227,14 +227,16 @@ void EditNodeOrder::LockWidgets(bool finished, bool branch)
 
 void EditNodeOrder::IniUnit(int unit)
 {
-    switch (unit) {
-    case kUnitIM:
+    const UnitOrder kUnit { unit };
+
+    switch (kUnit) {
+    case UnitOrder::kIS:
         ui->rBtnCash->setChecked(true);
         break;
-    case kUnitMS:
+    case UnitOrder::kMS:
         ui->rBtnMonthly->setChecked(true);
         break;
-    case kUnitPEND:
+    case UnitOrder::kPEND:
         ui->rBtnPending->setChecked(true);
         break;
     default:
@@ -340,12 +342,12 @@ void EditNodeOrder::on_rBtnCash_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = kUnitIM;
+    *node_shadow_->unit = std::to_underlying(UnitOrder::kIS);
     *node_shadow_->final_total = *node_shadow_->initial_total - *node_shadow_->discount;
     ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
 
     if (node_id_ != 0) {
-        sql_->UpdateField(info_node_, kUnitIM, kUnit, node_id_);
+        sql_->UpdateField(info_node_, std::to_underlying(UnitOrder::kIS), kUnit, node_id_);
         sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
     }
 }
@@ -355,12 +357,12 @@ void EditNodeOrder::on_rBtnMonthly_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = kUnitMS;
+    *node_shadow_->unit = std::to_underlying(UnitOrder::kMS);
     *node_shadow_->final_total = 0.0;
     ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
-        sql_->UpdateField(info_node_, kUnitMS, kUnit, node_id_);
+        sql_->UpdateField(info_node_, std::to_underlying(UnitOrder::kMS), kUnit, node_id_);
         sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
     }
 }
@@ -370,12 +372,12 @@ void EditNodeOrder::on_rBtnPending_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = kUnitPEND;
+    *node_shadow_->unit = std::to_underlying(UnitOrder::kPEND);
     *node_shadow_->final_total = 0.0;
     ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
-        sql_->UpdateField(info_node_, kUnitPEND, kUnit, node_id_);
+        sql_->UpdateField(info_node_, std::to_underlying(UnitOrder::kPEND), kUnit, node_id_);
         sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
     }
 }

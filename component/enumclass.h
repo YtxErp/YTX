@@ -22,7 +22,7 @@
 
 // Enum
 
-enum UnitOrder { kUnitIM, kUnitMS, kUnitPEND };
+enum class UnitOrder { kIS, kMS, kPEND };
 
 enum UnitStakeholder { kUnitCust, kUnitEmp, kUnitVend, kUnitProd };
 

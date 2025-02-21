@@ -22,13 +22,17 @@
 
 // Enum
 
+enum NodeType { kTypeLeaf, kTypeBranch, kTypeSupport };
+
+// Enum Class
+
 enum class UnitOrder { kIS, kMS, kPEND };
 
 enum UnitStakeholder { kUnitCust, kUnitEmp, kUnitVend, kUnitProd };
 
 enum class UnitProduct { kPos = 1 };
 
-enum NodeType { kTypeLeaf, kTypeBranch, kTypeSupport };
+enum class UnitTask { kProd = 1 };
 
 // Enum class defining sections
 enum class Section { kFinance, kProduct, kTask, kStakeholder, kSales, kPurchase };

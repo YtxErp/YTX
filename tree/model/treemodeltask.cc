@@ -74,7 +74,7 @@ void TreeModelTask::RSyncOneValue(int node_id, int column, const QVariant& value
         return;
 
     auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf || node->unit != kUnitProd)
+    if (!node || node == root_ || node->type != kTypeLeaf || node->unit != std::to_underlying(UnitTask::kProd))
         return;
 
     node->first += diff;

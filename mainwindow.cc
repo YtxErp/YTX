@@ -1243,7 +1243,7 @@ void MainWindow::SetTaskData()
     info.trans = kTaskTrans;
 
     // PROD: PRODUCT, STKH: STAKEHOLDER
-    QStringList unit_list { tr("CUST"), tr("EMP"), tr("VEND"), tr("PROD") };
+    QStringList unit_list { {}, tr("PROD"), tr("CUST"), tr("EMP"), tr("VEND") };
     QStringList rule_list { "DICD", "DDCI" };
     QStringList type_list { "L", "B", "S" };
 

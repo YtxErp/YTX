@@ -134,6 +134,9 @@ private:
 
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
+    void DelegateSupportStakeholder(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
+    void SetSupportViewStakeholder(PQTableView table_view) const;
+
     void TableConnectFPT(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
     void TableConnectOrder(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const;
     void TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;

@@ -162,7 +162,7 @@ bool SqliteStakeholder::ReadTrans(int node_id)
         return false;
     }
 
-    ReadTransFunction(query);
+    ReadTransStakeholder(query);
     return true;
 }
 
@@ -347,7 +347,7 @@ QString SqliteStakeholder::QSNodeTransToRemove() const
     )");
 }
 
-void SqliteStakeholder::ReadTransFunction(QSqlQuery& query)
+void SqliteStakeholder::ReadTransStakeholder(QSqlQuery& query)
 {
     Trans* trans {};
     int id {};
@@ -461,28 +461,6 @@ void SqliteStakeholder::UpdateProductReferenceSO(int old_node_id, int new_node_i
             trans->lhs_node = new_node_id;
 }
 
-void SqliteStakeholder::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_id*/, QSqlQuery& query)
-{
-    TransShadow* trans_shadow {};
-    Trans* trans {};
-    int id {};
-
-    while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
-
-        trans = ResourcePool<Trans>::Instance().Allocate();
-        trans_shadow = ResourcePool<TransShadow>::Instance().Allocate();
-
-        trans->id = id;
-
-        ReadTransQuery(trans, query);
-        trans_hash_.insert(id, trans);
-
-        ConvertTrans(trans, trans_shadow, true);
-        trans_shadow_list.emplaceBack(trans_shadow);
-    }
-}
-
 QString SqliteStakeholder::QSReadTransRangeFPTS(CString& in_list) const
 {
     return QStringLiteral(R"(
@@ -516,6 +494,7 @@ void SqliteStakeholder::ReadTransQuery(Trans* trans, const QSqlQuery& query) con
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
     trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
     trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
+    trans->rhs_ratio = trans->lhs_ratio;
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->state = query.value(QStringLiteral("state")).toBool();

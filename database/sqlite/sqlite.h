@@ -169,7 +169,7 @@ protected:
 
     //
 
-    virtual void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query);
+    virtual void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query, bool is_support = false);
     virtual QMultiHash<int, int> ReplaceNodeFunction(int old_node_id, int new_node_id) const;
 
     //

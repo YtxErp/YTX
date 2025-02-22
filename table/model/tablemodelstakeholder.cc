@@ -77,6 +77,22 @@ bool TableModelStakeholder::RemoveMultiTrans(const QList<int>& trans_id_list)
     return true;
 }
 
+bool TableModelStakeholder::UpdateRatio(TransShadow* trans_shadow, double value)
+{
+    double unit_price { *trans_shadow->lhs_ratio };
+    if (std::abs(unit_price - value) < kTolerance || value < 0)
+        return false;
+
+    *trans_shadow->lhs_ratio = value;
+    *trans_shadow->rhs_ratio = value;
+
+    if (*trans_shadow->rhs_node == 0)
+        return false;
+
+    sql_->UpdateField(info_.trans, value, kUnitPrice, *trans_shadow->id);
+    return true;
+}
+
 bool TableModelStakeholder::UpdateInsideProduct(TransShadow* trans_shadow, int value) const
 {
     if (*trans_shadow->rhs_node == value)
@@ -145,7 +161,7 @@ bool TableModelStakeholder::setData(const QModelIndex& index, const QVariant& va
         rhs_changed = UpdateInsideProduct(trans_shadow, value.toInt());
         break;
     case TableEnumStakeholder::kUnitPrice:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kUnitPrice, value.toDouble(), &TransShadow::lhs_ratio);
+        UpdateRatio(trans_shadow, value.toDouble());
         break;
     case TableEnumStakeholder::kDescription:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });

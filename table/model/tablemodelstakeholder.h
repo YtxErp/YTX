@@ -43,6 +43,7 @@ public:
 protected:
     bool AppendMultiTrans(int node_id, const QList<int>& trans_id_list) override;
     bool RemoveMultiTrans(const QList<int>& trans_id_list) override;
+    bool UpdateRatio(TransShadow* trans_shadow, double value) override;
 
 private:
     bool UpdateInsideProduct(TransShadow* trans_shadow, int value) const;

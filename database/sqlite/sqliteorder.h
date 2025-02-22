@@ -48,7 +48,7 @@ protected:
 
     // table
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query) override;
+    void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query, bool is_support = false) override;
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
     void UpdateStakeholderReferenceO(int old_node_id, int new_node_id) const override;

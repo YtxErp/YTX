@@ -383,6 +383,15 @@ void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash
     SetTableView(view, std::to_underlying(TableEnumSupport::kDescription));
     DelegateSupport(view, tree_model, settings);
 
+    switch (section) {
+    case Section::kStakeholder:
+        SetSupportViewStakeholder(view);
+        DelegateSupportStakeholder(view, tree_model, product_tree_->Model());
+        break;
+    default:
+        break;
+    }
+
     table_hash->insert(node_id, widget);
     SignalStation::Instance().RegisterModel(section, node_id, model);
 
@@ -1101,6 +1110,23 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), node_name);
 }
 
+void MainWindow::DelegateSupportStakeholder(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
+{
+    auto* lhs_node_name { new SearchPathTableR(tree_model, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsNode), lhs_node_name);
+
+    auto* rhs_node_name { new SearchPathTableR(product_tree_model, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), rhs_node_name);
+}
+
+void MainWindow::SetSupportViewStakeholder(PQTableView table_view) const
+{
+    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kLhsDebit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kRhsDebit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kLhsCredit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kRhsCredit), true);
+}
+
 void MainWindow::SetConnect() const
 {
     connect(ui->actionCheckAll, &QAction::triggered, this, &MainWindow::RUpdateState);
@@ -1200,7 +1226,7 @@ void MainWindow::SetStakeholderData()
     info.trans = kStakeholderTrans;
 
     // EMP: EMPLOYEE, CUST: CUSTOMER, VEND: VENDOR, PROD: PRODUCT
-    QStringList unit_list { tr("CUST"), tr("EMP"), tr("VEND"), tr("PROD") };
+    QStringList unit_list { tr("CUST"), tr("EMP"), tr("VEND") };
     // IM：Immediate, MS（Monthly Settlement）
     QStringList rule_list { "IS", "MS" };
     QStringList type_list { "L", "B", "S" };

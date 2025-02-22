@@ -299,7 +299,7 @@ void SqliteOrder::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
 }
 
-void SqliteOrder::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_id*/, QSqlQuery& query)
+void SqliteOrder::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_id*/, QSqlQuery& query, bool /*is_support*/)
 {
     TransShadow* trans_shadow {};
     Trans* trans {};

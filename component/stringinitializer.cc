@@ -48,7 +48,9 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     stakeholder.search_trans_header
         = { QObject::tr("ID"), QObject::tr("DateTime"), QObject::tr("Code"), QObject::tr("InsideProduct"), {}, {}, {}, QObject::tr("Description"),
               QObject::tr("UnitPrice"), QObject::tr("SupportID"), {}, {}, QObject::tr("D"), QObject::tr("S"), {}, {}, {}, QObject::tr("OutsideProduct") };
-    stakeholder.support_header = finance.support_header;
+    stakeholder.support_header = { QObject::tr("ID"), QObject::tr("DateTime"), QObject::tr("Code"), QObject::tr("LhsNode"), QObject::tr("UnitPrice"),
+        QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
+        QObject::tr("RhsDebit"), QObject::tr("UnitPrice"), QObject::tr("RhsNode") };
 
     task.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"), QObject::tr("Rule"),
         QObject::tr("Type"), QObject::tr("Category"), QObject::tr("DateTime"), QObject::tr("Color"), QObject::tr("Document"), QObject::tr("Finished"),

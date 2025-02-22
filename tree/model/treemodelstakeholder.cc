@@ -163,7 +163,7 @@ void TreeModelStakeholder::UpdateSeparatorFPTS(CString& old_separator, CString& 
 
 bool TreeModelStakeholder::UpdateUnit(Node* node, int value)
 {
-    if (node->unit == value)
+    if (node->unit == value || node->type != kTypeLeaf)
         return false;
 
     const int node_id { node->id };
@@ -455,7 +455,7 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const TreeEnumStakeholder kColumn { index.column() };
-    bool skip { node->type == kTypeBranch || node->unit == kUnitProd || node->rule == kRuleIS };
+    bool is_not_leaf { node->type != kTypeLeaf };
 
     switch (kColumn) {
     case TreeEnumStakeholder::kName:
@@ -469,21 +469,21 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
     case TreeEnumStakeholder::kNote:
         return node->note;
     case TreeEnumStakeholder::kRule:
-        return node->rule;
+        return is_not_leaf ? -1 : node->rule;
     case TreeEnumStakeholder::kType:
         return node->type;
     case TreeEnumStakeholder::kUnit:
-        return node->unit;
+        return is_not_leaf ? -1 : node->unit;
     case TreeEnumStakeholder::kDeadline:
-        return node->date_time.isEmpty() || skip ? QVariant() : node->date_time;
+        return node->date_time.isEmpty() || is_not_leaf ? QVariant() : node->date_time;
     case TreeEnumStakeholder::kEmployee:
-        return node->employee == 0 ? QVariant() : node->employee;
+        return node->employee == 0 || is_not_leaf ? QVariant() : node->employee;
     case TreeEnumStakeholder::kPaymentTerm:
-        return node->first == 0 || skip ? QVariant() : node->first;
+        return node->first == 0 || is_not_leaf ? QVariant() : node->first;
     case TreeEnumStakeholder::kTaxRate:
-        return node->second == 0 ? QVariant() : node->second;
+        return node->second == 0 || is_not_leaf ? QVariant() : node->second;
     case TreeEnumStakeholder::kAmount:
-        return node->final_total == 0 ? QVariant() : node->final_total;
+        return node->final_total;
     default:
         return QVariant();
     }
@@ -511,7 +511,7 @@ bool TreeModelStakeholder::setData(const QModelIndex& index, const QVariant& val
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
         break;
     case TreeEnumStakeholder::kRule:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kRule, &Node::rule);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kRule, &Node::rule, true);
         break;
     case TreeEnumStakeholder::kType:
         UpdateTypeFPTS(node, value.toInt());
@@ -520,16 +520,16 @@ bool TreeModelStakeholder::setData(const QModelIndex& index, const QVariant& val
         UpdateUnit(node, value.toInt());
         break;
     case TreeEnumStakeholder::kDeadline:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDeadline, &Node::date_time);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDeadline, &Node::date_time, true);
         break;
     case TreeEnumStakeholder::kEmployee:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee, true);
         break;
     case TreeEnumStakeholder::kPaymentTerm:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kPaymentTerm, &Node::first);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kPaymentTerm, &Node::first, true);
         break;
     case TreeEnumStakeholder::kTaxRate:
-        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kTaxRate, &Node::second);
+        TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kTaxRate, &Node::second, true);
         break;
     default:
         return false;

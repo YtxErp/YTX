@@ -969,7 +969,7 @@ bool Sqlite::ReadSupportTransFPTS(TransShadowList& trans_shadow_list, int suppor
         return false;
     }
 
-    ReadTransFunction(trans_shadow_list, support_id, query);
+    ReadTransFunction(trans_shadow_list, support_id, query, true);
     return true;
 }
 
@@ -1056,7 +1056,7 @@ bool Sqlite::WriteRelationship(int node_id, int parent_id, QSqlQuery& query) con
     return true;
 }
 
-void Sqlite::ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query)
+void Sqlite::ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query, bool is_support)
 {
     TransShadow* trans_shadow {};
     Trans* trans {};
@@ -1076,7 +1076,7 @@ void Sqlite::ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, 
             trans_hash_.insert(id, trans);
         }
 
-        ConvertTrans(trans, trans_shadow, node_id == trans->lhs_node);
+        ConvertTrans(trans, trans_shadow, node_id == trans->lhs_node || is_support);
         trans_shadow_list.emplaceBack(trans_shadow);
     }
 }

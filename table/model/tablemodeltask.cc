@@ -66,7 +66,6 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
     bool rhs_changed { false };
     bool deb_changed { false };
     bool cre_changed { false };
-    bool rat_changed { false };
     bool sup_changed { false };
 
     switch (kColumn) {
@@ -86,7 +85,7 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kSupportID, value.toInt(), &TransShadow::support_id);
         break;
     case TableEnumTask::kUnitCost:
-        rat_changed = UpdateRatio(trans_shadow, value.toDouble());
+        UpdateRatio(trans_shadow, value.toDouble());
         break;
     case TableEnumTask::kRhsNode:
         rhs_changed = TableModelUtils::UpdateRhsNode(trans_shadow, value.toInt());
@@ -126,14 +125,12 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         }
     }
 
-    if (deb_changed || cre_changed || rat_changed) {
+    if (deb_changed || cre_changed) {
         sql_->UpdateTransValue(trans_shadow);
+        TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
+
         emit SSearch();
         emit SUpdateBalance(info_.section, old_rhs_node, *trans_shadow->id);
-    }
-
-    if (deb_changed || cre_changed) {
-        TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
         emit SResizeColumnToContents(std::to_underlying(TableEnumTask::kSubtotal));
     }
 

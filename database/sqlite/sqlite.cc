@@ -627,8 +627,6 @@ void Sqlite::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) co
     trans_shadow->document = &trans->document;
     trans_shadow->description = &trans->description;
     trans_shadow->support_id = &trans->support_id;
-    trans_shadow->rhs_ratio = &trans->rhs_ratio;
-    trans_shadow->lhs_ratio = &trans->lhs_ratio;
     trans_shadow->discount = &trans->discount;
 
     trans_shadow->lhs_node = &(left ? trans->lhs_node : trans->rhs_node);
@@ -1060,7 +1058,6 @@ bool Sqlite::WriteRelationship(int node_id, int parent_id, QSqlQuery& query) con
 
 void Sqlite::ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query)
 {
-    // finance, product, task
     TransShadow* trans_shadow {};
     Trans* trans {};
     int id {};

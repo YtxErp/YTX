@@ -257,6 +257,7 @@ bool TreeModel::UpdateRuleFPTO(Node* node, bool value)
         sql_->UpdateNodeValue(node);
     }
 
+    emit SUpdateStatusValue();
     return true;
 }
 

@@ -461,8 +461,10 @@ void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* tabl
     connect(widget, &TableWidgetOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 
     connect(widget, &TableWidgetOrder::SSyncOneValue, table_model, &TableModel::RSyncOneValue);
-    connect(widget, &TableWidgetOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
     connect(widget, &TableWidgetOrder::SSyncOneValue, this, &MainWindow::RSyncOneValue);
+
+    connect(widget, &TableWidgetOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
+    connect(widget, &TableWidgetOrder::SSyncFinished, tree_model, &TreeModel::RSyncOneValue);
 }
 
 void MainWindow::TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
@@ -1714,6 +1716,7 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     connect(dialog, &EditNodeOrder::SSyncOneValue, table_model, &TableModel::RSyncOneValue);
     connect(dialog, &EditNodeOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
     connect(dialog, &EditNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
+    connect(dialog, &EditNodeOrder::SSyncFinished, tree_model, &TreeModel::RSyncOneValue);
 
     dialog_list_->append(dialog);
 

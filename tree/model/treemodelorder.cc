@@ -198,7 +198,7 @@ bool TreeModelOrder::UpdateUnit(Node* node, int value)
     }
 
     sql_->UpdateField(info_.node, value, kUnit, node->id);
-    sql_->UpdateField(info_.node, node->final_total, kGrossAmount, node->id);
+    sql_->UpdateField(info_.node, node->final_total, kNetAmount, node->id);
 
     emit SResizeColumnToContents(std::to_underlying(TreeEnumOrder::kNetAmount));
     return true;
@@ -336,6 +336,9 @@ bool TreeModelOrder::RemoveNode(int row, const QModelIndex& parent)
     case kTypeLeaf:
         if (node->finished) {
             UpdateAncestorValueOrder(node, -node->first, -node->second, -node->initial_total, -node->discount, -node->final_total);
+
+            if (node->unit == std::to_underlying(UnitOrder::kMS))
+                emit SSyncDouble(node->party, std::to_underlying(TreeEnumStakeholder::kAmount), node->discount - node->initial_total);
         }
         break;
     default:

@@ -31,7 +31,7 @@ public:
 
 public slots:
     void RUpdateStakeholder(int old_node_id, int new_node_id) override;
-    void RSyncOneValue(int node_id, int column, const QVariant& value) override; // amount
+    void RSyncDouble(int node_id, int column, double value) override; // amount
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

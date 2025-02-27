@@ -48,7 +48,7 @@ TableWidgetOrder::~TableWidgetOrder()
 
 QPointer<QTableView> TableWidgetOrder::View() const { return ui->tableViewOrder; }
 
-void TableWidgetOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
+void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
 {
     if (node_id != node_id_)
         return;
@@ -56,36 +56,20 @@ void TableWidgetOrder::RSyncOneValue(int node_id, int column, const QVariant& va
     const TreeEnumOrder kColumn { column };
 
     if (kColumn == TreeEnumOrder::kFinished)
-        emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), value.toBool());
+        emit SSyncBool(node_id_, 0, value); // just send to TableModelOrder, thereby set column to 0
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kDescription:
-        ui->lineDescription->setText(value.toString());
-        break;
     case TreeEnumOrder::kRule:
-        ui->chkBoxRefund->setChecked(value.toBool());
-        break;
-    case TreeEnumOrder::kUnit:
-        IniUnit(value.toInt());
-        break;
-    case TreeEnumOrder::kEmployee: {
-        int employee_index { ui->comboEmployee->findData(value.toInt()) };
-        ui->comboEmployee->setCurrentIndex(employee_index);
-        break;
-    }
-    case TreeEnumOrder::kDateTime:
-        ui->dateTimeEdit->setDateTime(QDateTime::fromString(value.toString(), kDateTimeFST));
+        ui->chkBoxRefund->setChecked(value);
         break;
     case TreeEnumOrder::kFinished: {
-        bool finished { value.toBool() };
+        ui->pBtnFinishOrder->setChecked(value);
+        ui->pBtnFinishOrder->setText(value ? tr("Edit") : tr("Finish"));
+        LockWidgets(value);
 
-        ui->pBtnFinishOrder->setChecked(finished);
-        ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
-        LockWidgets(finished);
-
-        if (finished) {
+        if (value) {
             ui->pBtnPrint->setFocus();
             ui->pBtnPrint->setDefault(true);
             ui->tableViewOrder->clearSelection();
@@ -94,7 +78,51 @@ void TableWidgetOrder::RSyncOneValue(int node_id, int column, const QVariant& va
         break;
     }
     default:
+        break;
+    }
+}
+
+void TableWidgetOrder::RSyncInt(int node_id, int column, int value)
+{
+    if (node_id != node_id_)
         return;
+
+    const TreeEnumOrder kColumn { column };
+
+    SignalBlocker blocker(this);
+
+    switch (kColumn) {
+    case TreeEnumOrder::kUnit:
+        IniUnit(value);
+        break;
+    case TreeEnumOrder::kEmployee: {
+        int employee_index { ui->comboEmployee->findData(value) };
+        ui->comboEmployee->setCurrentIndex(employee_index);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void TableWidgetOrder::RSyncString(int node_id, int column, const QString& value)
+{
+    if (node_id != node_id_)
+        return;
+
+    const TreeEnumOrder kColumn { column };
+
+    SignalBlocker blocker(this);
+
+    switch (kColumn) {
+    case TreeEnumOrder::kDescription:
+        ui->lineDescription->setText(value);
+        break;
+    case TreeEnumOrder::kDateTime:
+        ui->dateTimeEdit->setDateTime(QDateTime::fromString(value, kDateTimeFST));
+        break;
+    default:
+        break;
     }
 }
 
@@ -242,7 +270,7 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
     *node_shadow_->party = party_id;
     sql_->UpdateField(info_node_, party_id, kParty, node_id_);
-    emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
+    emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
@@ -361,7 +389,7 @@ void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     *node_shadow_->finished = checked;
     sql_->UpdateField(info_node_, checked, kFinished, node_id_);
-    emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
+    emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
     ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
 

@@ -107,8 +107,8 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
         emit SResizeColumnToContents(std::to_underlying(TableEnumTask::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
 
-        emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->lhs_ratio);
-        emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->lhs_ratio);
+        emit SSyncDouble(*trans_shadow->rhs_node, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->lhs_ratio);
+        emit SSyncDouble(node_id_, std::to_underlying(TableEnumTask::kUnitCost), *trans_shadow->lhs_ratio);
 
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
@@ -256,8 +256,8 @@ bool TableModelTask::removeRows(int row, int /*count*/, const QModelIndex& paren
         sql_->RemoveTrans(trans_id);
 
         QTimer::singleShot(50, this, [this, rhs_node_id, unit_cost]() {
-            emit SSyncOneValue(rhs_node_id, std::to_underlying(TableEnumTask::kUnitCost), -unit_cost);
-            emit SSyncOneValue(node_id_, std::to_underlying(TableEnumTask::kUnitCost), -unit_cost);
+            emit SSyncDouble(rhs_node_id, std::to_underlying(TableEnumTask::kUnitCost), -unit_cost);
+            emit SSyncDouble(node_id_, std::to_underlying(TableEnumTask::kUnitCost), -unit_cost);
         });
     }
 
@@ -343,8 +343,8 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * diff, *trans_shadow->lhs_credit * diff);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * diff, *trans_shadow->rhs_credit * diff);
 
-    emit SSyncOneValue(*trans_shadow->rhs_node, std::to_underlying(TreeEnumTask::kUnitCost), diff);
-    emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumTask::kUnitCost), diff);
+    emit SSyncDouble(*trans_shadow->rhs_node, std::to_underlying(TreeEnumTask::kUnitCost), diff);
+    emit SSyncDouble(node_id_, std::to_underlying(TreeEnumTask::kUnitCost), diff);
 
     return true;
 }

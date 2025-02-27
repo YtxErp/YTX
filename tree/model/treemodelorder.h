@@ -32,13 +32,10 @@ public:
     TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent = nullptr);
     ~TreeModelOrder() override = default;
 
-signals:
-    void SUpdateLeafValueOne(int node_id, double diff, const QString& node_field);
-
 public slots:
     void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff) override;
     void RUpdateStakeholder(int old_node_id, int new_node_id) override;
-    void RSyncOneValue(int node_id, int column, const QVariant& value) override; // kFinished
+    void RSyncBool(int node_id, int column, bool value) override; // kFinished
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

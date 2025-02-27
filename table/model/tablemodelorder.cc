@@ -21,7 +21,7 @@ TableModelOrder::TableModelOrder(
 TableModelOrder::~TableModelOrder()
 {
     if (node_id_ != 0) {
-        UpdateFinished(node_id_, true);
+        RSyncBool(node_id_, 0, true);
     }
 }
 
@@ -38,15 +38,6 @@ void TableModelOrder::UpdateLhsNode(int node_id)
 
     if (!trans_shadow_list_.isEmpty())
         sql_->WriteTransRangeO(trans_shadow_list_);
-}
-
-void TableModelOrder::UpdateFinished(int node_id, bool checked)
-{
-    if (node_id != node_id_ || !checked || sync_price_.isEmpty())
-        return;
-
-    PurifyTransShadow();
-    UpdatePrice();
 }
 
 void TableModelOrder::UpdateParty(int node_id, int party_id)
@@ -68,7 +59,16 @@ void TableModelOrder::UpdatePrice()
     sync_price_.clear();
 }
 
-void TableModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
+void TableModelOrder::RSyncBool(int node_id, int /*column*/, bool value)
+{
+    if (node_id != node_id_ || !value || sync_price_.isEmpty())
+        return;
+
+    PurifyTransShadow();
+    UpdatePrice();
+}
+
+void TableModelOrder::RSyncInt(int node_id, int column, int value)
 {
     const TreeEnumOrder kColumn { column };
 
@@ -77,10 +77,7 @@ void TableModelOrder::RSyncOneValue(int node_id, int column, const QVariant& val
         UpdateLhsNode(node_id);
         break;
     case TreeEnumOrder::kParty:
-        UpdateParty(node_id, value.toInt());
-        break;
-    case TreeEnumOrder::kFinished:
-        UpdateFinished(node_id, value.toBool());
+        UpdateParty(node_id, value);
         break;
     default:
         break;

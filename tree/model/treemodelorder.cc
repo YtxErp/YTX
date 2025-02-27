@@ -24,8 +24,9 @@ void TreeModelOrder::RUpdateLeafValue(
     auto index { GetIndex(node->id) };
     emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kNetAmount)));
 
-    if (node->finished)
+    if (node->finished) {
         UpdateAncestorValueOrder(node, first_diff, second_diff, gross_amount_diff, discount_diff, net_amount_diff);
+    }
 }
 
 void TreeModelOrder::RUpdateStakeholder(int old_node_id, int new_node_id)
@@ -41,7 +42,7 @@ void TreeModelOrder::RUpdateStakeholder(int old_node_id, int new_node_id)
     }
 }
 
-void TreeModelOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
+void TreeModelOrder::RSyncBool(int node_id, int column, bool value)
 {
     if (column != std::to_underlying(TreeEnumOrder::kFinished))
         return;
@@ -52,12 +53,12 @@ void TreeModelOrder::RSyncOneValue(int node_id, int column, const QVariant& valu
 
     auto* node { it.value() };
 
-    int coefficient = value.toBool() ? 1 : -1;
+    int coefficient = value ? 1 : -1;
     UpdateAncestorValueOrder(node, coefficient * node->first, coefficient * node->second, coefficient * node->initial_total, coefficient * node->discount,
         coefficient * node->final_total);
 
-    if (node->unit != std::to_underlying(UnitOrder::kIS))
-        emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
+    if (node->unit == std::to_underlying(UnitOrder::kMS))
+        emit SSyncDouble(node->party, std::to_underlying(TreeEnumStakeholder::kAmount), coefficient * (node->initial_total - node->discount));
 }
 
 void TreeModelOrder::UpdateAncestorValueOrder(Node* node, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff)
@@ -214,9 +215,9 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
         coefficient * node->final_total);
 
     node->finished = value;
-    emit SSyncOneValue(node->id, std::to_underlying(TreeEnumOrder::kFinished), value);
-    if (node->unit != std::to_underlying(UnitOrder::kIS))
-        emit SUpdateLeafValueOne(node->party, coefficient * (node->initial_total - node->discount), kAmount);
+    emit SSyncBool(node->id, std::to_underlying(TreeEnumOrder::kFinished), value);
+    if (node->unit == std::to_underlying(UnitOrder::kMS))
+        emit SSyncDouble(node->party, std::to_underlying(TreeEnumStakeholder::kAmount), coefficient * (node->initial_total - node->discount));
     sql_->UpdateField(info_.node, value, kFinished, node->id);
     return true;
 }
@@ -412,31 +413,36 @@ bool TreeModelOrder::setData(const QModelIndex& index, const QVariant& value, in
     switch (kColumn) {
     case TreeEnumOrder::kDescription:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
+        emit SSyncString(node->id, index.column(), value.toString());
         break;
     case TreeEnumOrder::kRule:
         UpdateRuleFPTO(node, value.toBool());
+        emit SSyncBool(node->id, index.column(), value.toBool());
         break;
     case TreeEnumOrder::kUnit:
         UpdateUnit(node, value.toInt());
+        emit SSyncInt(node->id, index.column(), value.toInt());
         break;
     case TreeEnumOrder::kParty:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kParty, &Node::party);
         break;
     case TreeEnumOrder::kEmployee:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee);
+        emit SSyncInt(node->id, index.column(), value.toInt());
         break;
     case TreeEnumOrder::kDateTime:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDateTime, &Node::date_time);
+        emit SSyncString(node->id, index.column(), value.toString());
         break;
     case TreeEnumOrder::kFinished:
         UpdateFinished(node, value.toBool());
+        emit SSyncBool(node->id, index.column(), value.toBool());
         break;
     default:
         return false;
     }
 
     emit SResizeColumnToContents(index.column());
-    emit SSyncOneValue(node->id, index.column(), value);
     return true;
 }
 

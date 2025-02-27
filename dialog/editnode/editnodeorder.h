@@ -38,19 +38,25 @@ public:
     ~EditNodeOrder();
 
 signals:
-    // send to TableModelOrder and TreeModelOrder
-    void SSyncOneValue(int node_id, int column, const QVariant& value);
-
     // send to TableModelOrder
-    void SSyncFinished(int node_id, int column, const QVariant& value);
+    void SSyncInt(int node_id, int column, int value);
+
+    // send to TableModelOrder, TreeModelOrder
+    void SSyncBool(int node_id, int column, bool value);
 
     // send to TreeModelOrder
     void SUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
 
 public slots:
     void accept() override;
+
+    // receive from TableModelOrder
     void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
-    void RSyncOneValue(int node_id, int column, const QVariant& value);
+
+    // receive from TreeModelOrder
+    void RSyncBool(int node_id, int column, bool value);
+    void RSyncInt(int node_id, int column, int value);
+    void RSyncString(int node_id, int column, const QString& value);
 
 public:
     QPointer<TableModel> Model();

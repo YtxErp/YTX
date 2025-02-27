@@ -51,8 +51,13 @@ signals:
     void SUpdateName(int node_id, const QString& name, bool branch);
     void SUpdateStatusValue();
 
-    // send to TableWidgetOrder, EditNodeOrder
-    void SSyncOneValue(int node_id, int column, const QVariant& value);
+    // send to TreeModelStakeholder
+    void SSyncDouble(int node_id, int column, double value);
+
+    // send to TableWidgetOrder and EditNodeOrder
+    void SSyncBool(int node_id, int column, bool value);
+    void SSyncInt(int node_id, int column, int value);
+    void SSyncString(int node_id, int column, const QString& value);
 
 public slots:
     // receive from Sqlite
@@ -61,7 +66,9 @@ public slots:
 
     // receive from  TableModel
     void RSearch() { emit SSearch(); }
-    virtual void RSyncOneValue(int node_id, int column, const QVariant& value)
+
+    // receive from TableWidgetOrder and EditNodeOrder
+    virtual void RSyncBool(int node_id, int column, bool value)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(column);
@@ -77,6 +84,14 @@ public slots:
         Q_UNUSED(final_debit_diff);
         Q_UNUSED(final_credit_diff);
         Q_UNUSED(net_amount_diff);
+    }
+
+    // receive from TreeModelOrder
+    virtual void RSyncDouble(int node_id, int column, double value)
+    {
+        Q_UNUSED(node_id);
+        Q_UNUSED(column);
+        Q_UNUSED(value);
     }
 
     virtual void RUpdateStakeholder(int old_node_id, int new_node_id)

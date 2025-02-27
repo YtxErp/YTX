@@ -34,7 +34,8 @@ public:
     ~TableModelOrder() override;
 
 public slots:
-    void RSyncOneValue(int node_id, int column, const QVariant& value) override;
+    void RSyncBool(int node_id, int column, bool value) override; // kFinished
+    void RSyncInt(int node_id, int column, int value) override; // node_id, party_id
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -56,7 +57,6 @@ private:
     void CrossSearch(TransShadow* trans_shadow, int product_id, bool is_inside) const;
 
     void UpdateLhsNode(int node_id);
-    void UpdateFinished(int node_id, bool checked);
     void UpdateParty(int node_id, int party_id);
     void UpdatePrice();
 

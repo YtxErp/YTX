@@ -437,7 +437,7 @@ void MainWindow::TableConnectFPT(PQTableView table_view, PTableModel table_model
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
 
     connect(table_model, &TableModel::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
-    connect(table_model, &TableModel::SSyncOneValue, tree_model, &TreeModel::RSyncOneValue);
+    connect(table_model, &TableModel::SSyncDouble, tree_model, &TreeModel::RSyncDouble);
 
     connect(table_model, &TableModel::SRemoveOneTrans, &SignalStation::Instance(), &SignalStation::RRemoveOneTrans);
     connect(table_model, &TableModel::SAppendOneTrans, &SignalStation::Instance(), &SignalStation::RAppendOneTrans);
@@ -453,18 +453,19 @@ void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* tabl
 {
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
     connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
+
     connect(table_model, &TableModel::SUpdateLeafValue, widget, &TableWidgetOrder::RUpdateLeafValue);
-
-    connect(tree_model, &TreeModel::SSyncOneValue, widget, &TableWidgetOrder::RSyncOneValue);
-
-    connect(widget, &TableWidgetOrder::SSyncOneValue, tree_model, &TreeModel::RSyncOneValue);
     connect(widget, &TableWidgetOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 
-    connect(widget, &TableWidgetOrder::SSyncOneValue, table_model, &TableModel::RSyncOneValue);
-    connect(widget, &TableWidgetOrder::SSyncOneValue, this, &MainWindow::RSyncOneValue);
+    connect(widget, &TableWidgetOrder::SSyncInt, table_model, &TableModel::RSyncInt);
+    connect(widget, &TableWidgetOrder::SSyncBool, table_model, &TableModel::RSyncBool);
 
-    connect(widget, &TableWidgetOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
-    connect(widget, &TableWidgetOrder::SSyncFinished, tree_model, &TreeModel::RSyncOneValue);
+    connect(widget, &TableWidgetOrder::SSyncInt, this, &MainWindow::RSyncInt);
+
+    connect(widget, &TableWidgetOrder::SSyncBool, tree_model, &TreeModel::RSyncBool);
+    connect(tree_model, &TreeModel::SSyncBool, widget, &TableWidgetOrder::RSyncBool);
+    connect(tree_model, &TreeModel::SSyncInt, widget, &TableWidgetOrder::RSyncInt);
+    connect(tree_model, &TreeModel::SSyncString, widget, &TableWidgetOrder::RSyncString);
 }
 
 void MainWindow::TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
@@ -1336,7 +1337,7 @@ void MainWindow::SetSalesData()
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(model, &TreeModel::SSyncOneValue, stakeholder_tree_->Model(), &TreeModel::RSyncOneValue);
+    connect(model, &TreeModel::SSyncDouble, stakeholder_tree_->Model(), &TreeModel::RSyncDouble);
 }
 
 void MainWindow::SetPurchaseData()
@@ -1378,7 +1379,7 @@ void MainWindow::SetPurchaseData()
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(model, &TreeModel::SSyncOneValue, stakeholder_tree_->Model(), &TreeModel::RSyncOneValue);
+    connect(model, &TreeModel::SSyncDouble, stakeholder_tree_->Model(), &TreeModel::RSyncDouble);
 }
 
 void MainWindow::SetAction() const
@@ -1708,15 +1709,19 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     });
 
     connect(table_model, &TableModel::SResizeColumnToContents, dialog->View(), &QTableView::resizeColumnToContents);
+    connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
+
     connect(table_model, &TableModel::SUpdateLeafValue, dialog, &EditNodeOrder::RUpdateLeafValue);
-
-    connect(tree_model, &TreeModel::SSyncOneValue, dialog, &EditNodeOrder::RSyncOneValue);
-
-    connect(dialog, &EditNodeOrder::SSyncOneValue, tree_model, &TreeModel::RSyncOneValue);
-    connect(dialog, &EditNodeOrder::SSyncOneValue, table_model, &TableModel::RSyncOneValue);
-    connect(dialog, &EditNodeOrder::SSyncFinished, table_model, &TableModel::RSyncOneValue);
     connect(dialog, &EditNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
-    connect(dialog, &EditNodeOrder::SSyncFinished, tree_model, &TreeModel::RSyncOneValue);
+
+    connect(dialog, &EditNodeOrder::SSyncBool, tree_model, &TreeModel::RSyncBool);
+
+    connect(dialog, &EditNodeOrder::SSyncBool, table_model, &TableModel::RSyncBool);
+    connect(dialog, &EditNodeOrder::SSyncInt, table_model, &TableModel::RSyncInt);
+
+    connect(tree_model, &TreeModel::SSyncBool, dialog, &EditNodeOrder::RSyncBool);
+    connect(tree_model, &TreeModel::SSyncInt, dialog, &EditNodeOrder::RSyncInt);
+    connect(tree_model, &TreeModel::SSyncString, dialog, &EditNodeOrder::RSyncString);
 
     dialog_list_->append(dialog);
 
@@ -2108,7 +2113,7 @@ void MainWindow::RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id)
     SwitchTab(id, trans_id);
 }
 
-void MainWindow::RSyncOneValue(int node_id, int column, const QVariant& value)
+void MainWindow::RSyncInt(int node_id, int column, const QVariant& value)
 {
     if (column != std::to_underlying(TreeEnumOrder::kParty))
         return;

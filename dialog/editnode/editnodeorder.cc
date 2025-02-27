@@ -58,56 +58,6 @@ EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
 
 EditNodeOrder::~EditNodeOrder() { delete ui; }
 
-void EditNodeOrder::RSyncOneValue(int node_id, int column, const QVariant& value)
-{
-    if (node_id != node_id_)
-        return;
-
-    const TreeEnumOrder kColumn { column };
-
-    if (kColumn == TreeEnumOrder::kFinished)
-        emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), value.toBool());
-
-    SignalBlocker blocker(this);
-
-    switch (kColumn) {
-    case TreeEnumOrder::kDescription:
-        ui->lineDescription->setText(value.toString());
-        break;
-    case TreeEnumOrder::kRule:
-        ui->chkBoxRefund->setChecked(value.toBool());
-        break;
-    case TreeEnumOrder::kUnit:
-        IniUnit(value.toInt());
-        break;
-    case TreeEnumOrder::kEmployee: {
-        int employee_index { ui->comboEmployee->findData(value.toInt()) };
-        ui->comboEmployee->setCurrentIndex(employee_index);
-        break;
-    }
-    case TreeEnumOrder::kDateTime:
-        ui->dateTimeEdit->setDateTime(QDateTime::fromString(value.toString(), kDateTimeFST));
-        break;
-    case TreeEnumOrder::kFinished: {
-        bool finished { value.toBool() };
-
-        ui->pBtnFinishOrder->setChecked(finished);
-        ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
-        LockWidgets(finished, *node_shadow_->type == kTypeBranch);
-
-        if (finished) {
-            ui->pBtnPrint->setFocus();
-            ui->pBtnPrint->setDefault(true);
-            ui->tableViewOrder->clearSelection();
-        }
-
-        break;
-    }
-    default:
-        return;
-    }
-}
-
 QPointer<TableModel> EditNodeOrder::Model() { return order_table_; }
 
 void EditNodeOrder::RUpdateLeafValue(
@@ -129,6 +79,84 @@ void EditNodeOrder::RUpdateLeafValue(
 
     if (node_id_ != 0) {
         emit SUpdateLeafValue(node_id_, first_diff, second_diff, gross_amount_diff, discount_diff, adjusted_net_amount_diff);
+    }
+}
+
+void EditNodeOrder::RSyncBool(int node_id, int column, bool value)
+{
+    if (node_id != node_id_)
+        return;
+
+    const TreeEnumOrder kColumn { column };
+
+    if (kColumn == TreeEnumOrder::kFinished)
+        emit SSyncBool(node_id_, 0, value);
+
+    SignalBlocker blocker(this);
+
+    switch (kColumn) {
+    case TreeEnumOrder::kRule:
+        ui->chkBoxRefund->setChecked(value);
+        break;
+    case TreeEnumOrder::kFinished: {
+        ui->pBtnFinishOrder->setChecked(value);
+        ui->pBtnFinishOrder->setText(value ? tr("Edit") : tr("Finish"));
+        LockWidgets(value, *node_shadow_->type == kTypeBranch);
+
+        if (value) {
+            ui->pBtnPrint->setFocus();
+            ui->pBtnPrint->setDefault(true);
+            ui->tableViewOrder->clearSelection();
+        }
+
+        break;
+    }
+    default:
+        return;
+    }
+}
+
+void EditNodeOrder::RSyncInt(int node_id, int column, int value)
+{
+    if (node_id != node_id_)
+        return;
+
+    const TreeEnumOrder kColumn { column };
+
+    SignalBlocker blocker(this);
+
+    switch (kColumn) {
+    case TreeEnumOrder::kUnit:
+        IniUnit(value);
+        break;
+    case TreeEnumOrder::kEmployee: {
+        int employee_index { ui->comboEmployee->findData(value) };
+        ui->comboEmployee->setCurrentIndex(employee_index);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void EditNodeOrder::RSyncString(int node_id, int column, const QString& value)
+{
+    if (node_id != node_id_)
+        return;
+
+    const TreeEnumOrder kColumn { column };
+
+    SignalBlocker blocker(this);
+
+    switch (kColumn) {
+    case TreeEnumOrder::kDescription:
+        ui->lineDescription->setText(value);
+        break;
+    case TreeEnumOrder::kDateTime:
+        ui->dateTimeEdit->setDateTime(QDateTime::fromString(value, kDateTimeFST));
+        break;
+    default:
+        break;
     }
 }
 
@@ -174,7 +202,7 @@ void EditNodeOrder::accept()
         node_id_ = *node_shadow_->id;
 
         if (*node_shadow_->type == kTypeLeaf)
-            emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumOrder::kID), node_id_);
+            emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kID), node_id_);
 
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);
@@ -284,7 +312,7 @@ void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
         return;
 
     *node_shadow_->party = party_id;
-    emit SSyncOneValue(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
+    emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
@@ -417,7 +445,7 @@ void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     sql_->UpdateField(info_node_, checked, kFinished, node_id_);
     if (*node_shadow_->type == kTypeLeaf)
-        emit SSyncFinished(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
+        emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
     ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
 

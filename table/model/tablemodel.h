@@ -39,7 +39,7 @@ protected:
 
 signals:
     // send to TreeModel
-    void SSyncOneValue(int node_id, int column, const QVariant& value);
+    void SSyncDouble(int node_id, int column, double value);
     void SUpdateLeafValue(int node_id, double initial_debit_diff = 0.0, double initial_credit_diff = 0.0, double final_debit_diff = 0.0,
         double final_credit_diff = 0.0, double settled_diff = 0.0);
     void SSearch();
@@ -67,7 +67,14 @@ public slots:
     void RRule(int node_id, bool rule);
 
     // receive from TreeModel
-    virtual void RSyncOneValue(int node_id, int column, const QVariant& value)
+    virtual void RSyncBool(int node_id, int column, bool value)
+    {
+        Q_UNUSED(node_id);
+        Q_UNUSED(column);
+        Q_UNUSED(value);
+    }
+
+    virtual void RSyncInt(int node_id, int column, int value)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(column);

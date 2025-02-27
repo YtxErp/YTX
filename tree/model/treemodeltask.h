@@ -33,7 +33,7 @@ public slots:
     void RUpdateLeafValue(int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff,
         double settled_diff = 0.0) override;
     void RUpdateMultiLeafTotal(const QList<int>& node_list) override;
-    void RSyncOneValue(int node_id, int column, const QVariant& value) override; // unit_cost
+    void RSyncDouble(int node_id, int column, double value) override; // unit_cost
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

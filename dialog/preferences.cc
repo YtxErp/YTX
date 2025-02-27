@@ -140,6 +140,7 @@ void Preferences::DynamicLable(Section section)
     case Section::kFinance:
         ui->labelAmountDecimal->setText(tr("Amount Decimal"));
         ui->labelCommonDecimal->setText(tr("FXRate Decimal"));
+        ui->labelDefaultUnit->setText(tr("Local Currency"));
         break;
     case Section::kStakeholder:
         ui->labelAmountDecimal->setText(tr("Amount Decimal"));

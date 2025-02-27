@@ -146,6 +146,11 @@ QComboBox#comboDateTime, DateTimeEdit#dateTimeEdit
     min-width: 100px;
 }
 
+ComboBox#comboParty, ComboBox#comboEmployee
+{
+    min-width: 100px;
+}
+
 /*--------------------------------------background color----------------------------------------*/
 
 QToolTip, QHeaderView::section, QDialog QCheckBox::indicator, QMenuBar::item:selected {

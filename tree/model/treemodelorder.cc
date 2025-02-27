@@ -499,24 +499,20 @@ bool TreeModelOrder::dropMimeData(const QMimeData* data, Qt::DropAction action, 
     auto begin_row { row == -1 ? destination_parent->children.size() : row };
     auto source_row { node->parent->children.indexOf(node) };
     auto source_index { createIndex(node->parent->children.indexOf(node), 0, node) };
+    bool update_ancestor { node->type == kTypeBranch || node->finished };
 
     if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
         node->parent->children.removeAt(source_row);
-        if (node->type == kTypeBranch) {
+        if (update_ancestor) {
             UpdateAncestorValueOrder(node, -node->first, -node->second, -node->initial_total, -node->discount, -node->final_total);
-        } else {
-            if (node->finished) {
-                UpdateAncestorValueOrder(node, -node->first, -node->second, -node->initial_total, -node->discount, -node->final_total);
-            }
         }
 
         destination_parent->children.insert(begin_row, node);
-        node->unit = destination_parent->unit;
         node->parent = destination_parent;
-        node->final_total = node->unit == std::to_underlying(UnitOrder::kIS) ? node->initial_total - node->discount : 0.0;
 
-        if (node->finished)
+        if (update_ancestor) {
             UpdateAncestorValueOrder(node, node->first, node->second, node->initial_total, node->discount, node->final_total);
+        }
 
         endMoveRows();
     }

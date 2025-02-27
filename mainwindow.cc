@@ -1647,7 +1647,6 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
         dialog = new EditNodeTask(std::move(params), settings_->amount_decimal, settings_->date_format, this);
         break;
     case Section::kStakeholder:
-        node->unit = settings_->default_unit;
         dialog = new EditNodeStakeholder(std::move(params), tree_model->UnitModelPS(kUnitEmp), settings_->amount_decimal, this);
         break;
     case Section::kProduct:

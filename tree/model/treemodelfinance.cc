@@ -12,25 +12,25 @@ TreeModelFinance::TreeModelFinance(Sqlite* sql, CInfo& info, int default_unit, C
 TreeModelFinance::~TreeModelFinance() { qDeleteAll(node_hash_); }
 
 void TreeModelFinance::RUpdateLeafValue(
-    int node_id, double foreign_debit_diff, double foreign_credit_diff, double local_debit_diff, double local_credit_diff, double /*settled_diff*/)
+    int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled_delta*/)
 {
     auto* node { TreeModelUtils::GetNodeByID(node_hash_, node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
-    if (foreign_credit_diff == 0 && foreign_debit_diff == 0 && local_debit_diff == 0 && local_credit_diff == 0)
+    if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
 
     bool rule { node->rule };
 
-    double foreign_diff { (rule ? 1 : -1) * (foreign_credit_diff - foreign_debit_diff) };
-    double local_diff { (rule ? 1 : -1) * (local_credit_diff - local_debit_diff) };
+    double initial_delta { (rule ? 1 : -1) * (initial_credit_delta - initial_debit_delta) };
+    double final_delta { (rule ? 1 : -1) * (final_credit_delta - final_debit_delta) };
 
-    node->initial_total += foreign_diff;
-    node->final_total += local_diff;
+    node->initial_total += initial_delta;
+    node->final_total += final_delta;
 
     sql_->UpdateNodeValue(node);
-    UpdateAncestorValue(node, foreign_diff, local_diff);
+    UpdateAncestorValue(node, initial_delta, final_delta);
     emit SUpdateStatusValue();
 }
 
@@ -38,8 +38,8 @@ void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
 {
     double old_local_total {};
     double old_foreign_total {};
-    double local_diff {};
-    double foreign_diff {};
+    double local_delta {};
+    double foreign_delta {};
     Node* node {};
 
     for (int node_id : node_list) {
@@ -54,10 +54,10 @@ void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
         sql_->LeafTotal(node);
         sql_->UpdateNodeValue(node);
 
-        local_diff = node->final_total - old_local_total;
-        foreign_diff = node->initial_total - old_foreign_total;
+        local_delta = node->final_total - old_local_total;
+        foreign_delta = node->initial_total - old_foreign_total;
 
-        UpdateAncestorValue(node, foreign_diff, local_diff);
+        UpdateAncestorValue(node, foreign_delta, local_delta);
     }
 
     emit SUpdateStatusValue();

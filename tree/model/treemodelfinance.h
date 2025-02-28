@@ -30,8 +30,8 @@ public:
     ~TreeModelFinance() override;
 
 public slots:
-    void RUpdateLeafValue(int node_id, double foreign_debit_diff, double foreign_credit_diff, double local_debit_diff, double local_credit_diff,
-        double settled_diff = 0.0) override;
+    void RUpdateLeafValue(int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta,
+        double delta5 = 0.0) override;
     void RUpdateMultiLeafTotal(const QList<int>& node_list) override;
 
 public:

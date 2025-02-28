@@ -10,13 +10,13 @@ TreeModelOrder::TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CTabl
 }
 
 void TreeModelOrder::RUpdateLeafValue(
-    int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff)
+    int node_id, double first_delta, double second_delta, double gross_amount_delta, double discount_delta, double net_amount_delta)
 {
     auto* node { node_hash_.value(node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
-    if (first_diff == 0 && second_diff == 0 && gross_amount_diff == 0 && discount_diff == 0 && net_amount_diff == 0)
+    if (first_delta == 0 && second_delta == 0 && gross_amount_delta == 0 && discount_delta == 0 && net_amount_delta == 0)
         return;
 
     sql_->UpdateNodeValue(node);
@@ -25,7 +25,7 @@ void TreeModelOrder::RUpdateLeafValue(
     emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kNetAmount)));
 
     if (node->finished) {
-        UpdateAncestorValue(node, gross_amount_diff, net_amount_diff, first_diff, second_diff, discount_diff);
+        UpdateAncestorValue(node, gross_amount_delta, net_amount_delta, first_delta, second_delta, discount_delta);
     }
 }
 

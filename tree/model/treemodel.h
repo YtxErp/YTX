@@ -75,15 +75,14 @@ public slots:
         Q_UNUSED(value);
     }
 
-    virtual void RUpdateLeafValue(
-        int node_id, double initial_debit_diff, double initial_credit_diff, double final_debit_diff, double final_credit_diff, double net_amount_diff)
+    virtual void RUpdateLeafValue(int node_id, double delta1, double delta2, double delta3, double delta4, double delta5)
     {
         Q_UNUSED(node_id);
-        Q_UNUSED(initial_debit_diff);
-        Q_UNUSED(initial_credit_diff);
-        Q_UNUSED(final_debit_diff);
-        Q_UNUSED(final_credit_diff);
-        Q_UNUSED(net_amount_diff);
+        Q_UNUSED(delta1);
+        Q_UNUSED(delta2);
+        Q_UNUSED(delta3);
+        Q_UNUSED(delta4);
+        Q_UNUSED(delta5);
     }
 
     // receive from TreeModelOrder

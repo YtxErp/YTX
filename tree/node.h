@@ -163,59 +163,6 @@ inline void Node::Reset()
     children.clear();
 }
 
-struct NodeShadow {
-    void Reset();
-
-    QString* name {};
-    int* id {};
-    QString* code {};
-    QString* description {};
-    QString* note {};
-    bool* rule {};
-    int* type {};
-    int* unit {};
-
-    double* first {};
-    double* second {};
-    double* discount {};
-    bool* finished {};
-
-    QString* date_time {};
-    QString* color {};
-    QStringList* document {};
-    int* employee {};
-    int* party {};
-
-    double* final_total {};
-    double* initial_total {};
-};
-
-inline void NodeShadow::Reset()
-{
-    name = nullptr;
-    id = nullptr;
-    code = nullptr;
-    description = nullptr;
-    note = nullptr;
-    rule = nullptr;
-    type = nullptr;
-    unit = nullptr;
-
-    first = nullptr;
-    second = nullptr;
-    discount = nullptr;
-    finished = nullptr;
-
-    date_time = nullptr;
-    color = nullptr;
-    document = nullptr;
-    employee = nullptr;
-    party = nullptr;
-
-    final_total = nullptr;
-    initial_total = nullptr;
-}
-
 using NodeHash = QHash<int, Node*>;
 using CNodeHash = const QHash<int, Node*>;
 

@@ -38,7 +38,7 @@ struct EditNodeParamsFPTS {
 };
 
 struct EditNodeParamsOrder {
-    NodeShadow* node_shadow {};
+    Node* node {};
     Sqlite* sql {};
     TableModel* order_table {};
     TreeModel* stakeholder_tree {};

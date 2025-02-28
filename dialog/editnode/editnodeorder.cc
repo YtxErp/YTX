@@ -11,13 +11,13 @@
 EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::EditNodeOrder)
-    , node_shadow_ { params.node_shadow }
+    , node_ { params.node }
     , sql_ { params.sql }
     , stakeholder_tree_ { static_cast<TreeModelStakeholder*>(params.stakeholder_tree) }
     , order_table_ { params.order_table }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
     , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
-    , node_id_ { *params.node_shadow->id }
+    , node_id_ { params.node->id }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -32,7 +32,7 @@ EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
     ui->labParty->setText(tr("Party"));
     ui->comboParty->setFocus();
 
-    IniUnit(*params.node_shadow->unit);
+    IniUnit(params.node->unit);
     setWindowTitle(params.section == Section::kSales ? tr("Sales") : tr("Purchase"));
 
     QShortcut* trans_shortcut { new QShortcut(QKeySequence("Ctrl+N"), this) };
@@ -62,13 +62,13 @@ QPointer<TableModel> EditNodeOrder::Model() { return order_table_; }
 
 void EditNodeOrder::RUpdateLeafValue(int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
-    const double adjusted_final_delta { *node_shadow_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
+    const double adjusted_final_delta { node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
 
-    *node_shadow_->first += first_delta;
-    *node_shadow_->second += second_delta;
-    *node_shadow_->initial_total += initial_delta;
-    *node_shadow_->discount += discount_delta;
-    *node_shadow_->final_total += adjusted_final_delta;
+    node_->first += first_delta;
+    node_->second += second_delta;
+    node_->initial_total += initial_delta;
+    node_->discount += discount_delta;
+    node_->final_total += adjusted_final_delta;
 
     IniLeafValue();
 
@@ -97,7 +97,7 @@ void EditNodeOrder::RSyncBool(int node_id, int column, bool value)
     case TreeEnumOrder::kFinished: {
         ui->pBtnFinishOrder->setChecked(value);
         ui->pBtnFinishOrder->setText(value ? tr("Edit") : tr("Finish"));
-        LockWidgets(value, *node_shadow_->type == kTypeBranch);
+        LockWidgets(value, node_->type == kTypeBranch);
 
         if (value) {
             ui->pBtnPrint->setFocus();
@@ -170,7 +170,7 @@ void EditNodeOrder::IniDialog(CSettings* settings)
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
     ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
-    *node_shadow_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
+    node_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
     ui->comboParty->lineEdit()->setValidator(&LineEdit::kInputValidator);
 
     ui->dSpinDiscount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
@@ -195,9 +195,9 @@ void EditNodeOrder::accept()
 
     if (node_id_ == 0) {
         emit QDialog::accepted();
-        node_id_ = *node_shadow_->id;
+        node_id_ = node_->id;
 
-        if (*node_shadow_->type == kTypeLeaf)
+        if (node_->type == kTypeLeaf)
             emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kID), node_id_);
 
         ui->chkBoxBranch->setEnabled(false);
@@ -205,7 +205,7 @@ void EditNodeOrder::accept()
         ui->tableViewOrder->clearSelection();
 
         emit SUpdateLeafValue(
-            node_id_, *node_shadow_->initial_total, *node_shadow_->final_total, *node_shadow_->first, *node_shadow_->second, *node_shadow_->discount);
+            node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
     }
 }
 
@@ -285,19 +285,19 @@ void EditNodeOrder::IniDataCombo(int party, int employee)
 
 void EditNodeOrder::IniLeafValue()
 {
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    ui->dSpinFirst->setValue(node_->first);
+    ui->dSpinSecond->setValue(node_->second);
+    ui->dSpinGrossAmount->setValue(node_->initial_total);
+    ui->dSpinDiscount->setValue(node_->discount);
+    ui->dSpinNetAmount->setValue(node_->final_total);
 }
 
 void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 {
-    if (*node_shadow_->type != kTypeBranch || arg1.isEmpty())
+    if (node_->type != kTypeBranch || arg1.isEmpty())
         return;
 
-    *node_shadow_->name = arg1;
+    node_->name = arg1;
 
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
@@ -309,14 +309,14 @@ void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 
 void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
-    if (*node_shadow_->type != kTypeLeaf)
+    if (node_->type != kTypeLeaf)
         return;
 
     int party_id { ui->comboParty->currentData().toInt() };
     if (party_id <= 0)
         return;
 
-    *node_shadow_->party = party_id;
+    node_->party = party_id;
     emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
     if (node_id_ == 0) {
@@ -338,28 +338,28 @@ void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
 void EditNodeOrder::on_chkBoxRefund_toggled(bool checked)
 {
-    *node_shadow_->rule = checked;
+    node_->rule = checked;
 
-    *node_shadow_->first *= -1;
-    *node_shadow_->second *= -1;
-    *node_shadow_->initial_total *= -1;
-    *node_shadow_->discount *= -1;
-    *node_shadow_->final_total *= -1;
+    node_->first *= -1;
+    node_->second *= -1;
+    node_->initial_total *= -1;
+    node_->discount *= -1;
+    node_->final_total *= -1;
 
     IniLeafValue();
 
     if (node_id_ != 0) {
         sql_->WriteField(info_node_, checked, kRule, node_id_);
-        sql_->WriteLeafValue(node_shadow_);
+        sql_->WriteLeafValue(node_);
     }
 }
 
 void EditNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
-    *node_shadow_->employee = ui->comboEmployee->currentData().toInt();
+    node_->employee = ui->comboEmployee->currentData().toInt();
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, *node_shadow_->employee, kEmployee, node_id_);
+        sql_->WriteField(info_node_, node_->employee, kEmployee, node_id_);
 }
 
 void EditNodeOrder::on_rBtnCash_toggled(bool checked)
@@ -367,13 +367,13 @@ void EditNodeOrder::on_rBtnCash_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = std::to_underlying(UnitOrder::kIS);
-    *node_shadow_->final_total = *node_shadow_->initial_total - *node_shadow_->discount;
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    node_->unit = std::to_underlying(UnitOrder::kIS);
+    node_->final_total = node_->initial_total - node_->discount;
+    ui->dSpinNetAmount->setValue(node_->final_total);
 
     if (node_id_ != 0) {
         sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kIS), kUnit, node_id_);
-        sql_->WriteField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
+        sql_->WriteField(info_node_, node_->final_total, kNetAmount, node_id_);
     }
 }
 
@@ -382,8 +382,8 @@ void EditNodeOrder::on_rBtnMonthly_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = std::to_underlying(UnitOrder::kMS);
-    *node_shadow_->final_total = 0.0;
+    node_->unit = std::to_underlying(UnitOrder::kMS);
+    node_->final_total = 0.0;
     ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
@@ -397,8 +397,8 @@ void EditNodeOrder::on_rBtnPending_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = std::to_underlying(UnitOrder::kPEND);
-    *node_shadow_->final_total = 0.0;
+    node_->unit = std::to_underlying(UnitOrder::kPEND);
+    node_->final_total = 0.0;
     ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
@@ -410,7 +410,7 @@ void EditNodeOrder::on_rBtnPending_toggled(bool checked)
 void EditNodeOrder::on_pBtnInsert_clicked()
 {
     const auto& name { ui->comboParty->currentText() };
-    if (*node_shadow_->type == kTypeBranch || name.isEmpty() || ui->comboParty->currentIndex() != -1)
+    if (node_->type == kTypeBranch || name.isEmpty() || ui->comboParty->currentIndex() != -1)
         return;
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
@@ -428,25 +428,25 @@ void EditNodeOrder::on_pBtnInsert_clicked()
 
 void EditNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
-    *node_shadow_->date_time = date_time.toString(kDateTimeFST);
+    node_->date_time = date_time.toString(kDateTimeFST);
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, *node_shadow_->date_time, kDateTime, node_id_);
+        sql_->WriteField(info_node_, node_->date_time, kDateTime, node_id_);
 }
 
 void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     accept();
 
-    *node_shadow_->finished = checked;
+    node_->finished = checked;
 
     sql_->WriteField(info_node_, checked, kFinished, node_id_);
-    if (*node_shadow_->type == kTypeLeaf)
+    if (node_->type == kTypeLeaf)
         emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
     ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
 
-    LockWidgets(checked, *node_shadow_->type == kTypeBranch);
+    LockWidgets(checked, node_->type == kTypeBranch);
 
     if (checked) {
         ui->tableViewOrder->clearSelection();
@@ -458,7 +458,7 @@ void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 void EditNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)
 {
     bool enable { arg1 == Qt::Checked };
-    *node_shadow_->type = enable;
+    node_->type = enable;
     LockWidgets(false, enable);
 
     ui->comboEmployee->setCurrentIndex(-1);
@@ -467,12 +467,12 @@ void EditNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1
     ui->pBtnSaveOrder->setEnabled(false);
     ui->pBtnFinishOrder->setEnabled(false);
 
-    *node_shadow_->party = 0;
-    *node_shadow_->employee = 0;
+    node_->party = 0;
+    node_->employee = 0;
     if (enable)
-        node_shadow_->date_time->clear();
+        node_->date_time.clear();
     else
-        *node_shadow_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
+        node_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
 
     ui->chkBoxRefund->setChecked(false);
     ui->tableViewOrder->clearSelection();
@@ -481,8 +481,8 @@ void EditNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1
 
 void EditNodeOrder::on_lineDescription_editingFinished()
 {
-    *node_shadow_->description = ui->lineDescription->text();
+    node_->description = ui->lineDescription->text();
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, *node_shadow_->description, kDescription, node_id_);
+        sql_->WriteField(info_node_, node_->description, kDescription, node_id_);
 }

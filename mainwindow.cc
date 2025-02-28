@@ -406,13 +406,12 @@ void MainWindow::CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, 
     if (section != Section::kSales && section != Section::kPurchase)
         return;
 
-    auto* node_shadow { ResourcePool<NodeShadow>::Instance().Allocate() };
-    tree_model->SetNodeShadowOrder(node_shadow, node_id);
-
     auto* sql { data->sql };
 
-    TableModelOrder* model { new TableModelOrder(sql, true, node_id, info, node_shadow, product_tree_->Model(), stakeholder_data_.sql, this) };
-    auto params { EditNodeParamsOrder { node_shadow, sql, model, stakeholder_tree_->Model(), settings_, section } };
+    Node* node { tree_model->GetNodeO(node_id) };
+
+    TableModelOrder* model { new TableModelOrder(sql, true, node_id, info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
+    auto params { EditNodeParamsOrder { node, sql, model, stakeholder_tree_->Model(), settings_, section } };
 
     TableWidgetOrder* widget { new TableWidgetOrder(std::move(params), this) };
 
@@ -1673,19 +1672,11 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
 {
     auto tree_model { tree_widget_->Model() };
 
-    auto* node_shadow { ResourcePool<NodeShadow>::Instance().Allocate() };
-    tree_model->SetNodeShadowOrder(node_shadow, node);
-    if (!node_shadow->id) {
-        ResourcePool<NodeShadow>::Instance().Recycle(node_shadow);
-        ResourcePool<Node>::Instance().Recycle(node);
-        return;
-    }
-
     auto* sql { data_->sql };
 
-    auto* table_model { new TableModelOrder(sql, node->rule, 0, data_->info, node_shadow, product_tree_->Model(), stakeholder_data_.sql, this) };
+    auto* table_model { new TableModelOrder(sql, node->rule, 0, data_->info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
-    auto params { EditNodeParamsOrder { node_shadow, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
+    auto params { EditNodeParamsOrder { node, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
     auto* dialog { new EditNodeOrder(std::move(params), this) };
 
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -1700,7 +1691,6 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
         }
     });
     connect(dialog, &QDialog::rejected, this, [=, this]() {
-        ResourcePool<NodeShadow>::Instance().Recycle(node_shadow);
         if (node->id == 0) {
             ResourcePool<Node>::Instance().Recycle(node);
             dialog_list_->removeOne(dialog);

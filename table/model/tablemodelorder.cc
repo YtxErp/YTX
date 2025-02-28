@@ -4,12 +4,12 @@
 #include "tablemodelutils.h"
 
 TableModelOrder::TableModelOrder(
-    Sqlite* sql, bool rule, int node_id, CInfo& info, const NodeShadow* node_shadow, CTreeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent)
+    Sqlite* sql, bool rule, int node_id, CInfo& info, const Node* node, CTreeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent)
     : TableModel { sql, rule, node_id, info, parent }
     , product_tree_ { static_cast<const TreeModelProduct*>(product_tree) }
     , sqlite_stakeholder_ { static_cast<SqliteStakeholder*>(sqlite_stakeholder) }
-    , node_shadow_ { node_shadow }
-    , party_id_ { *node_shadow->party }
+    , node_ { node }
+    , party_id_ { node->party }
 {
     if (node_id >= 1)
         sql_->ReadNodeTrans(trans_shadow_list_, node_id);
@@ -53,7 +53,7 @@ void TableModelOrder::UpdatePrice()
 {
     // 遍历trans_shadow_list，对比exclusive_price_，检测是否存在inside_product_id, 不存在添加，存在更新
     for (auto it = sync_price_.cbegin(); it != sync_price_.cend(); ++it) {
-        sqlite_stakeholder_->UpdatePrice(*node_shadow_->party, it.key(), *node_shadow_->date_time, it.value());
+        sqlite_stakeholder_->UpdatePrice(party_id_, it.key(), node_->date_time, it.value());
     }
 
     sync_price_.clear();
@@ -421,7 +421,7 @@ void TableModelOrder::CrossSearch(TransShadow* trans_shadow, int product_id, boo
     if (!trans_shadow || !sqlite_stakeholder_ || product_id <= 0)
         return;
 
-    if (sqlite_stakeholder_->CrossSearch(trans_shadow, *node_shadow_->party, product_id, is_inside))
+    if (sqlite_stakeholder_->CrossSearch(trans_shadow, party_id_, product_id, is_inside))
         return;
 
     *trans_shadow->lhs_ratio = is_inside ? product_tree_->First(product_id) : 0.0;

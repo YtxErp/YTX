@@ -114,6 +114,15 @@ void TreeModelOrder::RetriveNodeOrder(int node_id)
     endInsertRows();
 }
 
+Node* TreeModelOrder::GetNodeO(int node_id) const
+{
+    auto it = node_hash_.constFind(node_id);
+    if (it != node_hash_.constEnd())
+        return it.value();
+
+    return nullptr;
+}
+
 bool TreeModelOrder::UpdateRuleFPTO(Node* node, bool value)
 {
     if (node->rule == value || node->type != kTypeLeaf)

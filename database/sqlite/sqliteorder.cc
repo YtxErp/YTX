@@ -371,16 +371,6 @@ void SqliteOrder::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) con
     query.bindValue(QStringLiteral(":node_id"), node->id);
 }
 
-void SqliteOrder::WriteLeafValueBindO(const NodeShadow* node_shadow, QSqlQuery& query) const
-{
-    query.bindValue(QStringLiteral(":gross_amount"), *node_shadow->initial_total);
-    query.bindValue(QStringLiteral(":second"), *node_shadow->second);
-    query.bindValue(QStringLiteral(":first"), *node_shadow->first);
-    query.bindValue(QStringLiteral(":discount"), *node_shadow->discount);
-    query.bindValue(QStringLiteral(":net_amount"), *node_shadow->final_total);
-    query.bindValue(QStringLiteral(":node_id"), *node_shadow->id);
-}
-
 void SqliteOrder::ReadNodeQuery(Node* node, const QSqlQuery& query) const
 {
     node->id = query.value(QStringLiteral("id")).toInt();

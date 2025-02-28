@@ -85,7 +85,7 @@ private:
 
 private:
     Ui::TableWidgetOrder* ui;
-    NodeShadow* node_shadow_ {};
+    Node* node_ {};
     Sqlite* sql_ {};
     TableModel* order_table_ {};
     TreeModelStakeholder* stakeholder_tree_ {};

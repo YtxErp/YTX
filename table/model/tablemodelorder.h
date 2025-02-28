@@ -29,8 +29,8 @@ class TableModelOrder final : public TableModel {
     Q_OBJECT
 
 public:
-    TableModelOrder(Sqlite* sql, bool rule, int node_id, CInfo& info, const NodeShadow* node_shadow, CTreeModel* product_tree, Sqlite* sqlite_stakeholder,
-        QObject* parent = nullptr);
+    TableModelOrder(
+        Sqlite* sql, bool rule, int node_id, CInfo& info, const Node* node, CTreeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent = nullptr);
     ~TableModelOrder() override;
 
 public slots:
@@ -64,7 +64,7 @@ private:
     const TreeModelProduct* product_tree_ {};
     SqliteStakeholder* sqlite_stakeholder_ {};
     QHash<int, double> sync_price_ {}; // inside_product_id, exclusive_price
-    const NodeShadow* node_shadow_ {};
+    const Node* node_ {};
     int party_id_ {};
 };
 

@@ -150,9 +150,6 @@ public:
     void LeafPathFilterModelFPTS(QStandardItemModel* model, int specific_unit, int exclude_node) const;
     void SupportPathFilterModelFPTS(QStandardItemModel* model, int specific_node, Filter filter) const;
 
-    void SetNodeShadowOrder(NodeShadow* node_shadow, int node_id) const;
-    void SetNodeShadowOrder(NodeShadow* node_shadow, Node* node) const;
-
     void SearchNodeFPTS(QList<const Node*>& node_list, const QList<int>& node_id_list) const;
 
     void SetParent(Node* node, int parent_id) const;
@@ -166,6 +163,12 @@ public:
     virtual QStandardItemModel* UnitModelPS(int unit = 0) const
     {
         Q_UNUSED(unit);
+        return nullptr;
+    }
+
+    virtual Node* GetNodeO(int node_id) const
+    {
+        Q_UNUSED(node_id);
         return nullptr;
     }
 

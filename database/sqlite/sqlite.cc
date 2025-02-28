@@ -805,28 +805,6 @@ bool Sqlite::WriteLeafValue(const Node* node) const
     return true;
 }
 
-bool Sqlite::WriteLeafValue(const NodeShadow* node_shadow) const
-{
-    if (*node_shadow->type != kTypeLeaf)
-        return false;
-
-    CString& string { QSWriteLeafValueFPTO() };
-    if (string.isEmpty())
-        return false;
-
-    QSqlQuery query(*db_);
-
-    query.prepare(string);
-    WriteLeafValueBindO(node_shadow, query);
-
-    if (!query.exec()) {
-        qWarning() << "Failed in UpdateNodeValue" << query.lastError().text();
-        return false;
-    }
-
-    return true;
-}
-
 bool Sqlite::WriteTransValue(const TransShadow* trans_shadow) const
 {
     CString& string { QSWriteTransValueFPTO() };

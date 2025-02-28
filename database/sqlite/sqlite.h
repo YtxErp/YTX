@@ -73,7 +73,6 @@ public:
     bool SupportReferenceFPTS(int support_id) const;
     bool ReadLeafTotal(Node* node) const;
     bool WriteLeafValue(const Node* node) const;
-    bool WriteLeafValue(const NodeShadow* node_shadow) const;
     QList<int> SearchNodeName(CString& text) const;
 
     // table
@@ -117,12 +116,6 @@ protected:
         Q_UNUSED(node);
         Q_UNUSED(query);
     };
-
-    virtual void WriteLeafValueBindO(const NodeShadow* node_shadow, QSqlQuery& query) const
-    {
-        Q_UNUSED(node_shadow);
-        Q_UNUSED(query);
-    }
 
     //
     QString QSRemoveBranch() const;

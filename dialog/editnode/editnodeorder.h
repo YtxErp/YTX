@@ -90,7 +90,7 @@ private:
 private:
     Ui::EditNodeOrder* ui;
 
-    NodeShadow* node_shadow_ {};
+    Node* node_ {};
     Sqlite* sql_ {};
     TreeModelStakeholder* stakeholder_tree_ {};
     TableModel* order_table_ {};

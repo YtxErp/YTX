@@ -52,6 +52,8 @@ public:
     void RetriveNodeOrder(int node_id) override;
     int Party(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
 
+    Node* GetNodeO(int node_id) const override;
+
 protected:
     bool UpdateRuleFPTO(Node* node, bool value) override; // charge = 0, refund = 1
     bool UpdateUnit(Node* node, int value) override; // Cash = 0, Monthly = 1, Pending = 2

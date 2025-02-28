@@ -9,26 +9,26 @@
 TableWidgetOrder::TableWidgetOrder(CEditNodeParamsOrder& params, QWidget* parent)
     : TableWidget(parent)
     , ui(new Ui::TableWidgetOrder)
-    , node_shadow_ { params.node_shadow }
+    , node_ { params.node }
     , sql_ { params.sql }
     , order_table_ { params.order_table }
     , stakeholder_tree_ { static_cast<TreeModelStakeholder*>(params.stakeholder_tree) }
     , settings_ { params.settings }
-    , node_id_ { *params.node_shadow->id }
+    , node_id_ { params.node->id }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
     , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    bool finished { *params.node_shadow->finished };
+    bool finished { params.node->finished };
 
     IniDialog();
     IniData();
     ui->tableViewOrder->setFocus();
-    IniDataCombo(*node_shadow_->party, *node_shadow_->employee);
+    IniDataCombo(node_->party, node_->employee);
 
-    IniUnit(*node_shadow_->unit);
+    IniUnit(node_->unit);
 
     ui->chkBoxBranch->setEnabled(false);
 
@@ -40,11 +40,7 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsOrder& params, QWidget* parent
     LockWidgets(finished);
 }
 
-TableWidgetOrder::~TableWidgetOrder()
-{
-    ResourcePool<NodeShadow>::Instance().Recycle(node_shadow_);
-    delete ui;
-}
+TableWidgetOrder::~TableWidgetOrder() { delete ui; }
 
 QPointer<QTableView> TableWidgetOrder::View() const { return ui->tableViewOrder; }
 
@@ -132,13 +128,13 @@ void TableWidgetOrder::RUpdateLeafValue(int node_id, double initial_delta, doubl
     if (node_id_ != node_id)
         return;
 
-    const double adjusted_final_delta { *node_shadow_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
+    const double adjusted_final_delta { node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
 
-    *node_shadow_->first += first_delta;
-    *node_shadow_->second += second_delta;
-    *node_shadow_->initial_total += initial_delta;
-    *node_shadow_->discount += discount_delta;
-    *node_shadow_->final_total += adjusted_final_delta;
+    node_->first += first_delta;
+    node_->second += second_delta;
+    node_->initial_total += initial_delta;
+    node_->discount += discount_delta;
+    node_->final_total += adjusted_final_delta;
 
     IniLeafValue();
 
@@ -174,11 +170,11 @@ void TableWidgetOrder::IniData()
 {
     IniLeafValue();
 
-    ui->chkBoxRefund->setChecked(*node_shadow_->rule);
+    ui->chkBoxRefund->setChecked(node_->rule);
     ui->chkBoxBranch->setChecked(false);
-    ui->lineDescription->setText(*node_shadow_->description);
-    ui->dateTimeEdit->setDateTime(QDateTime::fromString(*node_shadow_->date_time, kDateTimeFST));
-    ui->pBtnFinishOrder->setChecked(*node_shadow_->finished);
+    ui->lineDescription->setText(node_->description);
+    ui->dateTimeEdit->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
+    ui->pBtnFinishOrder->setChecked(node_->finished);
 
     ui->tableViewOrder->setModel(order_table_);
 }
@@ -256,11 +252,11 @@ void TableWidgetOrder::IniUnit(int unit)
 
 void TableWidgetOrder::IniLeafValue()
 {
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinNetAmount->setValue(node_->final_total);
+    ui->dSpinDiscount->setValue(node_->discount);
+    ui->dSpinFirst->setValue(node_->first);
+    ui->dSpinSecond->setValue(node_->second);
+    ui->dSpinGrossAmount->setValue(node_->initial_total);
 }
 
 void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
@@ -269,7 +265,7 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
     if (party_id <= 0)
         return;
 
-    *node_shadow_->party = party_id;
+    node_->party = party_id;
     sql_->WriteField(info_node_, party_id, kParty, node_id_);
     emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
@@ -285,24 +281,24 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
 void TableWidgetOrder::on_chkBoxRefund_toggled(bool checked)
 {
-    *node_shadow_->rule = checked;
+    node_->rule = checked;
 
-    *node_shadow_->first *= -1;
-    *node_shadow_->second *= -1;
-    *node_shadow_->initial_total *= -1;
-    *node_shadow_->discount *= -1;
-    *node_shadow_->final_total *= -1;
+    node_->first *= -1;
+    node_->second *= -1;
+    node_->initial_total *= -1;
+    node_->discount *= -1;
+    node_->final_total *= -1;
 
     IniLeafValue();
 
     sql_->WriteField(info_node_, checked, kRule, node_id_);
-    sql_->WriteLeafValue(node_shadow_);
+    sql_->WriteLeafValue(node_);
 }
 
 void TableWidgetOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
-    *node_shadow_->employee = ui->comboEmployee->currentData().toInt();
-    sql_->WriteField(info_node_, *node_shadow_->employee, kEmployee, node_id_);
+    node_->employee = ui->comboEmployee->currentData().toInt();
+    sql_->WriteField(info_node_, node_->employee, kEmployee, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnCash_toggled(bool checked)
@@ -310,13 +306,13 @@ void TableWidgetOrder::on_rBtnCash_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = std::to_underlying(UnitOrder::kIS);
-    *node_shadow_->final_total = *node_shadow_->initial_total - *node_shadow_->discount;
+    node_->unit = std::to_underlying(UnitOrder::kIS);
+    node_->final_total = node_->initial_total - node_->discount;
 
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    ui->dSpinNetAmount->setValue(node_->final_total);
 
     sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kIS), kUnit, node_id_);
-    sql_->WriteField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
+    sql_->WriteField(info_node_, node_->final_total, kNetAmount, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
@@ -324,8 +320,8 @@ void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = std::to_underlying(UnitOrder::kMS);
-    *node_shadow_->final_total = 0.0;
+    node_->unit = std::to_underlying(UnitOrder::kMS);
+    node_->final_total = 0.0;
 
     ui->dSpinNetAmount->setValue(0.0);
 
@@ -338,8 +334,8 @@ void TableWidgetOrder::on_rBtnPending_toggled(bool checked)
     if (!checked)
         return;
 
-    *node_shadow_->unit = std::to_underlying(UnitOrder::kPEND);
-    *node_shadow_->final_total = 0.0;
+    node_->unit = std::to_underlying(UnitOrder::kPEND);
+    node_->final_total = 0.0;
 
     ui->dSpinNetAmount->setValue(0.0);
 
@@ -368,19 +364,19 @@ void TableWidgetOrder::on_pBtnInsert_clicked()
 
 void TableWidgetOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
-    *node_shadow_->date_time = date_time.toString(kDateTimeFST);
-    sql_->WriteField(info_node_, *node_shadow_->date_time, kDateTime, node_id_);
+    node_->date_time = date_time.toString(kDateTimeFST);
+    sql_->WriteField(info_node_, node_->date_time, kDateTime, node_id_);
 }
 
 void TableWidgetOrder::on_lineDescription_editingFinished()
 {
-    *node_shadow_->description = ui->lineDescription->text();
-    sql_->WriteField(info_node_, *node_shadow_->description, kDescription, node_id_);
+    node_->description = ui->lineDescription->text();
+    sql_->WriteField(info_node_, node_->description, kDescription, node_id_);
 }
 
 void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
-    *node_shadow_->finished = checked;
+    node_->finished = checked;
     sql_->WriteField(info_node_, checked, kFinished, node_id_);
     emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 

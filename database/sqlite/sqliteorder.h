@@ -56,7 +56,6 @@ protected:
 
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
-    void WriteLeafValueBindO(const NodeShadow* node_shadow, QSqlQuery& query) const override;
 
     QString QSReadNodeTrans() const override;
     QString QSWriteNodeTrans() const override;

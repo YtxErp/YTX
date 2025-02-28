@@ -52,17 +52,18 @@ protected:
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
     void UpdateStakeholderReferenceO(int old_node_id, int new_node_id) const override;
-    void UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
 
-    QString QSUpdateNodeValueFPTO() const override;
-    void UpdateNodeValueBindFPTO(const Node* node, QSqlQuery& query) const override;
+    QString QSWriteLeafValueFPTO() const override;
+    void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
+    void WriteLeafValueBindO(const NodeShadow* node_shadow, QSqlQuery& query) const override;
 
     QString QSReadNodeTrans() const override;
     QString QSWriteNodeTrans() const override;
     QString QSUpdateProductReferenceSO() const override;
     QString QSUpdateStakeholderReferenceO() const override;
     QString QSSearchTrans() const override;
-    QString QSUpdateTransValueFPTO() const override;
+    QString QSWriteTransValueFPTO() const override;
     QString QSNodeTransToRemove() const override;
 
 private:

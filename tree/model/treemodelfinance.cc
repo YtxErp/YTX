@@ -29,7 +29,7 @@ void TreeModelFinance::RUpdateLeafValue(
     node->initial_total += initial_delta;
     node->final_total += final_delta;
 
-    sql_->UpdateNodeValue(node);
+    sql_->WriteLeafValue(node);
     UpdateAncestorValue(node, initial_delta, final_delta);
     emit SUpdateStatusValue();
 }
@@ -51,8 +51,8 @@ void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
         old_local_total = node->final_total;
         old_foreign_total = node->initial_total;
 
-        sql_->LeafTotal(node);
-        sql_->UpdateNodeValue(node);
+        sql_->ReadLeafTotal(node);
+        sql_->WriteLeafValue(node);
 
         local_delta = node->final_total - old_local_total;
         foreign_delta = node->initial_total - old_foreign_total;
@@ -420,7 +420,7 @@ bool TreeModelFinance::UpdateUnit(Node* node, int value)
         return false;
 
     node->unit = value;
-    sql_->UpdateField(info_.node, value, kUnit, node_id);
+    sql_->WriteField(info_.node, value, kUnit, node_id);
 
     if (node->type == kTypeBranch)
         TreeModelUtils::UpdateBranchUnitF(root_, node);

@@ -214,7 +214,7 @@ void SqliteProduct::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) 
     query.bindValue(QStringLiteral(":rhs_credit"), *trans_shadow->rhs_credit);
 }
 
-void SqliteProduct::UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqliteProduct::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_debit"), *trans_shadow->lhs_debit);
@@ -234,7 +234,7 @@ QString SqliteProduct::QSReadNodeTrans() const
     )");
 }
 
-QString SqliteProduct::QSUpdateNodeValueFPTO() const
+QString SqliteProduct::QSWriteLeafValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE product SET
@@ -243,7 +243,7 @@ QString SqliteProduct::QSUpdateNodeValueFPTO() const
     )");
 }
 
-void SqliteProduct::UpdateNodeValueBindFPTO(const Node* node, QSqlQuery& query) const
+void SqliteProduct::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":quantity"), node->initial_total);
     query.bindValue(QStringLiteral(":amount"), node->final_total);
@@ -289,7 +289,7 @@ QString SqliteProduct::QSReplaceNodeTransFPTS() const
     )");
 }
 
-QString SqliteProduct::QSUpdateTransValueFPTO() const
+QString SqliteProduct::QSWriteTransValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET

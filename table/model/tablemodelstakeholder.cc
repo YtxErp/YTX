@@ -89,7 +89,7 @@ bool TableModelStakeholder::UpdateRatio(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    sql_->UpdateField(info_.trans, value, kUnitPrice, *trans_shadow->id);
+    sql_->WriteField(info_.trans, value, kUnitPrice, *trans_shadow->id);
     return true;
 }
 
@@ -184,7 +184,7 @@ bool TableModelStakeholder::setData(const QModelIndex& index, const QVariant& va
                 emit SAppendSupportTrans(info_.section, trans_shadow);
             }
         } else
-            sql_->UpdateField(info_.trans, value.toInt(), kInsideProduct, *trans_shadow->id);
+            sql_->WriteField(info_.trans, value.toInt(), kInsideProduct, *trans_shadow->id);
     }
 
     if (hel_changed) {

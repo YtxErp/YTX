@@ -270,7 +270,7 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
         return;
 
     *node_shadow_->party = party_id;
-    sql_->UpdateField(info_node_, party_id, kParty, node_id_);
+    sql_->WriteField(info_node_, party_id, kParty, node_id_);
     emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
 
     if (ui->comboEmployee->currentIndex() != -1)
@@ -295,18 +295,14 @@ void TableWidgetOrder::on_chkBoxRefund_toggled(bool checked)
 
     IniLeafValue();
 
-    sql_->UpdateField(info_node_, checked, kRule, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->initial_total, kGrossAmount, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->first, kFirst, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->second, kSecond, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->discount, kDiscount, node_id_);
+    sql_->WriteField(info_node_, checked, kRule, node_id_);
+    sql_->WriteLeafValue(node_shadow_);
 }
 
 void TableWidgetOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
     *node_shadow_->employee = ui->comboEmployee->currentData().toInt();
-    sql_->UpdateField(info_node_, *node_shadow_->employee, kEmployee, node_id_);
+    sql_->WriteField(info_node_, *node_shadow_->employee, kEmployee, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnCash_toggled(bool checked)
@@ -319,8 +315,8 @@ void TableWidgetOrder::on_rBtnCash_toggled(bool checked)
 
     ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
 
-    sql_->UpdateField(info_node_, std::to_underlying(UnitOrder::kIS), kUnit, node_id_);
-    sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
+    sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kIS), kUnit, node_id_);
+    sql_->WriteField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
@@ -333,8 +329,8 @@ void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
 
     ui->dSpinNetAmount->setValue(0.0);
 
-    sql_->UpdateField(info_node_, std::to_underlying(UnitOrder::kMS), kUnit, node_id_);
-    sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
+    sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kMS), kUnit, node_id_);
+    sql_->WriteField(info_node_, 0.0, kNetAmount, node_id_);
 }
 
 void TableWidgetOrder::on_rBtnPending_toggled(bool checked)
@@ -347,8 +343,8 @@ void TableWidgetOrder::on_rBtnPending_toggled(bool checked)
 
     ui->dSpinNetAmount->setValue(0.0);
 
-    sql_->UpdateField(info_node_, std::to_underlying(UnitOrder::kPEND), kUnit, node_id_);
-    sql_->UpdateField(info_node_, 0.0, kNetAmount, node_id_);
+    sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kPEND), kUnit, node_id_);
+    sql_->WriteField(info_node_, 0.0, kNetAmount, node_id_);
 }
 
 void TableWidgetOrder::on_pBtnInsert_clicked()
@@ -373,19 +369,19 @@ void TableWidgetOrder::on_pBtnInsert_clicked()
 void TableWidgetOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
     *node_shadow_->date_time = date_time.toString(kDateTimeFST);
-    sql_->UpdateField(info_node_, *node_shadow_->date_time, kDateTime, node_id_);
+    sql_->WriteField(info_node_, *node_shadow_->date_time, kDateTime, node_id_);
 }
 
 void TableWidgetOrder::on_lineDescription_editingFinished()
 {
     *node_shadow_->description = ui->lineDescription->text();
-    sql_->UpdateField(info_node_, *node_shadow_->description, kDescription, node_id_);
+    sql_->WriteField(info_node_, *node_shadow_->description, kDescription, node_id_);
 }
 
 void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     *node_shadow_->finished = checked;
-    sql_->UpdateField(info_node_, checked, kFinished, node_id_);
+    sql_->WriteField(info_node_, checked, kFinished, node_id_);
     emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
     ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));

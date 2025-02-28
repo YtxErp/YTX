@@ -72,7 +72,7 @@ void SqliteFinance::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) 
     query.bindValue(QStringLiteral(":support_id"), *trans_shadow->support_id);
 }
 
-void SqliteFinance::UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqliteFinance::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_ratio"), *trans_shadow->lhs_ratio);
@@ -257,7 +257,7 @@ QString SqliteFinance::QSReplaceNodeTransFPTS() const
     )");
 }
 
-QString SqliteFinance::QSUpdateTransValueFPTO() const
+QString SqliteFinance::QSWriteTransValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE finance_transaction SET
@@ -267,7 +267,7 @@ QString SqliteFinance::QSUpdateTransValueFPTO() const
     )");
 }
 
-QString SqliteFinance::QSUpdateNodeValueFPTO() const
+QString SqliteFinance::QSWriteLeafValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE finance SET
@@ -276,7 +276,7 @@ QString SqliteFinance::QSUpdateNodeValueFPTO() const
     )");
 }
 
-void SqliteFinance::UpdateNodeValueBindFPTO(const Node* node, QSqlQuery& query) const
+void SqliteFinance::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(":foreign_total", node->initial_total);
     query.bindValue(":local_total", node->final_total);

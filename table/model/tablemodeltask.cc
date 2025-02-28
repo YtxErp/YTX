@@ -126,7 +126,7 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
     }
 
     if (deb_changed || cre_changed) {
-        sql_->UpdateTransValue(trans_shadow);
+        sql_->WriteTransValue(trans_shadow);
         TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
 
         emit SSearch();
@@ -144,7 +144,7 @@ bool TableModelTask::setData(const QModelIndex& index, const QVariant& value, in
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
-        sql_->UpdateTransValue(trans_shadow);
+        sql_->WriteTransValue(trans_shadow);
         emit SRemoveOneTrans(info_.section, old_rhs_node, *trans_shadow->id);
         emit SAppendOneTrans(info_.section, trans_shadow);
 
@@ -338,7 +338,7 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    sql_->UpdateField(info_.trans, value, kUnitCost, *trans_shadow->id);
+    sql_->WriteField(info_.trans, value, kUnitCost, *trans_shadow->id);
 
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * delta, *trans_shadow->rhs_credit * delta);

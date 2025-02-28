@@ -319,7 +319,7 @@ void Sqlite::CalculateLeafTotal(Node* node, QSqlQuery& query) const
     }
 }
 
-bool Sqlite::LeafTotal(Node* node) const
+bool Sqlite::ReadLeafTotal(Node* node) const
 {
     CString& string { QSLeafTotalFPT() };
 
@@ -783,19 +783,19 @@ bool Sqlite::RemoveTrans(int trans_id)
     return true;
 }
 
-bool Sqlite::UpdateNodeValue(const Node* node) const
+bool Sqlite::WriteLeafValue(const Node* node) const
 {
     if (node->type != kTypeLeaf)
         return false;
 
-    CString& string { QSUpdateNodeValueFPTO() };
+    CString& string { QSWriteLeafValueFPTO() };
     if (string.isEmpty())
         return false;
 
     QSqlQuery query(*db_);
 
     query.prepare(string);
-    UpdateNodeValueBindFPTO(node, query);
+    WriteLeafValueBindFPTO(node, query);
 
     if (!query.exec()) {
         qWarning() << "Failed in UpdateNodeValue" << query.lastError().text();
@@ -805,16 +805,38 @@ bool Sqlite::UpdateNodeValue(const Node* node) const
     return true;
 }
 
-bool Sqlite::UpdateTransValue(const TransShadow* trans_shadow) const
+bool Sqlite::WriteLeafValue(const NodeShadow* node_shadow) const
 {
-    CString& string { QSUpdateTransValueFPTO() };
+    if (*node_shadow->type != kTypeLeaf)
+        return false;
+
+    CString& string { QSWriteLeafValueFPTO() };
     if (string.isEmpty())
         return false;
 
     QSqlQuery query(*db_);
 
     query.prepare(string);
-    UpdateTransValueBindFPTO(trans_shadow, query);
+    WriteLeafValueBindO(node_shadow, query);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in UpdateNodeValue" << query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
+bool Sqlite::WriteTransValue(const TransShadow* trans_shadow) const
+{
+    CString& string { QSWriteTransValueFPTO() };
+    if (string.isEmpty())
+        return false;
+
+    QSqlQuery query(*db_);
+
+    query.prepare(string);
+    WriteTransValueBindFPTO(trans_shadow, query);
 
     if (!query.exec()) {
         qWarning() << "Failed in UpdateTransValue" << query.lastError().text();
@@ -824,7 +846,7 @@ bool Sqlite::UpdateTransValue(const TransShadow* trans_shadow) const
     return true;
 }
 
-bool Sqlite::UpdateField(CString& table, CVariant& value, CString& field, int id) const
+bool Sqlite::WriteField(CString& table, CVariant& value, CString& field, int id) const
 {
     QSqlQuery query(*db_);
 
@@ -847,7 +869,7 @@ bool Sqlite::UpdateField(CString& table, CVariant& value, CString& field, int id
     return true;
 }
 
-bool Sqlite::UpdateState(Check state) const
+bool Sqlite::WriteState(Check state) const
 {
     QSqlQuery query(*db_);
 

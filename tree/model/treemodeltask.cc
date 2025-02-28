@@ -29,7 +29,7 @@ void TreeModelTask::RUpdateLeafValue(
     node->initial_total += initial_delta;
     node->final_total += final_delta;
 
-    sql_->UpdateNodeValue(node);
+    sql_->WriteLeafValue(node);
     UpdateAncestorValue(node, initial_delta, final_delta);
 
     emit SUpdateStatusValue();
@@ -52,8 +52,8 @@ void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
         old_final_total = node->final_total;
         old_initial_total = node->initial_total;
 
-        sql_->LeafTotal(node);
-        sql_->UpdateNodeValue(node);
+        sql_->ReadLeafTotal(node);
+        sql_->WriteLeafValue(node);
 
         final_delta = node->final_total - old_final_total;
         initial_delta = node->initial_total - old_initial_total;
@@ -74,7 +74,7 @@ void TreeModelTask::RSyncDouble(int node_id, int column, double value)
         return;
 
     node->first += value;
-    sql_->UpdateField(info_.node, node->first, kUnitCost, node_id);
+    sql_->WriteField(info_.node, node->first, kUnitCost, node_id);
 }
 
 QVariant TreeModelTask::data(const QModelIndex& index, int role) const
@@ -424,7 +424,7 @@ bool TreeModelTask::UpdateUnit(Node* node, int value)
         return false;
 
     node->unit = value;
-    sql_->UpdateField(info_.node, value, kUnit, node_id);
+    sql_->WriteField(info_.node, value, kUnit, node_id);
 
     return true;
 }

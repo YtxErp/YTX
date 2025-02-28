@@ -138,7 +138,7 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
     }
 
     if (deb_changed || cre_changed || rat_changed) {
-        sql_->UpdateTransValue(trans_shadow);
+        sql_->WriteTransValue(trans_shadow);
         emit SSearch();
         emit SUpdateBalance(info_.section, old_rhs_node, *trans_shadow->id);
     }
@@ -158,7 +158,7 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
-        sql_->UpdateTransValue(trans_shadow);
+        sql_->WriteTransValue(trans_shadow);
         emit SRemoveOneTrans(info_.section, old_rhs_node, *trans_shadow->id);
         emit SAppendOneTrans(info_.section, trans_shadow);
 

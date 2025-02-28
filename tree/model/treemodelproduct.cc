@@ -31,7 +31,7 @@ void TreeModelProduct::RUpdateLeafValue(
     node->initial_total += initial_delta;
     node->final_total += final_delta;
 
-    sql_->UpdateNodeValue(node);
+    sql_->WriteLeafValue(node);
     UpdateAncestorValue(node, initial_delta, final_delta);
     emit SUpdateStatusValue();
 }
@@ -53,8 +53,8 @@ void TreeModelProduct::RUpdateMultiLeafTotal(const QList<int>& node_list)
         old_final_total = node->final_total;
         old_initial_total = node->initial_total;
 
-        sql_->LeafTotal(node);
-        sql_->UpdateNodeValue(node);
+        sql_->ReadLeafTotal(node);
+        sql_->WriteLeafValue(node);
 
         final_delta = node->final_total - old_final_total;
         initial_delta = node->initial_total - old_initial_total;
@@ -221,7 +221,7 @@ bool TreeModelProduct::UpdateUnit(Node* node, int value)
         return false;
 
     node->unit = value;
-    sql_->UpdateField(info_.node, value, kUnit, node_id);
+    sql_->WriteField(info_.node, value, kUnit, node_id);
 
     if (value == std::to_underlying(UnitProduct::kPos))
         TreeModelUtils::RemoveItemFromModel(product_model_, node_id);
@@ -278,7 +278,7 @@ void TreeModelProduct::ConstructTree()
 bool TreeModelProduct::UpdateName(Node* node, CString& value)
 {
     node->name = value;
-    sql_->UpdateField(info_.node, value, kName, node->id);
+    sql_->WriteField(info_.node, value, kName, node->id);
 
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);

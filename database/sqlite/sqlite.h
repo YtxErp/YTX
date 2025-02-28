@@ -71,8 +71,9 @@ public:
     bool InternalReference(int node_id) const;
     bool ExternalReference(int node_id) const;
     bool SupportReferenceFPTS(int support_id) const;
-    bool LeafTotal(Node* node) const;
-    bool UpdateNodeValue(const Node* node) const;
+    bool ReadLeafTotal(Node* node) const;
+    bool WriteLeafValue(const Node* node) const;
+    bool WriteLeafValue(const NodeShadow* node_shadow) const;
     QList<int> SearchNodeName(CString& text) const;
 
     // table
@@ -81,15 +82,15 @@ public:
     bool ReadTransRange(TransShadowList& trans_shadow_list, int node_id, const QList<int>& trans_id_list);
     bool WriteTrans(TransShadow* trans_shadow);
     bool WriteTransRangeO(const QList<TransShadow*>& list) const;
-    bool UpdateTransValue(const TransShadow* trans_shadow) const;
+    bool WriteTransValue(const TransShadow* trans_shadow) const;
     TransShadow* AllocateTransShadow();
 
     bool RemoveTrans(int trans_id);
-    bool UpdateState(Check state) const;
+    bool WriteState(Check state) const;
     bool SearchTrans(TransList& trans_list, CString& text) const;
 
     // common
-    bool UpdateField(CString& table, CVariant& value, CString& field, int id) const;
+    bool WriteField(CString& table, CVariant& value, CString& field, int id) const;
 
 protected:
     // QS means QueryString
@@ -104,18 +105,24 @@ protected:
     virtual QString QSSupportReferenceFPTS() const { return {}; }
     virtual QString QSRemoveSupportFPTS() const { return {}; }
     virtual QString QSLeafTotalFPT() const { return {}; }
-    virtual QString QSUpdateNodeValueFPTO() const { return {}; }
+    virtual QString QSWriteLeafValueFPTO() const { return {}; }
     virtual QString QSSupportTransToMoveFPTS() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
 
     virtual void ReadNodeQuery(Node* node, const QSqlQuery& query) const = 0;
     virtual void WriteNodeBind(Node* node, QSqlQuery& query) const = 0;
 
-    virtual void UpdateNodeValueBindFPTO(const Node* node, QSqlQuery& query) const
+    virtual void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const
     {
         Q_UNUSED(node);
         Q_UNUSED(query);
     };
+
+    virtual void WriteLeafValueBindO(const NodeShadow* node_shadow, QSqlQuery& query) const
+    {
+        Q_UNUSED(node_shadow);
+        Q_UNUSED(query);
+    }
 
     //
     QString QSRemoveBranch() const;
@@ -144,14 +151,14 @@ protected:
         return {};
     }
 
-    virtual QString QSUpdateTransValueFPTO() const { return {}; }
+    virtual QString QSWriteTransValueFPTO() const { return {}; }
     virtual QString QSFreeViewFPT() const { return {}; }
     virtual QString QSUpdateProductReferenceSO() const { return {}; }
     virtual QString QSUpdateStakeholderReferenceO() const { return {}; }
 
     virtual void ReadTransQuery(Trans* trans, const QSqlQuery& query) const = 0;
     virtual void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const = 0;
-    virtual void UpdateTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
+    virtual void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
     {
         Q_UNUSED(trans_shadow);
         Q_UNUSED(query);

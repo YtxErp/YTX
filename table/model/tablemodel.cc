@@ -172,7 +172,7 @@ void TableModel::UpdateAllState(Check state)
     // 连接信号槽，任务完成时刷新视图
     connect(watcher, &QFutureWatcher<void>::finished, this, [this, state, watcher]() {
         // 更新数据库
-        sql_->UpdateState(state);
+        sql_->WriteState(state);
 
         // 刷新视图
         int column { std::to_underlying(TableEnum::kState) };

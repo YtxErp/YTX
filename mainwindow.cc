@@ -1752,7 +1752,7 @@ void MainWindow::REditTransDocument()
     auto* dialog { new EditDocument(document_pointer, document_dir, this) };
 
     if (dialog->exec() == QDialog::Accepted)
-        data_->sql->UpdateField(data_->info.trans, document_pointer->join(kSemicolon), kDocument, trans_id);
+        data_->sql->WriteField(data_->info.trans, document_pointer->join(kSemicolon), kDocument, trans_id);
 }
 
 void MainWindow::REditNodeDocument()
@@ -1775,7 +1775,7 @@ void MainWindow::REditNodeDocument()
     auto* dialog { new EditDocument(document_pointer, document_dir, this) };
 
     if (dialog->exec() == QDialog::Accepted)
-        data_->sql->UpdateField(data_->info.node, document_pointer->join(kSemicolon), kDocument, id);
+        data_->sql->WriteField(data_->info.node, document_pointer->join(kSemicolon), kDocument, id);
 }
 
 void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)

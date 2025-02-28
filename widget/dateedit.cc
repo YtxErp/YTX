@@ -7,6 +7,7 @@ DateEdit::DateEdit(QWidget* parent)
 {
     setButtonSymbols(QAbstractSpinBox::NoButtons);
     setAlignment(Qt::AlignCenter);
+    setLocale(QLocale());
 }
 
 void DateEdit::keyPressEvent(QKeyEvent* event)

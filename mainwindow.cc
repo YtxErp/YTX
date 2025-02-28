@@ -1869,19 +1869,6 @@ void MainWindow::RFreeView(int node_id)
 
 void MainWindow::UpdateInterface(CInterface& interface)
 {
-    auto new_language { interface.language };
-    if (interface_.language != new_language) {
-        if (new_language == kEnUS) {
-            qApp->removeTranslator(&ytx_translator_);
-            qApp->removeTranslator(&qt_translator_);
-        } else
-            LoadAndInstallTranslator(new_language);
-
-        ui->retranslateUi(this);
-        StringInitializer::SetHeader(finance_data_.info, product_data_.info, stakeholder_data_.info, task_data_.info, sales_data_.info, purchase_data_.info);
-        UpdateTranslate();
-    }
-
     auto new_separator { interface.separator };
     auto old_separator { interface_.separator };
 
@@ -1898,52 +1885,17 @@ void MainWindow::UpdateInterface(CInterface& interface)
             widget->setTabToolTip(index, widget->tabToolTip(index).replace(old_separator, new_separator));
     }
 
+    if (interface_.language != interface.language) {
+        MainWindowUtils::Message(QMessageBox::Information, tr("Language Changed"),
+            tr("The language has been changed. Please restart the application for the changes to take effect."), kThreeThousand);
+    }
+
     interface_ = interface;
 
     app_settings_->beginGroup(kInterface);
     app_settings_->setValue(kLanguage, interface.language);
     app_settings_->setValue(kSeparator, interface.separator);
     app_settings_->endGroup();
-}
-
-void MainWindow::UpdateTranslate() const
-{
-    QWidget* widget {};
-    Tab tab_id {};
-    auto* tab_widget { ui->tabWidget };
-    auto* tab_bar { tab_widget->tabBar() };
-    int count { tab_widget->count() };
-
-    for (int index = 0; index != count; ++index) {
-        widget = tab_widget->widget(index);
-        tab_id = tab_bar->tabData(index).value<Tab>();
-
-        if (MainWindowUtils::IsTreeWidget(widget)) {
-            Section section { tab_id.section };
-            switch (section) {
-            case Section::kFinance:
-                tab_widget->setTabText(index, tr("Finance"));
-                break;
-            case Section::kStakeholder:
-                tab_widget->setTabText(index, tr("Stakeholder"));
-                break;
-            case Section::kProduct:
-                tab_widget->setTabText(index, tr("Product"));
-                break;
-            case Section::kTask:
-                tab_widget->setTabText(index, tr("Task"));
-                break;
-            case Section::kSales:
-                tab_widget->setTabText(index, tr("Sales"));
-                break;
-            case Section::kPurchase:
-                tab_widget->setTabText(index, tr("Purchase"));
-                break;
-            default:
-                break;
-            }
-        }
-    }
 }
 
 void MainWindow::UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool branch) const
@@ -2009,13 +1961,19 @@ void MainWindow::UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool br
 
 void MainWindow::LoadAndInstallTranslator(CString& language)
 {
-    const QString ytx_language { QString(":/I18N/I18N/") + ytx + "_" + language + kSuffixQM };
+    if (language == kEnUS)
+        return;
+
+    const QString ytx_language { QStringLiteral(":/I18N/I18N/ytx_%1.qm").arg(language) };
     if (ytx_translator_.load(ytx_language))
         qApp->installTranslator(&ytx_translator_);
 
-    const QString qt_language { ":/I18N/I18N/qt_" + language + kSuffixQM };
+    const QString qt_language { QStringLiteral(":/I18N/I18N/qt_%1.qm").arg(language) };
     if (qt_translator_.load(qt_language))
         qApp->installTranslator(&qt_translator_);
+
+    if (language == kZhCN)
+        QLocale::setDefault(QLocale(QLocale::Chinese, QLocale::China));
 }
 
 void MainWindow::ResizeColumn(QHeaderView* header, int stretch_column) const
@@ -2028,17 +1986,14 @@ void MainWindow::AppSettings()
 {
     app_settings_ = std::make_unique<QSettings>(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/ytx.ini", QSettings::IniFormat);
 
-    QString language_code {};
+    QString language_code { kEnUS };
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
     switch (QLocale::system().language()) {
-    case QLocale::English:
-        language_code = kEnUS;
-        break;
     case QLocale::Chinese:
         language_code = kZhCN;
         break;
     default:
-        language_code = kEnUS;
         break;
     }
 
@@ -2051,9 +2006,9 @@ void MainWindow::AppSettings()
     LoadAndInstallTranslator(interface_.language);
 
 #ifdef Q_OS_WIN
-    QString theme { "file:///:/theme/theme/" + interface_.theme + " Win.qss" };
+    const QString theme { QStringLiteral("file:///:/theme/theme/%1 Win.qss").arg(interface_.theme) };
 #elif defined(Q_OS_MACOS)
-    QString theme { "file:///:/theme/theme/" + interface_.theme + " Mac.qss" };
+    const QString theme { QStringLiteral("file:///:/theme/theme/%1 Mac.qss").arg(interface_.theme) };
 #endif
 
     qApp->setStyleSheet(theme);

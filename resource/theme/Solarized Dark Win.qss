@@ -141,12 +141,7 @@ QComboBox#comboDateTime, DateTimeEdit#dateTimeEdit
     min-width: 160px;
 }
 
- DateEdit#dateEditStart,  DateEdit#dateEditEnd
-{
-    min-width: 100px;
-}
-
-ComboBox#comboParty, ComboBox#comboEmployee
+DateEdit#dateEditStart, DateEdit#dateEditEnd, ComboBox#comboParty, ComboBox#comboEmployee
 {
     min-width: 100px;
 }

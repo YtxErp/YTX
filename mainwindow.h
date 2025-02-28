@@ -171,7 +171,6 @@ private:
     void RemoveBranch(PTreeModel tree_model, const QModelIndex& index, int node_id);
 
     void UpdateInterface(CInterface& interface);
-    void UpdateTranslate() const;
     void UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool branch) const;
 
     void LoadAndInstallTranslator(CString& language);

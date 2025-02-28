@@ -59,7 +59,6 @@ inline constexpr char kCheck[] = "check";
 // Constants for files' suffix
 inline constexpr char kSuffixINI[] = ".ini";
 inline constexpr char kSuffixLOCK[] = ".lock";
-inline constexpr char kSuffixQM[] = ".qm";
 inline constexpr char kSuffixYTX[] = ".ytx";
 inline constexpr char kSuffixPERCENT[] = "%";
 

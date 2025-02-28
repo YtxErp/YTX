@@ -40,8 +40,7 @@ protected:
 signals:
     // send to TreeModel
     void SSyncDouble(int node_id, int column, double value);
-    void SUpdateLeafValue(int node_id, double initial_debit_diff = 0.0, double initial_credit_diff = 0.0, double final_debit_diff = 0.0,
-        double final_credit_diff = 0.0, double settled_diff = 0.0);
+    void SUpdateLeafValue(int node_id, double delta1 = 0.0, double delta2 = 0.0, double delta3 = 0.0, double delta4 = 0.0, double delta5 = 0.0);
     void SSearch();
 
     // send to SignalStation

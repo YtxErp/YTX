@@ -60,16 +60,15 @@ EditNodeOrder::~EditNodeOrder() { delete ui; }
 
 QPointer<TableModel> EditNodeOrder::Model() { return order_table_; }
 
-void EditNodeOrder::RUpdateLeafValue(
-    int /*node_id*/, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff)
+void EditNodeOrder::RUpdateLeafValue(int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
-    const double adjusted_net_amount_diff { *node_shadow_->unit == std::to_underlying(UnitOrder::kIS) ? net_amount_diff : 0.0 };
+    const double adjusted_final_delta { *node_shadow_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
 
-    *node_shadow_->first += first_diff;
-    *node_shadow_->second += second_diff;
-    *node_shadow_->initial_total += gross_amount_diff;
-    *node_shadow_->discount += discount_diff;
-    *node_shadow_->final_total += adjusted_net_amount_diff;
+    *node_shadow_->first += first_delta;
+    *node_shadow_->second += second_delta;
+    *node_shadow_->initial_total += initial_delta;
+    *node_shadow_->discount += discount_delta;
+    *node_shadow_->final_total += adjusted_final_delta;
 
     ui->dSpinFirst->setValue(*node_shadow_->first);
     ui->dSpinSecond->setValue(*node_shadow_->second);
@@ -78,7 +77,7 @@ void EditNodeOrder::RUpdateLeafValue(
     ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
 
     if (node_id_ != 0) {
-        emit SUpdateLeafValue(node_id_, first_diff, second_diff, gross_amount_diff, discount_diff, adjusted_net_amount_diff);
+        emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
     }
 }
 
@@ -209,7 +208,7 @@ void EditNodeOrder::accept()
         ui->tableViewOrder->clearSelection();
 
         emit SUpdateLeafValue(
-            node_id_, *node_shadow_->first, *node_shadow_->second, *node_shadow_->initial_total, *node_shadow_->discount, *node_shadow_->final_total);
+            node_id_, *node_shadow_->initial_total, *node_shadow_->final_total, *node_shadow_->first, *node_shadow_->second, *node_shadow_->discount);
     }
 }
 

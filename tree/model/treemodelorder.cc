@@ -9,14 +9,13 @@ TreeModelOrder::TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CTabl
     ConstructTree();
 }
 
-void TreeModelOrder::RUpdateLeafValue(
-    int node_id, double first_delta, double second_delta, double gross_amount_delta, double discount_delta, double net_amount_delta)
+void TreeModelOrder::RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     auto* node { node_hash_.value(node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
-    if (first_delta == 0 && second_delta == 0 && gross_amount_delta == 0 && discount_delta == 0 && net_amount_delta == 0)
+    if (first_delta == 0.0 && second_delta == 0.0 && initial_delta == 0.0 && discount_delta == 0.0 && final_delta == 0.0)
         return;
 
     sql_->UpdateNodeValue(node);
@@ -25,7 +24,7 @@ void TreeModelOrder::RUpdateLeafValue(
     emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kNetAmount)));
 
     if (node->finished) {
-        UpdateAncestorValue(node, gross_amount_delta, net_amount_delta, first_delta, second_delta, discount_delta);
+        UpdateAncestorValue(node, initial_delta, final_delta, first_delta, second_delta, discount_delta);
     }
 }
 
@@ -441,7 +440,6 @@ bool TreeModelOrder::setData(const QModelIndex& index, const QVariant& value, in
         break;
     case TreeEnumOrder::kFinished:
         UpdateFinished(node, value.toBool());
-        emit SSyncBool(node->id, index.column(), value.toBool());
         break;
     default:
         return false;

@@ -176,26 +176,26 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
     }
 
     if (fir_changed)
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, value.toDouble() - old_first);
+        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, value.toDouble() - old_first);
 
     if (sec_changed) {
-        double second_diff { value.toDouble() - old_second };
-        double gross_amount_diff { *trans_shadow->rhs_debit - old_gross_amount };
-        double discount_diff { *trans_shadow->discount - old_discount };
-        double net_amount_diff { *trans_shadow->rhs_credit - old_net_amount };
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, second_diff, gross_amount_diff, discount_diff, net_amount_diff);
+        double second_delta { value.toDouble() - old_second };
+        double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
+        double discount_delta { *trans_shadow->discount - old_discount };
+        double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
+        emit SUpdateLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta, 0.0, second_delta, discount_delta);
     }
 
     if (uni_changed) {
-        double gross_amount_diff { *trans_shadow->rhs_debit - old_gross_amount };
-        double net_amount_diff { *trans_shadow->rhs_credit - old_net_amount };
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, gross_amount_diff, 0.0, net_amount_diff);
+        double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
+        double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
+        emit SUpdateLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta);
     }
 
     if (dis_changed) {
-        double discount_diff { *trans_shadow->discount - old_discount };
-        double net_amount_diff { *trans_shadow->rhs_credit - old_net_amount };
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, 0.0, discount_diff, net_amount_diff);
+        double discount_delta { *trans_shadow->discount - old_discount };
+        double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
+        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, net_amount_delta, 0.0, 0.0, discount_delta);
     }
 
     if (node_id_ == 0) {
@@ -205,8 +205,8 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
     if (ins_changed) {
         if (old_rhs_node == 0) {
             sql_->WriteTrans(trans_shadow);
-            emit SUpdateLeafValue(*trans_shadow->lhs_node, *trans_shadow->lhs_debit, *trans_shadow->lhs_credit, *trans_shadow->rhs_debit,
-                *trans_shadow->discount, *trans_shadow->rhs_credit);
+            emit SUpdateLeafValue(*trans_shadow->lhs_node, *trans_shadow->rhs_debit, *trans_shadow->rhs_credit, *trans_shadow->lhs_debit,
+                *trans_shadow->lhs_credit, *trans_shadow->discount);
         } else
             sql_->UpdateField(info_.trans, value.toInt(), kInsideProduct, *trans_shadow->id);
     }
@@ -338,9 +338,9 @@ bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
     if (std::abs(*trans_shadow->lhs_ratio - value) < kTolerance)
         return false;
 
-    double diff { *trans_shadow->lhs_credit * (value - *trans_shadow->lhs_ratio) };
-    *trans_shadow->rhs_credit += diff;
-    *trans_shadow->rhs_debit += diff;
+    double delta { *trans_shadow->lhs_credit * (value - *trans_shadow->lhs_ratio) };
+    *trans_shadow->rhs_credit += delta;
+    *trans_shadow->rhs_debit += delta;
     *trans_shadow->lhs_ratio = value;
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kGrossAmount));
@@ -360,9 +360,9 @@ bool TableModelOrder::UpdateDiscountPrice(TransShadow* trans_shadow, double valu
     if (std::abs(*trans_shadow->rhs_ratio - value) < kTolerance)
         return false;
 
-    double diff { *trans_shadow->lhs_credit * (value - *trans_shadow->rhs_ratio) };
-    *trans_shadow->rhs_credit -= diff;
-    *trans_shadow->discount += diff;
+    double delta { *trans_shadow->lhs_credit * (value - *trans_shadow->rhs_ratio) };
+    *trans_shadow->rhs_credit -= delta;
+    *trans_shadow->discount += delta;
     *trans_shadow->rhs_ratio = value;
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kDiscount));
@@ -381,10 +381,10 @@ bool TableModelOrder::UpdateSecond(TransShadow* trans_shadow, double value)
     if (std::abs(*trans_shadow->lhs_credit - value) < kTolerance)
         return false;
 
-    double diff { value - *trans_shadow->lhs_credit };
-    *trans_shadow->rhs_debit += *trans_shadow->lhs_ratio * diff;
-    *trans_shadow->discount += *trans_shadow->rhs_ratio * diff;
-    *trans_shadow->rhs_credit += (*trans_shadow->lhs_ratio - *trans_shadow->rhs_ratio) * diff;
+    double delta { value - *trans_shadow->lhs_credit };
+    *trans_shadow->rhs_debit += *trans_shadow->lhs_ratio * delta;
+    *trans_shadow->discount += *trans_shadow->rhs_ratio * delta;
+    *trans_shadow->rhs_credit += (*trans_shadow->lhs_ratio - *trans_shadow->rhs_ratio) * delta;
 
     *trans_shadow->lhs_credit = value;
 

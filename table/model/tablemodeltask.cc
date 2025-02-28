@@ -284,13 +284,13 @@ bool TableModelTask::UpdateDebit(TransShadow* trans_shadow, double value)
         return false;
 
     double unit_cost { *trans_shadow->lhs_ratio };
-    double quantity_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
-    double quantity_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
-    double amount_debit_diff { quantity_debit_diff * unit_cost };
-    double amount_credit_diff { quantity_credit_diff * unit_cost };
+    double quantity_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    double quantity_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    double amount_debit_delta { quantity_debit_delta * unit_cost };
+    double amount_credit_delta { quantity_credit_delta * unit_cost };
 
-    emit SUpdateLeafValue(node_id_, quantity_debit_diff, quantity_credit_diff, amount_debit_diff, amount_credit_diff);
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_diff, quantity_debit_diff, amount_credit_diff, amount_debit_diff);
+    emit SUpdateLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
+    emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
 
     return true;
 }
@@ -314,13 +314,13 @@ bool TableModelTask::UpdateCredit(TransShadow* trans_shadow, double value)
         return false;
 
     double unit_cost { *trans_shadow->lhs_ratio };
-    double quantity_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
-    double quantity_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
-    double amount_debit_diff { quantity_debit_diff * unit_cost };
-    double amount_credit_diff { quantity_credit_diff * unit_cost };
+    double quantity_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    double quantity_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    double amount_debit_delta { quantity_debit_delta * unit_cost };
+    double amount_credit_delta { quantity_credit_delta * unit_cost };
 
-    emit SUpdateLeafValue(node_id_, quantity_debit_diff, quantity_credit_diff, amount_debit_diff, amount_credit_diff);
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_diff, quantity_debit_diff, amount_credit_diff, amount_debit_diff);
+    emit SUpdateLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
+    emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
 
     return true;
 }
@@ -331,7 +331,7 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
     if (std::abs(unit_cost - value) < kTolerance || value < 0)
         return false;
 
-    double diff { value - unit_cost };
+    double delta { value - unit_cost };
     *trans_shadow->lhs_ratio = value;
     *trans_shadow->rhs_ratio = value;
 
@@ -340,11 +340,11 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
 
     sql_->UpdateField(info_.trans, value, kUnitCost, *trans_shadow->id);
 
-    emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * diff, *trans_shadow->lhs_credit * diff);
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * diff, *trans_shadow->rhs_credit * diff);
+    emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
+    emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * delta, *trans_shadow->rhs_credit * delta);
 
-    emit SSyncDouble(*trans_shadow->rhs_node, std::to_underlying(TreeEnumTask::kUnitCost), diff);
-    emit SSyncDouble(node_id_, std::to_underlying(TreeEnumTask::kUnitCost), diff);
+    emit SSyncDouble(*trans_shadow->rhs_node, std::to_underlying(TreeEnumTask::kUnitCost), delta);
+    emit SSyncDouble(node_id_, std::to_underlying(TreeEnumTask::kUnitCost), delta);
 
     return true;
 }

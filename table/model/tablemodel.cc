@@ -209,13 +209,13 @@ bool TableModel::UpdateDebit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double lhs_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
-    double lhs_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
-    emit SUpdateLeafValue(node_id_, lhs_debit_diff, lhs_credit_diff, lhs_debit_diff * lhs_ratio, lhs_credit_diff * lhs_ratio);
+    double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    emit SUpdateLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
 
-    double rhs_debit_diff { *trans_shadow->rhs_debit - rhs_debit };
-    double rhs_credit_diff { *trans_shadow->rhs_credit - rhs_credit };
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_diff, rhs_credit_diff, rhs_debit_diff * rhs_ratio, rhs_credit_diff * rhs_ratio);
+    double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
+    double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
+    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
 }
@@ -243,13 +243,13 @@ bool TableModel::UpdateCredit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double lhs_debit_diff { *trans_shadow->lhs_debit - lhs_debit };
-    double lhs_credit_diff { *trans_shadow->lhs_credit - lhs_credit };
-    emit SUpdateLeafValue(node_id_, lhs_debit_diff, lhs_credit_diff, lhs_debit_diff * lhs_ratio, lhs_credit_diff * lhs_ratio);
+    double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    emit SUpdateLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
 
-    double rhs_debit_diff { *trans_shadow->rhs_debit - rhs_debit };
-    double rhs_credit_diff { *trans_shadow->rhs_credit - rhs_credit };
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_diff, rhs_credit_diff, rhs_debit_diff * rhs_ratio, rhs_credit_diff * rhs_ratio);
+    double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
+    double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
+    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
 }
@@ -261,7 +261,7 @@ bool TableModel::UpdateRatio(TransShadow* trans_shadow, double value)
     if (std::abs(lhs_ratio - value) < kTolerance || value <= 0)
         return false;
 
-    double diff { value - lhs_ratio };
+    double delta { value - lhs_ratio };
     double proportion { value / *trans_shadow->lhs_ratio };
 
     *trans_shadow->lhs_ratio = value;
@@ -276,11 +276,11 @@ bool TableModel::UpdateRatio(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * diff, *trans_shadow->lhs_credit * diff);
+    emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
 
-    double rhs_debit_diff { *trans_shadow->rhs_debit - rhs_debit };
-    double rhs_credit_diff { *trans_shadow->rhs_credit - rhs_credit };
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_diff, rhs_credit_diff, rhs_debit_diff * rhs_ratio, rhs_credit_diff * rhs_ratio);
+    double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
+    double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
+    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
 }

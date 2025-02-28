@@ -33,8 +33,7 @@ public:
     ~TreeModelOrder() override = default;
 
 public slots:
-    void RUpdateLeafValue(
-        int node_id, double first_delta, double second_delta, double gross_amount_delta, double discount_delta, double net_amount_delta) override;
+    void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
     void RUpdateStakeholder(int old_node_id, int new_node_id) override;
     void RSyncBool(int node_id, int column, bool value) override; // kFinished
 

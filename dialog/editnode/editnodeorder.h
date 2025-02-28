@@ -45,13 +45,13 @@ signals:
     void SSyncBool(int node_id, int column, bool value);
 
     // send to TreeModelOrder
-    void SUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
+    void SUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
 public slots:
     void accept() override;
 
     // receive from TableModelOrder
-    void RUpdateLeafValue(int node_id, double first_diff, double second_diff, double gross_amount_diff, double discount_diff, double net_amount_diff);
+    void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
     // receive from TreeModelOrder
     void RSyncBool(int node_id, int column, bool value);

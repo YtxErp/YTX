@@ -36,10 +36,6 @@ void TreeModelStakeholder::RSyncDouble(int node_id, int column, double value)
     node->final_total += value;
     sql_->UpdateField(info_.node, node->final_total, kAmount, node_id);
 
-    for (Node* current = node->parent; current && current != root_; current = current->parent) {
-        current->final_total += value;
-    }
-
     UpdateAncestorValue(node, 0.0, value);
 }
 

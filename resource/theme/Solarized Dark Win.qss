@@ -136,12 +136,7 @@ QTabBar::tab, QHeaderView::section:horizontal {
     min-width: 60px;
 }
 
-QComboBox#comboDateTime, DateTimeEdit#dateTimeEdit
-{
-    min-width: 160px;
-}
-
-DateEdit#dateEditStart, DateEdit#dateEditEnd, ComboBox#comboParty, ComboBox#comboEmployee
+ComboBox#comboParty, ComboBox#comboEmployee
 {
     min-width: 100px;
 }

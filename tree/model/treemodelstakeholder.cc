@@ -34,7 +34,7 @@ void TreeModelStakeholder::RSyncDouble(int node_id, int column, double value)
         return;
 
     node->final_total += value;
-    sql_->WriteField(info_.node, node->final_total, kAmount, node_id);
+    sql_->WriteField(info_.node, kAmount, node->final_total, node_id);
 
     UpdateAncestorValue(node, 0.0, value);
 }
@@ -185,7 +185,7 @@ bool TreeModelStakeholder::UpdateUnit(Node* node, int value)
     AddItem(node_id, path, value);
 
     node->unit = value;
-    sql_->WriteField(info_.node, value, kUnit, node_id);
+    sql_->WriteField(info_.node, kUnit, value, node_id);
 
     return true;
 }
@@ -193,7 +193,7 @@ bool TreeModelStakeholder::UpdateUnit(Node* node, int value)
 bool TreeModelStakeholder::UpdateName(Node* node, CString& value)
 {
     node->name = value;
-    sql_->WriteField(info_.node, value, kName, node->id);
+    sql_->WriteField(info_.node, kName, value, node->id);
 
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
@@ -353,7 +353,7 @@ bool TreeModelStakeholder::UpdateTypeFPTS(Node* node, int value)
     }
 
     node->type = value;
-    sql_->WriteField(info_.node, value, kType, node_id);
+    sql_->WriteField(info_.node, kType, value, node_id);
 
     switch (value) {
     case kTypeBranch:

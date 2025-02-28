@@ -129,7 +129,7 @@ bool TreeModelOrder::UpdateRuleFPTO(Node* node, bool value)
         return false;
 
     node->rule = value;
-    sql_->WriteField(info_.node, value, kRule, node->id);
+    sql_->WriteField(info_.node, kRule, value, node->id);
 
     node->first = -node->first;
     node->second = -node->second;
@@ -166,8 +166,8 @@ bool TreeModelOrder::UpdateUnit(Node* node, int value)
         return false;
     }
 
-    sql_->WriteField(info_.node, value, kUnit, node->id);
-    sql_->WriteField(info_.node, node->final_total, kNetAmount, node->id);
+    sql_->WriteField(info_.node, kUnit, value, node->id);
+    sql_->WriteField(info_.node, kNetAmount, node->final_total, node->id);
 
     emit SResizeColumnToContents(std::to_underlying(TreeEnumOrder::kNetAmount));
     return true;
@@ -187,14 +187,14 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
     emit SSyncBool(node->id, std::to_underlying(TreeEnumOrder::kFinished), value);
     if (node->unit == std::to_underlying(UnitOrder::kMS))
         emit SSyncDouble(node->party, std::to_underlying(TreeEnumStakeholder::kAmount), coefficient * (node->initial_total - node->discount));
-    sql_->WriteField(info_.node, value, kFinished, node->id);
+    sql_->WriteField(info_.node, kFinished, value, node->id);
     return true;
 }
 
 bool TreeModelOrder::UpdateName(Node* node, CString& value)
 {
     node->name = value;
-    sql_->WriteField(info_.node, value, kName, node->id);
+    sql_->WriteField(info_.node, kName, value, node->id);
 
     emit SResizeColumnToContents(std::to_underlying(TreeEnumOrder::kName));
     emit SSearch();

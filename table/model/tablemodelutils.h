@@ -56,7 +56,7 @@ public:
         }
 
         try {
-            sql->WriteField(table, value, field, *trans_shadow->id);
+            sql->WriteField(table, field, value, *trans_shadow->id);
         } catch (const std::exception& e) {
             qWarning() << "Failed to update SQLite: " << e.what();
             return false;

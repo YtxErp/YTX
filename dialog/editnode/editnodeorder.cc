@@ -204,8 +204,7 @@ void EditNodeOrder::accept()
         ui->pBtnSaveOrder->setEnabled(false);
         ui->tableViewOrder->clearSelection();
 
-        emit SUpdateLeafValue(
-            node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
+        emit SUpdateLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
     }
 }
 
@@ -303,7 +302,7 @@ void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
         ui->pBtnSaveOrder->setEnabled(true);
         ui->pBtnFinishOrder->setEnabled(true);
     } else {
-        sql_->WriteField(info_node_, arg1, kName, node_id_);
+        sql_->WriteField(info_node_, kName, arg1, node_id_);
     }
 }
 
@@ -323,7 +322,7 @@ void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
         ui->pBtnSaveOrder->setEnabled(true);
         ui->pBtnFinishOrder->setEnabled(true);
     } else {
-        sql_->WriteField(info_node_, party_id, kParty, node_id_);
+        sql_->WriteField(info_node_, kParty, party_id, node_id_);
     }
 
     if (ui->comboEmployee->currentIndex() != -1)
@@ -349,7 +348,7 @@ void EditNodeOrder::on_chkBoxRefund_toggled(bool checked)
     IniLeafValue();
 
     if (node_id_ != 0) {
-        sql_->WriteField(info_node_, checked, kRule, node_id_);
+        sql_->WriteField(info_node_, kRule, checked, node_id_);
         sql_->WriteLeafValue(node_);
     }
 }
@@ -359,7 +358,7 @@ void EditNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
     node_->employee = ui->comboEmployee->currentData().toInt();
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, node_->employee, kEmployee, node_id_);
+        sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
 }
 
 void EditNodeOrder::on_rBtnCash_toggled(bool checked)
@@ -372,8 +371,8 @@ void EditNodeOrder::on_rBtnCash_toggled(bool checked)
     ui->dSpinNetAmount->setValue(node_->final_total);
 
     if (node_id_ != 0) {
-        sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kIS), kUnit, node_id_);
-        sql_->WriteField(info_node_, node_->final_total, kNetAmount, node_id_);
+        sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kIS), node_id_);
+        sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
     }
 }
 
@@ -387,8 +386,8 @@ void EditNodeOrder::on_rBtnMonthly_toggled(bool checked)
     ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
-        sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kMS), kUnit, node_id_);
-        sql_->WriteField(info_node_, 0.0, kNetAmount, node_id_);
+        sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kMS), node_id_);
+        sql_->WriteField(info_node_, kNetAmount, 0.0, node_id_);
     }
 }
 
@@ -402,8 +401,8 @@ void EditNodeOrder::on_rBtnPending_toggled(bool checked)
     ui->dSpinNetAmount->setValue(0.0);
 
     if (node_id_ != 0) {
-        sql_->WriteField(info_node_, std::to_underlying(UnitOrder::kPEND), kUnit, node_id_);
-        sql_->WriteField(info_node_, 0.0, kNetAmount, node_id_);
+        sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kPEND), node_id_);
+        sql_->WriteField(info_node_, kNetAmount, 0.0, node_id_);
     }
 }
 
@@ -431,7 +430,7 @@ void EditNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
     node_->date_time = date_time.toString(kDateTimeFST);
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, node_->date_time, kDateTime, node_id_);
+        sql_->WriteField(info_node_, kDateTime, node_->date_time, node_id_);
 }
 
 void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
@@ -440,7 +439,7 @@ void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     node_->finished = checked;
 
-    sql_->WriteField(info_node_, checked, kFinished, node_id_);
+    sql_->WriteField(info_node_, kFinished, checked, node_id_);
     if (node_->type == kTypeLeaf)
         emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
@@ -484,5 +483,5 @@ void EditNodeOrder::on_lineDescription_editingFinished()
     node_->description = ui->lineDescription->text();
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, node_->description, kDescription, node_id_);
+        sql_->WriteField(info_node_, kDescription, node_->description, node_id_);
 }

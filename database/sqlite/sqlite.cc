@@ -824,7 +824,7 @@ bool Sqlite::WriteTransValue(const TransShadow* trans_shadow) const
     return true;
 }
 
-bool Sqlite::WriteField(CString& table, CVariant& value, CString& field, int id) const
+bool Sqlite::WriteField(CString& table, CString& field, CVariant& value, int id) const
 {
     QSqlQuery query(*db_);
 

@@ -420,7 +420,7 @@ bool TreeModelFinance::UpdateUnit(Node* node, int value)
         return false;
 
     node->unit = value;
-    sql_->WriteField(info_.node, value, kUnit, node_id);
+    sql_->WriteField(info_.node, kUnit, value, node_id);
 
     if (node->type == kTypeBranch)
         TreeModelUtils::UpdateBranchUnitF(root_, node);

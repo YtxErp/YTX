@@ -74,7 +74,7 @@ void TreeModelTask::RSyncDouble(int node_id, int column, double value)
         return;
 
     node->first += value;
-    sql_->WriteField(info_.node, node->first, kUnitCost, node_id);
+    sql_->WriteField(info_.node, kUnitCost, node->first, node_id);
 }
 
 QVariant TreeModelTask::data(const QModelIndex& index, int role) const
@@ -424,7 +424,7 @@ bool TreeModelTask::UpdateUnit(Node* node, int value)
         return false;
 
     node->unit = value;
-    sql_->WriteField(info_.node, value, kUnit, node_id);
+    sql_->WriteField(info_.node, kUnit, value, node_id);
 
     return true;
 }

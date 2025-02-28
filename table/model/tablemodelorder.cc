@@ -208,7 +208,7 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
             emit SUpdateLeafValue(*trans_shadow->lhs_node, *trans_shadow->rhs_debit, *trans_shadow->rhs_credit, *trans_shadow->lhs_debit,
                 *trans_shadow->lhs_credit, *trans_shadow->discount);
         } else
-            sql_->WriteField(info_.trans, value.toInt(), kInsideProduct, *trans_shadow->id);
+            sql_->WriteField(info_.trans, kInsideProduct, value.toInt(), *trans_shadow->id);
     }
 
     emit SResizeColumnToContents(index.column());
@@ -323,7 +323,7 @@ bool TableModelOrder::UpdateOutsideProduct(TransShadow* trans_shadow, int value)
     CrossSearch(trans_shadow, value, false);
 
     if (old_rhs_node) {
-        sql_->WriteField(info_.trans, value, kOutsideProduct, *trans_shadow->id);
+        sql_->WriteField(info_.trans, kOutsideProduct, value, *trans_shadow->id);
     }
 
     emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kUnitPrice));
@@ -350,7 +350,7 @@ bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return true;
 
-    sql_->WriteField(info_.trans, value, kUnitPrice, *trans_shadow->id);
+    sql_->WriteField(info_.trans, kUnitPrice, value, *trans_shadow->id);
     sql_->WriteTransValue(trans_shadow);
     return true;
 }
@@ -371,7 +371,7 @@ bool TableModelOrder::UpdateDiscountPrice(TransShadow* trans_shadow, double valu
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return true;
 
-    sql_->WriteField(info_.trans, value, kDiscountPrice, *trans_shadow->id);
+    sql_->WriteField(info_.trans, kDiscountPrice, value, *trans_shadow->id);
     sql_->WriteTransValue(trans_shadow);
     return true;
 }

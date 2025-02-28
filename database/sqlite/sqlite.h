@@ -89,7 +89,7 @@ public:
     bool SearchTrans(TransList& trans_list, CString& text) const;
 
     // common
-    bool WriteField(CString& table, CVariant& value, CString& field, int id) const;
+    bool WriteField(CString& table, CString& field, CVariant& value, int id) const;
 
 protected:
     // QS means QueryString

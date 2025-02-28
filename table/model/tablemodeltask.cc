@@ -338,7 +338,7 @@ bool TableModelTask::UpdateRatio(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    sql_->WriteField(info_.trans, value, kUnitCost, *trans_shadow->id);
+    sql_->WriteField(info_.trans, kUnitCost, value, *trans_shadow->id);
 
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * delta, *trans_shadow->rhs_credit * delta);

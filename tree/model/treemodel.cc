@@ -192,7 +192,7 @@ Node* TreeModel::GetNodeByIndex(const QModelIndex& index) const
 bool TreeModel::UpdateName(Node* node, CString& value)
 {
     node->name = value;
-    sql_->WriteField(info_.node, value, kName, node->id);
+    sql_->WriteField(info_.node, kName, value, node->id);
 
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
@@ -208,7 +208,7 @@ bool TreeModel::UpdateRuleFPTO(Node* node, bool value)
         return false;
 
     node->rule = value;
-    sql_->WriteField(info_.node, value, kRule, node->id);
+    sql_->WriteField(info_.node, kRule, value, node->id);
 
     node->final_total = -node->final_total;
     node->initial_total = -node->initial_total;
@@ -261,7 +261,7 @@ bool TreeModel::UpdateTypeFPTS(Node* node, int value)
     }
 
     node->type = value;
-    sql_->WriteField(info_.node, value, kType, node_id);
+    sql_->WriteField(info_.node, kType, value, node_id);
 
     switch (value) {
     case kTypeBranch:

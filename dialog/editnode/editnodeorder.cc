@@ -70,11 +70,7 @@ void EditNodeOrder::RUpdateLeafValue(int /*node_id*/, double initial_delta, doub
     *node_shadow_->discount += discount_delta;
     *node_shadow_->final_total += adjusted_final_delta;
 
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    IniLeafValue();
 
     if (node_id_ != 0) {
         emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
@@ -96,6 +92,7 @@ void EditNodeOrder::RSyncBool(int node_id, int column, bool value)
     switch (kColumn) {
     case TreeEnumOrder::kRule:
         ui->chkBoxRefund->setChecked(value);
+        IniLeafValue();
         break;
     case TreeEnumOrder::kFinished: {
         ui->pBtnFinishOrder->setChecked(value);
@@ -286,6 +283,15 @@ void EditNodeOrder::IniDataCombo(int party, int employee)
     ui->comboParty->blockSignals(false);
 }
 
+void EditNodeOrder::IniLeafValue()
+{
+    ui->dSpinFirst->setValue(*node_shadow_->first);
+    ui->dSpinSecond->setValue(*node_shadow_->second);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    ui->dSpinDiscount->setValue(*node_shadow_->discount);
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+}
+
 void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 {
     if (*node_shadow_->type != kTypeBranch || arg1.isEmpty())
@@ -340,11 +346,7 @@ void EditNodeOrder::on_chkBoxRefund_toggled(bool checked)
     *node_shadow_->discount *= -1;
     *node_shadow_->final_total *= -1;
 
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    IniLeafValue();
 
     if (node_id_ != 0) {
         sql_->UpdateField(info_node_, checked, kRule, node_id_);

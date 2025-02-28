@@ -63,6 +63,7 @@ void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
     switch (kColumn) {
     case TreeEnumOrder::kRule:
         ui->chkBoxRefund->setChecked(value);
+        IniLeafValue();
         break;
     case TreeEnumOrder::kFinished: {
         ui->pBtnFinishOrder->setChecked(value);
@@ -139,11 +140,7 @@ void TableWidgetOrder::RUpdateLeafValue(int node_id, double initial_delta, doubl
     *node_shadow_->discount += discount_delta;
     *node_shadow_->final_total += adjusted_final_delta;
 
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    IniLeafValue();
 
     emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
 }
@@ -175,11 +172,7 @@ void TableWidgetOrder::IniDialog()
 
 void TableWidgetOrder::IniData()
 {
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+    IniLeafValue();
 
     ui->chkBoxRefund->setChecked(*node_shadow_->rule);
     ui->chkBoxBranch->setChecked(false);
@@ -261,6 +254,15 @@ void TableWidgetOrder::IniUnit(int unit)
     }
 }
 
+void TableWidgetOrder::IniLeafValue()
+{
+    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    ui->dSpinDiscount->setValue(*node_shadow_->discount);
+    ui->dSpinFirst->setValue(*node_shadow_->first);
+    ui->dSpinSecond->setValue(*node_shadow_->second);
+    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
+}
+
 void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
     int party_id { ui->comboParty->currentData().toInt() };
@@ -291,11 +293,7 @@ void TableWidgetOrder::on_chkBoxRefund_toggled(bool checked)
     *node_shadow_->discount *= -1;
     *node_shadow_->final_total *= -1;
 
-    ui->dSpinFirst->setValue(*node_shadow_->first);
-    ui->dSpinSecond->setValue(*node_shadow_->second);
-    ui->dSpinGrossAmount->setValue(*node_shadow_->initial_total);
-    ui->dSpinDiscount->setValue(*node_shadow_->discount);
-    ui->dSpinNetAmount->setValue(*node_shadow_->final_total);
+    IniLeafValue();
 
     sql_->UpdateField(info_node_, checked, kRule, node_id_);
     sql_->UpdateField(info_node_, *node_shadow_->final_total, kNetAmount, node_id_);

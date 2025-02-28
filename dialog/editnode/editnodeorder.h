@@ -85,6 +85,7 @@ private:
     void LockWidgets(bool finished, bool branch);
     void IniUnit(int unit);
     void IniDataCombo(int party, int employee);
+    void IniLeafValue();
 
 private:
     Ui::EditNodeOrder* ui;

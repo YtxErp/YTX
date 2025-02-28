@@ -376,7 +376,7 @@ Rage, rage against the dying of the light.</source>
     <message>
         <location line="-277"/>
         <location filename="../../dialog/editnode/editnodeorder.cc" line="+32"/>
-        <location line="+449"/>
+        <location line="+451"/>
         <source>Party</source>
         <translation>合作</translation>
     </message>
@@ -405,8 +405,8 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+55"/>
-        <location filename="../../dialog/editnode/editnodeorder.cc" line="-379"/>
-        <location line="+347"/>
+        <location filename="../../dialog/editnode/editnodeorder.cc" line="-384"/>
+        <location line="+352"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
@@ -453,7 +453,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">yyyy-MM-dd</translation>
     </message>
     <message>
-        <location filename="../../dialog/editnode/editnodeorder.cc" line="-413"/>
+        <location filename="../../dialog/editnode/editnodeorder.cc" line="-415"/>
         <source>Sales</source>
         <translation>销售</translation>
     </message>
@@ -463,7 +463,7 @@ Rage, rage against the dying of the light.</source>
         <translation>采购</translation>
     </message>
     <message>
-        <location line="+445"/>
+        <location line="+447"/>
         <source>Branch</source>
         <translation>分支</translation>
     </message>
@@ -541,8 +541,8 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">发布</translation>
     </message>
     <message>
-        <location filename="../../dialog/editnode/editnodeorder.cc" line="-379"/>
-        <location line="+347"/>
+        <location filename="../../dialog/editnode/editnodeorder.cc" line="-384"/>
+        <location line="+352"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
@@ -3417,8 +3417,8 @@ Rage, rage against the dying of the light.</source>
     <message>
         <location line="+114"/>
         <location filename="../../widget/tablewidget/tablewidgetorder.cc" line="+36"/>
-        <location line="+33"/>
-        <location line="+324"/>
+        <location line="+34"/>
+        <location line="+321"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
@@ -3494,9 +3494,9 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">分支</translation>
     </message>
     <message>
-        <location filename="../../widget/tablewidget/tablewidgetorder.cc" line="-357"/>
-        <location line="+33"/>
-        <location line="+324"/>
+        <location filename="../../widget/tablewidget/tablewidgetorder.cc" line="-355"/>
+        <location line="+34"/>
+        <location line="+321"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>

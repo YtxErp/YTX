@@ -81,6 +81,7 @@ private:
     void IniDataCombo(int party, int employee);
     void LockWidgets(bool finished);
     void IniUnit(int unit);
+    void IniLeafValue();
 
 private:
     Ui::TableWidgetOrder* ui;

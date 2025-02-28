@@ -186,6 +186,7 @@ protected:
 
     virtual void ConstructTree() = 0;
     virtual bool UpdateUnit(Node* node, int value) = 0;
+    virtual bool UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) = 0;
 
 protected:
     Node* root_ {};

@@ -57,11 +57,10 @@ protected:
     bool UpdateUnit(Node* node, int value) override; // Cash = 0, Monthly = 1, Pending = 2
     bool UpdateName(Node* node, CString& value) override;
     void ConstructTree() override;
+    bool UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
 
 private:
     bool UpdateFinished(Node* node, bool value);
-    void UpdateAncestorValueOrder(
-        Node* node, double first_diff, double second_diff = 0.0, double amount_diff = 0.0, double discount_diff = 0.0, double settled_diff = 0.0);
 
 private:
     SqliteOrder* sql_ {};

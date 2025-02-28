@@ -39,6 +39,8 @@ void TreeModelStakeholder::RSyncDouble(int node_id, int column, double value)
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
         current->final_total += value;
     }
+
+    UpdateAncestorValue(node, 0.0, value);
 }
 
 void TreeModelStakeholder::UpdateNodeFPTS(const Node* tmp_node)
@@ -203,6 +205,22 @@ bool TreeModelStakeholder::UpdateName(Node* node, CString& value)
 
     emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
     emit SSearch();
+    return true;
+}
+
+bool TreeModelStakeholder::UpdateAncestorValue(
+    Node* node, double /*initial_delta*/, double final_delta, double /*first_delta*/, double /*second_delta*/, double /*discount_delta*/)
+{
+    if (!node || node == root_ || !node->parent || node->parent == root_)
+        return false;
+
+    if (final_delta == 0.0)
+        return false;
+
+    for (Node* current = node->parent; current && current != root_; current = current->parent) {
+        current->final_total += final_delta;
+    }
+
     return true;
 }
 
@@ -583,9 +601,11 @@ bool TreeModelStakeholder::dropMimeData(const QMimeData* data, Qt::DropAction ac
 
     if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
         node->parent->children.removeAt(source_row);
+        UpdateAncestorValue(node, 0.0, -node->final_total);
 
         destination_parent->children.insert(begin_row, node);
         node->parent = destination_parent;
+        UpdateAncestorValue(node, 0.0, node->final_total);
 
         endMoveRows();
     }

@@ -49,6 +49,8 @@ public:
 protected:
     void ConstructTree() override;
     bool UpdateUnit(Node* node, int value) override;
+    bool UpdateAncestorValue(
+        Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0) override;
 };
 
 #endif // TREEMODELFINANCE_H

@@ -30,7 +30,7 @@ void TreeModelTask::RUpdateLeafValue(
     node->final_total += final_diff;
 
     sql_->UpdateNodeValue(node);
-    TreeModelUtils::UpdateAncestorValuePT(root_, node, initial_diff, final_diff);
+    UpdateAncestorValue(node, initial_diff, final_diff);
 
     emit SUpdateStatusValue();
 }
@@ -58,7 +58,7 @@ void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
         final_diff = node->final_total - old_final_total;
         initial_diff = node->initial_total - old_initial_total;
 
-        TreeModelUtils::UpdateAncestorValuePT(root_, node, initial_diff, final_diff);
+        UpdateAncestorValue(node, initial_diff, final_diff);
     }
 
     emit SUpdateStatusValue();
@@ -274,11 +274,11 @@ bool TreeModelTask::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 
     if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
         node->parent->children.removeAt(source_row);
-        TreeModelUtils::UpdateAncestorValuePT(root_, node, -node->initial_total, -node->final_total);
+        UpdateAncestorValue(node, -node->initial_total, -node->final_total);
 
         destination_parent->children.insert(begin_row, node);
         node->parent = destination_parent;
-        TreeModelUtils::UpdateAncestorValuePT(root_, node, node->initial_total, node->final_total);
+        UpdateAncestorValue(node, node->initial_total, node->final_total);
 
         endMoveRows();
     }
@@ -348,7 +348,7 @@ bool TreeModelTask::RemoveNode(int row, const QModelIndex& parent)
 
     } break;
     case kTypeLeaf: {
-        TreeModelUtils::UpdateAncestorValuePT(root_, node, -node->initial_total, -node->final_total);
+        UpdateAncestorValue(node, -node->initial_total, -node->final_total);
         TreeModelUtils::RemoveItemFromModel(leaf_model_, node_id);
         leaf_path_.remove(node_id);
     } break;
@@ -429,6 +429,27 @@ bool TreeModelTask::UpdateUnit(Node* node, int value)
     return true;
 }
 
+bool TreeModelTask::UpdateAncestorValue(
+    Node* node, double initial_delta, double final_delta, double /*first_delta*/, double /*second_delta*/, double /*discount_delta*/)
+{
+    if (!node || node == root_ || !node->parent || node->parent == root_)
+        return false;
+
+    if (initial_delta == 0.0 && final_delta == 0.0)
+        return false;
+
+    const bool rule = node->rule;
+
+    for (Node* current = node->parent; current && current != root_; current = current->parent) {
+        bool equal = current->rule == rule;
+
+        current->final_total += (equal ? 1 : -1) * final_delta;
+        current->initial_total += (equal ? 1 : -1) * initial_delta;
+    }
+
+    return true;
+}
+
 void TreeModelTask::ConstructTree()
 {
     sql_->ReadNode(node_hash_);
@@ -450,7 +471,7 @@ void TreeModelTask::ConstructTree()
             branch_path_.insert(node->id, path);
             break;
         case kTypeLeaf:
-            TreeModelUtils::UpdateAncestorValuePT(root_, node, node->initial_total, node->final_total);
+            UpdateAncestorValue(node, node->initial_total, node->final_total);
             leaf_path_.insert(node->id, path);
             break;
         case kTypeSupport:

@@ -30,7 +30,7 @@ void TreeModelFinance::RUpdateLeafValue(
     node->final_total += local_diff;
 
     sql_->UpdateNodeValue(node);
-    TreeModelUtils::UpdateAncestorValueFinance(root_, node, foreign_diff, local_diff);
+    UpdateAncestorValue(node, foreign_diff, local_diff);
     emit SUpdateStatusValue();
 }
 
@@ -57,7 +57,7 @@ void TreeModelFinance::RUpdateMultiLeafTotal(const QList<int>& node_list)
         local_diff = node->final_total - old_local_total;
         foreign_diff = node->initial_total - old_foreign_total;
 
-        TreeModelUtils::UpdateAncestorValueFinance(root_, node, foreign_diff, local_diff);
+        UpdateAncestorValue(node, foreign_diff, local_diff);
     }
 
     emit SUpdateStatusValue();
@@ -92,7 +92,7 @@ bool TreeModelFinance::RemoveNode(int row, const QModelIndex& parent)
 
     } break;
     case kTypeLeaf: {
-        TreeModelUtils::UpdateAncestorValueFinance(root_, node, -node->initial_total, -node->final_total);
+        UpdateAncestorValue(node, -node->initial_total, -node->final_total);
         TreeModelUtils::RemoveItemFromModel(leaf_model_, node_id);
         leaf_path_.remove(node_id);
     } break;
@@ -351,11 +351,11 @@ bool TreeModelFinance::dropMimeData(const QMimeData* data, Qt::DropAction action
 
     if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
         node->parent->children.removeAt(source_row);
-        TreeModelUtils::UpdateAncestorValueFinance(root_, node, -node->initial_total, -node->final_total);
+        UpdateAncestorValue(node, -node->initial_total, -node->final_total);
 
         destination_parent->children.insert(begin_row, node);
         node->parent = destination_parent;
-        TreeModelUtils::UpdateAncestorValueFinance(root_, node, node->initial_total, node->final_total);
+        UpdateAncestorValue(node, node->initial_total, node->final_total);
 
         endMoveRows();
     }
@@ -390,7 +390,7 @@ void TreeModelFinance::ConstructTree()
             branch_path_.insert(node->id, path);
             break;
         case kTypeLeaf:
-            TreeModelUtils::UpdateAncestorValueFinance(root_, node, node->initial_total, node->final_total);
+            UpdateAncestorValue(node, node->initial_total, node->final_total);
             leaf_path_.insert(node->id, path);
             break;
         case kTypeSupport:
@@ -424,6 +424,30 @@ bool TreeModelFinance::UpdateUnit(Node* node, int value)
 
     if (node->type == kTypeBranch)
         TreeModelUtils::UpdateBranchUnitF(root_, node);
+
+    return true;
+}
+
+bool TreeModelFinance::UpdateAncestorValue(
+    Node* node, double initial_delta, double final_delta, double /*first_delta*/, double /*second_delta*/, double /*discount_delta*/)
+{
+    if (!node || node == root_ || !node->parent || node->parent == root_)
+        return false;
+
+    if (initial_delta == 0.0 && final_delta == 0.0)
+        return false;
+
+    const int unit = node->unit;
+    const bool rule = node->rule;
+
+    for (Node* current = node->parent; current && current != root_; current = current->parent) {
+        bool equal = current->rule == rule;
+        current->final_total += (equal ? 1 : -1) * final_delta;
+
+        if (current->unit == unit) {
+            current->initial_total += (equal ? 1 : -1) * initial_delta;
+        }
+    }
 
     return true;
 }

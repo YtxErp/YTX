@@ -25,7 +25,7 @@ void TreeModelOrder::RUpdateLeafValue(
     emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kNetAmount)));
 
     if (node->finished) {
-        UpdateAncestorValueOrder(node, first_diff, second_diff, gross_amount_diff, discount_diff, net_amount_diff);
+        UpdateAncestorValue(node, gross_amount_diff, net_amount_diff, first_diff, second_diff, discount_diff);
     }
 }
 
@@ -54,45 +54,11 @@ void TreeModelOrder::RSyncBool(int node_id, int column, bool value)
     auto* node { it.value() };
 
     int coefficient = value ? 1 : -1;
-    UpdateAncestorValueOrder(node, coefficient * node->first, coefficient * node->second, coefficient * node->initial_total, coefficient * node->discount,
-        coefficient * node->final_total);
+    UpdateAncestorValue(node, coefficient * node->initial_total, coefficient * node->final_total, coefficient * node->first, coefficient * node->second,
+        coefficient * node->discount);
 
     if (node->unit == std::to_underlying(UnitOrder::kMS))
         emit SSyncDouble(node->party, std::to_underlying(TreeEnumStakeholder::kAmount), coefficient * (node->initial_total - node->discount));
-}
-
-void TreeModelOrder::UpdateAncestorValueOrder(Node* node, double first_diff, double second_diff, double amount_diff, double discount_diff, double settled_diff)
-{
-    if (!node || node == root_ || node->parent == root_ || !node->parent)
-        return;
-
-    if (first_diff == 0 && second_diff == 0 && amount_diff == 0 && discount_diff == 0 && settled_diff == 0)
-        return;
-
-    const int unit { node->unit };
-    const int column_begin { std::to_underlying(TreeEnumOrder::kFirst) };
-    int column_end { std::to_underlying(TreeEnumOrder::kNetAmount) };
-
-    // 确定需要更新的列范围
-    if (second_diff == 0.0 && amount_diff == 0.0 && discount_diff == 0.0 && settled_diff == 0.0)
-        column_end = column_begin;
-
-    QModelIndexList ancestor {};
-    for (node = node->parent; node && node != root_; node = node->parent) {
-        if (node->unit != unit)
-            continue;
-
-        node->first += first_diff;
-        node->second += second_diff;
-        node->discount += discount_diff;
-        node->initial_total += amount_diff;
-        node->final_total += settled_diff;
-
-        ancestor.emplaceBack(GetIndex(node->id));
-    }
-
-    if (!ancestor.isEmpty())
-        emit dataChanged(index(ancestor.first().row(), column_begin), index(ancestor.last().row(), column_end), { Qt::DisplayRole });
 }
 
 void TreeModelOrder::UpdateTree(const QDate& start_date, const QDate& end_date)
@@ -120,7 +86,7 @@ void TreeModelOrder::UpdateTree(const QDate& start_date, const QDate& end_date)
 
     for (auto* node : const_node_hash) {
         if (node->type == kTypeLeaf && node->finished)
-            UpdateAncestorValueOrder(node, node->first, node->second, node->initial_total, node->discount, node->final_total);
+            UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
     }
     endResetModel();
 }
@@ -211,8 +177,8 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
 
     int coefficient = value ? 1 : -1;
 
-    UpdateAncestorValueOrder(node, coefficient * node->first, coefficient * node->second, coefficient * node->initial_total, coefficient * node->discount,
-        coefficient * node->final_total);
+    UpdateAncestorValue(node, coefficient * node->initial_total, coefficient * node->final_total, coefficient * node->first, coefficient * node->second,
+        coefficient * node->discount);
 
     node->finished = value;
     emit SSyncBool(node->id, std::to_underlying(TreeEnumOrder::kFinished), value);
@@ -247,7 +213,43 @@ void TreeModelOrder::ConstructTree()
 
     for (auto* node : const_node_hash)
         if (node->type == kTypeLeaf && node->finished)
-            UpdateAncestorValueOrder(node, node->first, node->second, node->initial_total, node->discount, node->final_total);
+            UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
+}
+
+bool TreeModelOrder::UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
+{
+    if (!node || node == root_ || !node->parent || node->parent == root_)
+        return false;
+
+    if (initial_delta == 0.0 && final_delta == 0.0 && first_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
+        return false;
+
+    const int unit { node->unit };
+    const int column_begin { std::to_underlying(TreeEnumOrder::kFirst) };
+    int column_end { std::to_underlying(TreeEnumOrder::kNetAmount) };
+
+    // 确定需要更新的列范围
+    if (initial_delta == 0.0 && final_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
+        column_end = column_begin;
+
+    QModelIndexList ancestor {};
+    for (node = node->parent; node && node != root_; node = node->parent) {
+        if (node->unit != unit)
+            continue;
+
+        node->first += first_delta;
+        node->second += second_delta;
+        node->discount += discount_delta;
+        node->initial_total += initial_delta;
+        node->final_total += final_delta;
+
+        ancestor.emplaceBack(GetIndex(node->id));
+    }
+
+    if (!ancestor.isEmpty())
+        emit dataChanged(index(ancestor.first().row(), column_begin), index(ancestor.last().row(), column_end), { Qt::DisplayRole });
+
+    return true;
 }
 
 void TreeModelOrder::sort(int column, Qt::SortOrder order)
@@ -335,7 +337,7 @@ bool TreeModelOrder::RemoveNode(int row, const QModelIndex& parent)
         break;
     case kTypeLeaf:
         if (node->finished) {
-            UpdateAncestorValueOrder(node, -node->first, -node->second, -node->initial_total, -node->discount, -node->final_total);
+            UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
 
             if (node->unit == std::to_underlying(UnitOrder::kMS))
                 emit SSyncDouble(node->party, std::to_underlying(TreeEnumStakeholder::kAmount), node->discount - node->initial_total);
@@ -507,14 +509,14 @@ bool TreeModelOrder::dropMimeData(const QMimeData* data, Qt::DropAction action, 
     if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
         node->parent->children.removeAt(source_row);
         if (update_ancestor) {
-            UpdateAncestorValueOrder(node, -node->first, -node->second, -node->initial_total, -node->discount, -node->final_total);
+            UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
         }
 
         destination_parent->children.insert(begin_row, node);
         node->parent = destination_parent;
 
         if (update_ancestor) {
-            UpdateAncestorValueOrder(node, node->first, node->second, node->initial_total, node->discount, node->final_total);
+            UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
         }
 
         endMoveRows();

@@ -16,7 +16,7 @@ EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
     , stakeholder_tree_ { static_cast<TreeModelStakeholder*>(params.stakeholder_tree) }
     , order_table_ { params.order_table }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
-    , party_unit_ { params.section == Section::kSales ? kUnitCust : kUnitVend }
+    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
     , node_id_ { *params.node_shadow->id }
 {
     ui->setupUi(this);
@@ -167,7 +167,7 @@ void EditNodeOrder::IniDialog(CSettings* settings)
     ui->comboParty->setModel(combo_model_party_);
     ui->comboParty->setCurrentIndex(-1);
 
-    combo_model_employee_ = stakeholder_tree_->UnitModelPS(kUnitEmp);
+    combo_model_employee_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp));
     ui->comboEmployee->setModel(combo_model_employee_);
     ui->comboEmployee->setCurrentIndex(-1);
 

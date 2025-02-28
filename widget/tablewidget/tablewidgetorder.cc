@@ -16,7 +16,7 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsOrder& params, QWidget* parent
     , settings_ { params.settings }
     , node_id_ { *params.node_shadow->id }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
-    , party_unit_ { params.section == Section::kSales ? kUnitCust : kUnitVend }
+    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -154,7 +154,7 @@ void TableWidgetOrder::IniDialog()
     ui->comboParty->setModel(pmodel_);
     ui->comboParty->setCurrentIndex(-1);
 
-    emodel_ = stakeholder_tree_->UnitModelPS(kUnitEmp);
+    emodel_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp));
     ui->comboEmployee->setModel(emodel_);
     ui->comboEmployee->setCurrentIndex(-1);
 

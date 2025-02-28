@@ -28,7 +28,7 @@ enum NodeType { kTypeLeaf, kTypeBranch, kTypeSupport };
 
 enum class UnitOrder { kIS, kMS, kPEND };
 
-enum UnitStakeholder { kUnitCust, kUnitEmp, kUnitVend };
+enum class UnitStakeholder { kCust, kEmp, kVend };
 
 enum class UnitProduct { kPos = 1 };
 

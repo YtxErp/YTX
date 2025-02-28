@@ -89,14 +89,16 @@ bool TreeModelStakeholder::InsertNode(int row, const QModelIndex& parent, Node* 
     case kTypeLeaf: {
         leaf_path_.insert(node->id, path);
 
-        switch (node->unit) {
-        case kUnitCust:
+        const UnitStakeholder kUnit { node->unit };
+
+        switch (kUnit) {
+        case UnitStakeholder::kCust:
             TreeModelUtils::AddItemToModel(cmodel_, path, node->id);
             break;
-        case kUnitVend:
+        case UnitStakeholder::kVend:
             TreeModelUtils::AddItemToModel(vmodel_, path, node->id);
             break;
-        case kUnitEmp:
+        case UnitStakeholder::kEmp:
             TreeModelUtils::AddItemToModel(emodel_, path, node->id);
             break;
         default:
@@ -128,12 +130,14 @@ QList<int> TreeModelStakeholder::PartyList(CString& text, int unit) const
 
 QStandardItemModel* TreeModelStakeholder::UnitModelPS(int unit) const
 {
-    switch (unit) {
-    case kUnitCust:
+    const UnitStakeholder kUnit { unit };
+
+    switch (kUnit) {
+    case UnitStakeholder::kCust:
         return cmodel_;
-    case kUnitVend:
+    case UnitStakeholder::kVend:
         return vmodel_;
-    case kUnitEmp:
+    case UnitStakeholder::kEmp:
         return emodel_;
     default:
         return nullptr;
@@ -193,9 +197,9 @@ bool TreeModelStakeholder::UpdateName(Node* node, CString& value)
 
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, kUnitCust, Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, kUnitVend, Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, kUnitEmp, Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, std::to_underlying(UnitStakeholder::kCust), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, std::to_underlying(UnitStakeholder::kVend), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, std::to_underlying(UnitStakeholder::kEmp), Filter::kIncludeSpecific);
 
     emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
     emit SSearch();
@@ -220,14 +224,16 @@ bool TreeModelStakeholder::UpdateAncestorValue(
 
 void TreeModelStakeholder::RemoveItem(int node_id, int unit)
 {
-    switch (unit) {
-    case kUnitCust:
+    const UnitStakeholder kUnit { unit };
+
+    switch (kUnit) {
+    case UnitStakeholder::kCust:
         TreeModelUtils::RemoveItemFromModel(cmodel_, node_id);
         break;
-    case kUnitVend:
+    case UnitStakeholder::kVend:
         TreeModelUtils::RemoveItemFromModel(vmodel_, node_id);
         break;
-    case kUnitEmp:
+    case UnitStakeholder::kEmp:
         TreeModelUtils::RemoveItemFromModel(emodel_, node_id);
         break;
     default:
@@ -237,14 +243,16 @@ void TreeModelStakeholder::RemoveItem(int node_id, int unit)
 
 void TreeModelStakeholder::AddItem(int node_id, CString& path, int unit)
 {
-    switch (unit) {
-    case kUnitCust:
+    const UnitStakeholder kUnit { unit };
+
+    switch (kUnit) {
+    case UnitStakeholder::kCust:
         TreeModelUtils::AddItemToModel(cmodel_, path, node_id);
         break;
-    case kUnitVend:
+    case UnitStakeholder::kVend:
         TreeModelUtils::AddItemToModel(vmodel_, path, node_id);
         break;
-    case kUnitEmp:
+    case UnitStakeholder::kEmp:
         TreeModelUtils::AddItemToModel(emodel_, path, node_id);
         break;
     default:
@@ -266,14 +274,16 @@ void TreeModelStakeholder::ConstructTree()
             root_->children.emplace_back(node);
         }
 
-        switch (node->unit) {
-        case kUnitCust:
+        const UnitStakeholder kUnit { node->unit };
+
+        switch (kUnit) {
+        case UnitStakeholder::kCust:
             crange.insert(node->id);
             break;
-        case kUnitVend:
+        case UnitStakeholder::kVend:
             vrange.insert(node->id);
             break;
-        case kUnitEmp:
+        case UnitStakeholder::kEmp:
             erange.insert(node->id);
             break;
         default:
@@ -609,9 +619,9 @@ bool TreeModelStakeholder::dropMimeData(const QMimeData* data, Qt::DropAction ac
     sql_->DragNode(destination_parent->id, node_id);
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, kUnitCust, Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, kUnitVend, Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, kUnitEmp, Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, std::to_underlying(UnitStakeholder::kCust), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, std::to_underlying(UnitStakeholder::kVend), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, std::to_underlying(UnitStakeholder::kEmp), Filter::kIncludeSpecific);
 
     emit SUpdateName(node_id, node->name, node->type == kTypeBranch);
     emit SResizeColumnToContents(std::to_underlying(TreeEnumStakeholder::kName));

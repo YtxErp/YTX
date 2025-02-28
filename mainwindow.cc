@@ -695,7 +695,8 @@ void MainWindow::DelegateStakeholder(PQTreeView tree_view, CSettings& settings) 
     auto* deadline { new TreeDateTime(kDD, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kDeadline), deadline);
 
-    auto* employee { new SpecificUnit(stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModelPS(kUnitEmp), tree_view) };
+    auto* employee { new SpecificUnit(
+        stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kEmployee), employee);
 }
 
@@ -717,7 +718,7 @@ void MainWindow::DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& set
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
 
-    auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModelPS(kUnitEmp), tree_view) };
+    auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kEmployee), employee);
 
     auto* name { new OrderNameR(stakeholder_tree_model, tree_view) };
@@ -1609,7 +1610,7 @@ void MainWindow::EditNodeFPTS(const QModelIndex& index, int node_id)
         break;
     case Section::kStakeholder:
         params.unit_enable = is_not_referenced && model->ChildrenEmpty(node_id);
-        dialog = new EditNodeStakeholder(std::move(params), model->UnitModelPS(kUnitEmp), settings_->amount_decimal, this);
+        dialog = new EditNodeStakeholder(std::move(params), model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
         break;
     case Section::kProduct:
         params.unit_enable = is_not_referenced && model->ChildrenEmpty(node_id);
@@ -1647,7 +1648,8 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
         dialog = new EditNodeTask(std::move(params), settings_->amount_decimal, settings_->date_format, this);
         break;
     case Section::kStakeholder:
-        dialog = new EditNodeStakeholder(std::move(params), tree_model->UnitModelPS(kUnitEmp), settings_->amount_decimal, this);
+        dialog
+            = new EditNodeStakeholder(std::move(params), tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
         break;
     case Section::kProduct:
         dialog = new EditNodeProduct(std::move(params), settings_->common_decimal, this);

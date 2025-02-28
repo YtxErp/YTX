@@ -175,12 +175,10 @@ bool TreeModelStakeholder::UpdateUnit(Node* node, int value)
     if (TreeModelUtils::IsSupportReferencedFPTS(sql_, node_id, message))
         return false;
 
-    if (node->type == kTypeLeaf) {
-        RemoveItem(node_id, node->unit);
+    RemoveItem(node_id, node->unit);
 
-        const auto& path { GetPath(node_id) };
-        AddItem(node_id, path, value);
-    }
+    const auto& path { GetPath(node_id) };
+    AddItem(node_id, path, value);
 
     node->unit = value;
     sql_->UpdateField(info_.node, value, kUnit, node_id);
@@ -334,10 +332,11 @@ bool TreeModelStakeholder::UpdateTypeFPTS(Node* node, int value)
         break;
     case kTypeLeaf:
         path = leaf_path_.take(node_id);
+        RemoveItem(node_id, node->unit);
         break;
     case kTypeSupport:
-        TreeModelUtils::RemoveItemFromModel(support_model_, node->id);
         path = support_path_.take(node_id);
+        TreeModelUtils::RemoveItemFromModel(support_model_, node->id);
         break;
     default:
         break;
@@ -352,10 +351,11 @@ bool TreeModelStakeholder::UpdateTypeFPTS(Node* node, int value)
         break;
     case kTypeLeaf:
         leaf_path_.insert(node_id, path);
+        AddItem(node_id, path, node->unit);
         break;
     case kTypeSupport:
-        TreeModelUtils::AddItemToModel(support_model_, path, node_id);
         support_path_.insert(node_id, path);
+        TreeModelUtils::AddItemToModel(support_model_, path, node_id);
         break;
     default:
         break;

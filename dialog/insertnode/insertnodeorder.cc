@@ -23,17 +23,10 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     SignalBlocker blocker(this);
 
     IniDialog(params.settings);
-    IniConnect();
-
-    ui->tableViewOrder->setModel(order_table_);
-    ui->pBtnSaveOrder->setEnabled(false);
-    ui->pBtnFinishOrder->setEnabled(false);
-
-    ui->labParty->setText(tr("Party"));
-    ui->comboParty->setFocus();
-
+    IniText(params.section);
+    IniRuleGroup();
     IniUnit(params.node->unit);
-    setWindowTitle(params.section == Section::kSales ? tr("Sales") : tr("Purchase"));
+    IniConnect();
 
     QShortcut* trans_shortcut { new QShortcut(QKeySequence("Ctrl+N"), this) };
     trans_shortcut->setContext(Qt::WindowShortcut);
@@ -63,18 +56,25 @@ QPointer<TableModel> InsertNodeOrder::Model() { return order_table_; }
 void InsertNodeOrder::RUpdateLeafValue(
     int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
-    const double adjusted_final_delta { node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
+    // In OrderRule, RO:1, SO and PO:0
+    const int coefficient { node_->rule ? -1 : 1 };
 
-    node_->first += first_delta;
-    node_->second += second_delta;
-    node_->initial_total += initial_delta;
-    node_->discount += discount_delta;
+    const double adjusted_initial_delta { initial_delta * coefficient };
+    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0) * coefficient };
+    const double adjusted_first_delta { first_delta * coefficient };
+    const double adjusted_second_delta { second_delta * coefficient };
+    const double adjusted_discount_delta { discount_delta * coefficient };
+
+    node_->first += adjusted_first_delta;
+    node_->second += adjusted_second_delta;
+    node_->initial_total += adjusted_initial_delta;
+    node_->discount += adjusted_discount_delta;
     node_->final_total += adjusted_final_delta;
 
     IniLeafValue();
 
     if (node_id_ != 0) {
-        emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
+        emit SUpdateLeafValue(node_id_, adjusted_initial_delta, adjusted_final_delta, adjusted_first_delta, adjusted_second_delta, adjusted_discount_delta);
     }
 }
 
@@ -92,20 +92,12 @@ void InsertNodeOrder::RSyncBool(int node_id, int column, bool value)
 
     switch (kColumn) {
     case TreeEnumOrder::kRule:
-        ui->chkBoxRefund->setChecked(value);
+        IniRule(value);
         IniLeafValue();
         break;
     case TreeEnumOrder::kFinished: {
-        ui->pBtnFinishOrder->setChecked(value);
-        ui->pBtnFinishOrder->setText(value ? tr("Edit") : tr("Finish"));
+        IniFinished(value);
         LockWidgets(value, node_->type == kTypeBranch);
-
-        if (value) {
-            ui->pBtnPrint->setFocus();
-            ui->pBtnPrint->setDefault(true);
-            ui->tableViewOrder->clearSelection();
-        }
-
         break;
     }
     default:
@@ -186,6 +178,12 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->dSpinSecond->setDecimals(settings->common_decimal);
     ui->dSpinFirst->setDecimals(settings->common_decimal);
 
+    ui->pBtnSaveOrder->setEnabled(false);
+    ui->pBtnFinishOrder->setEnabled(false);
+    ui->rBtnSP->setChecked(true);
+
+    ui->tableViewOrder->setModel(order_table_);
+
     ui->comboParty->setFocus();
 }
 
@@ -209,7 +207,11 @@ void InsertNodeOrder::accept()
     }
 }
 
-void InsertNodeOrder::IniConnect() { connect(ui->pBtnSaveOrder, &QPushButton::clicked, this, &InsertNodeOrder::accept); }
+void InsertNodeOrder::IniConnect()
+{
+    connect(ui->pBtnSaveOrder, &QPushButton::clicked, this, &InsertNodeOrder::accept);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeOrder::RRuleGroupChecked);
+}
 
 void InsertNodeOrder::LockWidgets(bool finished, bool branch)
 {
@@ -243,7 +245,8 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
     ui->dSpinSecond->setEnabled(not_branch_enable);
     ui->labSecond->setEnabled(not_branch_enable);
 
-    ui->chkBoxRefund->setEnabled(not_branch_enable);
+    ui->rBtnRefund->setEnabled(not_branch_enable);
+    ui->rBtnSP->setEnabled(not_branch_enable);
     ui->lineDescription->setEnabled(basic_enable);
 
     ui->pBtnPrint->setEnabled(finished && !branch);
@@ -262,6 +265,22 @@ void InsertNodeOrder::IniUnit(int unit)
         break;
     case UnitOrder::kPEND:
         ui->rBtnPending->setChecked(true);
+        break;
+    default:
+        break;
+    }
+}
+
+void InsertNodeOrder::IniRule(bool rule)
+{
+    const int kRule { static_cast<int>(rule) };
+
+    switch (kRule) {
+    case 0:
+        ui->rBtnSP->setChecked(true);
+        break;
+    case 1:
+        ui->rBtnRefund->setChecked(true);
         break;
     default:
         break;
@@ -290,6 +309,34 @@ void InsertNodeOrder::IniLeafValue()
     ui->dSpinGrossAmount->setValue(node_->initial_total);
     ui->dSpinDiscount->setValue(node_->discount);
     ui->dSpinNetAmount->setValue(node_->final_total);
+}
+
+void InsertNodeOrder::IniRuleGroup()
+{
+    rule_group_ = new QButtonGroup(this);
+    rule_group_->addButton(ui->rBtnSP, 0);
+    rule_group_->addButton(ui->rBtnRefund, 1);
+}
+
+void InsertNodeOrder::IniText(Section section)
+{
+    const bool is_sales_section { section == Section::kSales };
+
+    setWindowTitle(is_sales_section ? tr("Sales") : tr("Purchase"));
+    ui->rBtnSP->setText(is_sales_section ? tr("SO") : tr("PO"));
+    ui->labParty->setText(is_sales_section ? tr("CUST") : tr("VEND"));
+}
+
+void InsertNodeOrder::IniFinished(bool finished)
+{
+    ui->pBtnFinishOrder->setChecked(finished);
+    ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
+
+    if (finished) {
+        ui->pBtnPrint->setFocus();
+        ui->pBtnPrint->setDefault(true);
+        ui->tableViewOrder->clearSelection();
+    }
 }
 
 void InsertNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
@@ -334,24 +381,6 @@ void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
     ui->rBtnCash->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
     ui->rBtnMonthly->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
-}
-
-void InsertNodeOrder::on_chkBoxRefund_toggled(bool checked)
-{
-    node_->rule = checked;
-
-    node_->first *= -1;
-    node_->second *= -1;
-    node_->initial_total *= -1;
-    node_->discount *= -1;
-    node_->final_total *= -1;
-
-    IniLeafValue();
-
-    if (node_id_ != 0) {
-        sql_->WriteField(info_node_, kRule, checked, node_id_);
-        sql_->WriteLeafValue(node_);
-    }
 }
 
 void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
@@ -444,15 +473,8 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
     if (node_->type == kTypeLeaf)
         emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
-    ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
-
+    IniFinished(checked);
     LockWidgets(checked, node_->type == kTypeBranch);
-
-    if (checked) {
-        ui->tableViewOrder->clearSelection();
-        ui->pBtnPrint->setFocus();
-        ui->pBtnPrint->setDefault(true);
-    }
 }
 
 void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)
@@ -474,9 +496,27 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
     else
         node_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
 
-    ui->chkBoxRefund->setChecked(false);
+    ui->rBtnRefund->setChecked(false);
     ui->tableViewOrder->clearSelection();
     ui->labParty->setText(enable ? tr("Branch") : tr("Party"));
+}
+
+void InsertNodeOrder::RRuleGroupChecked(int id)
+{
+    node_->rule = static_cast<bool>(id);
+
+    node_->first *= -1;
+    node_->second *= -1;
+    node_->initial_total *= -1;
+    node_->discount *= -1;
+    node_->final_total *= -1;
+
+    IniLeafValue();
+
+    if (node_id_ != 0) {
+        sql_->WriteField(info_node_, kRule, node_->rule, node_id_);
+        sql_->WriteLeafValue(node_);
+    }
 }
 
 void InsertNodeOrder::on_lineDescription_editingFinished()

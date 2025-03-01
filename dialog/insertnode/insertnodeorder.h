@@ -20,6 +20,7 @@
 #ifndef INSERTNODEORDER_H
 #define INSERTNODEORDER_H
 
+#include <QButtonGroup>
 #include <QDialog>
 
 #include "component/classparams.h"
@@ -67,25 +68,31 @@ private slots:
     void on_comboParty_currentIndexChanged(int index);
     void on_comboEmployee_currentIndexChanged(int index);
 
-    void on_chkBoxRefund_toggled(bool checked);
-    void on_pBtnFinishOrder_toggled(bool checked);
     void on_rBtnCash_toggled(bool checked);
     void on_rBtnMonthly_toggled(bool checked);
     void on_rBtnPending_toggled(bool checked);
 
     void on_pBtnInsert_clicked();
+    void on_pBtnFinishOrder_toggled(bool checked);
+
     void on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time);
     void on_lineDescription_editingFinished();
 
     void on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1);
+    void RRuleGroupChecked(int id);
 
 private:
     void IniDialog(CSettings* settings);
     void IniConnect();
-    void LockWidgets(bool finished, bool branch);
     void IniUnit(int unit);
+    void IniRule(bool rule);
     void IniDataCombo(int party, int employee);
     void IniLeafValue();
+    void IniRuleGroup();
+    void IniText(Section section);
+    void IniFinished(bool finished);
+
+    void LockWidgets(bool finished, bool branch);
 
 private:
     Ui::InsertNodeOrder* ui;
@@ -94,6 +101,7 @@ private:
     Sqlite* sql_ {};
     TreeModelStakeholder* stakeholder_tree_ {};
     TableModel* order_table_ {};
+    QButtonGroup* rule_group_ {};
 
     QStandardItemModel* combo_model_employee_ {};
     QStandardItemModel* combo_model_party_ {};

@@ -1116,7 +1116,17 @@ Rage, rage against the dying of the light.</source>
         <translation>新增</translation>
     </message>
     <message>
-        <location line="+217"/>
+        <location line="+39"/>
+        <source>SP</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>RO</source>
+        <translation>退</translation>
+    </message>
+    <message>
+        <location line="+178"/>
         <source>NetAmount</source>
         <translation>净额</translation>
     </message>
@@ -1138,14 +1148,13 @@ Rage, rage against the dying of the light.</source>
     <message>
         <location line="+87"/>
         <location filename="../../dialog/insertnode/insertnodeorder.cc" line="+100"/>
-        <location line="+347"/>
+        <location line="+372"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location line="-364"/>
-        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="-415"/>
-        <location line="+447"/>
+        <location line="-371"/>
+        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="+32"/>
         <source>Party</source>
         <translation>合作</translation>
     </message>
@@ -1154,7 +1163,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">新增</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+90"/>
         <source>First</source>
         <translation>第一</translation>
     </message>
@@ -1176,12 +1185,11 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">锁定(&amp;L)</translation>
     </message>
     <message>
-        <location line="-41"/>
         <source>Refund</source>
-        <translation>退单</translation>
+        <translation type="vanished">退单</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="-27"/>
         <source>Description</source>
         <translation>描述</translation>
     </message>
@@ -1226,12 +1234,12 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">添加人脉</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-217"/>
         <source>Employee</source>
         <translation>职员</translation>
     </message>
     <message>
-        <location line="+168"/>
+        <location line="+175"/>
         <source>Print</source>
         <translation>打印</translation>
     </message>
@@ -1248,7 +1256,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">确认</translation>
     </message>
     <message>
-        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="-443"/>
+        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="-171"/>
         <source>Sales</source>
         <translation>销售</translation>
     </message>
@@ -1258,8 +1266,28 @@ Rage, rage against the dying of the light.</source>
         <translation>采购</translation>
     </message>
     <message>
-        <location line="+64"/>
-        <location line="+347"/>
+        <location line="+1"/>
+        <source>SO</source>
+        <translation>售</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>PO</source>
+        <translation>购</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CUST</source>
+        <translation>客户</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>VEND</source>
+        <translation>供应商</translation>
+    </message>
+    <message>
+        <location line="-235"/>
+        <location line="+372"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
@@ -1811,7 +1839,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+1909"/>
+        <location filename="../../mainwindow.cc" line="+1927"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -1972,7 +2000,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-277"/>
-        <location filename="../../mainwindow.cc" line="-2172"/>
+        <location filename="../../mainwindow.cc" line="-2190"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2030,7 +2058,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+226"/>
-        <location filename="../../mainwindow.cc" line="+1901"/>
+        <location filename="../../mainwindow.cc" line="+1919"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2209,7 +2237,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">无效的文件: %1</translation>
     </message>
     <message>
-        <location line="-855"/>
+        <location line="-873"/>
         <source>Invalid File</source>
         <translation>无效的文件</translation>
     </message>
@@ -2273,7 +2301,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">平方英尺</translation>
     </message>
     <message>
-        <location line="+249"/>
+        <location line="+267"/>
         <location line="+79"/>
         <location line="+42"/>
         <source>IS</source>

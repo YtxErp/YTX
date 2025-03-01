@@ -158,9 +158,16 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QCheckBox" name="chkBoxRefund">
+         <widget class="QRadioButton" name="rBtnSP">
           <property name="text">
-           <string>Refund</string>
+           <string>SP</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rBtnRefund">
+          <property name="text">
+           <string>RO</string>
           </property>
          </widget>
         </item>

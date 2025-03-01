@@ -143,7 +143,7 @@ public:
     QStandardItemModel* LeafModel() const { return leaf_model_; }
 
     void CopyNodeFPTS(Node* tmp_node, int node_id) const;
-    QStringList ChildrenNameFPTS(int node_id, int exclude_child) const;
+    QStringList ChildrenNameFPTS(int node_id) const;
     QSet<int> ChildrenIDFPTS(int node_id) const;
 
     void LeafPathBranchPathModelFPT(QStandardItemModel* model) const;
@@ -155,8 +155,9 @@ public:
     void SetParent(Node* node, int parent_id) const;
     QModelIndex GetIndex(int node_id) const;
 
+    void UpdateName(int node_id, CString& new_name);
+
     // virtual functions
-    virtual void UpdateNodeFPTS(const Node* tmp_node) { Q_UNUSED(tmp_node); }
     virtual void RetriveNodeOrder(int node_id) { Q_UNUSED(node_id); }
 
     virtual void UpdateSeparatorFPTS(CString& old_separator, CString& new_separator);
@@ -183,7 +184,7 @@ protected:
     Node* GetNodeByIndex(const QModelIndex& index) const;
 
     virtual bool UpdateTypeFPTS(Node* node, int value);
-    virtual bool UpdateName(Node* node, CString& value);
+    virtual bool UpdateNameFunction(Node* node, CString& value);
     virtual bool UpdateRuleFPTO(Node* node, bool value);
 
     virtual void ConstructTree() = 0;

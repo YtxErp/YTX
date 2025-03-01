@@ -71,17 +71,17 @@ QMimeData* TreeModel::mimeData(const QModelIndexList& indexes) const
 
 QStringList* TreeModel::GetDocumentPointer(const QModelIndex& index) const { return &GetNodeByIndex(index)->document; }
 
-QStringList TreeModel::ChildrenNameFPTS(int node_id, int exclude_child) const
+QStringList TreeModel::ChildrenNameFPTS(int node_id) const
 {
     auto it { node_hash_.constFind(node_id) };
 
     auto* node { it == node_hash_.constEnd() ? root_ : it.value() };
+
     QStringList list {};
     list.reserve(node->children.size());
 
     for (const auto* child : std::as_const(node->children)) {
-        if (child->id != exclude_child)
-            list.emplaceBack(child->name);
+        list.emplaceBack(child->name);
     }
 
     return list;
@@ -167,6 +167,18 @@ QModelIndex TreeModel::GetIndex(int node_id) const
     return createIndex(row, 0, node);
 }
 
+void TreeModel::UpdateName(int node_id, CString& new_name)
+{
+    auto it { node_hash_.constFind(node_id) };
+    if (it == node_hash_.constEnd())
+        return;
+
+    auto* node { it.value() };
+
+    UpdateNameFunction(node, new_name);
+    emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
+}
+
 QString TreeModel::GetPath(int node_id) const
 {
     if (auto it = leaf_path_.constFind(node_id); it != leaf_path_.constEnd())
@@ -189,7 +201,7 @@ Node* TreeModel::GetNodeByIndex(const QModelIndex& index) const
     return root_;
 }
 
-bool TreeModel::UpdateName(Node* node, CString& value)
+bool TreeModel::UpdateNameFunction(Node* node, CString& value)
 {
     node->name = value;
     sql_->WriteField(info_.node, kName, value, node->id);

@@ -39,33 +39,6 @@ void TreeModelStakeholder::RSyncDouble(int node_id, int column, double value)
     UpdateAncestorValue(node, 0.0, value);
 }
 
-void TreeModelStakeholder::UpdateNodeFPTS(const Node* tmp_node)
-{
-    if (!tmp_node)
-        return;
-
-    auto* node { const_cast<Node*>(TreeModelUtils::GetNodeByID(node_hash_, tmp_node->id)) };
-    if (*node == *tmp_node)
-        return;
-
-    UpdateTypeFPTS(node, tmp_node->type);
-
-    if (node->name != tmp_node->name) {
-        UpdateName(node, tmp_node->name);
-        emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
-    }
-
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->description, kDescription, &Node::description);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->code, kCode, &Node::code);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->note, kNote, &Node::note);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->first, kPaymentTerm, &Node::first);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->second, kTaxRate, &Node::second);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->date_time, kDeadline, &Node::date_time);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->rule, kRule, &Node::rule);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->employee, kEmployee, &Node::employee);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->unit, kUnit, &Node::unit);
-}
-
 bool TreeModelStakeholder::InsertNode(int row, const QModelIndex& parent, Node* node)
 {
     if (row <= -1)
@@ -190,7 +163,7 @@ bool TreeModelStakeholder::UpdateUnit(Node* node, int value)
     return true;
 }
 
-bool TreeModelStakeholder::UpdateName(Node* node, CString& value)
+bool TreeModelStakeholder::UpdateNameFunction(Node* node, CString& value)
 {
     node->name = value;
     sql_->WriteField(info_.node, kName, value, node->id);

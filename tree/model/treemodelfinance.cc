@@ -150,33 +150,6 @@ bool TreeModelFinance::InsertNode(int row, const QModelIndex& parent, Node* node
     return true;
 }
 
-void TreeModelFinance::UpdateNodeFPTS(const Node* tmp_node)
-{
-    if (!tmp_node)
-        return;
-
-    auto it { node_hash_.constFind(tmp_node->id) };
-    if (it == node_hash_.constEnd())
-        return;
-
-    auto* node { it.value() };
-    if (*node == *tmp_node)
-        return;
-
-    UpdateTypeFPTS(node, tmp_node->type);
-    UpdateRuleFPTO(node, tmp_node->rule);
-    UpdateUnit(node, tmp_node->unit);
-
-    if (node->name != tmp_node->name) {
-        UpdateName(node, tmp_node->name);
-        emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
-    }
-
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->description, kDescription, &Node::description);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->code, kCode, &Node::code);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->note, kNote, &Node::note);
-}
-
 void TreeModelFinance::UpdateDefaultUnit(int default_unit)
 {
     if (root_->unit == default_unit)

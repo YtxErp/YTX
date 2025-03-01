@@ -65,32 +65,6 @@ void TreeModelProduct::RUpdateMultiLeafTotal(const QList<int>& node_list)
     emit SUpdateStatusValue();
 }
 
-void TreeModelProduct::UpdateNodeFPTS(const Node* tmp_node)
-{
-    if (!tmp_node)
-        return;
-
-    auto* node { TreeModelUtils::GetNodeByID(node_hash_, tmp_node->id) };
-    if (*node == *tmp_node)
-        return;
-
-    UpdateRuleFPTO(node, tmp_node->rule);
-    UpdateUnit(node, tmp_node->unit);
-    UpdateTypeFPTS(node, tmp_node->type);
-
-    if (node->name != tmp_node->name) {
-        UpdateName(node, tmp_node->name);
-        emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
-    }
-
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->description, kDescription, &Node::description);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->code, kCode, &Node::code);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->note, kNote, &Node::note);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->first, kUnitPrice, &Node::first, true);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->second, kCommission, &Node::second, true);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->color, kColor, &Node::color, true);
-}
-
 bool TreeModelProduct::RemoveNode(int row, const QModelIndex& parent)
 {
     if (row <= -1 || row >= rowCount(parent))
@@ -275,7 +249,7 @@ void TreeModelProduct::ConstructTree()
     TreeModelUtils::LeafPathRangeModelP(leaf_path_, range, product_model_);
 }
 
-bool TreeModelProduct::UpdateName(Node* node, CString& value)
+bool TreeModelProduct::UpdateNameFunction(Node* node, CString& value)
 {
     node->name = value;
     sql_->WriteField(info_.node, kName, value, node->id);

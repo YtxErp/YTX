@@ -37,7 +37,6 @@ public slots:
 public:
     bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
     bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
-    void UpdateNodeFPTS(const Node* tmp_node) override;
     void UpdateDefaultUnit(int default_unit) override;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

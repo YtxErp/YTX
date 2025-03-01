@@ -57,7 +57,7 @@ public:
 protected:
     bool UpdateRuleFPTO(Node* node, bool value) override; // charge = 0, refund = 1
     bool UpdateUnit(Node* node, int value) override; // Cash = 0, Monthly = 1, Pending = 2
-    bool UpdateName(Node* node, CString& value) override;
+    bool UpdateNameFunction(Node* node, CString& value) override;
     void ConstructTree() override;
     bool UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
 

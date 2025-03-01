@@ -191,7 +191,7 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
     return true;
 }
 
-bool TreeModelOrder::UpdateName(Node* node, CString& value)
+bool TreeModelOrder::UpdateNameFunction(Node* node, CString& value)
 {
     node->name = value;
     sql_->WriteField(info_.node, kName, value, node->id);

@@ -293,32 +293,6 @@ bool TreeModelTask::dropMimeData(const QMimeData* data, Qt::DropAction action, i
     return true;
 }
 
-void TreeModelTask::UpdateNodeFPTS(const Node* tmp_node)
-{
-    if (!tmp_node)
-        return;
-
-    auto* node { TreeModelUtils::GetNodeByID(node_hash_, tmp_node->id) };
-    if (*node == *tmp_node)
-        return;
-
-    UpdateRuleFPTO(node, tmp_node->rule);
-    UpdateUnit(node, tmp_node->unit);
-    UpdateTypeFPTS(node, tmp_node->type);
-
-    if (node->name != tmp_node->name) {
-        UpdateName(node, tmp_node->name);
-        emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
-    }
-
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->description, kDescription, &Node::description);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->code, kCode, &Node::code);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->note, kNote, &Node::note);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->color, kColor, &Node::color, true);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->date_time, kDateTime, &Node::date_time, true);
-    TreeModelUtils::UpdateField(sql_, node, info_.node, tmp_node->finished, kFinished, &Node::finished, true);
-}
-
 bool TreeModelTask::RemoveNode(int row, const QModelIndex& parent)
 {
     if (row <= -1 || row >= rowCount(parent))

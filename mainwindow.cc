@@ -44,6 +44,7 @@
 #include "dialog/about.h"
 #include "dialog/editdocument.h"
 #include "dialog/editnode/editnodefinance.h"
+#include "dialog/editnode/editnodename.h"
 #include "dialog/editnode/editnodeorder.h"
 #include "dialog/editnode/editnodeproduct.h"
 #include "dialog/editnode/editnodestakeholder.h"
@@ -1577,51 +1578,21 @@ void MainWindow::on_actionEditNode_triggered()
 
 void MainWindow::EditNodeFPTS(const QModelIndex& index, int node_id)
 {
-    auto* unit_model { data_->info.unit_model };
-
-    QDialog* dialog {};
     auto model { tree_widget_->Model() };
-
-    auto* tmp_node { ResourcePool<Node>::Instance().Allocate() };
-    model->CopyNodeFPTS(tmp_node, node_id);
 
     const auto& parent { index.parent() };
     const int parent_id { parent.isValid() ? parent.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() : -1 };
     auto parent_path { model->GetPath(parent_id) };
+
     if (!parent_path.isEmpty())
         parent_path += interface_.separator;
 
-    const auto& name_list { model->ChildrenNameFPTS(parent_id, node_id) };
-    const auto* sqlite { data_->sql };
+    CString name { model->Name(node_id) };
+    const auto children_name { model->ChildrenNameFPTS(parent_id) };
 
-    bool is_not_referenced { !sqlite->InternalReference(node_id) && !sqlite->ExternalReference(node_id) };
-    bool branch_enable { is_not_referenced && model->ChildrenEmpty(node_id) && !table_hash_->contains(node_id) };
-    bool unit_enable { is_not_referenced };
-
-    auto params { EditNodeParamsFPTS { tmp_node, unit_model, parent_path, name_list, branch_enable, unit_enable } };
-
-    switch (start_) {
-    case Section::kFinance:
-        dialog = new EditNodeFinance(std::move(params), this);
-        break;
-    case Section::kTask:
-        dialog = new EditNodeTask(std::move(params), settings_->amount_decimal, settings_->date_format, this);
-        break;
-    case Section::kStakeholder:
-        params.unit_enable = is_not_referenced && model->ChildrenEmpty(node_id);
-        dialog = new EditNodeStakeholder(std::move(params), model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
-        break;
-    case Section::kProduct:
-        params.unit_enable = is_not_referenced && model->ChildrenEmpty(node_id);
-        dialog = new EditNodeProduct(std::move(params), settings_->amount_decimal, this);
-        break;
-    default:
-        return ResourcePool<Node>::Instance().Recycle(tmp_node);
-    }
-
-    connect(dialog, &QDialog::accepted, this, [=]() { model->UpdateNodeFPTS(tmp_node); });
-    dialog->exec();
-    ResourcePool<Node>::Instance().Recycle(tmp_node);
+    auto* edit_name { new EditNodeName(name, parent_path, children_name, this) };
+    connect(edit_name, &QDialog::accepted, this, [=]() { model->UpdateName(node_id, edit_name->GetName()); });
+    edit_name->exec();
 }
 
 void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row)
@@ -1633,7 +1604,7 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
     if (!parent_path.isEmpty())
         parent_path += interface_.separator;
 
-    const auto& name_list { tree_model->ChildrenNameFPTS(parent_id, 0) };
+    const auto& name_list { tree_model->ChildrenNameFPTS(parent_id) };
 
     QDialog* dialog {};
     const auto params { EditNodeParamsFPTS { node, unit_model, parent_path, name_list, true, true } };

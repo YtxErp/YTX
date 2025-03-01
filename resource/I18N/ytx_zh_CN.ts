@@ -342,6 +342,56 @@ Rage, rage against the dying of the light.</source>
     </message>
 </context>
 <context>
+    <name>EditNodeName</name>
+    <message>
+        <source>Description</source>
+        <translation type="obsolete">描述</translation>
+    </message>
+    <message>
+        <location filename="../../dialog/editnode/editnodename.ui" line="+52"/>
+        <source>&amp;Ok</source>
+        <translation>确认(&amp;O)</translation>
+    </message>
+    <message>
+        <location line="-29"/>
+        <source>&amp;Cancel</source>
+        <translation>取消(&amp;C)</translation>
+    </message>
+    <message>
+        <source>Rule</source>
+        <translation type="obsolete">规则</translation>
+    </message>
+    <message>
+        <source>Unit</source>
+        <translation type="obsolete">单位</translation>
+    </message>
+    <message>
+        <source>Debit Increase, Credit Decrease</source>
+        <translation type="obsolete">借方增加，贷方减少</translation>
+    </message>
+    <message>
+        <source>Debit Decrease, Credit Increase</source>
+        <translation type="obsolete">借方减少，贷方增加</translation>
+    </message>
+    <message>
+        <source>Note</source>
+        <translation type="obsolete">备注</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>Code</source>
+        <translation type="obsolete">编号</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="obsolete">类型</translation>
+    </message>
+</context>
+<context>
     <name>EditNodeOrder</name>
     <message>
         <location filename="../../dialog/editnode/editnodeorder.ui" line="+14"/>
@@ -1254,7 +1304,7 @@ Rage, rage against the dying of the light.</source>
     <name>MainWindow</name>
     <message>
         <location filename="../../mainwindow.ui" line="+85"/>
-        <location filename="../../mainwindow.cc" line="+174"/>
+        <location filename="../../mainwindow.cc" line="+175"/>
         <source>Finance</source>
         <translation>财务</translation>
     </message>
@@ -1437,7 +1487,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+1940"/>
+        <location filename="../../mainwindow.cc" line="+1909"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -1598,7 +1648,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-277"/>
-        <location filename="../../mainwindow.cc" line="-2203"/>
+        <location filename="../../mainwindow.cc" line="-2172"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -1656,7 +1706,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+226"/>
-        <location filename="../../mainwindow.cc" line="+1932"/>
+        <location filename="../../mainwindow.cc" line="+1901"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -1745,7 +1795,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1108"/>
+        <location filename="../../mainwindow.cc" line="-1077"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -1910,7 +1960,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">现结</translation>
     </message>
     <message>
-        <location line="+535"/>
+        <location line="+504"/>
         <source>Language Changed</source>
         <translation>语言已更改</translation>
     </message>
@@ -1965,7 +2015,7 @@ Rage, rage against the dying of the light.</source>
         <translation>导出版块</translation>
     </message>
     <message>
-        <location line="-1184"/>
+        <location line="-1153"/>
         <location line="+79"/>
         <location line="+42"/>
         <source>MS</source>
@@ -3555,7 +3605,7 @@ It is internal referenced.</source>
         <translation type="vanished">%1 存在内部引用。</translation>
     </message>
     <message>
-        <location filename="../../tree/model/treemodel.cc" line="+231"/>
+        <location filename="../../tree/model/treemodel.cc" line="+243"/>
         <source>Cannot change %1 type,</source>
         <translation>无法改变 %1 的类型，</translation>
     </message>
@@ -3571,7 +3621,7 @@ It is internal referenced.</source>
         <translation type="vanished">无法变更 %1 辅助，</translation>
     </message>
     <message>
-        <location filename="../../tree/model/treemodelfinance.cc" line="+414"/>
+        <location filename="../../tree/model/treemodelfinance.cc" line="+387"/>
         <source>Cannot change %1 unit,</source>
         <translation>无法变更 %1 单位，</translation>
     </message>
@@ -3605,7 +3655,7 @@ It is external referenced.</source>
         <translation type="vanished">%1 存在外部引用。</translation>
     </message>
     <message>
-        <location filename="../../tree/model/treemodelproduct.cc" line="+209"/>
+        <location filename="../../tree/model/treemodelproduct.cc" line="+183"/>
         <source>Cannot change %1 unit,</source>
         <translation>无法变更 %1 单位，</translation>
     </message>
@@ -3643,7 +3693,7 @@ It is external referenced.</source>
         <translation type="vanished">%1 存在外部引用。</translation>
     </message>
     <message>
-        <location filename="../../tree/model/treemodelstakeholder.cc" line="+168"/>
+        <location filename="../../tree/model/treemodelstakeholder.cc" line="+141"/>
         <source>Cannot change %1 unit,</source>
         <translation>无法变更 %1 单位，</translation>
     </message>
@@ -3676,7 +3726,7 @@ It is external referenced.</source>
         <translation type="vanished">%1 存在内部引用。</translation>
     </message>
     <message>
-        <location filename="../../tree/model/treemodeltask.cc" line="+415"/>
+        <location filename="../../tree/model/treemodeltask.cc" line="+389"/>
         <source>Cannot change %1 unit,</source>
         <translation>无法变更 %1 单位，</translation>
     </message>

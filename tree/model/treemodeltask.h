@@ -42,7 +42,6 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
-    void UpdateNodeFPTS(const Node* tmp_node) override;
     bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
     bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
 

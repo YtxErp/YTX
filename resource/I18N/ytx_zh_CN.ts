@@ -1131,29 +1131,26 @@ Rage, rage against the dying of the light.</source>
         <translation>净额</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>Cash</source>
-        <translation>现结</translation>
+        <translation type="vanished">现结</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Monthly</source>
-        <translation>月结</translation>
+        <translation type="vanished">月结</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Pending</source>
-        <translation>挂帐</translation>
+        <translation type="vanished">挂帐</translation>
     </message>
     <message>
-        <location line="+87"/>
-        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="+333"/>
+        <location line="+124"/>
+        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="+335"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
     <message>
         <location line="-371"/>
-        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="+168"/>
+        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="+131"/>
         <source>Party</source>
         <translation>合作</translation>
     </message>
@@ -1193,7 +1190,22 @@ Rage, rage against the dying of the light.</source>
         <translation>描述</translation>
     </message>
     <message>
-        <location line="+233"/>
+        <location line="+187"/>
+        <source>IS</source>
+        <translation>现结</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>MS</source>
+        <translation>月结</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>PEND</source>
+        <translation>挂帐</translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>yyyy/MM/dd HH:mm</source>
         <translation></translation>
     </message>
@@ -1255,7 +1267,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">确认</translation>
     </message>
     <message>
-        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="-176"/>
+        <location filename="../../dialog/insertnode/insertnodeorder.cc" line="-139"/>
         <source>Sales</source>
         <translation>销售</translation>
     </message>
@@ -1290,7 +1302,7 @@ Rage, rage against the dying of the light.</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location line="+168"/>
+        <location line="+131"/>
         <source>Branch</source>
         <translation>分支</translation>
     </message>
@@ -3818,8 +3830,23 @@ Rage, rage against the dying of the light.</source>
         <translation>净额</translation>
     </message>
     <message>
-        <location line="+114"/>
-        <location filename="../../widget/tablewidget/tablewidgetorder.cc" line="+285"/>
+        <location line="+23"/>
+        <source>IS</source>
+        <translation>现结</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>MS</source>
+        <translation>月结</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>PEND</source>
+        <translation>挂帐</translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <location filename="../../widget/tablewidget/tablewidgetorder.cc" line="+287"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
@@ -3828,22 +3855,19 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">初始</translation>
     </message>
     <message>
-        <location line="-91"/>
         <source>Cash</source>
-        <translation>现结</translation>
+        <translation type="vanished">现结</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Monthly</source>
-        <translation>月结</translation>
+        <translation type="vanished">月结</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Pending</source>
-        <translation>挂帐</translation>
+        <translation type="vanished">挂帐</translation>
     </message>
     <message>
-        <location line="-211"/>
+        <location line="-288"/>
         <source>First</source>
         <translation>第一</translation>
     </message>

@@ -25,6 +25,7 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     IniDialog(params.settings);
     IniText(params.section);
     IniRuleGroup();
+    IniUnitGroup();
     IniUnit(params.node->unit);
     IniConnect();
 
@@ -210,7 +211,8 @@ void InsertNodeOrder::accept()
 void InsertNodeOrder::IniConnect()
 {
     connect(ui->pBtnSaveOrder, &QPushButton::clicked, this, &InsertNodeOrder::accept);
-    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeOrder::RRuleGroupChecked);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeOrder::RRuleGroupClicked);
+    connect(unit_group_, &QButtonGroup::idClicked, this, &InsertNodeOrder::RUnitGroupClicked);
 }
 
 void InsertNodeOrder::LockWidgets(bool finished, bool branch)
@@ -235,9 +237,9 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
     ui->comboEmployee->setEnabled(not_branch_enable);
     ui->tableViewOrder->setEnabled(not_branch_enable);
 
-    ui->rBtnCash->setEnabled(basic_enable);
-    ui->rBtnMonthly->setEnabled(basic_enable);
-    ui->rBtnPending->setEnabled(basic_enable);
+    ui->rBtnIS->setEnabled(basic_enable);
+    ui->rBtnMS->setEnabled(basic_enable);
+    ui->rBtnPEND->setEnabled(basic_enable);
     ui->dateTimeEdit->setEnabled(not_branch_enable);
 
     ui->dSpinFirst->setEnabled(not_branch_enable);
@@ -258,13 +260,13 @@ void InsertNodeOrder::IniUnit(int unit)
 
     switch (kUnit) {
     case UnitOrder::kIS:
-        ui->rBtnCash->setChecked(true);
+        ui->rBtnIS->setChecked(true);
         break;
     case UnitOrder::kMS:
-        ui->rBtnMonthly->setChecked(true);
+        ui->rBtnMS->setChecked(true);
         break;
     case UnitOrder::kPEND:
-        ui->rBtnPending->setChecked(true);
+        ui->rBtnPEND->setChecked(true);
         break;
     default:
         break;
@@ -339,6 +341,14 @@ void InsertNodeOrder::IniFinished(bool finished)
     }
 }
 
+void InsertNodeOrder::IniUnitGroup()
+{
+    unit_group_ = new QButtonGroup(this);
+    unit_group_->addButton(ui->rBtnIS, 0);
+    unit_group_->addButton(ui->rBtnMS, 1);
+    unit_group_->addButton(ui->rBtnPEND, 2);
+}
+
 void InsertNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 {
     if (node_->type != kTypeBranch || arg1.isEmpty())
@@ -379,8 +389,8 @@ void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
     int employee_index { ui->comboEmployee->findData(stakeholder_tree_->Employee(party_id)) };
     ui->comboEmployee->setCurrentIndex(employee_index);
 
-    ui->rBtnCash->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
-    ui->rBtnMonthly->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
+    ui->rBtnIS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
+    ui->rBtnMS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
 }
 
 void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
@@ -389,51 +399,6 @@ void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 
     if (node_id_ != 0)
         sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
-}
-
-void InsertNodeOrder::on_rBtnCash_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    node_->unit = std::to_underlying(UnitOrder::kIS);
-    node_->final_total = node_->initial_total - node_->discount;
-    ui->dSpinNetAmount->setValue(node_->final_total);
-
-    if (node_id_ != 0) {
-        sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kIS), node_id_);
-        sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
-    }
-}
-
-void InsertNodeOrder::on_rBtnMonthly_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    node_->unit = std::to_underlying(UnitOrder::kMS);
-    node_->final_total = 0.0;
-    ui->dSpinNetAmount->setValue(0.0);
-
-    if (node_id_ != 0) {
-        sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kMS), node_id_);
-        sql_->WriteField(info_node_, kNetAmount, 0.0, node_id_);
-    }
-}
-
-void InsertNodeOrder::on_rBtnPending_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    node_->unit = std::to_underlying(UnitOrder::kPEND);
-    node_->final_total = 0.0;
-    ui->dSpinNetAmount->setValue(0.0);
-
-    if (node_id_ != 0) {
-        sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kPEND), node_id_);
-        sql_->WriteField(info_node_, kNetAmount, 0.0, node_id_);
-    }
 }
 
 void InsertNodeOrder::on_pBtnInsert_clicked()
@@ -501,7 +466,7 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
     ui->labParty->setText(enable ? tr("Branch") : tr("Party"));
 }
 
-void InsertNodeOrder::RRuleGroupChecked(int id)
+void InsertNodeOrder::RRuleGroupClicked(int id)
 {
     node_->rule = static_cast<bool>(id);
 
@@ -516,6 +481,31 @@ void InsertNodeOrder::RRuleGroupChecked(int id)
     if (node_id_ != 0) {
         sql_->WriteField(info_node_, kRule, node_->rule, node_id_);
         sql_->WriteLeafValue(node_);
+    }
+}
+
+void InsertNodeOrder::RUnitGroupClicked(int id)
+{
+    const UnitOrder unit { id };
+
+    switch (unit) {
+    case UnitOrder::kIS:
+        node_->final_total = node_->initial_total - node_->discount;
+        break;
+    case UnitOrder::kMS:
+    case UnitOrder::kPEND:
+        node_->final_total = 0.0;
+        break;
+    default:
+        break;
+    }
+
+    node_->unit = id;
+    ui->dSpinNetAmount->setValue(node_->final_total);
+
+    if (node_id_ != 0) {
+        sql_->WriteField(info_node_, kUnit, id, node_id_);
+        sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
     }
 }
 

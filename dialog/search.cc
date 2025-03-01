@@ -30,7 +30,6 @@ Search::Search(CTreeModel* tree, CTreeModel* stakeholder_tree, CTreeModel* produ
 
     TreeViewDelegate(ui->searchViewNode, search_tree_);
     TableViewDelegate(ui->searchViewTrans, search_table_);
-    IniConnect();
 
     IniView(ui->searchViewNode);
     IniView(ui->searchViewTrans);
@@ -39,8 +38,11 @@ Search::Search(CTreeModel* tree, CTreeModel* stakeholder_tree, CTreeModel* produ
     ResizeTableColumn(ui->searchViewTrans->horizontalHeader());
 
     IniDialog();
+    IniContentGroup();
     HideTreeColumn(ui->searchViewNode, info.section);
     HideTableColumn(ui->searchViewTrans, info.section);
+
+    IniConnect();
 }
 
 Search::~Search() { delete ui; }
@@ -58,6 +60,7 @@ void Search::IniConnect()
     connect(ui->lineEdit, &QLineEdit::returnPressed, this, &Search::RSearch);
     connect(ui->searchViewNode, &QTableView::doubleClicked, this, &Search::RDoubleClicked);
     connect(ui->searchViewTrans, &QTableView::doubleClicked, this, &Search::RDoubleClicked);
+    connect(content_group_, &QButtonGroup::idClicked, this, &Search::RContentGroup);
 }
 
 void Search::HideTreeColumn(QTableView* view, Section section)
@@ -151,6 +154,13 @@ void Search::HideTableColumn(QTableView* view, Section section)
     default:
         break;
     }
+}
+
+void Search::IniContentGroup()
+{
+    content_group_ = new QButtonGroup(this);
+    content_group_->addButton(ui->rBtnNode, 0);
+    content_group_->addButton(ui->rBtnTrans, 1);
 }
 
 void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
@@ -299,14 +309,4 @@ void Search::RDoubleClicked(const QModelIndex& index)
     }
 }
 
-void Search::on_rBtnNode_toggled(bool checked)
-{
-    if (checked)
-        ui->stackedWidget->setCurrentIndex(0);
-}
-
-void Search::on_rBtnTrans_toggled(bool checked)
-{
-    if (checked)
-        ui->stackedWidget->setCurrentIndex(1);
-}
+void Search::RContentGroup(int id) { ui->stackedWidget->setCurrentIndex(id); }

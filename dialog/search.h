@@ -20,6 +20,7 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
+#include <QButtonGroup>
 #include <QDialog>
 #include <QTableView>
 
@@ -47,9 +48,7 @@ public slots:
 
 private slots:
     void RDoubleClicked(const QModelIndex& index);
-
-    void on_rBtnNode_toggled(bool checked);
-    void on_rBtnTrans_toggled(bool checked);
+    void RContentGroup(int id);
 
 private:
     void IniDialog();
@@ -66,6 +65,8 @@ private:
     void HideTreeColumn(QTableView* view, Section section);
     void HideTableColumn(QTableView* view, Section section);
 
+    void IniContentGroup();
+
 private:
     Ui::Search* ui;
 
@@ -75,6 +76,7 @@ private:
     CTreeModel* tree_ {};
     CTreeModel* stakeholder_tree_ {};
     CTreeModel* product_tree_ {};
+    QButtonGroup* content_group_ {};
 
     CSettings* settings_;
     CInfo& info_;

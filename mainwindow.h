@@ -87,13 +87,6 @@ private slots:
     void on_tabWidget_tabBarDoubleClicked(int index);
     void on_tabWidget_tabCloseRequested(int index);
 
-    void on_rBtnFinance_toggled(bool checked);
-    void on_rBtnSales_toggled(bool checked);
-    void on_rBtnTask_toggled(bool checked);
-    void on_rBtnStakeholder_toggled(bool checked);
-    void on_rBtnProduct_toggled(bool checked);
-    void on_rBtnPurchase_toggled(bool checked);
-
     void RNodeLocation(int node_id);
     void RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id);
 
@@ -108,6 +101,8 @@ private slots:
 
     void RTreeViewCustomContextMenuRequested(const QPoint& pos);
     void RTreeViewDoubleClicked(const QModelIndex& index);
+
+    void RSectionGroup(int id);
 
 private:
     void SetTabWidget();
@@ -188,6 +183,8 @@ private:
 
     QStandardItemModel* CreateModelFromList(QStringList& list, QObject* parent = nullptr);
 
+    void IniSectionGroup();
+
 private:
     Ui::MainWindow* ui {};
 
@@ -202,6 +199,8 @@ private:
     std::unique_ptr<YtxSqlite> ytx_sql_ {};
     std::shared_ptr<QSettings> app_settings_ {};
     std::shared_ptr<QSettings> file_settings_ {};
+
+    QButtonGroup* section_group_ {};
 
     TreeWidget* tree_widget_ {};
     TableHash* table_hash_ {};

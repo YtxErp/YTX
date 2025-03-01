@@ -86,9 +86,10 @@ MainWindow::MainWindow(QWidget* parent)
     SignalBlocker blocker(this);
 
     SetTabWidget();
-    SetConnect();
+    IniSectionGroup();
     StringInitializer::SetHeader(finance_data_.info, product_data_.info, stakeholder_data_.info, task_data_.info, sales_data_.info, purchase_data_.info);
     SetAction();
+    SetConnect();
 
     this->setAcceptDrops(true);
 
@@ -179,28 +180,7 @@ bool MainWindow::ROpenFile(CString& file_path)
     CreateSection(sales_tree_, sales_table_hash_, sales_data_, sales_settings_, tr("Sales"));
     CreateSection(purchase_tree_, purchase_table_hash_, purchase_data_, purchase_settings_, tr("Purchase"));
 
-    switch (start_) {
-    case Section::kFinance:
-        on_rBtnFinance_toggled(true);
-        break;
-    case Section::kStakeholder:
-        on_rBtnStakeholder_toggled(true);
-        break;
-    case Section::kProduct:
-        on_rBtnProduct_toggled(true);
-        break;
-    case Section::kTask:
-        on_rBtnTask_toggled(true);
-        break;
-    case Section::kSales:
-        on_rBtnSales_toggled(true);
-        break;
-    case Section::kPurchase:
-        on_rBtnPurchase_toggled(true);
-        break;
-    default:
-        break;
-    }
+    RSectionGroup(static_cast<int>(start_));
 
     AddRecentFile(file_path);
     EnableAction(true);
@@ -275,6 +255,77 @@ void MainWindow::RTreeViewDoubleClicked(const QModelIndex& index)
     }
 
     SwitchTab(node_id);
+}
+
+void MainWindow::RSectionGroup(int id)
+{
+    const Section kSection { id };
+
+    start_ = kSection;
+
+    if (!lock_file_) {
+        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
+        return;
+    }
+
+    MainWindowUtils::SwitchDialog(dialog_list_, false);
+    MainWindowUtils::SwitchDialog(dialog_hash_, false);
+    UpdateLastTab();
+
+    switch (kSection) {
+    case Section::kFinance:
+        tree_widget_ = finance_tree_;
+        table_hash_ = &finance_table_hash_;
+        dialog_list_ = &finance_dialog_list_;
+        dialog_hash_ = &finance_dialog_hash_;
+        settings_ = &finance_settings_;
+        data_ = &finance_data_;
+        break;
+    case Section::kProduct:
+        tree_widget_ = product_tree_;
+        table_hash_ = &product_table_hash_;
+        dialog_list_ = &product_dialog_list_;
+        dialog_hash_ = &product_dialog_hash_;
+        settings_ = &product_settings_;
+        data_ = &product_data_;
+        break;
+    case Section::kTask:
+        tree_widget_ = task_tree_;
+        table_hash_ = &task_table_hash_;
+        dialog_list_ = &task_dialog_list_;
+        dialog_hash_ = &task_dialog_hash_;
+        settings_ = &task_settings_;
+        data_ = &task_data_;
+        break;
+    case Section::kStakeholder:
+        tree_widget_ = stakeholder_tree_;
+        table_hash_ = &stakeholder_table_hash_;
+        dialog_list_ = &stakeholder_dialog_list_;
+        dialog_hash_ = &stakeholder_dialog_hash_;
+        settings_ = &stakeholder_settings_;
+        data_ = &stakeholder_data_;
+        break;
+    case Section::kSales:
+        tree_widget_ = sales_tree_;
+        table_hash_ = &sales_table_hash_;
+        dialog_list_ = &sales_dialog_list_;
+        dialog_hash_ = &sales_dialog_hash_;
+        settings_ = &sales_settings_;
+        data_ = &sales_data_;
+        break;
+    case Section::kPurchase:
+        tree_widget_ = purchase_tree_;
+        table_hash_ = &purchase_table_hash_;
+        dialog_list_ = &purchase_dialog_list_;
+        dialog_hash_ = &purchase_dialog_hash_;
+        settings_ = &purchase_settings_;
+        data_ = &purchase_data_;
+        break;
+    default:
+        break;
+    }
+
+    SwitchSection(data_->tab);
 }
 
 void MainWindow::SwitchTab(int node_id, int trans_id) const
@@ -928,6 +979,17 @@ QStandardItemModel* MainWindow::CreateModelFromList(QStringList& list, QObject* 
     return model;
 }
 
+void MainWindow::IniSectionGroup()
+{
+    section_group_ = new QButtonGroup(this);
+    section_group_->addButton(ui->rBtnFinance, 0);
+    section_group_->addButton(ui->rBtnProduct, 1);
+    section_group_->addButton(ui->rBtnTask, 2);
+    section_group_->addButton(ui->rBtnStakeholder, 3);
+    section_group_->addButton(ui->rBtnSales, 4);
+    section_group_->addButton(ui->rBtnPurchase, 5);
+}
+
 void MainWindow::RestoreRecentFile()
 {
     recent_file_ = app_settings_->value(kRecentFile).toStringList();
@@ -1154,6 +1216,7 @@ void MainWindow::SetConnect() const
     connect(ui->actionCheckAll, &QAction::triggered, this, &MainWindow::RUpdateState);
     connect(ui->actionCheckNone, &QAction::triggered, this, &MainWindow::RUpdateState);
     connect(ui->actionCheckReverse, &QAction::triggered, this, &MainWindow::RUpdateState);
+    connect(section_group_, &QButtonGroup::idClicked, this, &MainWindow::RSectionGroup);
 }
 
 void MainWindow::SetFinanceData()
@@ -2161,162 +2224,6 @@ void MainWindow::UpdateLastTab() const
         auto index { ui->tabWidget->currentIndex() };
         data_->tab = ui->tabWidget->tabBar()->tabData(index).value<Tab>();
     }
-}
-
-void MainWindow::on_rBtnFinance_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    start_ = Section::kFinance;
-
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
-        return;
-    }
-
-    MainWindowUtils::SwitchDialog(dialog_list_, false);
-    MainWindowUtils::SwitchDialog(dialog_hash_, false);
-    UpdateLastTab();
-
-    tree_widget_ = finance_tree_;
-    table_hash_ = &finance_table_hash_;
-    dialog_list_ = &finance_dialog_list_;
-    dialog_hash_ = &finance_dialog_hash_;
-    settings_ = &finance_settings_;
-    data_ = &finance_data_;
-
-    SwitchSection(data_->tab);
-}
-
-void MainWindow::on_rBtnSales_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    start_ = Section::kSales;
-
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
-        return;
-    }
-
-    MainWindowUtils::SwitchDialog(dialog_list_, false);
-    MainWindowUtils::SwitchDialog(dialog_hash_, false);
-    UpdateLastTab();
-
-    tree_widget_ = sales_tree_;
-    table_hash_ = &sales_table_hash_;
-    dialog_list_ = &sales_dialog_list_;
-    dialog_hash_ = &sales_dialog_hash_;
-    settings_ = &sales_settings_;
-    data_ = &sales_data_;
-
-    SwitchSection(data_->tab);
-}
-
-void MainWindow::on_rBtnTask_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    start_ = Section::kTask;
-
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
-        return;
-    }
-
-    MainWindowUtils::SwitchDialog(dialog_list_, false);
-    MainWindowUtils::SwitchDialog(dialog_hash_, false);
-    UpdateLastTab();
-
-    tree_widget_ = task_tree_;
-    table_hash_ = &task_table_hash_;
-    dialog_list_ = &task_dialog_list_;
-    dialog_hash_ = &task_dialog_hash_;
-    settings_ = &task_settings_;
-    data_ = &task_data_;
-
-    SwitchSection(data_->tab);
-}
-
-void MainWindow::on_rBtnStakeholder_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    start_ = Section::kStakeholder;
-
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
-        return;
-    }
-
-    MainWindowUtils::SwitchDialog(dialog_list_, false);
-    MainWindowUtils::SwitchDialog(dialog_hash_, false);
-    UpdateLastTab();
-
-    tree_widget_ = stakeholder_tree_;
-    table_hash_ = &stakeholder_table_hash_;
-    dialog_list_ = &stakeholder_dialog_list_;
-    dialog_hash_ = &stakeholder_dialog_hash_;
-    settings_ = &stakeholder_settings_;
-    data_ = &stakeholder_data_;
-
-    SwitchSection(data_->tab);
-}
-
-void MainWindow::on_rBtnProduct_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    start_ = Section::kProduct;
-
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
-        return;
-    }
-
-    MainWindowUtils::SwitchDialog(dialog_list_, false);
-    MainWindowUtils::SwitchDialog(dialog_hash_, false);
-    UpdateLastTab();
-
-    tree_widget_ = product_tree_;
-    table_hash_ = &product_table_hash_;
-    dialog_list_ = &product_dialog_list_;
-    dialog_hash_ = &product_dialog_hash_;
-    settings_ = &product_settings_;
-    data_ = &product_data_;
-
-    SwitchSection(data_->tab);
-}
-
-void MainWindow::on_rBtnPurchase_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    start_ = Section::kPurchase;
-
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
-        return;
-    }
-
-    MainWindowUtils::SwitchDialog(dialog_list_, false);
-    MainWindowUtils::SwitchDialog(dialog_hash_, false);
-    UpdateLastTab();
-
-    tree_widget_ = purchase_tree_;
-    table_hash_ = &purchase_table_hash_;
-    dialog_list_ = &purchase_dialog_list_;
-    dialog_hash_ = &purchase_dialog_hash_;
-    settings_ = &purchase_settings_;
-    data_ = &purchase_data_;
-
-    SwitchSection(data_->tab);
 }
 
 void MainWindow::on_tabWidget_currentChanged(int /*index*/)

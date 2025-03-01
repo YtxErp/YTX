@@ -43,12 +43,12 @@
 #include "delegate/tree/treeplaintext.h"
 #include "dialog/about.h"
 #include "dialog/editdocument.h"
-#include "dialog/editnode/editnodefinance.h"
-#include "dialog/editnode/editnodename.h"
-#include "dialog/editnode/editnodeorder.h"
-#include "dialog/editnode/editnodeproduct.h"
-#include "dialog/editnode/editnodestakeholder.h"
-#include "dialog/editnode/editnodetask.h"
+#include "dialog/editnodename.h"
+#include "dialog/insertnode/insertnodefinance.h"
+#include "dialog/insertnode/insertnodeorder.h"
+#include "dialog/insertnode/insertnodeproduct.h"
+#include "dialog/insertnode/insertnodestakeholder.h"
+#include "dialog/insertnode/insertnodetask.h"
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "dialog/search.h"
@@ -763,7 +763,7 @@ void MainWindow::InsertNodeFunction(const QModelIndex& parent, int parent_id, in
     model->SetParent(node, parent_id);
 
     if (start_ == Section::kSales || start_ == Section::kPurchase)
-        InsertNodeOrder(node, parent, row);
+        InsertNodeO(node, parent, row);
 
     if (start_ != Section::kSales && start_ != Section::kPurchase)
         InsertNodeFPTS(node, parent, parent_id, row);
@@ -1611,18 +1611,18 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
 
     switch (start_) {
     case Section::kFinance:
-        dialog = new EditNodeFinance(std::move(params), this);
+        dialog = new InsertNodeFinance(std::move(params), this);
         break;
     case Section::kTask:
         node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
-        dialog = new EditNodeTask(std::move(params), settings_->amount_decimal, settings_->date_format, this);
+        dialog = new InsertNodeTask(std::move(params), settings_->amount_decimal, settings_->date_format, this);
         break;
     case Section::kStakeholder:
         dialog
-            = new EditNodeStakeholder(std::move(params), tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
+            = new InsertNodeStakeholder(std::move(params), tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
         break;
     case Section::kProduct:
-        dialog = new EditNodeProduct(std::move(params), settings_->common_decimal, this);
+        dialog = new InsertNodeProduct(std::move(params), settings_->common_decimal, this);
         break;
     default:
         return ResourcePool<Node>::Instance().Recycle(node);
@@ -1639,7 +1639,7 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
     dialog->exec();
 }
 
-void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
+void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
 {
     auto tree_model { tree_widget_->Model() };
 
@@ -1648,7 +1648,7 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     auto* table_model { new TableModelOrder(sql, node->rule, 0, data_->info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
     auto params { EditNodeParamsOrder { node, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
-    auto* dialog { new EditNodeOrder(std::move(params), this) };
+    auto* dialog { new InsertNodeOrder(std::move(params), this) };
 
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowFlags(Qt::Window);
@@ -1673,17 +1673,17 @@ void MainWindow::InsertNodeOrder(Node* node, const QModelIndex& parent, int row)
     connect(table_model, &TableModel::SResizeColumnToContents, dialog->View(), &QTableView::resizeColumnToContents);
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
 
-    connect(table_model, &TableModel::SUpdateLeafValue, dialog, &EditNodeOrder::RUpdateLeafValue);
-    connect(dialog, &EditNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
+    connect(table_model, &TableModel::SUpdateLeafValue, dialog, &InsertNodeOrder::RUpdateLeafValue);
+    connect(dialog, &InsertNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
 
-    connect(dialog, &EditNodeOrder::SSyncBool, tree_model, &TreeModel::RSyncBool);
+    connect(dialog, &InsertNodeOrder::SSyncBool, tree_model, &TreeModel::RSyncBool);
 
-    connect(dialog, &EditNodeOrder::SSyncBool, table_model, &TableModel::RSyncBool);
-    connect(dialog, &EditNodeOrder::SSyncInt, table_model, &TableModel::RSyncInt);
+    connect(dialog, &InsertNodeOrder::SSyncBool, table_model, &TableModel::RSyncBool);
+    connect(dialog, &InsertNodeOrder::SSyncInt, table_model, &TableModel::RSyncInt);
 
-    connect(tree_model, &TreeModel::SSyncBool, dialog, &EditNodeOrder::RSyncBool);
-    connect(tree_model, &TreeModel::SSyncInt, dialog, &EditNodeOrder::RSyncInt);
-    connect(tree_model, &TreeModel::SSyncString, dialog, &EditNodeOrder::RSyncString);
+    connect(tree_model, &TreeModel::SSyncBool, dialog, &InsertNodeOrder::RSyncBool);
+    connect(tree_model, &TreeModel::SSyncInt, dialog, &InsertNodeOrder::RSyncInt);
+    connect(tree_model, &TreeModel::SSyncString, dialog, &InsertNodeOrder::RSyncString);
 
     dialog_list_->append(dialog);
 
@@ -2326,7 +2326,7 @@ void MainWindow::on_tabWidget_currentChanged(int /*index*/)
 void MainWindow::on_actionAppendTrans_triggered()
 {
     auto* active_window { QApplication::activeWindow() };
-    if (auto* edit_node_order = dynamic_cast<EditNodeOrder*>(active_window)) {
+    if (auto* edit_node_order = dynamic_cast<InsertNodeOrder*>(active_window)) {
         AppendTrans(edit_node_order);
         return;
     }

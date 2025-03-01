@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EDITNODEORDER_H
-#define EDITNODEORDER_H
+#ifndef INSERTNODEORDER_H
+#define INSERTNODEORDER_H
 
 #include <QDialog>
 
@@ -27,15 +27,15 @@
 #include "tree/model/treemodelstakeholder.h"
 
 namespace Ui {
-class EditNodeOrder;
+class InsertNodeOrder;
 }
 
-class EditNodeOrder final : public QDialog {
+class InsertNodeOrder final : public QDialog {
     Q_OBJECT
 
 public:
-    EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent = nullptr);
-    ~EditNodeOrder();
+    InsertNodeOrder(CEditNodeParamsOrder& params, QWidget* parent = nullptr);
+    ~InsertNodeOrder();
 
 signals:
     // send to TableModelOrder
@@ -88,7 +88,7 @@ private:
     void IniLeafValue();
 
 private:
-    Ui::EditNodeOrder* ui;
+    Ui::InsertNodeOrder* ui;
 
     Node* node_ {};
     Sqlite* sql_ {};
@@ -104,4 +104,4 @@ private:
     int node_id_ {};
 };
 
-#endif // EDITNODEORDER_H
+#endif // INSERTNODEORDER_H

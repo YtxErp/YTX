@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditNodeFinance</class>
- <widget class="QDialog" name="EditNodeFinance">
+ <class>InsertNodeFinance</class>
+ <widget class="QDialog" name="InsertNodeFinance">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -394,7 +394,7 @@
   <connection>
    <sender>pBtnCancel</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeFinance</receiver>
+   <receiver>InsertNodeFinance</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -410,7 +410,7 @@
   <connection>
    <sender>pBtnOk</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeFinance</receiver>
+   <receiver>InsertNodeFinance</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

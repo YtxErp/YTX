@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EDITNODEPRODUCT_H
-#define EDITNODEPRODUCT_H
+#ifndef INSERTNODETASK_H
+#define INSERTNODETASK_H
 
 #include <QDialog>
 
@@ -26,15 +26,15 @@
 #include "component/using.h"
 
 namespace Ui {
-class EditNodeProduct;
+class InsertNodeTask;
 }
 
-class EditNodeProduct final : public QDialog {
+class InsertNodeTask final : public QDialog {
     Q_OBJECT
 
 public:
-    EditNodeProduct(CEditNodeParamsFPTS& params, int amount_decimal, QWidget* parent = nullptr);
-    ~EditNodeProduct();
+    InsertNodeTask(CEditNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent = nullptr);
+    ~InsertNodeTask();
 
 private slots:
     void RNameEdited(const QString& arg1);
@@ -42,8 +42,7 @@ private slots:
     void on_lineEditName_editingFinished();
     void on_lineEditCode_editingFinished();
     void on_lineEditDescription_editingFinished();
-    void on_dSpinBoxUnitPrice_editingFinished();
-    void on_dSpinBoxCommission_editingFinished();
+    void on_dSpinBoxUnitCost_editingFinished();
 
     void on_comboUnit_currentIndexChanged(int index);
 
@@ -57,18 +56,22 @@ private slots:
 
     void on_pBtnColor_clicked();
 
+    void on_chkBoxFinished_checkStateChanged(const Qt::CheckState& arg1);
+
+    void on_dateTime_editingFinished();
+
 private:
-    void IniDialog(QStandardItemModel* unit_model, int amount_decimal);
+    void IniDialog(QStandardItemModel* unit_model, int amount_decimal, CString& display_format);
+    void IniData(Node* node);
     void IniConnect();
-    void IniData(Node* node, bool type_enable, bool unit_enable);
     void UpdateColor(QColor color);
 
 private:
-    Ui::EditNodeProduct* ui;
+    Ui::InsertNodeTask* ui;
     Node* node_ {};
 
     CString& parent_path_ {};
     CStringList& name_list_ {};
 };
 
-#endif // EDITNODEPRODUCT_H
+#endif // INSERTNODETASK_H

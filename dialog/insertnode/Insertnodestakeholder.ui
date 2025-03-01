@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditNodeStakeholder</class>
- <widget class="QDialog" name="EditNodeStakeholder">
+ <class>InsertNodeStakeholder</class>
+ <widget class="QDialog" name="InsertNodeStakeholder">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
+    <width>359</width>
     <height>650</height>
    </rect>
   </property>
@@ -217,19 +217,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>5</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="0">
        <widget class="ComboBox" name="comboUnit">
         <property name="editable">
@@ -439,19 +426,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <spacer name="horizontalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>5</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
      </layout>
     </widget>
    </item>
@@ -553,7 +527,7 @@
   <connection>
    <sender>pBtnCancel</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeStakeholder</receiver>
+   <receiver>InsertNodeStakeholder</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -569,7 +543,7 @@
   <connection>
    <sender>pBtnOk</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeStakeholder</receiver>
+   <receiver>InsertNodeStakeholder</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

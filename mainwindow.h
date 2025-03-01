@@ -158,7 +158,7 @@ private:
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task
-    void InsertNodeOrder(Node* node, const QModelIndex& parent, int row); // Purchase Sales
+    void InsertNodeO(Node* node, const QModelIndex& parent, int row); // Purchase Sales
 
     template <TableWidgetLike T> void AppendTrans(T* widget);
 

@@ -1,4 +1,4 @@
-#include "editnodeorder.h"
+#include "insertnodeorder.h"
 
 #include <QShortcut>
 #include <QTimer>
@@ -6,11 +6,11 @@
 #include "component/signalblocker.h"
 #include "global/resourcepool.h"
 #include "mainwindow.h"
-#include "ui_editnodeorder.h"
+#include "ui_insertnodeorder.h"
 
-EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
+InsertNodeOrder::InsertNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
     : QDialog(parent)
-    , ui(new Ui::EditNodeOrder)
+    , ui(new Ui::InsertNodeOrder)
     , node_ { params.node }
     , sql_ { params.sql }
     , stakeholder_tree_ { static_cast<TreeModelStakeholder*>(params.stakeholder_tree) }
@@ -56,11 +56,12 @@ EditNodeOrder::EditNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
     });
 }
 
-EditNodeOrder::~EditNodeOrder() { delete ui; }
+InsertNodeOrder::~InsertNodeOrder() { delete ui; }
 
-QPointer<TableModel> EditNodeOrder::Model() { return order_table_; }
+QPointer<TableModel> InsertNodeOrder::Model() { return order_table_; }
 
-void EditNodeOrder::RUpdateLeafValue(int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
+void InsertNodeOrder::RUpdateLeafValue(
+    int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     const double adjusted_final_delta { node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
 
@@ -77,7 +78,7 @@ void EditNodeOrder::RUpdateLeafValue(int /*node_id*/, double initial_delta, doub
     }
 }
 
-void EditNodeOrder::RSyncBool(int node_id, int column, bool value)
+void InsertNodeOrder::RSyncBool(int node_id, int column, bool value)
 {
     if (node_id != node_id_)
         return;
@@ -112,7 +113,7 @@ void EditNodeOrder::RSyncBool(int node_id, int column, bool value)
     }
 }
 
-void EditNodeOrder::RSyncInt(int node_id, int column, int value)
+void InsertNodeOrder::RSyncInt(int node_id, int column, int value)
 {
     if (node_id != node_id_)
         return;
@@ -135,7 +136,7 @@ void EditNodeOrder::RSyncInt(int node_id, int column, int value)
     }
 }
 
-void EditNodeOrder::RSyncString(int node_id, int column, const QString& value)
+void InsertNodeOrder::RSyncString(int node_id, int column, const QString& value)
 {
     if (node_id != node_id_)
         return;
@@ -156,9 +157,9 @@ void EditNodeOrder::RSyncString(int node_id, int column, const QString& value)
     }
 }
 
-QPointer<QTableView> EditNodeOrder::View() { return ui->tableViewOrder; }
+QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewOrder; }
 
-void EditNodeOrder::IniDialog(CSettings* settings)
+void InsertNodeOrder::IniDialog(CSettings* settings)
 {
     combo_model_party_ = stakeholder_tree_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(combo_model_party_);
@@ -188,7 +189,7 @@ void EditNodeOrder::IniDialog(CSettings* settings)
     ui->comboParty->setFocus();
 }
 
-void EditNodeOrder::accept()
+void InsertNodeOrder::accept()
 {
     if (auto* focus_widget { this->focusWidget() })
         focus_widget->clearFocus();
@@ -208,9 +209,9 @@ void EditNodeOrder::accept()
     }
 }
 
-void EditNodeOrder::IniConnect() { connect(ui->pBtnSaveOrder, &QPushButton::clicked, this, &EditNodeOrder::accept); }
+void InsertNodeOrder::IniConnect() { connect(ui->pBtnSaveOrder, &QPushButton::clicked, this, &InsertNodeOrder::accept); }
 
-void EditNodeOrder::LockWidgets(bool finished, bool branch)
+void InsertNodeOrder::LockWidgets(bool finished, bool branch)
 {
     bool basic_enable { !finished };
     bool not_branch_enable { !finished && !branch };
@@ -248,7 +249,7 @@ void EditNodeOrder::LockWidgets(bool finished, bool branch)
     ui->pBtnPrint->setEnabled(finished && !branch);
 }
 
-void EditNodeOrder::IniUnit(int unit)
+void InsertNodeOrder::IniUnit(int unit)
 {
     const UnitOrder kUnit { unit };
 
@@ -267,7 +268,7 @@ void EditNodeOrder::IniUnit(int unit)
     }
 }
 
-void EditNodeOrder::IniDataCombo(int party, int employee)
+void InsertNodeOrder::IniDataCombo(int party, int employee)
 {
     ui->comboEmployee->blockSignals(true);
     ui->comboParty->blockSignals(true);
@@ -282,7 +283,7 @@ void EditNodeOrder::IniDataCombo(int party, int employee)
     ui->comboParty->blockSignals(false);
 }
 
-void EditNodeOrder::IniLeafValue()
+void InsertNodeOrder::IniLeafValue()
 {
     ui->dSpinFirst->setValue(node_->first);
     ui->dSpinSecond->setValue(node_->second);
@@ -291,7 +292,7 @@ void EditNodeOrder::IniLeafValue()
     ui->dSpinNetAmount->setValue(node_->final_total);
 }
 
-void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
+void InsertNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 {
     if (node_->type != kTypeBranch || arg1.isEmpty())
         return;
@@ -306,7 +307,7 @@ void EditNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
     }
 }
 
-void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
+void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
     if (node_->type != kTypeLeaf)
         return;
@@ -335,7 +336,7 @@ void EditNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
     ui->rBtnMonthly->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
 }
 
-void EditNodeOrder::on_chkBoxRefund_toggled(bool checked)
+void InsertNodeOrder::on_chkBoxRefund_toggled(bool checked)
 {
     node_->rule = checked;
 
@@ -353,7 +354,7 @@ void EditNodeOrder::on_chkBoxRefund_toggled(bool checked)
     }
 }
 
-void EditNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
+void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
     node_->employee = ui->comboEmployee->currentData().toInt();
 
@@ -361,7 +362,7 @@ void EditNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
         sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
 }
 
-void EditNodeOrder::on_rBtnCash_toggled(bool checked)
+void InsertNodeOrder::on_rBtnCash_toggled(bool checked)
 {
     if (!checked)
         return;
@@ -376,7 +377,7 @@ void EditNodeOrder::on_rBtnCash_toggled(bool checked)
     }
 }
 
-void EditNodeOrder::on_rBtnMonthly_toggled(bool checked)
+void InsertNodeOrder::on_rBtnMonthly_toggled(bool checked)
 {
     if (!checked)
         return;
@@ -391,7 +392,7 @@ void EditNodeOrder::on_rBtnMonthly_toggled(bool checked)
     }
 }
 
-void EditNodeOrder::on_rBtnPending_toggled(bool checked)
+void InsertNodeOrder::on_rBtnPending_toggled(bool checked)
 {
     if (!checked)
         return;
@@ -406,7 +407,7 @@ void EditNodeOrder::on_rBtnPending_toggled(bool checked)
     }
 }
 
-void EditNodeOrder::on_pBtnInsert_clicked()
+void InsertNodeOrder::on_pBtnInsert_clicked()
 {
     const auto& name { ui->comboParty->currentText() };
     if (node_->type == kTypeBranch || name.isEmpty() || ui->comboParty->currentIndex() != -1)
@@ -425,7 +426,7 @@ void EditNodeOrder::on_pBtnInsert_clicked()
     ui->comboParty->setCurrentIndex(party_index);
 }
 
-void EditNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
+void InsertNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
     node_->date_time = date_time.toString(kDateTimeFST);
 
@@ -433,7 +434,7 @@ void EditNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
         sql_->WriteField(info_node_, kDateTime, node_->date_time, node_id_);
 }
 
-void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
+void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     accept();
 
@@ -454,7 +455,7 @@ void EditNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
     }
 }
 
-void EditNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)
+void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)
 {
     bool enable { arg1 == Qt::Checked };
     node_->type = enable;
@@ -478,7 +479,7 @@ void EditNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1
     ui->labParty->setText(enable ? tr("Branch") : tr("Party"));
 }
 
-void EditNodeOrder::on_lineDescription_editingFinished()
+void InsertNodeOrder::on_lineDescription_editingFinished()
 {
     node_->description = ui->lineDescription->text();
 

@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EDITNODETASK_H
-#define EDITNODETASK_H
+#ifndef EDITNODEFIANNCE_H
+#define EDITNODEFIANNCE_H
 
 #include <QDialog>
 
@@ -26,52 +26,43 @@
 #include "component/using.h"
 
 namespace Ui {
-class EditNodeTask;
+class InsertNodeFinance;
 }
 
-class EditNodeTask final : public QDialog {
+class InsertNodeFinance final : public QDialog {
     Q_OBJECT
 
 public:
-    EditNodeTask(CEditNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent = nullptr);
-    ~EditNodeTask();
+    InsertNodeFinance(CEditNodeParamsFPTS& params, QWidget* parent = nullptr);
+    ~InsertNodeFinance();
 
 private slots:
     void RNameEdited(const QString& arg1);
 
-    void on_lineEditName_editingFinished();
-    void on_lineEditCode_editingFinished();
-    void on_lineEditDescription_editingFinished();
-    void on_dSpinBoxUnitCost_editingFinished();
+    void on_lineName_editingFinished();
+    void on_lineCode_editingFinished();
+    void on_lineDescription_editingFinished();
 
     void on_comboUnit_currentIndexChanged(int index);
 
-    void on_rBtnDDCI_toggled(bool checked);
-
-    void on_plainTextEdit_textChanged();
+    void on_plainNote_textChanged();
 
     void on_rBtnLeaf_toggled(bool checked);
     void on_rBtnBranch_toggled(bool checked);
     void on_rBtnSupport_toggled(bool checked);
-
-    void on_pBtnColor_clicked();
-
-    void on_chkBoxFinished_checkStateChanged(const Qt::CheckState& arg1);
-
-    void on_dateTime_editingFinished();
+    void on_rBtnDDCI_toggled(bool checked);
 
 private:
-    void IniDialog(QStandardItemModel* unit_model, int amount_decimal, CString& display_format);
+    void IniDialog(QStandardItemModel* unit_model);
+    void IniData(Node* node);
     void IniConnect();
-    void IniData(Node* node, bool type_enable, bool unit_enable);
-    void UpdateColor(QColor color);
 
 private:
-    Ui::EditNodeTask* ui;
+    Ui::InsertNodeFinance* ui;
     Node* node_ {};
 
     CString& parent_path_ {};
     CStringList& name_list_ {};
 };
 
-#endif // EDITNODETASK_H
+#endif // EDITNODEFIANNCE_H

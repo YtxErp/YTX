@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EDITNODEFIANNCE_H
-#define EDITNODEFIANNCE_H
+#ifndef INSERTNODEPRODUCT_H
+#define INSERTNODEPRODUCT_H
 
 #include <QDialog>
 
@@ -26,43 +26,49 @@
 #include "component/using.h"
 
 namespace Ui {
-class EditNodeFinance;
+class InsertNodeProduct;
 }
 
-class EditNodeFinance final : public QDialog {
+class InsertNodeProduct final : public QDialog {
     Q_OBJECT
 
 public:
-    EditNodeFinance(CEditNodeParamsFPTS& params, QWidget* parent = nullptr);
-    ~EditNodeFinance();
+    InsertNodeProduct(CEditNodeParamsFPTS& params, int amount_decimal, QWidget* parent = nullptr);
+    ~InsertNodeProduct();
 
 private slots:
     void RNameEdited(const QString& arg1);
 
-    void on_lineName_editingFinished();
-    void on_lineCode_editingFinished();
-    void on_lineDescription_editingFinished();
+    void on_lineEditName_editingFinished();
+    void on_lineEditCode_editingFinished();
+    void on_lineEditDescription_editingFinished();
+    void on_dSpinBoxUnitPrice_editingFinished();
+    void on_dSpinBoxCommission_editingFinished();
 
     void on_comboUnit_currentIndexChanged(int index);
 
-    void on_plainNote_textChanged();
+    void on_rBtnDDCI_toggled(bool checked);
+
+    void on_plainTextEdit_textChanged();
 
     void on_rBtnLeaf_toggled(bool checked);
     void on_rBtnBranch_toggled(bool checked);
     void on_rBtnSupport_toggled(bool checked);
-    void on_rBtnDDCI_toggled(bool checked);
+
+    void on_pBtnColor_clicked();
 
 private:
-    void IniDialog(QStandardItemModel* unit_model);
+    void IniDialog(QStandardItemModel* unit_model, int amount_decimal);
     void IniConnect();
-    void IniData(Node* node, bool type_enable, bool unit_enable);
+    void IniData(Node* node);
+    void UpdateColor(QColor color);
 
 private:
-    Ui::EditNodeFinance* ui;
+    Ui::InsertNodeProduct* ui;
     Node* node_ {};
 
     CString& parent_path_ {};
     CStringList& name_list_ {};
 };
 
-#endif // EDITNODEFIANNCE_H
+#endif // INSERTNODEPRODUCT_H

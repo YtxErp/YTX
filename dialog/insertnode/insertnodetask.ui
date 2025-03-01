@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditNodeTask</class>
- <widget class="QDialog" name="EditNodeTask">
+ <class>InsertNodeTask</class>
+ <widget class="QDialog" name="InsertNodeTask">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
+    <width>352</width>
     <height>650</height>
    </rect>
   </property>
@@ -518,7 +518,7 @@
   <connection>
    <sender>pBtnCancel</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeTask</receiver>
+   <receiver>InsertNodeTask</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -534,7 +534,7 @@
   <connection>
    <sender>pBtnOk</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeTask</receiver>
+   <receiver>InsertNodeTask</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

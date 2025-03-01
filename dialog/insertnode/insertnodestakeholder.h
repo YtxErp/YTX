@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EDITNODESTAKEHOLDER_H
-#define EDITNODESTAKEHOLDER_H
+#ifndef INSERTNODESTAKEHOLDER_H
+#define INSERTNODESTAKEHOLDER_H
 
 #include <QDialog>
 
@@ -26,15 +26,15 @@
 #include "component/using.h"
 
 namespace Ui {
-class EditNodeStakeholder;
+class InsertNodeStakeholder;
 }
 
-class EditNodeStakeholder final : public QDialog {
+class InsertNodeStakeholder final : public QDialog {
     Q_OBJECT
 
 public:
-    EditNodeStakeholder(CEditNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
-    ~EditNodeStakeholder();
+    InsertNodeStakeholder(CEditNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
+    ~InsertNodeStakeholder();
 
 private slots:
     void RNameEdited(const QString& arg1);
@@ -60,14 +60,14 @@ private slots:
 private:
     void IniDialog(QStandardItemModel* unit_model, QStandardItemModel* employee_model, int common_decimal);
     void IniConnect();
-    void IniData(Node* node, bool branch_enable, bool unit_enable);
+    void IniData(Node* node);
 
 private:
-    Ui::EditNodeStakeholder* ui;
+    Ui::InsertNodeStakeholder* ui;
     Node* node_ {};
 
     CString& parent_path_ {};
     CStringList& name_list_ {};
 };
 
-#endif // EDITNODESTAKEHOLDER_H
+#endif // INSERTNODESTAKEHOLDER_H

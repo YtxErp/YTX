@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditNodeProduct</class>
- <widget class="QDialog" name="EditNodeProduct">
+ <class>InsertNodeProduct</class>
+ <widget class="QDialog" name="InsertNodeProduct">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -472,7 +472,7 @@
   <connection>
    <sender>pBtnCancel</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeProduct</receiver>
+   <receiver>InsertNodeProduct</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -488,7 +488,7 @@
   <connection>
    <sender>pBtnOk</sender>
    <signal>clicked()</signal>
-   <receiver>EditNodeProduct</receiver>
+   <receiver>InsertNodeProduct</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

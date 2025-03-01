@@ -96,7 +96,7 @@
          <number>8</number>
         </property>
         <item>
-         <widget class="QLabel" name="labelParty">
+         <widget class="QLabel" name="labParty">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -164,9 +164,16 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QCheckBox" name="chkBoxRefund">
+         <widget class="QRadioButton" name="rBtnSP">
           <property name="text">
-           <string>Refund</string>
+           <string>SP</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rBtnRefund">
+          <property name="text">
+           <string>RO</string>
           </property>
          </widget>
         </item>

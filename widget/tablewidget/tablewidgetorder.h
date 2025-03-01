@@ -20,6 +20,8 @@
 #ifndef TABLEWIDGETORDER_H
 #define TABLEWIDGETORDER_H
 
+#include <QButtonGroup>
+
 #include "component/classparams.h"
 #include "component/settings.h"
 #include "table/model/tablemodel.h"
@@ -65,23 +67,30 @@ private slots:
     void on_comboParty_currentIndexChanged(int index);
     void on_comboEmployee_currentIndexChanged(int index);
 
-    void on_chkBoxRefund_toggled(bool checked);
-    void on_pBtnFinishOrder_toggled(bool checked);
     void on_rBtnCash_toggled(bool checked);
     void on_rBtnMonthly_toggled(bool checked);
     void on_rBtnPending_toggled(bool checked);
 
+    void on_pBtnFinishOrder_toggled(bool checked);
     void on_pBtnInsert_clicked();
+
     void on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time);
     void on_lineDescription_editingFinished();
+
+    void RRuleGroupChecked(int id);
 
 private:
     void IniDialog();
     void IniData();
+    void IniConnect();
     void IniDataCombo(int party, int employee);
     void LockWidgets(bool finished);
     void IniUnit(int unit);
     void IniLeafValue();
+    void IniText(Section section);
+    void IniRule(bool rule);
+    void IniFinished(bool finished);
+    void IniRuleGroup();
 
 private:
     Ui::TableWidgetOrder* ui;
@@ -90,6 +99,7 @@ private:
     TableModel* order_table_ {};
     TreeModelStakeholder* stakeholder_tree_ {};
     CSettings* settings_ {};
+    QButtonGroup* rule_group_ {};
 
     QStandardItemModel* emodel_ {};
     QStandardItemModel* pmodel_ {};

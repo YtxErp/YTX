@@ -21,22 +21,17 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    bool finished { params.node->finished };
-
     IniDialog();
+    IniText(params.section);
+    IniUnit(params.node->unit);
+    IniRuleGroup();
+    IniRule(params.node->rule);
     IniData();
-    ui->tableViewOrder->setFocus();
-    IniDataCombo(node_->party, node_->employee);
+    IniDataCombo(params.node->party, params.node->employee);
+    IniConnect();
 
-    IniUnit(node_->unit);
-
-    ui->chkBoxBranch->setEnabled(false);
-
-    ui->pBtnFinishOrder->setChecked(finished);
-    ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
-    if (finished)
-        ui->pBtnPrint->setFocus();
-
+    const bool finished { params.node->finished };
+    IniFinished(finished);
     LockWidgets(finished);
 }
 
@@ -58,20 +53,12 @@ void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
 
     switch (kColumn) {
     case TreeEnumOrder::kRule:
-        ui->chkBoxRefund->setChecked(value);
+        IniRule(value);
         IniLeafValue();
         break;
     case TreeEnumOrder::kFinished: {
-        ui->pBtnFinishOrder->setChecked(value);
-        ui->pBtnFinishOrder->setText(value ? tr("Edit") : tr("Finish"));
+        IniFinished(value);
         LockWidgets(value);
-
-        if (value) {
-            ui->pBtnPrint->setFocus();
-            ui->pBtnPrint->setDefault(true);
-            ui->tableViewOrder->clearSelection();
-        }
-
         break;
     }
     default:
@@ -128,17 +115,24 @@ void TableWidgetOrder::RUpdateLeafValue(int node_id, double initial_delta, doubl
     if (node_id_ != node_id)
         return;
 
-    const double adjusted_final_delta { node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0 };
+    // In OrderRule, RO:1, SO and PO:0
+    const int coefficient { node_->rule ? -1 : 1 };
 
-    node_->first += first_delta;
-    node_->second += second_delta;
-    node_->initial_total += initial_delta;
-    node_->discount += discount_delta;
+    const double adjusted_initial_delta { initial_delta * coefficient };
+    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0) * coefficient };
+    const double adjusted_first_delta { first_delta * coefficient };
+    const double adjusted_second_delta { second_delta * coefficient };
+    const double adjusted_discount_delta { discount_delta * coefficient };
+
+    node_->first += adjusted_first_delta;
+    node_->second += adjusted_second_delta;
+    node_->initial_total += adjusted_initial_delta;
+    node_->discount += adjusted_discount_delta;
     node_->final_total += adjusted_final_delta;
 
     IniLeafValue();
 
-    emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
+    emit SUpdateLeafValue(node_id_, adjusted_initial_delta, adjusted_final_delta, adjusted_first_delta, adjusted_second_delta, adjusted_discount_delta);
 }
 
 void TableWidgetOrder::IniDialog()
@@ -164,13 +158,17 @@ void TableWidgetOrder::IniDialog()
     ui->dSpinNetAmount->setDecimals(settings_->amount_decimal);
     ui->dSpinSecond->setDecimals(settings_->common_decimal);
     ui->dSpinFirst->setDecimals(settings_->common_decimal);
+
+    ui->tableViewOrder->setFocus();
+
+    ui->chkBoxBranch->setEnabled(false);
 }
 
 void TableWidgetOrder::IniData()
 {
     IniLeafValue();
 
-    ui->chkBoxRefund->setChecked(node_->rule);
+    ui->rBtnRefund->setChecked(node_->rule);
     ui->chkBoxBranch->setChecked(false);
     ui->lineDescription->setText(node_->description);
     ui->dateTimeEdit->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
@@ -179,26 +177,22 @@ void TableWidgetOrder::IniData()
     ui->tableViewOrder->setModel(order_table_);
 }
 
+void TableWidgetOrder::IniConnect() { connect(rule_group_, &QButtonGroup::idClicked, this, &TableWidgetOrder::RRuleGroupChecked); }
+
 void TableWidgetOrder::IniDataCombo(int party, int employee)
 {
-    ui->comboEmployee->blockSignals(true);
-    ui->comboParty->blockSignals(true);
-
     int party_index { ui->comboParty->findData(party) };
     ui->comboParty->setCurrentIndex(party_index);
 
     int employee_index { ui->comboEmployee->findData(employee) };
     ui->comboEmployee->setCurrentIndex(employee_index);
-
-    ui->comboEmployee->blockSignals(false);
-    ui->comboParty->blockSignals(false);
 }
 
 void TableWidgetOrder::LockWidgets(bool finished)
 {
     const bool enable { !finished };
 
-    ui->labelParty->setEnabled(enable);
+    ui->labParty->setEnabled(enable);
     ui->comboParty->setEnabled(enable);
 
     ui->pBtnInsert->setEnabled(enable);
@@ -225,7 +219,8 @@ void TableWidgetOrder::LockWidgets(bool finished)
     ui->dSpinSecond->setEnabled(enable);
     ui->labelSecond->setEnabled(enable);
 
-    ui->chkBoxRefund->setEnabled(enable);
+    ui->rBtnRefund->setEnabled(enable);
+    ui->rBtnSP->setEnabled(enable);
     ui->lineDescription->setEnabled(enable);
 
     ui->pBtnPrint->setEnabled(finished);
@@ -259,6 +254,50 @@ void TableWidgetOrder::IniLeafValue()
     ui->dSpinGrossAmount->setValue(node_->initial_total);
 }
 
+void TableWidgetOrder::IniText(Section section)
+{
+    const bool is_sales_section { section == Section::kSales };
+
+    setWindowTitle(is_sales_section ? tr("Sales") : tr("Purchase"));
+    ui->rBtnSP->setText(is_sales_section ? tr("SO") : tr("PO"));
+    ui->labParty->setText(is_sales_section ? tr("CUST") : tr("VEND"));
+}
+
+void TableWidgetOrder::IniRule(bool rule)
+{
+    const int kRule { static_cast<int>(rule) };
+
+    switch (kRule) {
+    case 0:
+        ui->rBtnSP->setChecked(true);
+        break;
+    case 1:
+        ui->rBtnRefund->setChecked(true);
+        break;
+    default:
+        break;
+    }
+}
+
+void TableWidgetOrder::IniFinished(bool finished)
+{
+    ui->pBtnFinishOrder->setChecked(finished);
+    ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
+
+    if (finished) {
+        ui->pBtnPrint->setFocus();
+        ui->pBtnPrint->setDefault(true);
+        ui->tableViewOrder->clearSelection();
+    }
+}
+
+void TableWidgetOrder::IniRuleGroup()
+{
+    rule_group_ = new QButtonGroup(this);
+    rule_group_->addButton(ui->rBtnSP, 0);
+    rule_group_->addButton(ui->rBtnRefund, 1);
+}
+
 void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
     int party_id { ui->comboParty->currentData().toInt() };
@@ -277,22 +316,6 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
     ui->rBtnCash->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
     ui->rBtnMonthly->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
-}
-
-void TableWidgetOrder::on_chkBoxRefund_toggled(bool checked)
-{
-    node_->rule = checked;
-
-    node_->first *= -1;
-    node_->second *= -1;
-    node_->initial_total *= -1;
-    node_->discount *= -1;
-    node_->final_total *= -1;
-
-    IniLeafValue();
-
-    sql_->WriteField(info_node_, kRule, checked, node_id_);
-    sql_->WriteLeafValue(node_);
 }
 
 void TableWidgetOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
@@ -374,19 +397,28 @@ void TableWidgetOrder::on_lineDescription_editingFinished()
     sql_->WriteField(info_node_, kDescription, node_->description, node_id_);
 }
 
+void TableWidgetOrder::RRuleGroupChecked(int id)
+{
+    node_->rule = static_cast<bool>(id);
+
+    node_->first *= -1;
+    node_->second *= -1;
+    node_->initial_total *= -1;
+    node_->discount *= -1;
+    node_->final_total *= -1;
+
+    IniLeafValue();
+
+    sql_->WriteField(info_node_, kRule, node_->rule, node_id_);
+    sql_->WriteLeafValue(node_);
+}
+
 void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     node_->finished = checked;
     sql_->WriteField(info_node_, kFinished, checked, node_id_);
     emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
 
-    ui->pBtnFinishOrder->setText(checked ? tr("Edit") : tr("Finish"));
-
+    IniFinished(checked);
     LockWidgets(checked);
-
-    if (checked) {
-        ui->pBtnPrint->setFocus();
-        ui->pBtnPrint->setDefault(true);
-        ui->tableViewOrder->clearSelection();
-    }
 }

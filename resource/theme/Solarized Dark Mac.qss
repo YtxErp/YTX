@@ -8,8 +8,8 @@
     alternate-background-color: #073642;
     selection-background-color: #586E75;
     selection-color: #EEE8D5;
-    placeholder-text-color: #586E75;
     gridline-color: #93A1A1;
+    placeholder-text-color: #586E75;
     font-size: 14pt;
 }
 

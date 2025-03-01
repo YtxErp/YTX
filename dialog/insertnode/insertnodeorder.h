@@ -86,10 +86,10 @@ private:
     void IniRule(bool rule);
     void IniDataCombo(int party, int employee);
     void IniLeafValue();
-    void IniRuleGroup();
     void IniText(Section section);
     void IniFinished(bool finished);
     void IniUnitGroup();
+    void IniRuleGroup();
 
     void LockWidgets(bool finished, bool branch);
 

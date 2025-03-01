@@ -1408,7 +1408,7 @@ Rage, rage against the dying of the light.</source>
         <translation>单价</translation>
     </message>
     <message>
-        <location filename="../../dialog/insertnode/insertnodeproduct.cc" line="+125"/>
+        <location filename="../../dialog/insertnode/insertnodeproduct.cc" line="+120"/>
         <source>Choose Color</source>
         <translation>选择颜色</translation>
     </message>
@@ -1614,7 +1614,7 @@ Rage, rage against the dying of the light.</source>
         <translation>颜色</translation>
     </message>
     <message>
-        <location filename="../../dialog/insertnode/insertnodetask.cc" line="+123"/>
+        <location filename="../../dialog/insertnode/insertnodetask.cc" line="+118"/>
         <source>Choose Color</source>
         <translation>选择颜色</translation>
     </message>

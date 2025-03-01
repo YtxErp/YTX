@@ -1,6 +1,5 @@
 #include "insertnodefinance.h"
 
-#include "component/enumclass.h"
 #include "component/signalblocker.h"
 #include "ui_insertnodefinance.h"
 
@@ -16,6 +15,8 @@ InsertNodeFinance::InsertNodeFinance(CInsertNodeParamsFPTS& params, QWidget* par
 
     IniDialog(params.unit_model);
     IniData(params.node);
+    IniRuleGroup();
+    IniTypeGroup();
     IniConnect();
 }
 
@@ -44,7 +45,27 @@ void InsertNodeFinance::IniData(Node* node)
     ui->pBtnOk->setEnabled(false);
 }
 
-void InsertNodeFinance::IniConnect() { connect(ui->lineName, &QLineEdit::textEdited, this, &InsertNodeFinance::RNameEdited); }
+void InsertNodeFinance::IniConnect()
+{
+    connect(ui->lineName, &QLineEdit::textEdited, this, &InsertNodeFinance::RNameEdited);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeFinance::RRuleGroupClicked);
+    connect(type_group_, &QButtonGroup::idClicked, this, &InsertNodeFinance::RTypeGroupClicked);
+}
+
+void InsertNodeFinance::IniTypeGroup()
+{
+    type_group_ = new QButtonGroup(this);
+    type_group_->addButton(ui->rBtnLeaf, 0);
+    type_group_->addButton(ui->rBtnBranch, 1);
+    type_group_->addButton(ui->rBtnSupport, 2);
+}
+
+void InsertNodeFinance::IniRuleGroup()
+{
+    rule_group_ = new QButtonGroup(this);
+    rule_group_->addButton(ui->rBtnDICD, 0);
+    rule_group_->addButton(ui->rBtnDDCI, 1);
+}
 
 void InsertNodeFinance::RNameEdited(const QString& arg1)
 {
@@ -65,31 +86,12 @@ void InsertNodeFinance::on_comboUnit_currentIndexChanged(int index)
     node_->unit = ui->comboUnit->currentData().toInt();
 }
 
-void InsertNodeFinance::on_rBtnDDCI_toggled(bool checked)
+void InsertNodeFinance::RRuleGroupClicked(int id)
 {
-    if (node_->final_total != 0 && node_->rule != checked) {
-        node_->final_total = -node_->final_total;
-        node_->initial_total = -node_->initial_total;
-    }
-    node_->rule = checked;
+    const bool kRule { static_cast<bool>(id) };
+    node_->rule = kRule;
 }
+
+void InsertNodeFinance::RTypeGroupClicked(int id) { node_->type = id; }
 
 void InsertNodeFinance::on_plainNote_textChanged() { node_->note = ui->plainNote->toPlainText(); }
-
-void InsertNodeFinance::on_rBtnLeaf_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeLeaf;
-}
-
-void InsertNodeFinance::on_rBtnBranch_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeBranch;
-}
-
-void InsertNodeFinance::on_rBtnSupport_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeSupport;
-}

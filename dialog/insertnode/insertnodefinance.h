@@ -20,6 +20,7 @@
 #ifndef EDITNODEFIANNCE_H
 #define EDITNODEFIANNCE_H
 
+#include <QButtonGroup>
 #include <QDialog>
 
 #include "component/classparams.h"
@@ -47,19 +48,21 @@ private slots:
 
     void on_plainNote_textChanged();
 
-    void on_rBtnLeaf_toggled(bool checked);
-    void on_rBtnBranch_toggled(bool checked);
-    void on_rBtnSupport_toggled(bool checked);
-    void on_rBtnDDCI_toggled(bool checked);
+    void RRuleGroupClicked(int id);
+    void RTypeGroupClicked(int id);
 
 private:
     void IniDialog(QStandardItemModel* unit_model);
     void IniData(Node* node);
     void IniConnect();
+    void IniTypeGroup();
+    void IniRuleGroup();
 
 private:
     Ui::InsertNodeFinance* ui;
     Node* node_ {};
+    QButtonGroup* rule_group_ {};
+    QButtonGroup* type_group_ {};
 
     CString& parent_path_ {};
     CStringList& name_list_ {};

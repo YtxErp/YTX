@@ -20,6 +20,7 @@
 #ifndef INSERTNODEPRODUCT_H
 #define INSERTNODEPRODUCT_H
 
+#include <QButtonGroup>
 #include <QDialog>
 
 #include "component/classparams.h"
@@ -47,25 +48,26 @@ private slots:
 
     void on_comboUnit_currentIndexChanged(int index);
 
-    void on_rBtnDDCI_toggled(bool checked);
-
     void on_plainTextEdit_textChanged();
 
-    void on_rBtnLeaf_toggled(bool checked);
-    void on_rBtnBranch_toggled(bool checked);
-    void on_rBtnSupport_toggled(bool checked);
-
     void on_pBtnColor_clicked();
+
+    void RRuleGroupClicked(int id);
+    void RTypeGroupClicked(int id);
 
 private:
     void IniDialog(QStandardItemModel* unit_model, int amount_decimal);
     void IniConnect();
     void IniData(Node* node);
     void UpdateColor(QColor color);
+    void IniTypeGroup();
+    void IniRuleGroup();
 
 private:
     Ui::InsertNodeProduct* ui;
     Node* node_ {};
+    QButtonGroup* rule_group_ {};
+    QButtonGroup* type_group_ {};
 
     CString& parent_path_ {};
     CStringList& name_list_ {};

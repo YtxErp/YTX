@@ -19,6 +19,8 @@ InsertNodeTask::InsertNodeTask(CInsertNodeParamsFPTS& params, int amount_decimal
 
     IniDialog(params.unit_model, amount_decimal, display_format);
     IniData(params.node);
+    IniRuleGroup();
+    IniTypeGroup();
     IniConnect();
 }
 
@@ -52,7 +54,12 @@ void InsertNodeTask::IniData(Node* node)
     ui->pBtnOk->setEnabled(false);
 }
 
-void InsertNodeTask::IniConnect() { connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeTask::RNameEdited); }
+void InsertNodeTask::IniConnect()
+{
+    connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeTask::RNameEdited);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeTask::RRuleGroupClicked);
+    connect(type_group_, &QButtonGroup::idClicked, this, &InsertNodeTask::RTypeGroupClicked);
+}
 
 void InsertNodeTask::UpdateColor(QColor color)
 {
@@ -62,6 +69,21 @@ void InsertNodeTask::UpdateColor(QColor color)
         border-radius: 2px;
         )")
                 .arg(node_->color));
+}
+
+void InsertNodeTask::IniTypeGroup()
+{
+    type_group_ = new QButtonGroup(this);
+    type_group_->addButton(ui->rBtnLeaf, 0);
+    type_group_->addButton(ui->rBtnBranch, 1);
+    type_group_->addButton(ui->rBtnSupport, 2);
+}
+
+void InsertNodeTask::IniRuleGroup()
+{
+    rule_group_ = new QButtonGroup(this);
+    rule_group_->addButton(ui->rBtnDICD, 0);
+    rule_group_->addButton(ui->rBtnDDCI, 1);
 }
 
 void InsertNodeTask::RNameEdited(const QString& arg1)
@@ -83,36 +105,9 @@ void InsertNodeTask::on_comboUnit_currentIndexChanged(int index)
     node_->unit = ui->comboUnit->currentData().toInt();
 }
 
-void InsertNodeTask::on_rBtnDDCI_toggled(bool checked)
-{
-    if (node_->final_total != 0 && node_->rule != checked) {
-        node_->final_total = -node_->final_total;
-        node_->initial_total = -node_->initial_total;
-    }
-    node_->rule = checked;
-}
-
 void InsertNodeTask::on_plainTextEdit_textChanged() { node_->note = ui->plainTextEdit->toPlainText(); }
 
 void InsertNodeTask::on_dSpinBoxUnitCost_editingFinished() { node_->first = ui->dSpinBoxUnitCost->value(); }
-
-void InsertNodeTask::on_rBtnLeaf_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeLeaf;
-}
-
-void InsertNodeTask::on_rBtnBranch_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeBranch;
-}
-
-void InsertNodeTask::on_rBtnSupport_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeSupport;
-}
 
 void InsertNodeTask::on_pBtnColor_clicked()
 {
@@ -130,3 +125,11 @@ void InsertNodeTask::on_pBtnColor_clicked()
 void InsertNodeTask::on_chkBoxFinished_checkStateChanged(const Qt::CheckState& arg1) { node_->finished = arg1 == Qt::Checked; }
 
 void InsertNodeTask::on_dateTime_editingFinished() { node_->date_time = ui->dateTime->dateTime().toString(kDateTimeFST); }
+
+void InsertNodeTask::RRuleGroupClicked(int id)
+{
+    const bool kRule { static_cast<bool>(id) };
+    node_->rule = kRule;
+}
+
+void InsertNodeTask::RTypeGroupClicked(int id) { node_->type = id; }

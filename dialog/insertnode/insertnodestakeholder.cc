@@ -16,8 +16,10 @@ InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeParamsFPTS& params, QSta
     SignalBlocker blocker(this);
 
     IniDialog(params.unit_model, employee_model, amount_decimal);
-    IniConnect();
+    IniRuleGroup();
+    IniTypeGroup();
     IniData(params.node);
+    IniConnect();
 }
 
 InsertNodeStakeholder::~InsertNodeStakeholder() { delete ui; }
@@ -43,18 +45,38 @@ void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QStandardI
     ui->deadline->setCalendarPopup(true);
 }
 
-void InsertNodeStakeholder::IniConnect() { connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeStakeholder::RNameEdited); }
+void InsertNodeStakeholder::IniConnect()
+{
+    connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeStakeholder::RNameEdited);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeStakeholder::RRuleGroupClicked);
+    connect(type_group_, &QButtonGroup::idClicked, this, &InsertNodeStakeholder::RTypeGroupClicked);
+}
 
 void InsertNodeStakeholder::IniData(Node* node)
 {
     int unit_index { ui->comboUnit->findData(node_->unit) };
     ui->comboUnit->setCurrentIndex(unit_index);
 
-    ui->rBtnMonthly->setChecked(node->rule == kRuleMS);
-    ui->rBtnImmediate->setChecked(node->rule == kRuleIS);
+    ui->rBtnMS->setChecked(node->rule == kRuleMS);
+    ui->rBtnIS->setChecked(node->rule == kRuleIS);
 
     ui->rBtnLeaf->setChecked(true);
     ui->pBtnOk->setEnabled(false);
+}
+
+void InsertNodeStakeholder::IniTypeGroup()
+{
+    type_group_ = new QButtonGroup(this);
+    type_group_->addButton(ui->rBtnLeaf, 0);
+    type_group_->addButton(ui->rBtnBranch, 1);
+    type_group_->addButton(ui->rBtnSupport, 2);
+}
+
+void InsertNodeStakeholder::IniRuleGroup()
+{
+    rule_group_ = new QButtonGroup(this);
+    rule_group_->addButton(ui->rBtnIS, 0);
+    rule_group_->addButton(ui->rBtnMS, 1);
 }
 
 void InsertNodeStakeholder::RNameEdited(const QString& arg1)
@@ -88,24 +110,12 @@ void InsertNodeStakeholder::on_comboEmployee_currentIndexChanged(int index)
     node_->employee = ui->comboEmployee->currentData().toInt();
 }
 
-void InsertNodeStakeholder::on_rBtnMonthly_toggled(bool checked) { node_->rule = checked; }
-
 void InsertNodeStakeholder::on_deadline_editingFinished() { node_->date_time = ui->deadline->dateTime().toString(kDateTimeFST); }
 
-void InsertNodeStakeholder::on_rBtnLeaf_toggled(bool checked)
+void InsertNodeStakeholder::RRuleGroupClicked(int id)
 {
-    if (checked)
-        node_->type = kTypeLeaf;
+    const bool kRule { static_cast<bool>(id) };
+    node_->rule = kRule;
 }
 
-void InsertNodeStakeholder::on_rBtnBranch_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeBranch;
-}
-
-void InsertNodeStakeholder::on_rBtnSupport_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeSupport;
-}
+void InsertNodeStakeholder::RTypeGroupClicked(int id) { node_->type = id; }

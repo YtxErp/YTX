@@ -18,8 +18,10 @@ InsertNodeProduct::InsertNodeProduct(CInsertNodeParamsFPTS& params, int amount_d
     SignalBlocker blocker(this);
 
     IniDialog(params.unit_model, amount_decimal);
-    IniConnect();
+    IniRuleGroup();
+    IniTypeGroup();
     IniData(params.node);
+    IniConnect();
 }
 
 InsertNodeProduct::~InsertNodeProduct() { delete ui; }
@@ -40,7 +42,12 @@ void InsertNodeProduct::IniDialog(QStandardItemModel* unit_model, int amount_dec
     ui->dSpinBoxCommission->setDecimals(amount_decimal);
 }
 
-void InsertNodeProduct::IniConnect() { connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeProduct::RNameEdited); }
+void InsertNodeProduct::IniConnect()
+{
+    connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeProduct::RNameEdited);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeProduct::RRuleGroupClicked);
+    connect(type_group_, &QButtonGroup::idClicked, this, &InsertNodeProduct::RTypeGroupClicked);
+}
 
 void InsertNodeProduct::IniData(Node* node)
 {
@@ -64,6 +71,21 @@ void InsertNodeProduct::UpdateColor(QColor color)
                 .arg(node_->color));
 }
 
+void InsertNodeProduct::IniTypeGroup()
+{
+    type_group_ = new QButtonGroup(this);
+    type_group_->addButton(ui->rBtnLeaf, 0);
+    type_group_->addButton(ui->rBtnBranch, 1);
+    type_group_->addButton(ui->rBtnSupport, 2);
+}
+
+void InsertNodeProduct::IniRuleGroup()
+{
+    rule_group_ = new QButtonGroup(this);
+    rule_group_->addButton(ui->rBtnDICD, 0);
+    rule_group_->addButton(ui->rBtnDDCI, 1);
+}
+
 void InsertNodeProduct::RNameEdited(const QString& arg1)
 {
     const auto& simplified { arg1.simplified() };
@@ -83,38 +105,11 @@ void InsertNodeProduct::on_comboUnit_currentIndexChanged(int index)
     node_->unit = ui->comboUnit->currentData().toInt();
 }
 
-void InsertNodeProduct::on_rBtnDDCI_toggled(bool checked)
-{
-    if (node_->final_total != 0 && node_->rule != checked) {
-        node_->final_total = -node_->final_total;
-        node_->initial_total = -node_->initial_total;
-    }
-    node_->rule = checked;
-}
-
 void InsertNodeProduct::on_plainTextEdit_textChanged() { node_->note = ui->plainTextEdit->toPlainText(); }
 
 void InsertNodeProduct::on_dSpinBoxUnitPrice_editingFinished() { node_->first = ui->dSpinBoxUnitPrice->value(); }
 
 void InsertNodeProduct::on_dSpinBoxCommission_editingFinished() { node_->second = ui->dSpinBoxCommission->value(); }
-
-void InsertNodeProduct::on_rBtnLeaf_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeLeaf;
-}
-
-void InsertNodeProduct::on_rBtnBranch_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeBranch;
-}
-
-void InsertNodeProduct::on_rBtnSupport_toggled(bool checked)
-{
-    if (checked)
-        node_->type = kTypeSupport;
-}
 
 void InsertNodeProduct::on_pBtnColor_clicked()
 {
@@ -128,3 +123,11 @@ void InsertNodeProduct::on_pBtnColor_clicked()
         UpdateColor(selected_color);
     }
 }
+
+void InsertNodeProduct::RRuleGroupClicked(int id)
+{
+    const bool kRule { static_cast<bool>(id) };
+    node_->rule = kRule;
+}
+
+void InsertNodeProduct::RTypeGroupClicked(int id) { node_->type = id; }

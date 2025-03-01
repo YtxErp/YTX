@@ -3,7 +3,6 @@
 #include <QColorDialog>
 
 #include "component/constvalue.h"
-#include "component/enumclass.h"
 #include "component/signalblocker.h"
 #include "ui_insertnodetask.h"
 

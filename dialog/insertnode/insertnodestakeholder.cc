@@ -1,7 +1,6 @@
 #include "insertnodestakeholder.h"
 
 #include "component/constvalue.h"
-#include "component/enumclass.h"
 #include "component/signalblocker.h"
 #include "ui_insertnodestakeholder.h"
 

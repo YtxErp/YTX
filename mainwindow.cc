@@ -263,7 +263,7 @@ void MainWindow::RTreeViewDoubleClicked(const QModelIndex& index)
             if (party_id <= 0)
                 return;
 
-            CreateTableOrder(tree_widget_->Model(), table_hash_, data_, settings_, node_id, party_id);
+            CreateTableO(tree_widget_->Model(), table_hash_, data_, settings_, node_id, party_id);
         }
 
         if (start_ != Section::kSales && start_ != Section::kPurchase) {
@@ -349,8 +349,8 @@ void MainWindow::CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, C
         DelegateFPT(view, tree_model, settings, node_id);
         break;
     case Section::kStakeholder:
-        TableConnectStakeholder(view, model, tree_model, data);
-        DelegateStakeholder(view);
+        TableConnectS(view, model, tree_model, data);
+        DelegateS(view);
         break;
     default:
         break;
@@ -386,8 +386,8 @@ void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash
 
     switch (section) {
     case Section::kStakeholder:
-        SetSupportViewStakeholder(view);
-        DelegateSupportStakeholder(view, tree_model, product_tree_->Model());
+        SetSupportViewS(view);
+        DelegateSupportS(view, tree_model, product_tree_->Model());
         break;
     default:
         break;
@@ -399,7 +399,7 @@ void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash
     connect(data->sql, &Sqlite::SRemoveMultiTrans, model, &TableModel::RRemoveMultiTrans);
 }
 
-void MainWindow::CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id, int party_id)
+void MainWindow::CreateTableO(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id, int party_id)
 {
     const auto& info { data->info };
     const Section section { info.section };
@@ -412,7 +412,7 @@ void MainWindow::CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, 
     Node* node { tree_model->GetNodeO(node_id) };
 
     TableModelOrder* model { new TableModelOrder(sql, true, node_id, info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
-    auto params { EditNodeParamsOrder { node, sql, model, stakeholder_tree_->Model(), settings_, section } };
+    auto params { EditNodeParamsO { node, sql, model, stakeholder_tree_->Model(), settings_, section } };
 
     TableWidgetOrder* widget { new TableWidgetOrder(std::move(params), this) };
 
@@ -425,8 +425,8 @@ void MainWindow::CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, 
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TableEnumOrder::kDescription));
 
-    TableConnectOrder(view, model, tree_model, widget);
-    DelegateOrder(view, settings);
+    TableConnectO(view, model, tree_model, widget);
+    DelegateO(view, settings);
 
     table_hash->insert(node_id, widget);
 }
@@ -449,7 +449,7 @@ void MainWindow::TableConnectFPT(PQTableView table_view, PTableModel table_model
     connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TableModel::RMoveMultiTrans);
 }
 
-void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const
+void MainWindow::TableConnectO(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const
 {
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
     connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
@@ -468,7 +468,7 @@ void MainWindow::TableConnectOrder(PQTableView table_view, TableModelOrder* tabl
     connect(tree_model, &TreeModel::SSyncString, widget, &TableWidgetOrder::RSyncString);
 }
 
-void MainWindow::TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
+void MainWindow::TableConnectS(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
 {
     connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
     connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
@@ -519,14 +519,14 @@ void MainWindow::DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSet
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kRhsNode), node);
 }
 
-void MainWindow::DelegateStakeholder(PQTableView table_view) const
+void MainWindow::DelegateS(PQTableView table_view) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
     auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumStakeholder::kInsideProduct), inside_product);
 }
 
-void MainWindow::DelegateOrder(PQTableView table_view, CSettings* settings) const
+void MainWindow::DelegateO(PQTableView table_view, CSettings* settings) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
     auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
@@ -592,20 +592,20 @@ void MainWindow::SetDelegate(PQTreeView tree_view, CInfo& info, CSettings& setti
 
     switch (info.section) {
     case Section::kFinance:
-        DelegateFinance(tree_view, info, settings);
+        DelegateF(tree_view, info, settings);
         break;
     case Section::kTask:
-        DelegateTask(tree_view, settings);
+        DelegateT(tree_view, settings);
         break;
     case Section::kStakeholder:
-        DelegateStakeholder(tree_view, settings);
+        DelegateS(tree_view, settings);
         break;
     case Section::kProduct:
-        DelegateProduct(tree_view, settings);
+        DelegateP(tree_view, settings);
         break;
     case Section::kSales:
     case Section::kPurchase:
-        DelegateOrder(tree_view, info, settings);
+        DelegateO(tree_view, info, settings);
         break;
     default:
         break;
@@ -631,7 +631,7 @@ void MainWindow::DelegateFPTSO(PQTreeView tree_view, CInfo& info) const
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kType), type);
 }
 
-void MainWindow::DelegateFinance(PQTreeView tree_view, CInfo& info, CSettings& settings) const
+void MainWindow::DelegateF(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* final_total { new DoubleSpinUnitR(settings.amount_decimal, false, settings.default_unit, info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kLocalTotal), final_total);
@@ -640,7 +640,7 @@ void MainWindow::DelegateFinance(PQTreeView tree_view, CInfo& info, CSettings& s
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kForeignTotal), initial_total);
 }
 
-void MainWindow::DelegateTask(PQTreeView tree_view, CSettings& settings) const
+void MainWindow::DelegateT(PQTreeView tree_view, CSettings& settings) const
 {
     auto* quantity { new DoubleSpinR(settings.common_decimal, false, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kQuantity), quantity);
@@ -665,7 +665,7 @@ void MainWindow::DelegateTask(PQTreeView tree_view, CSettings& settings) const
     connect(document, &Document::SEditDocument, this, &MainWindow::REditNodeDocument);
 }
 
-void MainWindow::DelegateProduct(PQTreeView tree_view, CSettings& settings) const
+void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
 {
     auto* quantity { new DoubleSpinR(settings.common_decimal, false, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kQuantity), quantity);
@@ -681,7 +681,7 @@ void MainWindow::DelegateProduct(PQTreeView tree_view, CSettings& settings) cons
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kColor), color);
 }
 
-void MainWindow::DelegateStakeholder(PQTreeView tree_view, CSettings& settings) const
+void MainWindow::DelegateS(PQTreeView tree_view, CSettings& settings) const
 {
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kAmount), amount);
@@ -700,7 +700,7 @@ void MainWindow::DelegateStakeholder(PQTreeView tree_view, CSettings& settings) 
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kEmployee), employee);
 }
 
-void MainWindow::DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& settings) const
+void MainWindow::DelegateO(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* rule { new TreeCombo(info.rule_map, info.rule_model, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kRule), rule);
@@ -1114,7 +1114,7 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), node_name);
 }
 
-void MainWindow::DelegateSupportStakeholder(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
+void MainWindow::DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
 {
     auto* lhs_node_name { new SearchPathTableR(tree_model, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsNode), lhs_node_name);
@@ -1123,7 +1123,7 @@ void MainWindow::DelegateSupportStakeholder(PQTableView table_view, PTreeModel t
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), rhs_node_name);
 }
 
-void MainWindow::SetSupportViewStakeholder(PQTableView table_view) const
+void MainWindow::SetSupportViewS(PQTableView table_view) const
 {
     table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kLhsDebit), true);
     table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kRhsDebit), true);
@@ -1607,7 +1607,7 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
     const auto& name_list { tree_model->ChildrenNameFPTS(parent_id) };
 
     QDialog* dialog {};
-    const auto params { EditNodeParamsFPTS { node, unit_model, parent_path, name_list, true, true } };
+    const auto params { InsertNodeParamsFPTS { node, unit_model, parent_path, name_list } };
 
     switch (start_) {
     case Section::kFinance:
@@ -1647,7 +1647,7 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
 
     auto* table_model { new TableModelOrder(sql, node->rule, 0, data_->info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
-    auto params { EditNodeParamsOrder { node, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
+    auto params { EditNodeParamsO { node, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
     auto* dialog { new InsertNodeOrder(std::move(params), this) };
 
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -1688,7 +1688,7 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
     dialog_list_->append(dialog);
 
     SetTableView(dialog->View(), std::to_underlying(TableEnumOrder::kDescription));
-    DelegateOrder(dialog->View(), settings_);
+    DelegateO(dialog->View(), settings_);
     dialog->show();
 }
 

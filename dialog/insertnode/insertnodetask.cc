@@ -7,7 +7,7 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodetask.h"
 
-InsertNodeTask::InsertNodeTask(CEditNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent)
+InsertNodeTask::InsertNodeTask(CInsertNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeTask)
     , node_ { params.node }

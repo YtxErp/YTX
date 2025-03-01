@@ -4,7 +4,7 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodefinance.h"
 
-InsertNodeFinance::InsertNodeFinance(CEditNodeParamsFPTS& params, QWidget* parent)
+InsertNodeFinance::InsertNodeFinance(CInsertNodeParamsFPTS& params, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeFinance)
     , node_ { params.node }

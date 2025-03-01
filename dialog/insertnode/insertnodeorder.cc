@@ -8,7 +8,7 @@
 #include "mainwindow.h"
 #include "ui_insertnodeorder.h"
 
-InsertNodeOrder::InsertNodeOrder(CEditNodeParamsOrder& params, QWidget* parent)
+InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeOrder)
     , node_ { params.node }

@@ -34,7 +34,7 @@ class InsertNodeOrder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeOrder(CEditNodeParamsOrder& params, QWidget* parent = nullptr);
+    InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent = nullptr);
     ~InsertNodeOrder();
 
 signals:

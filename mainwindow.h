@@ -124,22 +124,22 @@ private:
     void SetPurchaseData();
 
     void CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
-    void CreateTableSupport(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
-    void CreateTableOrder(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id, int party_id);
+    void CreateTableO(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id, int party_id);
     void DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
     void DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
-    void DelegateStakeholder(PQTableView table_view) const;
-    void DelegateOrder(PQTableView table_view, CSettings* settings) const;
+    void DelegateS(PQTableView table_view) const;
+    void DelegateO(PQTableView table_view, CSettings* settings) const;
     void SetTableView(PQTableView table_view, int stretch_column) const;
 
+    void CreateTableSupport(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void DelegateSupportStakeholder(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
-    void SetSupportViewStakeholder(PQTableView table_view) const;
+    void DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
+    void SetSupportViewS(PQTableView table_view) const;
 
     void TableConnectFPT(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
-    void TableConnectOrder(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const;
-    void TableConnectStakeholder(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
+    void TableConnectO(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const;
+    void TableConnectS(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
 
     void CreateSection(TreeWidget* tree_widget, TableHash& table_hash, CData& data, CSettings& settings, CString& name);
     void SwitchSection(CTab& last_tab) const;
@@ -147,11 +147,11 @@ private:
 
     void SetDelegate(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
     void DelegateFPTSO(PQTreeView tree_view, CInfo& info) const;
-    void DelegateFinance(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
-    void DelegateTask(PQTreeView tree_view, CSettings& settings) const;
-    void DelegateProduct(PQTreeView tree_view, CSettings& settings) const;
-    void DelegateStakeholder(PQTreeView tree_view, CSettings& settings) const;
-    void DelegateOrder(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void DelegateF(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void DelegateT(PQTreeView tree_view, CSettings& settings) const;
+    void DelegateP(PQTreeView tree_view, CSettings& settings) const;
+    void DelegateS(PQTreeView tree_view, CSettings& settings) const;
+    void DelegateO(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
 
     void SetTreeView(PQTreeView tree_view, CInfo& info) const;
     void TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const;

@@ -5,7 +5,7 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodestakeholder.h"
 
-InsertNodeStakeholder::InsertNodeStakeholder(CEditNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent)
+InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeStakeholder)
     , node_ { params.node }

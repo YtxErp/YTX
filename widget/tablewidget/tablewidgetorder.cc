@@ -6,7 +6,7 @@
 #include "global/resourcepool.h"
 #include "ui_tablewidgetorder.h"
 
-TableWidgetOrder::TableWidgetOrder(CEditNodeParamsOrder& params, QWidget* parent)
+TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
     : TableWidget(parent)
     , ui(new Ui::TableWidgetOrder)
     , node_ { params.node }

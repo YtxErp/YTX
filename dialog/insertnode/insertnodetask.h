@@ -33,7 +33,7 @@ class InsertNodeTask final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeTask(CEditNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent = nullptr);
+    InsertNodeTask(CInsertNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent = nullptr);
     ~InsertNodeTask();
 
 private slots:

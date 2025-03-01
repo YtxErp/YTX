@@ -28,16 +28,14 @@
 #include "tree/model/treemodel.h"
 #include "tree/node.h"
 
-struct EditNodeParamsFPTS {
+struct InsertNodeParamsFPTS {
     Node* node {};
     QStandardItemModel* unit_model {};
     CString& parent_path {};
     CStringList& name_list {};
-    bool type_enable {};
-    bool unit_enable {};
 };
 
-struct EditNodeParamsOrder {
+struct EditNodeParamsO {
     Node* node {};
     Sqlite* sql {};
     TableModel* order_table {};
@@ -46,7 +44,7 @@ struct EditNodeParamsOrder {
     Section section {};
 };
 
-using CEditNodeParamsFPTS = const EditNodeParamsFPTS;
-using CEditNodeParamsOrder = const EditNodeParamsOrder;
+using CInsertNodeParamsFPTS = const InsertNodeParamsFPTS;
+using CEditNodeParamsO = const EditNodeParamsO;
 
 #endif // CLASSPARAMS_H

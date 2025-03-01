@@ -34,7 +34,7 @@ class TableWidgetOrder final : public TableWidget {
     Q_OBJECT
 
 public:
-    TableWidgetOrder(CEditNodeParamsOrder& params, QWidget* parent = nullptr);
+    TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent = nullptr);
     ~TableWidgetOrder();
 
 signals:

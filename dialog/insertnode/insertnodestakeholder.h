@@ -33,7 +33,7 @@ class InsertNodeStakeholder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeStakeholder(CEditNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
+    InsertNodeStakeholder(CInsertNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
     ~InsertNodeStakeholder();
 
 private slots:

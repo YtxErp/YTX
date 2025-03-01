@@ -7,7 +7,7 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodeproduct.h"
 
-InsertNodeProduct::InsertNodeProduct(CEditNodeParamsFPTS& params, int amount_decimal, QWidget* parent)
+InsertNodeProduct::InsertNodeProduct(CInsertNodeParamsFPTS& params, int amount_decimal, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeProduct)
     , node_ { params.node }

@@ -33,7 +33,7 @@ class InsertNodeProduct final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeProduct(CEditNodeParamsFPTS& params, int amount_decimal, QWidget* parent = nullptr);
+    InsertNodeProduct(CInsertNodeParamsFPTS& params, int amount_decimal, QWidget* parent = nullptr);
     ~InsertNodeProduct();
 
 private slots:

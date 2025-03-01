@@ -118,24 +118,6 @@ bool MainWindowUtils::CopyFile(CString& source, CString& destination)
     return true;
 }
 
-bool MainWindowUtils::NewFile(YtxSqlite& sql, QString& file_path)
-{
-    if (file_path.isEmpty())
-        return false;
-
-    if (!file_path.endsWith(kSuffixYTX, Qt::CaseInsensitive))
-        file_path += kSuffixYTX;
-
-    if (QFile::exists(file_path)) {
-        qDebug() << "Destination file already exists. Overwriting:" << file_path;
-        QFile::remove(file_path);
-    }
-
-    sql.NewFile(file_path);
-
-    return true;
-}
-
 bool MainWindowUtils::IsValidFile(const QFileInfo& file_info, CString& suffix)
 {
     CString& file_path { file_info.filePath() };

@@ -164,7 +164,7 @@ bool MainWindow::ROpenFile(CString& file_path)
     file_settings_ = std::make_unique<QSettings>(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + kSlash + complete_base_name + kSuffixINI, QSettings::IniFormat);
 
-    sql_ = YtxSqlite(start_);
+    ytx_sql_ = std::make_unique<YtxSqlite>(start_);
     SetFinanceData();
     SetTaskData();
     SetProductData();
@@ -994,6 +994,24 @@ bool MainWindow::LockFile(const QFileInfo& file_info)
     return true;
 }
 
+bool MainWindow::NewFile(QString& file_path)
+{
+    if (file_path.isEmpty())
+        return false;
+
+    if (!file_path.endsWith(kSuffixYTX, Qt::CaseInsensitive))
+        file_path += kSuffixYTX;
+
+    if (QFile::exists(file_path)) {
+        qDebug() << "Destination file already exists. Overwriting:" << file_path;
+        QFile::remove(file_path);
+    }
+
+    ytx_sql_->NewFile(file_path);
+
+    return true;
+}
+
 void MainWindow::RemoveBranch(PTreeModel tree_model, const QModelIndex& index, int node_id)
 {
     QMessageBox msg {};
@@ -1169,7 +1187,7 @@ void MainWindow::SetFinanceData()
     info.rule_model = CreateModelFromList(rule_list, this);
     info.type_model = CreateModelFromList(type_list, this);
 
-    sql_.QuerySettings(finance_settings_, section);
+    ytx_sql_->QuerySettings(finance_settings_, section);
 
     sql = new SqliteFinance(info, this);
 
@@ -1208,7 +1226,7 @@ void MainWindow::SetProductData()
     info.rule_model = CreateModelFromList(rule_list, this);
     info.type_model = CreateModelFromList(type_list, this);
 
-    sql_.QuerySettings(product_settings_, section);
+    ytx_sql_->QuerySettings(product_settings_, section);
 
     sql = new SqliteProduct(info, this);
 
@@ -1248,7 +1266,7 @@ void MainWindow::SetStakeholderData()
     info.rule_model = CreateModelFromList(rule_list, this);
     info.type_model = CreateModelFromList(type_list, this);
 
-    sql_.QuerySettings(stakeholder_settings_, section);
+    ytx_sql_->QuerySettings(stakeholder_settings_, section);
 
     sql = new SqliteStakeholder(info, this);
 
@@ -1290,7 +1308,7 @@ void MainWindow::SetTaskData()
     info.rule_model = CreateModelFromList(rule_list, this);
     info.type_model = CreateModelFromList(type_list, this);
 
-    sql_.QuerySettings(task_settings_, section);
+    ytx_sql_->QuerySettings(task_settings_, section);
 
     sql = new SqliteTask(info, this);
 
@@ -1329,7 +1347,7 @@ void MainWindow::SetSalesData()
     info.rule_model = CreateModelFromList(rule_list, this);
     info.type_model = CreateModelFromList(type_list, this);
 
-    sql_.QuerySettings(sales_settings_, section);
+    ytx_sql_->QuerySettings(sales_settings_, section);
 
     sql = new SqliteOrder(info, this);
 
@@ -1371,7 +1389,7 @@ void MainWindow::SetPurchaseData()
     info.rule_model = CreateModelFromList(rule_list, this);
     info.type_model = CreateModelFromList(type_list, this);
 
-    sql_.QuerySettings(purchase_settings_, section);
+    ytx_sql_->QuerySettings(purchase_settings_, section);
 
     sql = new SqliteOrder(info, this);
 
@@ -1801,7 +1819,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
             tree_widget_->Model()->UpdateDefaultUnit(settings.default_unit);
 
         tree_widget_->UpdateStatus();
-        sql_.UpdateSettings(settings, start_);
+        ytx_sql_->UpdateSettings(settings, start_);
     }
 
     if (resize_column) {
@@ -2076,7 +2094,7 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionNewFile_triggered()
 {
     auto file_path { QFileDialog::getSaveFileName(this, tr("New File"), QDir::homePath(), "*.ytx", nullptr) };
-    if (MainWindowUtils::NewFile(sql_, file_path))
+    if (NewFile(file_path))
         ROpenFile(file_path);
 }
 
@@ -2347,7 +2365,7 @@ void MainWindow::on_actionExportStructure_triggered()
         return;
 
     QString destination { QFileDialog::getSaveFileName(this, tr("Export Structure"), QDir::homePath(), "*.ytx") };
-    if (!MainWindowUtils::NewFile(sql_, destination))
+    if (!NewFile(destination))
         return;
 
     auto future = QtConcurrent::run([source, destination]() {

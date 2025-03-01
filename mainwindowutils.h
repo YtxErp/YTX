@@ -26,7 +26,6 @@
 #include <QWidget>
 
 #include "component/constvalue.h"
-#include "database/ytxsqlite.h"
 #include "widget/tablewidget/tablewidget.h"
 
 template <typename T>
@@ -49,7 +48,6 @@ public:
     static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
 
     static bool CopyFile(CString& source, CString& destination);
-    static bool NewFile(YtxSqlite& sql, QString& file_path);
     static bool IsValidFile(const QFileInfo& file_info, CString& suffix = ytx);
     static bool IsTreeWidget(const QWidget* widget) { return widget && widget->inherits("TreeWidget"); }
 

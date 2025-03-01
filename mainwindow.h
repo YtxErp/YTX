@@ -178,6 +178,7 @@ private:
 
     void AppSettings();
     bool LockFile(const QFileInfo& file_info);
+    bool NewFile(QString& file_path);
 
     void RestoreTab(PTreeModel tree_model, TableHash& table_hash, CIntSet& set, CData& data, CSettings& settings);
 
@@ -189,7 +190,6 @@ private:
 
 private:
     Ui::MainWindow* ui {};
-    YtxSqlite sql_ {};
 
     QStringList recent_file_ {};
     Section start_ {};
@@ -199,6 +199,7 @@ private:
     Interface interface_ {};
 
     std::unique_ptr<QLockFile> lock_file_;
+    std::unique_ptr<YtxSqlite> ytx_sql_ {};
     std::shared_ptr<QSettings> app_settings_ {};
     std::shared_ptr<QSettings> file_settings_ {};
 

@@ -67,17 +67,14 @@ private slots:
     void on_comboParty_currentIndexChanged(int index);
     void on_comboEmployee_currentIndexChanged(int index);
 
-    void on_rBtnCash_toggled(bool checked);
-    void on_rBtnMonthly_toggled(bool checked);
-    void on_rBtnPending_toggled(bool checked);
-
     void on_pBtnFinishOrder_toggled(bool checked);
     void on_pBtnInsert_clicked();
 
     void on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time);
     void on_lineDescription_editingFinished();
 
-    void RRuleGroupChecked(int id);
+    void RRuleGroupClicked(int id);
+    void RUnitGroupClicked(int id);
 
 private:
     void IniDialog();
@@ -91,6 +88,7 @@ private:
     void IniRule(bool rule);
     void IniFinished(bool finished);
     void IniRuleGroup();
+    void IniUnitGroup();
 
 private:
     Ui::TableWidgetOrder* ui;
@@ -100,6 +98,7 @@ private:
     TreeModelStakeholder* stakeholder_tree_ {};
     CSettings* settings_ {};
     QButtonGroup* rule_group_ {};
+    QButtonGroup* unit_group_ {};
 
     QStandardItemModel* emodel_ {};
     QStandardItemModel* pmodel_ {};

@@ -395,23 +395,23 @@
          <number>8</number>
         </property>
         <item>
-         <widget class="QRadioButton" name="rBtnCash">
+         <widget class="QRadioButton" name="rBtnIS">
           <property name="text">
-           <string>Cash</string>
+           <string>IS</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="rBtnMonthly">
+         <widget class="QRadioButton" name="rBtnMS">
           <property name="text">
-           <string>Monthly</string>
+           <string>MS</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="rBtnPending">
+         <widget class="QRadioButton" name="rBtnPEND">
           <property name="text">
-           <string>Pending</string>
+           <string>PEND</string>
           </property>
          </widget>
         </item>

@@ -25,6 +25,7 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
     IniText(params.section);
     IniUnit(params.node->unit);
     IniRuleGroup();
+    IniUnitGroup();
     IniRule(params.node->rule);
     IniData();
     IniDataCombo(params.node->party, params.node->employee);
@@ -56,11 +57,10 @@ void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
         IniRule(value);
         IniLeafValue();
         break;
-    case TreeEnumOrder::kFinished: {
+    case TreeEnumOrder::kFinished:
         IniFinished(value);
         LockWidgets(value);
         break;
-    }
     default:
         break;
     }
@@ -139,11 +139,9 @@ void TableWidgetOrder::IniDialog()
 {
     pmodel_ = stakeholder_tree_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(pmodel_);
-    ui->comboParty->setCurrentIndex(-1);
 
     emodel_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp));
     ui->comboEmployee->setModel(emodel_);
-    ui->comboEmployee->setCurrentIndex(-1);
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
 
@@ -177,7 +175,11 @@ void TableWidgetOrder::IniData()
     ui->tableViewOrder->setModel(order_table_);
 }
 
-void TableWidgetOrder::IniConnect() { connect(rule_group_, &QButtonGroup::idClicked, this, &TableWidgetOrder::RRuleGroupChecked); }
+void TableWidgetOrder::IniConnect()
+{
+    connect(rule_group_, &QButtonGroup::idClicked, this, &TableWidgetOrder::RRuleGroupClicked);
+    connect(unit_group_, &QButtonGroup::idClicked, this, &TableWidgetOrder::RUnitGroupClicked);
+}
 
 void TableWidgetOrder::IniDataCombo(int party, int employee)
 {
@@ -209,9 +211,9 @@ void TableWidgetOrder::LockWidgets(bool finished)
     ui->comboEmployee->setEnabled(enable);
     ui->tableViewOrder->setEnabled(enable);
 
-    ui->rBtnCash->setEnabled(enable);
-    ui->rBtnMonthly->setEnabled(enable);
-    ui->rBtnPending->setEnabled(enable);
+    ui->rBtnIS->setEnabled(enable);
+    ui->rBtnMS->setEnabled(enable);
+    ui->rBtnPEND->setEnabled(enable);
     ui->dateTimeEdit->setEnabled(enable);
 
     ui->dSpinFirst->setEnabled(enable);
@@ -232,13 +234,13 @@ void TableWidgetOrder::IniUnit(int unit)
 
     switch (kUnit) {
     case UnitOrder::kIS:
-        ui->rBtnCash->setChecked(true);
+        ui->rBtnIS->setChecked(true);
         break;
     case UnitOrder::kMS:
-        ui->rBtnMonthly->setChecked(true);
+        ui->rBtnMS->setChecked(true);
         break;
     case UnitOrder::kPEND:
-        ui->rBtnPending->setChecked(true);
+        ui->rBtnPEND->setChecked(true);
         break;
     default:
         break;
@@ -298,6 +300,14 @@ void TableWidgetOrder::IniRuleGroup()
     rule_group_->addButton(ui->rBtnRefund, 1);
 }
 
+void TableWidgetOrder::IniUnitGroup()
+{
+    unit_group_ = new QButtonGroup(this);
+    unit_group_->addButton(ui->rBtnIS, 0);
+    unit_group_->addButton(ui->rBtnMS, 1);
+    unit_group_->addButton(ui->rBtnPEND, 2);
+}
+
 void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
     int party_id { ui->comboParty->currentData().toInt() };
@@ -314,56 +324,14 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
     int employee_index { ui->comboEmployee->findData(stakeholder_tree_->Employee(party_id)) };
     ui->comboEmployee->setCurrentIndex(employee_index);
 
-    ui->rBtnCash->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
-    ui->rBtnMonthly->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
+    ui->rBtnIS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
+    ui->rBtnMS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
 }
 
 void TableWidgetOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
     node_->employee = ui->comboEmployee->currentData().toInt();
     sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
-}
-
-void TableWidgetOrder::on_rBtnCash_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    node_->unit = std::to_underlying(UnitOrder::kIS);
-    node_->final_total = node_->initial_total - node_->discount;
-
-    ui->dSpinNetAmount->setValue(node_->final_total);
-
-    sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kIS), node_id_);
-    sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
-}
-
-void TableWidgetOrder::on_rBtnMonthly_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    node_->unit = std::to_underlying(UnitOrder::kMS);
-    node_->final_total = 0.0;
-
-    ui->dSpinNetAmount->setValue(0.0);
-
-    sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kMS), node_id_);
-    sql_->WriteField(info_node_, kNetAmount, 0.0, node_id_);
-}
-
-void TableWidgetOrder::on_rBtnPending_toggled(bool checked)
-{
-    if (!checked)
-        return;
-
-    node_->unit = std::to_underlying(UnitOrder::kPEND);
-    node_->final_total = 0.0;
-
-    ui->dSpinNetAmount->setValue(0.0);
-
-    sql_->WriteField(info_node_, kUnit, std::to_underlying(UnitOrder::kPEND), node_id_);
-    sql_->WriteField(info_node_, kNetAmount, 0.0, node_id_);
 }
 
 void TableWidgetOrder::on_pBtnInsert_clicked()
@@ -397,7 +365,7 @@ void TableWidgetOrder::on_lineDescription_editingFinished()
     sql_->WriteField(info_node_, kDescription, node_->description, node_id_);
 }
 
-void TableWidgetOrder::RRuleGroupChecked(int id)
+void TableWidgetOrder::RRuleGroupClicked(int id)
 {
     node_->rule = static_cast<bool>(id);
 
@@ -411,6 +379,29 @@ void TableWidgetOrder::RRuleGroupChecked(int id)
 
     sql_->WriteField(info_node_, kRule, node_->rule, node_id_);
     sql_->WriteLeafValue(node_);
+}
+
+void TableWidgetOrder::RUnitGroupClicked(int id)
+{
+    const UnitOrder unit { id };
+
+    switch (unit) {
+    case UnitOrder::kIS:
+        node_->final_total = node_->initial_total - node_->discount;
+        break;
+    case UnitOrder::kMS:
+    case UnitOrder::kPEND:
+        node_->final_total = 0.0;
+        break;
+    default:
+        break;
+    }
+
+    node_->unit = id;
+    ui->dSpinNetAmount->setValue(node_->final_total);
+
+    sql_->WriteField(info_node_, kUnit, id, node_id_);
+    sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
 }
 
 void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)

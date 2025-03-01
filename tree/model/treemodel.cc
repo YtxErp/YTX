@@ -326,6 +326,7 @@ QSet<int> TreeModel::ChildrenIDFPTS(int node_id) const
                 queue.enqueue(child);
         } break;
         case kTypeLeaf:
+        case kTypeSupport:
             set.insert(queue_node->id);
             break;
         default:

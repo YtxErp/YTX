@@ -549,7 +549,7 @@ void MainWindow::DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSe
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kDocument), document);
     connect(document, &Document::SEditDocument, this, &MainWindow::REditTransDocument);
 
-    auto* lhs_ratio { new DoubleSpin(settings->common_decimal, 0, std::numeric_limits<double>::max(), table_view) };
+    auto* lhs_ratio { new DoubleSpin(settings->common_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kLhsRatio), lhs_ratio);
 
     auto* support_node { new SupportID(tree_model, table_view) };
@@ -558,7 +558,8 @@ void MainWindow::DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSe
 
 void MainWindow::DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const
 {
-    auto* value { new DoubleSpin(settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), table_view) };
+    auto* value { new DoubleSpin(
+        settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), kCoefficient16, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kDebit), value);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kCredit), value);
 
@@ -596,11 +597,12 @@ void MainWindow::DelegateO(PQTableView table_view, CSettings* settings) const
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDescription), line);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kCode), line);
 
-    auto* price { new DoubleSpin(settings->amount_decimal, 0, std::numeric_limits<double>::max(), table_view) };
+    auto* price { new DoubleSpin(settings->amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kUnitPrice), price);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDiscountPrice), price);
 
-    auto* quantity { new DoubleSpin(settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), table_view) };
+    auto* quantity { new DoubleSpin(
+        settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kFirst), quantity);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kSecond), quantity);
 
@@ -701,7 +703,7 @@ void MainWindow::DelegateT(PQTreeView tree_view, CSettings& settings) const
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kAmount), amount);
 
-    auto* unit_cost { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), tree_view) };
+    auto* unit_cost { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kUnitCost), unit_cost);
 
     auto* color { new Color(tree_view) };
@@ -726,7 +728,7 @@ void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kAmount), amount);
 
-    auto* unit_price { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), tree_view) };
+    auto* unit_price { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kUnitPrice), unit_price);
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kCommission), unit_price);
 

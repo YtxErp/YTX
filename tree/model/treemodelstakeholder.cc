@@ -467,11 +467,11 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
     case TreeEnumStakeholder::kNote:
         return node->note;
     case TreeEnumStakeholder::kRule:
-        return kIsLeaf ? node->rule : -1;
+        return node->rule;
     case TreeEnumStakeholder::kType:
         return node->type;
     case TreeEnumStakeholder::kUnit:
-        return node->type == kTypeSupport ? -1 : node->unit;
+        return node->unit;
     case TreeEnumStakeholder::kDeadline:
         return kIsLeaf && node->rule == kRuleMS ? node->date_time : QVariant();
     case TreeEnumStakeholder::kEmployee:

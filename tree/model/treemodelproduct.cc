@@ -350,7 +350,7 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
     case TreeEnumProduct::kNote:
         return node->note;
     case TreeEnumProduct::kRule:
-        return node->type != kTypeSupport ? node->rule : -1;
+        return node->rule;
     case TreeEnumProduct::kType:
         return node->type;
     case TreeEnumProduct::kUnit:

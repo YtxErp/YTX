@@ -101,7 +101,7 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
     case TreeEnumTask::kNote:
         return node->note;
     case TreeEnumTask::kRule:
-        return kIsLeaf ? node->rule : -1;
+        return node->rule;
     case TreeEnumTask::kType:
         return node->type;
     case TreeEnumTask::kUnit:

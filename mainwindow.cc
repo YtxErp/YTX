@@ -29,6 +29,7 @@
 #include "delegate/readonly/doublespinr.h"
 #include "delegate/readonly/doublespinrnonezero.h"
 #include "delegate/readonly/doublespinunitr.h"
+#include "delegate/readonly/doublespinunitrnonezero.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/specificunit.h"
 #include "delegate/spin.h"
@@ -685,7 +686,7 @@ void MainWindow::DelegateFPTSO(PQTreeView tree_view, CInfo& info) const
 
 void MainWindow::DelegateF(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
-    auto* final_total { new DoubleSpinUnitR(settings.amount_decimal, false, settings.default_unit, info.unit_symbol_map, tree_view) };
+    auto* final_total { new DoubleSpinUnitR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kLocalTotal), final_total);
 
     auto* initial_total { new FinanceForeignR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
@@ -697,7 +698,7 @@ void MainWindow::DelegateT(PQTreeView tree_view, CSettings& settings) const
     auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kQuantity), quantity);
 
-    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
+    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kAmount), amount);
 
     auto* unit_cost { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), tree_view) };
@@ -722,7 +723,7 @@ void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
     auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kQuantity), quantity);
 
-    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
+    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kAmount), amount);
 
     auto* unit_price { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), tree_view) };
@@ -735,7 +736,7 @@ void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
 
 void MainWindow::DelegateS(PQTreeView tree_view, CSettings& settings) const
 {
-    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
+    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kAmount), amount);
 
     auto* payment_term { new Spin(0, std::numeric_limits<int>::max(), tree_view) };
@@ -757,11 +758,11 @@ void MainWindow::DelegateO(PQTreeView tree_view, CInfo& info, CSettings& setting
     auto* rule { new TreeCombo(info.rule_map, info.rule_model, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kRule), rule);
 
-    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
+    auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kGrossAmount), amount);
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kNetAmount), amount);
 
-    auto* discount { new DoubleSpinUnitR(settings.amount_decimal, true, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
+    auto* discount { new DoubleSpinUnitRNoneZero(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kDiscount), discount);
 
     auto* quantity { new DoubleSpinRNoneZero(settings.common_decimal, kCoefficient16, tree_view) };

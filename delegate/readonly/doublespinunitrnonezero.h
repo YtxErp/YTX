@@ -17,15 +17,15 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DOUBLESPINUNITR_H
-#define DOUBLESPINUNITR_H
+#ifndef DOUBLESPINUNITRNONEZERO_H
+#define DOUBLESPINUNITRNONEZERO_H
 
 #include "component/using.h"
 #include "delegate/styleditemdelegate.h"
 
-class DoubleSpinUnitR final : public StyledItemDelegate {
+class DoubleSpinUnitRNoneZero final : public StyledItemDelegate {
 public:
-    DoubleSpinUnitR(const int& decimal, const int& unit, CStringMap& unit_symbol_map, QObject* parent = nullptr);
+    DoubleSpinUnitRNoneZero(const int& decimal, const int& unit, CStringMap& unit_symbol_map, QObject* parent = nullptr);
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
@@ -38,4 +38,4 @@ private:
     CStringMap& unit_symbol_map_;
 };
 
-#endif // DOUBLESPINUNITR_H
+#endif // DOUBLESPINUNITRNONEZERO_H

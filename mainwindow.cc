@@ -1703,7 +1703,7 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
         dialog = new InsertNodeTask(std::move(params), settings_->amount_decimal, settings_->date_format, this);
         break;
     case Section::kStakeholder:
-        node->date_time = QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 28), kFixedTime).toString(kDateTimeFST);
+        node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
         dialog
             = new InsertNodeStakeholder(std::move(params), tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
         break;

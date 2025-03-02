@@ -27,6 +27,7 @@
 #include "delegate/line.h"
 #include "delegate/readonly/colorr.h"
 #include "delegate/readonly/doublespinr.h"
+#include "delegate/readonly/doublespinrnonezero.h"
 #include "delegate/readonly/doublespinunitr.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/specificunit.h"
@@ -560,7 +561,7 @@ void MainWindow::DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSet
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kDebit), value);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kCredit), value);
 
-    auto* subtotal { new DoubleSpinR(settings->common_decimal, false, kCoefficient16, table_view) };
+    auto* subtotal { new DoubleSpinR(settings->common_decimal, kCoefficient16, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kSubtotal), subtotal);
 
     auto* filter_model { new SortFilterProxyModel(node_id, table_view) };
@@ -602,7 +603,7 @@ void MainWindow::DelegateO(PQTableView table_view, CSettings* settings) const
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kFirst), quantity);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kSecond), quantity);
 
-    auto* amount { new DoubleSpinR(settings->amount_decimal, true, kCoefficient16, table_view) };
+    auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kGrossAmount), amount);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDiscount), amount);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kNetAmount), amount);
@@ -693,7 +694,7 @@ void MainWindow::DelegateF(PQTreeView tree_view, CInfo& info, CSettings& setting
 
 void MainWindow::DelegateT(PQTreeView tree_view, CSettings& settings) const
 {
-    auto* quantity { new DoubleSpinR(settings.common_decimal, false, kCoefficient16, tree_view) };
+    auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kQuantity), quantity);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
@@ -718,7 +719,7 @@ void MainWindow::DelegateT(PQTreeView tree_view, CSettings& settings) const
 
 void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
 {
-    auto* quantity { new DoubleSpinR(settings.common_decimal, false, kCoefficient16, tree_view) };
+    auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kQuantity), quantity);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, false, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
@@ -763,7 +764,7 @@ void MainWindow::DelegateO(PQTreeView tree_view, CInfo& info, CSettings& setting
     auto* discount { new DoubleSpinUnitR(settings.amount_decimal, true, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kDiscount), discount);
 
-    auto* quantity { new DoubleSpinR(settings.common_decimal, true, kCoefficient16, tree_view) };
+    auto* quantity { new DoubleSpinRNoneZero(settings.common_decimal, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kSecond), quantity);
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kFirst), quantity);
 
@@ -1179,13 +1180,13 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kDocument), document);
     connect(document, &Document::SEditDocument, this, &MainWindow::REditNodeDocument);
 
-    auto* value { new DoubleSpinR(settings->amount_decimal, true, kCoefficient8, table_view) };
+    auto* value { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsDebit), value);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsDebit), value);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsCredit), value);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsCredit), value);
 
-    auto* ratio { new DoubleSpinR(settings->common_decimal, true, kCoefficient8, table_view) };
+    auto* ratio { new DoubleSpinRNoneZero(settings->common_decimal, kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsRatio), ratio);
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsRatio), ratio);
 

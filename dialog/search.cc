@@ -7,6 +7,7 @@
 #include "delegate/readonly/checkboxr.h"
 #include "delegate/readonly/colorr.h"
 #include "delegate/readonly/doublespinr.h"
+#include "delegate/readonly/doublespinrnonezero.h"
 #include "delegate/readonly/stringmapr.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/search/searchpathtreer.h"
@@ -173,7 +174,7 @@ void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
     auto* rule { new StringMapR(info_.rule_map, view) };
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kRule), rule);
 
-    auto* total { new DoubleSpinR(settings_->amount_decimal, true, kCoefficient8, view) };
+    auto* total { new DoubleSpinRNoneZero(settings_->amount_decimal, kCoefficient8, view) };
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kInitialTotal), total);
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kFinalTotal), total);
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kDiscount), total);
@@ -196,7 +197,7 @@ void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kParty), stakeholder);
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kEmployee), stakeholder);
 
-    auto* value { new DoubleSpinR(settings_->amount_decimal, true, kCoefficient8, view) };
+    auto* value { new DoubleSpinRNoneZero(settings_->amount_decimal, kCoefficient8, view) };
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kFirst), value);
     view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kSecond), value);
 }
@@ -205,14 +206,14 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
 {
     view->setModel(model);
 
-    auto* value { new DoubleSpinR(settings_->amount_decimal, true, kCoefficient8, view) };
+    auto* value { new DoubleSpinRNoneZero(settings_->amount_decimal, kCoefficient8, view) };
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsDebit), value);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsDebit), value);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsCredit), value);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsCredit), value);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDiscount), value);
 
-    auto* ratio { new DoubleSpinR(settings_->common_decimal, true, kCoefficient8, view) };
+    auto* ratio { new DoubleSpinRNoneZero(settings_->common_decimal, kCoefficient8, view) };
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsRatio), ratio);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsRatio), ratio);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDiscountPrice), ratio);

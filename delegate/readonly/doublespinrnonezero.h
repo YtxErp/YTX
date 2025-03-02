@@ -17,14 +17,14 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DOUBLESPINR_H
-#define DOUBLESPINR_H
+#ifndef DOUBLESPINRNONEZERO_H
+#define DOUBLESPINRNONEZERO_H
 
 #include "delegate/styleditemdelegate.h"
 
-class DoubleSpinR final : public StyledItemDelegate {
+class DoubleSpinRNoneZero final : public StyledItemDelegate {
 public:
-    DoubleSpinR(const int& decimal, int coefficient, QObject* parent = nullptr);
+    DoubleSpinRNoneZero(const int& decimal, int coefficient, QObject* parent = nullptr);
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
@@ -33,4 +33,4 @@ private:
     const int coefficient_ {};
 };
 
-#endif // DOUBLESPINR_H
+#endif // DOUBLESPINRNONEZERO_H

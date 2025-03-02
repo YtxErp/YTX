@@ -39,6 +39,8 @@ public:
 
 private slots:
     void RNameEdited(const QString& arg1);
+    void RRuleGroupClicked(int id);
+    void RTypeGroupClicked(int id);
 
     void on_lineEditName_editingFinished();
     void on_lineEditCode_editingFinished();
@@ -54,9 +56,6 @@ private slots:
     void on_chkBoxFinished_checkStateChanged(const Qt::CheckState& arg1);
 
     void on_dateTime_editingFinished();
-
-    void RRuleGroupClicked(int id);
-    void RTypeGroupClicked(int id);
 
 private:
     void IniDialog(QStandardItemModel* unit_model, int amount_decimal, CString& display_format);

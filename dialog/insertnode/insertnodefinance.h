@@ -39,6 +39,8 @@ public:
 
 private slots:
     void RNameEdited(const QString& arg1);
+    void RRuleGroupClicked(int id);
+    void RTypeGroupClicked(int id);
 
     void on_lineName_editingFinished();
     void on_lineCode_editingFinished();
@@ -47,9 +49,6 @@ private slots:
     void on_comboUnit_currentIndexChanged(int index);
 
     void on_plainNote_textChanged();
-
-    void RRuleGroupClicked(int id);
-    void RTypeGroupClicked(int id);
 
 private:
     void IniDialog(QStandardItemModel* unit_model);

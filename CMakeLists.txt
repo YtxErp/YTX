@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(YTX VERSION 0.1.4 LANGUAGES CXX)
+project(YTX VERSION 0.1.7 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 

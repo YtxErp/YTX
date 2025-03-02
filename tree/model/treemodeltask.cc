@@ -87,7 +87,7 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const TreeEnumTask kColumn { index.column() };
-    bool is_not_leaf { node->type != kTypeLeaf };
+    const bool kIsLeaf { node->type == kTypeLeaf };
 
     switch (kColumn) {
     case TreeEnumTask::kName:
@@ -101,21 +101,21 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
     case TreeEnumTask::kNote:
         return node->note;
     case TreeEnumTask::kRule:
-        return node->rule;
+        return kIsLeaf ? node->rule : -1;
     case TreeEnumTask::kType:
         return node->type;
     case TreeEnumTask::kUnit:
         return node->unit;
     case TreeEnumTask::kColor:
-        return is_not_leaf ? QVariant() : node->color;
+        return node->color;
     case TreeEnumTask::kDateTime:
-        return is_not_leaf ? QVariant() : node->date_time;
+        return kIsLeaf ? node->date_time : QVariant();
     case TreeEnumTask::kFinished:
-        return is_not_leaf || !node->finished ? QVariant() : node->finished;
+        return kIsLeaf && node->finished ? node->finished : QVariant();
     case TreeEnumTask::kUnitCost:
-        return is_not_leaf || node->first == 0 ? QVariant() : node->first;
+        return kIsLeaf && node->first != 0 ? node->first : QVariant();
     case TreeEnumTask::kDocument:
-        return is_not_leaf || node->document.isEmpty() ? QVariant() : node->document.size();
+        return kIsLeaf && !node->document.isEmpty() ? node->document.size() : QVariant();
     case TreeEnumTask::kQuantity:
         return node->initial_total;
     case TreeEnumTask::kAmount:

@@ -453,7 +453,7 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const TreeEnumStakeholder kColumn { index.column() };
-    const bool kIsNotLeaf { node->type != kTypeLeaf };
+    const bool kIsLeaf { node->type == kTypeLeaf };
 
     switch (kColumn) {
     case TreeEnumStakeholder::kName:
@@ -467,19 +467,19 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
     case TreeEnumStakeholder::kNote:
         return node->note;
     case TreeEnumStakeholder::kRule:
-        return kIsNotLeaf ? -1 : node->rule;
+        return kIsLeaf ? node->rule : -1;
     case TreeEnumStakeholder::kType:
         return node->type;
     case TreeEnumStakeholder::kUnit:
         return node->type == kTypeSupport ? -1 : node->unit;
     case TreeEnumStakeholder::kDeadline:
-        return node->date_time.isEmpty() || kIsNotLeaf ? QVariant() : node->date_time;
+        return kIsLeaf && node->rule == kRuleMS ? node->date_time : QVariant();
     case TreeEnumStakeholder::kEmployee:
-        return node->employee == 0 || kIsNotLeaf ? QVariant() : node->employee;
+        return kIsLeaf && node->employee != 0 ? node->employee : QVariant();
     case TreeEnumStakeholder::kPaymentTerm:
-        return node->first == 0 || kIsNotLeaf ? QVariant() : node->first;
+        return kIsLeaf && node->first != 0 ? node->first : QVariant();
     case TreeEnumStakeholder::kTaxRate:
-        return node->second == 0 || kIsNotLeaf ? QVariant() : node->second;
+        return kIsLeaf && node->second != 0 ? node->second : QVariant();
     case TreeEnumStakeholder::kAmount:
         return node->final_total;
     default:

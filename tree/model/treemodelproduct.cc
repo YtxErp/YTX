@@ -336,7 +336,7 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const TreeEnumProduct kColumn { index.column() };
-    bool is_not_leaf { node->type != kTypeLeaf };
+    const bool kIsLeaf { node->type == kTypeLeaf };
 
     switch (kColumn) {
     case TreeEnumProduct::kName:
@@ -350,17 +350,17 @@ QVariant TreeModelProduct::data(const QModelIndex& index, int role) const
     case TreeEnumProduct::kNote:
         return node->note;
     case TreeEnumProduct::kRule:
-        return node->rule;
+        return node->type != kTypeSupport ? node->rule : -1;
     case TreeEnumProduct::kType:
         return node->type;
     case TreeEnumProduct::kUnit:
         return node->unit;
     case TreeEnumProduct::kColor:
-        return is_not_leaf ? QVariant() : node->color;
+        return node->color;
     case TreeEnumProduct::kCommission:
-        return is_not_leaf || node->second == 0 ? QVariant() : node->second;
+        return kIsLeaf && node->second != 0 ? node->second : QVariant();
     case TreeEnumProduct::kUnitPrice:
-        return is_not_leaf || node->first == 0 ? QVariant() : node->first;
+        return kIsLeaf && node->first != 0 ? node->first : QVariant();
     case TreeEnumProduct::kQuantity:
         return node->initial_total;
     case TreeEnumProduct::kAmount:

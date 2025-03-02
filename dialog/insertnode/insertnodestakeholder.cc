@@ -39,7 +39,7 @@ void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QStandardI
     ui->dSpinTaxRate->setRange(0.0, std::numeric_limits<double>::max());
     ui->dSpinTaxRate->setDecimals(amount_decimal);
 
-    ui->deadline->setDateTime(QDateTime::currentDateTime());
+    ui->deadline->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
     ui->deadline->setDisplayFormat(kDD);
     ui->deadline->setCalendarPopup(true);
 }

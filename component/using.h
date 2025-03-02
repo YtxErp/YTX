@@ -24,6 +24,7 @@
 #include <QHash>
 #include <QMap>
 #include <QStringList>
+#include <QTime>
 
 using CStringMap = const QMap<int, QString>;
 using StringMap = QMap<int, QString>;
@@ -38,7 +39,8 @@ using CStringList = const QStringList;
 using CIntSet = const QSet<int>;
 using PDialog = QPointer<QDialog>;
 
-inline const QString kEmptyString = {};
-inline const QString kDD = "dd";
+inline const QString kEmptyString {};
+inline const QString kDD { "dd" };
+inline const QTime kFixedTime { 23, 59, 59 };
 
 #endif // USING_H

@@ -57,6 +57,7 @@ private:
     void IniConnect();
     void IniTypeGroup();
     void IniRuleGroup();
+    void IniRule(bool rule);
 
 private:
     Ui::InsertNodeFinance* ui;

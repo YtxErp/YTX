@@ -72,7 +72,7 @@ private:
     void IniConnect();
     void IniStringList();
     void ResizeLine(QLineEdit* line, CString& text);
-    void DynamicLable(Section section);
+    void IniText(Section section);
 
     void IniData();
     void IniDataCombo(QComboBox* combo, int value);

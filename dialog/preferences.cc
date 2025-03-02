@@ -29,7 +29,7 @@ Preferences::Preferences(CInfo& info, CTreeModel* model, Interface interface, Se
 
     // 使用QTimer延迟执行
     QTimer::singleShot(100, this, [this, info]() { IniData(); });
-    DynamicLable(info.section);
+    IniText(info.section);
 }
 
 Preferences::~Preferences() { delete ui; }
@@ -134,7 +134,7 @@ void Preferences::on_pBtnResetDocumentDir_clicked()
 
 void Preferences::ResizeLine(QLineEdit* line, CString& text) { line->setMinimumWidth(QFontMetrics(line->font()).horizontalAdvance(text) + 8); }
 
-void Preferences::DynamicLable(Section section)
+void Preferences::IniText(Section section)
 {
     switch (section) {
     case Section::kFinance:

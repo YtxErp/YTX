@@ -30,13 +30,14 @@ void InsertNodeTask::IniDialog(QStandardItemModel* unit_model, int amount_decima
     ui->lineEditName->setFocus();
     ui->lineEditName->setValidator(&LineEdit::kInputValidator);
 
-    this->setWindowTitle(parent_path_ + node_->name);
+    this->setWindowTitle(parent_path_);
     this->setFixedSize(350, 650);
 
     ui->comboUnit->setModel(unit_model);
 
-    ui->dSpinBoxUnitCost->setRange(0.0, std::numeric_limits<double>::max());
     ui->dSpinBoxUnitCost->setDecimals(amount_decimal);
+    ui->dSpinBoxUnitCost->setReadOnly(true);
+
     ui->dateTime->setDisplayFormat(display_format);
     ui->dateTime->setCalendarPopup(true);
 }
@@ -46,10 +47,9 @@ void InsertNodeTask::IniData(Node* node)
     int item_index { ui->comboUnit->findData(node->unit) };
     ui->comboUnit->setCurrentIndex(item_index);
 
-    ui->rBtnDDCI->setChecked(node->rule == kRuleDDCI);
-    ui->rBtnDICD->setChecked(node->rule == kRuleDICD);
-
+    IniRule(node->rule);
     ui->rBtnLeaf->setChecked(true);
+
     ui->pBtnOk->setEnabled(false);
 }
 
@@ -83,6 +83,22 @@ void InsertNodeTask::IniRuleGroup()
     rule_group_ = new QButtonGroup(this);
     rule_group_->addButton(ui->rBtnDICD, 0);
     rule_group_->addButton(ui->rBtnDDCI, 1);
+}
+
+void InsertNodeTask::IniRule(bool rule)
+{
+    const int kRule { static_cast<int>(rule) };
+
+    switch (kRule) {
+    case 0:
+        ui->rBtnDICD->setChecked(true);
+        break;
+    case 1:
+        ui->rBtnDDCI->setChecked(true);
+        break;
+    default:
+        break;
+    }
 }
 
 void InsertNodeTask::RNameEdited(const QString& arg1)
@@ -125,10 +141,6 @@ void InsertNodeTask::on_chkBoxFinished_checkStateChanged(const Qt::CheckState& a
 
 void InsertNodeTask::on_dateTime_editingFinished() { node_->date_time = ui->dateTime->dateTime().toString(kDateTimeFST); }
 
-void InsertNodeTask::RRuleGroupClicked(int id)
-{
-    const bool kRule { static_cast<bool>(id) };
-    node_->rule = kRule;
-}
+void InsertNodeTask::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
 void InsertNodeTask::RTypeGroupClicked(int id) { node_->type = id; }

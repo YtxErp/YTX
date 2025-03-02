@@ -30,7 +30,7 @@ void InsertNodeProduct::IniDialog(QStandardItemModel* unit_model, int amount_dec
     ui->lineEditName->setFocus();
     ui->lineEditName->setValidator(&LineEdit::kInputValidator);
 
-    this->setWindowTitle(parent_path_ + node_->name);
+    this->setWindowTitle(parent_path_);
     this->setFixedSize(350, 650);
 
     ui->comboUnit->setModel(unit_model);
@@ -50,13 +50,12 @@ void InsertNodeProduct::IniConnect()
 
 void InsertNodeProduct::IniData(Node* node)
 {
-    int item_index { ui->comboUnit->findData(node->unit) };
-    ui->comboUnit->setCurrentIndex(item_index);
+    int unit_index { ui->comboUnit->findData(node->unit) };
+    ui->comboUnit->setCurrentIndex(unit_index);
 
-    ui->rBtnDDCI->setChecked(node->rule == kRuleDDCI);
-    ui->rBtnDICD->setChecked(node->rule == kRuleDICD);
-
+    IniRule(node->rule);
     ui->rBtnLeaf->setChecked(true);
+
     ui->pBtnOk->setEnabled(false);
 }
 
@@ -83,6 +82,22 @@ void InsertNodeProduct::IniRuleGroup()
     rule_group_ = new QButtonGroup(this);
     rule_group_->addButton(ui->rBtnDICD, 0);
     rule_group_->addButton(ui->rBtnDDCI, 1);
+}
+
+void InsertNodeProduct::IniRule(bool rule)
+{
+    const int kRule { static_cast<int>(rule) };
+
+    switch (kRule) {
+    case 0:
+        ui->rBtnDICD->setChecked(true);
+        break;
+    case 1:
+        ui->rBtnDDCI->setChecked(true);
+        break;
+    default:
+        break;
+    }
 }
 
 void InsertNodeProduct::RNameEdited(const QString& arg1)
@@ -123,10 +138,6 @@ void InsertNodeProduct::on_pBtnColor_clicked()
     }
 }
 
-void InsertNodeProduct::RRuleGroupClicked(int id)
-{
-    const bool kRule { static_cast<bool>(id) };
-    node_->rule = kRule;
-}
+void InsertNodeProduct::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
 void InsertNodeProduct::RTypeGroupClicked(int id) { node_->type = id; }

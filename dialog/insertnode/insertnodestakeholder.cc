@@ -28,7 +28,7 @@ void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QStandardI
     ui->lineEditName->setFocus();
     ui->lineEditName->setValidator(&LineEdit::kInputValidator);
 
-    this->setWindowTitle(parent_path_ + node_->name);
+    this->setWindowTitle(parent_path_);
     this->setFixedSize(350, 650);
 
     ui->comboUnit->setModel(unit_model);
@@ -56,10 +56,9 @@ void InsertNodeStakeholder::IniData(Node* node)
     int unit_index { ui->comboUnit->findData(node_->unit) };
     ui->comboUnit->setCurrentIndex(unit_index);
 
-    ui->rBtnMS->setChecked(node->rule == kRuleMS);
-    ui->rBtnIS->setChecked(node->rule == kRuleIS);
-
+    IniRule(node->rule);
     ui->rBtnLeaf->setChecked(true);
+
     ui->pBtnOk->setEnabled(false);
 }
 
@@ -76,6 +75,22 @@ void InsertNodeStakeholder::IniRuleGroup()
     rule_group_ = new QButtonGroup(this);
     rule_group_->addButton(ui->rBtnIS, 0);
     rule_group_->addButton(ui->rBtnMS, 1);
+}
+
+void InsertNodeStakeholder::IniRule(bool rule)
+{
+    const int kRule { static_cast<int>(rule) };
+
+    switch (kRule) {
+    case 0:
+        ui->rBtnIS->setChecked(true);
+        break;
+    case 1:
+        ui->rBtnMS->setChecked(true);
+        break;
+    default:
+        break;
+    }
 }
 
 void InsertNodeStakeholder::RNameEdited(const QString& arg1)
@@ -111,10 +126,6 @@ void InsertNodeStakeholder::on_comboEmployee_currentIndexChanged(int index)
 
 void InsertNodeStakeholder::on_deadline_editingFinished() { node_->date_time = ui->deadline->dateTime().toString(kDateTimeFST); }
 
-void InsertNodeStakeholder::RRuleGroupClicked(int id)
-{
-    const bool kRule { static_cast<bool>(id) };
-    node_->rule = kRule;
-}
+void InsertNodeStakeholder::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
 void InsertNodeStakeholder::RTypeGroupClicked(int id) { node_->type = id; }

@@ -61,6 +61,7 @@ private:
     void IniData(Node* node);
     void IniTypeGroup();
     void IniRuleGroup();
+    void IniRule(bool rule);
 
 private:
     Ui::InsertNodeStakeholder* ui;

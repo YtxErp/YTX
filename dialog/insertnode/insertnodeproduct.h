@@ -62,6 +62,7 @@ private:
     void UpdateColor(QColor color);
     void IniTypeGroup();
     void IniRuleGroup();
+    void IniRule(bool rule);
 
 private:
     Ui::InsertNodeProduct* ui;

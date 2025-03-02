@@ -27,7 +27,7 @@ void InsertNodeFinance::IniDialog(QStandardItemModel* unit_model)
     ui->lineName->setFocus();
     ui->lineName->setValidator(&LineEdit::kInputValidator);
 
-    this->setWindowTitle(parent_path_ + node_->name);
+    this->setWindowTitle(parent_path_);
     this->setFixedSize(300, 500);
 
     ui->comboUnit->setModel(unit_model);
@@ -35,13 +35,12 @@ void InsertNodeFinance::IniDialog(QStandardItemModel* unit_model)
 
 void InsertNodeFinance::IniData(Node* node)
 {
-    int item_index { ui->comboUnit->findData(node->unit) };
-    ui->comboUnit->setCurrentIndex(item_index);
+    int unit_index { ui->comboUnit->findData(node->unit) };
+    ui->comboUnit->setCurrentIndex(unit_index);
 
-    ui->rBtnDDCI->setChecked(node->rule == kRuleDDCI);
-    ui->rBtnDICD->setChecked(node->rule == kRuleDICD);
-
+    IniRule(node->rule);
     ui->rBtnLeaf->setChecked(true);
+
     ui->pBtnOk->setEnabled(false);
 }
 
@@ -67,6 +66,22 @@ void InsertNodeFinance::IniRuleGroup()
     rule_group_->addButton(ui->rBtnDDCI, 1);
 }
 
+void InsertNodeFinance::IniRule(bool rule)
+{
+    const int kRule { static_cast<int>(rule) };
+
+    switch (kRule) {
+    case 0:
+        ui->rBtnDICD->setChecked(true);
+        break;
+    case 1:
+        ui->rBtnDDCI->setChecked(true);
+        break;
+    default:
+        break;
+    }
+}
+
 void InsertNodeFinance::RNameEdited(const QString& arg1)
 {
     const auto& simplified { arg1.simplified() };
@@ -86,11 +101,7 @@ void InsertNodeFinance::on_comboUnit_currentIndexChanged(int index)
     node_->unit = ui->comboUnit->currentData().toInt();
 }
 
-void InsertNodeFinance::RRuleGroupClicked(int id)
-{
-    const bool kRule { static_cast<bool>(id) };
-    node_->rule = kRule;
-}
+void InsertNodeFinance::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
 void InsertNodeFinance::RTypeGroupClicked(int id) { node_->type = id; }
 

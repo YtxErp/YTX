@@ -227,17 +227,17 @@ bool TreeModelOrder::UpdateAncestorValue(Node* node, double initial_delta, doubl
     if (initial_delta == 0.0 && final_delta == 0.0 && first_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
         return false;
 
-    const int unit { node->unit };
-    const int column_begin { std::to_underlying(TreeEnumOrder::kFirst) };
+    const int kUnit { node->unit };
+    const int kColumnBegin { std::to_underlying(TreeEnumOrder::kFirst) };
     int column_end { std::to_underlying(TreeEnumOrder::kNetAmount) };
 
     // 确定需要更新的列范围
     if (initial_delta == 0.0 && final_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
-        column_end = column_begin;
+        column_end = kColumnBegin;
 
     QModelIndexList ancestor {};
     for (node = node->parent; node && node != root_; node = node->parent) {
-        if (node->unit != unit)
+        if (node->unit != kUnit)
             continue;
 
         node->first += first_delta;
@@ -250,7 +250,7 @@ bool TreeModelOrder::UpdateAncestorValue(Node* node, double initial_delta, doubl
     }
 
     if (!ancestor.isEmpty())
-        emit dataChanged(index(ancestor.first().row(), column_begin), index(ancestor.last().row(), column_end), { Qt::DisplayRole });
+        emit dataChanged(index(ancestor.first().row(), kColumnBegin), index(ancestor.last().row(), column_end), { Qt::DisplayRole });
 
     return true;
 }

@@ -272,10 +272,10 @@ bool TreeModelProduct::UpdateAncestorValue(
     if (initial_delta == 0.0 && final_delta == 0.0)
         return false;
 
-    const bool rule = node->rule;
+    const bool kRule { node->rule };
 
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
-        bool equal = current->rule == rule;
+        bool equal { current->rule == kRule };
 
         current->final_total += (equal ? 1 : -1) * final_delta;
         current->initial_total += (equal ? 1 : -1) * initial_delta;

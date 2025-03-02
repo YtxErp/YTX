@@ -50,6 +50,8 @@ void InsertNodeTask::IniData(Node* node)
     IniRule(node->rule);
     ui->rBtnLeaf->setChecked(true);
 
+    ui->dateTime->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
+
     ui->pBtnOk->setEnabled(false);
 }
 

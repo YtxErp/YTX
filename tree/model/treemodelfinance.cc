@@ -410,14 +410,14 @@ bool TreeModelFinance::UpdateAncestorValue(
     if (initial_delta == 0.0 && final_delta == 0.0)
         return false;
 
-    const int unit = node->unit;
-    const bool rule = node->rule;
+    const int kUnit { node->unit };
+    const bool kRule { node->rule };
 
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
-        bool equal = current->rule == rule;
+        bool equal { current->rule == kRule };
         current->final_total += (equal ? 1 : -1) * final_delta;
 
-        if (current->unit == unit) {
+        if (current->unit == kUnit) {
             current->initial_total += (equal ? 1 : -1) * initial_delta;
         }
     }

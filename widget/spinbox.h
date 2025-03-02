@@ -32,7 +32,6 @@ public:
     {
         setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
         setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        setButtonSymbols(QAbstractSpinBox::NoButtons);
         setGroupSeparatorShown(true);
     }
 

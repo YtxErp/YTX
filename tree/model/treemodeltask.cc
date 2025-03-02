@@ -115,7 +115,7 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
     case TreeEnumTask::kUnitCost:
         return kIsLeaf && node->first != 0 ? node->first : QVariant();
     case TreeEnumTask::kDocument:
-        return kIsLeaf && !node->document.isEmpty() ? node->document.size() : QVariant();
+        return node->document.isEmpty() ? QVariant() : node->document.size();
     case TreeEnumTask::kQuantity:
         return node->initial_total;
     case TreeEnumTask::kAmount:

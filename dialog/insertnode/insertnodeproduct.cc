@@ -2,7 +2,6 @@
 
 #include <QColorDialog>
 
-#include "component/constvalue.h"
 #include "component/signalblocker.h"
 #include "ui_insertnodeproduct.h"
 

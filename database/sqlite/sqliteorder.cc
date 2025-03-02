@@ -145,7 +145,7 @@ QString SqliteOrder::QSReadNode() const
     return QStringLiteral(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
     FROM %1
-    WHERE ((DATE(date_time) BETWEEN :start_date AND :end_date) OR type = 1) AND removed = 0
+    WHERE ((DATE(date_time) BETWEEN :start_date AND :end_date) OR type = 1 OR unit = 2) AND removed = 0
     )")
         .arg(info_.node);
 }

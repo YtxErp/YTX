@@ -1408,7 +1408,7 @@ Rage, rage against the dying of the light.</source>
         <translation>单价</translation>
     </message>
     <message>
-        <location filename="../../dialog/insertnode/insertnodeproduct.cc" line="+120"/>
+        <location filename="../../dialog/insertnode/insertnodeproduct.cc" line="+133"/>
         <source>Choose Color</source>
         <translation>选择颜色</translation>
     </message>
@@ -1614,7 +1614,7 @@ Rage, rage against the dying of the light.</source>
         <translation>颜色</translation>
     </message>
     <message>
-        <location filename="../../dialog/insertnode/insertnodetask.cc" line="+118"/>
+        <location filename="../../dialog/insertnode/insertnodetask.cc" line="+133"/>
         <source>Choose Color</source>
         <translation>选择颜色</translation>
     </message>
@@ -1666,7 +1666,7 @@ Rage, rage against the dying of the light.</source>
     <name>MainWindow</name>
     <message>
         <location filename="../../mainwindow.ui" line="+85"/>
-        <location filename="../../mainwindow.cc" line="+175"/>
+        <location filename="../../mainwindow.cc" line="+176"/>
         <source>Finance</source>
         <translation>财务</translation>
     </message>
@@ -1849,7 +1849,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+1927"/>
+        <location filename="../../mainwindow.cc" line="+1989"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -1873,7 +1873,7 @@ Rage, rage against the dying of the light.</source>
     <message>
         <location line="+5"/>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+264"/>
+        <location filename="../../mainwindow.cc" line="+108"/>
         <source>Export Structure</source>
         <translation>导出 Ytx</translation>
     </message>
@@ -2010,7 +2010,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-277"/>
-        <location filename="../../mainwindow.cc" line="-2190"/>
+        <location filename="../../mainwindow.cc" line="-2096"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2068,7 +2068,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+226"/>
-        <location filename="../../mainwindow.cc" line="+1919"/>
+        <location filename="../../mainwindow.cc" line="+1981"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2157,7 +2157,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1077"/>
+        <location filename="../../mainwindow.cc" line="-1078"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -2247,7 +2247,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">无效的文件: %1</translation>
     </message>
     <message>
-        <location line="-873"/>
+        <location line="-934"/>
         <source>Invalid File</source>
         <translation>无效的文件</translation>
     </message>
@@ -2257,7 +2257,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件 %1 是无效的，请检查后再重新试试。</translation>
     </message>
     <message>
-        <location line="+838"/>
+        <location line="+899"/>
         <source>Lock Failed</source>
         <translation>锁定失败</translation>
     </message>
@@ -2311,7 +2311,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">平方英尺</translation>
     </message>
     <message>
-        <location line="+267"/>
+        <location line="+268"/>
         <location line="+79"/>
         <location line="+42"/>
         <source>IS</source>
@@ -2332,27 +2332,17 @@ Rage, rage against the dying of the light.</source>
         <translation>语言已更改，请重启应用程序以使更改生效。</translation>
     </message>
     <message>
-        <location line="+295"/>
-        <location line="+26"/>
-        <location line="+26"/>
-        <location line="+26"/>
-        <location line="+26"/>
-        <location line="+26"/>
+        <location line="-1675"/>
         <source>Please open the file first.</source>
         <translation>请先打开文件。</translation>
     </message>
     <message>
-        <location line="-130"/>
-        <location line="+26"/>
-        <location line="+26"/>
-        <location line="+26"/>
-        <location line="+26"/>
-        <location line="+26"/>
+        <location line="+0"/>
         <source>File Required</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+2034"/>
         <source>Export Completed</source>
         <translation>成功</translation>
     </message>
@@ -2377,7 +2367,7 @@ Rage, rage against the dying of the light.</source>
         <translation>导出版块</translation>
     </message>
     <message>
-        <location line="-1153"/>
+        <location line="-997"/>
         <location line="+79"/>
         <location line="+42"/>
         <source>MS</source>
@@ -3749,7 +3739,7 @@ Rage, rage against the dying of the light.</source>
 <context>
     <name>Search</name>
     <message>
-        <location filename="../../dialog/search.cc" line="+53"/>
+        <location filename="../../dialog/search.cc" line="+55"/>
         <source>Search</source>
         <translation>搜索</translation>
     </message>

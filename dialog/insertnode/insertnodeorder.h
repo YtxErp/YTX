@@ -108,6 +108,7 @@ private:
 
     const QString info_node_ {};
     const int party_unit_ {};
+    QString party_ {};
 
     int node_id_ {};
 };

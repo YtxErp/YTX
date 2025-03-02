@@ -104,7 +104,7 @@ QRadioButton:hover, QCheckBox:hover, QPushButton:hover, QTabBar::tab:hover {
     color: #2BB3EB;
 }
 
-QTreeView::item:hover, QListWidget::item:hover {
+QTreeView::item:hover, QListWidget::item:hover, QTreeView::branch {
     background-color: #002B36;
 }
 
@@ -155,7 +155,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal, QScrollBar::ad
     background-color: transparent;
 }
 
-QTreeView::item:selected, QListView::item:selected, QTreeView QCheckBox, QTableView QCheckBox {
+QTreeView::item:selected, QListView::item:selected, QTreeView QCheckBox, QTableView QCheckBox, QTreeView::branch:selected {
     background-color: #586E75;
 }
 
@@ -163,6 +163,10 @@ QTreeView::item:selected, QListView::item:selected, QTreeView QCheckBox, QTableV
 
 QToolTip, QTabBar::tab:selected, QMenuBar::item:selected, QPushButton#pBtnFinishOrder:checked {
     color: #2BB3EB;
+}
+
+QTableView::item:selected {
+    color: #EEE8D5;
 }
 
 /*-------------------------------------------arrow--------------------------------------------------*/

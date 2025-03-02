@@ -17,6 +17,7 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     , order_table_ { params.order_table }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
     , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
+    , party_ { params.section == Section::kSales ? tr("CUST") : tr("VEND") }
     , node_id_ { params.node->id }
 {
     ui->setupUi(this);
@@ -463,7 +464,7 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
 
     ui->rBtnRefund->setChecked(false);
     ui->tableViewOrder->clearSelection();
-    ui->labParty->setText(enable ? tr("Branch") : tr("Party"));
+    ui->labParty->setText(enable ? tr("Branch") : party_);
 }
 
 void InsertNodeOrder::RRuleGroupClicked(int id)

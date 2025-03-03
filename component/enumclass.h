@@ -41,19 +41,19 @@ enum class Section { kFinance, kProduct, kTask, kStakeholder, kSales, kPurchase 
 enum class Filter { kIncludeSpecific, kExcludeSpecific, kIncludeSpecificWithNone, kIncludeAllWithNone };
 
 // Enum class defining trans columns
-enum class TableEnum { kID, kDateTime, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode };
+enum class TableEnum { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode };
 
-enum class TableEnumFinance { kID, kDateTime, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TableEnumFinance { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumTask { kID, kDateTime, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TableEnumTask { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumProduct { kID, kDateTime, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TableEnumProduct { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumStakeholder { kID, kDateTime, kUnitPrice, kCode, kDescription, kOutsideProduct, kDocument, kState, kInsideProduct };
+enum class TableEnumStakeholder { kDateTime, kID, kUnitPrice, kCode, kDescription, kOutsideProduct, kDocument, kState, kInsideProduct };
 
 enum class TableEnumOrder {
-    kID,
     kInsideProduct,
+    kID,
     kOutsideProduct,
     kFirst,
     kSecond,
@@ -68,8 +68,8 @@ enum class TableEnumOrder {
 };
 
 enum class TableEnumSearch {
-    kID,
     kDateTime,
+    kID,
     kCode,
     kLhsNode,
     kLhsRatio,
@@ -89,8 +89,8 @@ enum class TableEnumSearch {
 };
 
 enum class TableEnumSupport {
-    kID,
     kDateTime,
+    kID,
     kCode,
     kLhsNode,
     kLhsRatio,

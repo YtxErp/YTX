@@ -82,12 +82,12 @@ public slots:
 
 public:
     // implemented functions
-    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    inline int rowCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return trans_shadow_list_.size(); }
+    inline int columnCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return info_.trans_header.size(); }
+    inline QModelIndex parent(const QModelIndex& /*index*/) const override { return QModelIndex(); }
 
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex& index) const override;
 
     bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;

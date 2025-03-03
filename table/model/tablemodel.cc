@@ -293,12 +293,6 @@ QModelIndex TableModel::index(int row, int column, const QModelIndex& parent) co
     return createIndex(row, column);
 }
 
-QModelIndex TableModel::parent(const QModelIndex& /*index*/) const { return QModelIndex(); }
-
-int TableModel::rowCount(const QModelIndex& /*parent*/) const { return trans_shadow_list_.size(); }
-
-int TableModel::columnCount(const QModelIndex& /*parent*/) const { return info_.trans_header.size(); }
-
 QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)

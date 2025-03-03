@@ -385,6 +385,66 @@ void SqliteOrder::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQ
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
+void SqliteOrder::WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const
+{
+    const int size = list.size();
+
+    QVariantList code_list {};
+    QVariantList inside_product_list {};
+    QVariantList unit_price_list {};
+    QVariantList description_list {};
+    QVariantList second_list {};
+    QVariantList lhs_node_list {};
+    QVariantList first_list {};
+    QVariantList gross_amount_list {};
+    QVariantList discount_list {};
+    QVariantList net_amount_list {};
+    QVariantList outside_product_list {};
+    QVariantList discount_price_list {};
+
+    code_list.reserve(size);
+    inside_product_list.reserve(size);
+    unit_price_list.reserve(size);
+    description_list.reserve(size);
+    second_list.reserve(size);
+    lhs_node_list.reserve(size);
+    first_list.reserve(size);
+    gross_amount_list.reserve(size);
+    discount_list.reserve(size);
+    net_amount_list.reserve(size);
+    outside_product_list.reserve(size);
+    discount_price_list.reserve(size);
+
+    for (const TransShadow* trans_shadow : list) {
+        code_list.emplaceBack(*trans_shadow->code);
+        inside_product_list.emplaceBack(*trans_shadow->rhs_node);
+        unit_price_list.emplaceBack(*trans_shadow->lhs_ratio);
+        description_list.emplaceBack(*trans_shadow->description);
+        second_list.emplaceBack(*trans_shadow->lhs_credit);
+        lhs_node_list.emplaceBack(*trans_shadow->lhs_node);
+        first_list.emplaceBack(*trans_shadow->lhs_debit);
+        gross_amount_list.emplaceBack(*trans_shadow->rhs_debit);
+        discount_list.emplaceBack(*trans_shadow->discount);
+        net_amount_list.emplaceBack(*trans_shadow->rhs_credit);
+        outside_product_list.emplaceBack(*trans_shadow->support_id);
+        discount_price_list.emplaceBack(*trans_shadow->rhs_ratio);
+    }
+
+    // 批量绑定 QVariantList
+    query.bindValue(QStringLiteral(":code"), code_list);
+    query.bindValue(QStringLiteral(":inside_product"), inside_product_list);
+    query.bindValue(QStringLiteral(":unit_price"), unit_price_list);
+    query.bindValue(QStringLiteral(":description"), description_list);
+    query.bindValue(QStringLiteral(":second"), second_list);
+    query.bindValue(QStringLiteral(":lhs_node"), lhs_node_list);
+    query.bindValue(QStringLiteral(":first"), first_list);
+    query.bindValue(QStringLiteral(":gross_amount"), gross_amount_list);
+    query.bindValue(QStringLiteral(":discount"), discount_list);
+    query.bindValue(QStringLiteral(":net_amount"), net_amount_list);
+    query.bindValue(QStringLiteral(":outside_product"), outside_product_list);
+    query.bindValue(QStringLiteral(":discount_price"), discount_price_list);
+}
+
 QString SqliteOrder::QSWriteLeafValueFPTO() const
 {
     return QStringLiteral(R"(

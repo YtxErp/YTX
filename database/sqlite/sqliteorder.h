@@ -53,6 +53,7 @@ protected:
     void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
     void UpdateStakeholderReferenceO(int old_node_id, int new_node_id) const override;
     void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const override;
 
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;

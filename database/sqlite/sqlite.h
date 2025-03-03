@@ -176,6 +176,12 @@ protected:
         Q_UNUSED(query);
     };
 
+    virtual void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const
+    {
+        Q_UNUSED(list);
+        Q_UNUSED(query);
+    };
+
     //
 
     virtual void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query, bool is_support = false);

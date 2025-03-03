@@ -1181,7 +1181,7 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
 
     auto* document { new Document(table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kDocument), document);
-    connect(document, &Document::SEditDocument, this, &MainWindow::REditNodeDocument);
+    connect(document, &Document::SEditDocument, this, &MainWindow::REditTransDocument);
 
     auto* value { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsDebit), value);

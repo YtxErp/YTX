@@ -70,18 +70,18 @@ public:
     bool DragNode(int destination_node_id, int node_id) const;
     bool InternalReference(int node_id) const;
     bool ExternalReference(int node_id) const;
-    bool SupportReferenceFPTS(int support_id) const;
+    bool SupportReference(int support_id) const;
     bool ReadLeafTotal(Node* node) const;
     bool WriteLeafValue(const Node* node) const;
     QList<int> SearchNodeName(CString& text) const;
     bool ReadReferencedNode(TransList& trans_list, int node_id) const;
 
     // table
-    bool ReadNodeTrans(TransShadowList& trans_shadow_list, int node_id);
-    bool ReadSupportTransFPTS(TransShadowList& trans_shadow_list, int support_id);
+    bool ReadTrans(TransShadowList& trans_shadow_list, int node_id);
+    bool ReadSupportTrans(TransShadowList& trans_shadow_list, int support_id);
     bool ReadTransRange(TransShadowList& trans_shadow_list, int node_id, const QList<int>& trans_id_list);
     bool WriteTrans(TransShadow* trans_shadow);
-    bool WriteTransRangeO(const QList<TransShadow*>& list) const;
+    bool WriteTransRange(const QList<TransShadow*>& list) const;
     bool WriteTransValue(const TransShadow* trans_shadow) const;
     TransShadow* AllocateTransShadow();
 
@@ -103,7 +103,7 @@ protected:
     virtual QString QSSearchTrans() const = 0;
 
     virtual QString QSExternalReferencePS() const { return {}; }
-    virtual QString QSSupportReferenceFPTS() const { return {}; }
+    virtual QString QSSupportReference() const { return {}; }
     virtual QString QSRemoveSupportFPTS() const { return {}; }
     virtual QString QSLeafTotalFPT() const { return {}; }
     virtual QString QSWriteLeafValueFPTO() const { return {}; }
@@ -133,8 +133,8 @@ protected:
     bool WriteRelationship(int node_id, int parent_id, QSqlQuery& query) const;
 
     // table
-    virtual QString QSReadNodeTrans() const = 0;
-    virtual QString QSWriteNodeTrans() const = 0;
+    virtual QString QSReadTrans() const = 0;
+    virtual QString QSWriteTrans() const = 0;
     virtual QString QSNodeTransToRemove() const = 0;
 
     virtual QString QSReadSupportTransFPTS() const { return {}; }

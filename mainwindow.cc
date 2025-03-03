@@ -895,7 +895,7 @@ void MainWindow::RemoveNode(TreeWidget* tree_widget)
     auto* sql { data_->sql };
     bool interal_reference { sql->InternalReference(node_id) };
     bool exteral_reference { sql->ExternalReference(node_id) };
-    bool support_reference { sql->SupportReferenceFPTS(node_id) };
+    bool support_reference { sql->SupportReference(node_id) };
 
     if (!interal_reference && !exteral_reference && !support_reference) {
         RemoveNonBranch(model, index, node_id, node_type);

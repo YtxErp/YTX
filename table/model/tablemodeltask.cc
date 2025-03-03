@@ -10,7 +10,7 @@ TableModelTask::TableModelTask(Sqlite* sql, bool rule, int node_id, CInfo& info,
     : TableModel { sql, rule, node_id, info, parent }
 {
     if (node_id >= 1)
-        sql_->ReadNodeTrans(trans_shadow_list_, node_id);
+        sql_->ReadTrans(trans_shadow_list_, node_id);
 }
 
 QVariant TableModelTask::data(const QModelIndex& index, int role) const

@@ -157,7 +157,7 @@ bool TreeModelUtils::IsInternalReferencedFPTS(Sqlite* sql, int node_id, CString&
 
 bool TreeModelUtils::IsSupportReferencedFPTS(Sqlite* sql, int node_id, CString& message)
 {
-    if (sql->SupportReferenceFPTS(node_id)) {
+    if (sql->SupportReference(node_id)) {
         MainWindowUtils::Message(
             QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it is support referenced.").arg(message), kThreeThousand);
         return true;

@@ -119,7 +119,7 @@ QString SqliteFinance::QSInternalReference() const
     )");
 }
 
-QString SqliteFinance::QSSupportReferenceFPTS() const
+QString SqliteFinance::QSSupportReference() const
 {
     return QStringLiteral(R"(
     SELECT COUNT(*) FROM finance_transaction
@@ -209,7 +209,7 @@ QString SqliteFinance::QSSupportTransToRemoveFPTS() const
     )");
 }
 
-QString SqliteFinance::QSReadNodeTrans() const
+QString SqliteFinance::QSReadTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, lhs_ratio, lhs_debit, lhs_credit, rhs_node, rhs_ratio, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -227,7 +227,7 @@ QString SqliteFinance::QSReadSupportTransFPTS() const
     )");
 }
 
-QString SqliteFinance::QSWriteNodeTrans() const
+QString SqliteFinance::QSWriteTrans() const
 {
     return QStringLiteral(R"(
     INSERT INTO finance_transaction

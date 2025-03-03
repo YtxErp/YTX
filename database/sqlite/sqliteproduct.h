@@ -33,7 +33,7 @@ protected:
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
     QString QSExternalReferencePS() const override;
-    QString QSSupportReferenceFPTS() const override;
+    QString QSSupportReference() const override;
     QString QSReplaceSupportTransFPTS() const override;
     QString QSRemoveSupportFPTS() const override;
     QString QSFreeViewFPT() const override;
@@ -55,8 +55,8 @@ protected:
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
 
-    QString QSReadNodeTrans() const override;
-    QString QSWriteNodeTrans() const override;
+    QString QSReadTrans() const override;
+    QString QSWriteTrans() const override;
     QString QSReadTransRangeFPTS(CString& in_list) const override;
     QString QSReadSupportTransFPTS() const override;
     QString QSReplaceNodeTransFPTS() const override;

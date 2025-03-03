@@ -12,7 +12,7 @@ TableModelOrder::TableModelOrder(
     , party_id_ { node->party }
 {
     if (node_id >= 1)
-        sql_->ReadNodeTrans(trans_shadow_list_, node_id);
+        sql_->ReadTrans(trans_shadow_list_, node_id);
 
     if (party_id_ >= 1)
         sqlite_stakeholder_->ReadTrans(party_id_);
@@ -37,7 +37,7 @@ void TableModelOrder::UpdateLhsNode(int node_id)
     PurifyTransShadow(node_id);
 
     if (!trans_shadow_list_.isEmpty())
-        sql_->WriteTransRangeO(trans_shadow_list_);
+        sql_->WriteTransRange(trans_shadow_list_);
 }
 
 void TableModelOrder::UpdateParty(int node_id, int party_id)

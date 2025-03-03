@@ -153,7 +153,7 @@ bool SqliteStakeholder::ReadTrans(int node_id)
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString& string { QSReadNodeTrans() };
+    CString& string { QSReadTrans() };
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
 
@@ -230,7 +230,7 @@ QString SqliteStakeholder::QSExternalReferencePS() const
     )");
 }
 
-QString SqliteStakeholder::QSSupportReferenceFPTS() const
+QString SqliteStakeholder::QSSupportReference() const
 {
     return QStringLiteral(R"(
     SELECT COUNT(*) FROM stakeholder_transaction
@@ -272,7 +272,7 @@ QString SqliteStakeholder::QSSupportTransToRemoveFPTS() const
     )");
 }
 
-QString SqliteStakeholder::QSReadNodeTrans() const
+QString SqliteStakeholder::QSReadTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, date_time, code, outside_product, lhs_node, unit_price, description, document, state, inside_product
@@ -290,7 +290,7 @@ QString SqliteStakeholder::QSReadSupportTransFPTS() const
     )");
 }
 
-QString SqliteStakeholder::QSWriteNodeTrans() const
+QString SqliteStakeholder::QSWriteTrans() const
 {
     return QStringLiteral(R"(
     INSERT INTO stakeholder_transaction
@@ -369,7 +369,7 @@ void SqliteStakeholder::ReadTransStakeholder(QSqlQuery& query)
 bool SqliteStakeholder::WriteTrans(Trans* trans)
 {
     QSqlQuery query(*db_);
-    CString& string { QSWriteNodeTrans() };
+    CString& string { QSWriteTrans() };
 
     query.prepare(string);
     WriteTransBind(trans, query);

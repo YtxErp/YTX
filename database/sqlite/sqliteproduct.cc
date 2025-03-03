@@ -54,7 +54,7 @@ QString SqliteProduct::QSExternalReferencePS() const
     )");
 }
 
-QString SqliteProduct::QSSupportReferenceFPTS() const
+QString SqliteProduct::QSSupportReference() const
 {
     return QStringLiteral(R"(
     SELECT COUNT(*) FROM product_transaction
@@ -243,7 +243,7 @@ void SqliteProduct::ReadReferencedTransQuery(Trans* trans, const QSqlQuery& quer
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
 }
 
-QString SqliteProduct::QSReadNodeTrans() const
+QString SqliteProduct::QSReadTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, unit_cost, lhs_debit, lhs_credit, rhs_node, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -268,7 +268,7 @@ void SqliteProduct::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) c
     query.bindValue(QStringLiteral(":node_id"), node->id);
 }
 
-QString SqliteProduct::QSWriteNodeTrans() const
+QString SqliteProduct::QSWriteTrans() const
 {
     return QStringLiteral(R"(
     INSERT INTO product_transaction

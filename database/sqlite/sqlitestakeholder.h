@@ -51,7 +51,7 @@ protected:
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
     QString QSExternalReferencePS() const override;
-    QString QSSupportReferenceFPTS() const override;
+    QString QSSupportReference() const override;
     QString QSReplaceSupportTransFPTS() const override;
     QString QSRemoveSupportFPTS() const override;
     QString QSSupportTransToMoveFPTS() const override;
@@ -64,9 +64,9 @@ protected:
     QMultiHash<int, int> ReplaceNodeFunction(int old_node_id, int new_node_id) const override;
 
     QString QSReadTransRangeFPTS(CString& in_list) const override;
-    QString QSReadNodeTrans() const override;
+    QString QSReadTrans() const override;
     QString QSReadSupportTransFPTS() const override;
-    QString QSWriteNodeTrans() const override;
+    QString QSWriteTrans() const override;
     QString QSReplaceNodeTransFPTS() const override;
     QString QSUpdateProductReferenceSO() const override;
     QString QSSearchTrans() const override;

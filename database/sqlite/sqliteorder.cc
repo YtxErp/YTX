@@ -178,7 +178,7 @@ QString SqliteOrder::QSInternalReference() const
         .arg(info_.trans);
 }
 
-QString SqliteOrder::QSReadNodeTrans() const
+QString SqliteOrder::QSReadTrans() const
 {
     return QString(R"(
     SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
@@ -188,7 +188,7 @@ QString SqliteOrder::QSReadNodeTrans() const
         .arg(info_.trans);
 }
 
-QString SqliteOrder::QSWriteNodeTrans() const
+QString SqliteOrder::QSWriteTrans() const
 {
     return QString(R"(
     INSERT INTO %1 (code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price)

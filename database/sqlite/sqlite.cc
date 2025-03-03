@@ -261,9 +261,8 @@ bool Sqlite::ReadNode(NodeHash& node_hash)
         return false;
     }
 
-    Node* node {};
     while (query.next()) {
-        node = ResourcePool<Node>::Instance().Allocate();
+        auto* node { ResourcePool<Node>::Instance().Allocate() };
         ReadNodeQuery(node, query);
         node_hash.insert(node->id, node);
     }
@@ -347,25 +346,24 @@ QList<int> Sqlite::SearchNodeName(CString& text) const
 
     QString string {};
     if (text.isEmpty())
-        string = QStringLiteral("SELECT id FROM %1 WHERE removed = 0").arg(info_.node);
+        string = QString("SELECT id FROM %1 WHERE removed = 0").arg(info_.node);
     else
-        string = QStringLiteral("SELECT id FROM %1 WHERE removed = 0 AND name LIKE :text").arg(info_.node);
+        string = QString("SELECT id FROM %1 WHERE removed = 0 AND name LIKE :text").arg(info_.node);
 
     query.prepare(string);
 
     if (!text.isEmpty())
-        query.bindValue(QStringLiteral(":text"), QStringLiteral("%%%1%").arg(text));
+        query.bindValue(QStringLiteral(":text"), QString("%%%1%").arg(text));
 
     if (!query.exec()) {
         qWarning() << "Failed in SearchNodeName" << query.lastError().text();
         return {};
     }
 
-    int node_id {};
     QList<int> node_list {};
 
     while (query.next()) {
-        node_id = query.value(QStringLiteral("id")).toInt();
+        int node_id { query.value(QStringLiteral("id")).toInt() };
         node_list.emplaceBack(node_id);
     }
 
@@ -444,7 +442,7 @@ void Sqlite::ReplaceSupportFunction(int old_support_id, int new_support_id)
 
 QString Sqlite::QSRemoveNodeFirst() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
             UPDATE %1
             SET removed = 1
             WHERE id = :node_id
@@ -454,7 +452,7 @@ QString Sqlite::QSRemoveNodeFirst() const
 
 QString Sqlite::QSRemoveBranch() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
             WITH related_nodes AS (
                 SELECT DISTINCT fp1.ancestor, fp2.descendant
                 FROM %1 AS fp1
@@ -476,7 +474,7 @@ QString Sqlite::QSRemoveNodeThird() const
 
 QString Sqlite::QSDragNodeFirst() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
             WITH related_nodes AS (
                 SELECT DISTINCT fp1.ancestor, fp2.descendant
                 FROM %1 AS fp1
@@ -492,7 +490,7 @@ QString Sqlite::QSDragNodeFirst() const
 
 QString Sqlite::QSDragNodeSecond() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
             INSERT INTO %1 (ancestor, descendant, distance)
             SELECT fp1.ancestor, fp2.descendant, fp1.distance + fp2.distance + 1
             FROM %1 AS fp1
@@ -581,9 +579,9 @@ bool Sqlite::ExternalReference(int node_id) const
     return query.value(0).toInt() >= 1;
 }
 
-bool Sqlite::SupportReferenceFPTS(int support_id) const
+bool Sqlite::SupportReference(int support_id) const
 {
-    CString& string { QSSupportReferenceFPTS() };
+    CString& string { QSSupportReference() };
     if (string.isEmpty() || support_id <= 0)
         return false;
 
@@ -594,7 +592,7 @@ bool Sqlite::SupportReferenceFPTS(int support_id) const
     query.bindValue(QStringLiteral(":support_id"), support_id);
 
     if (!query.exec()) {
-        qWarning() << "Section: " << std::to_underlying(info_.section) << "Failed in SupportReferenceFPTS" << query.lastError().text();
+        qWarning() << "Section: " << std::to_underlying(info_.section) << "Failed in SupportReference" << query.lastError().text();
         return false;
     }
 
@@ -602,12 +600,12 @@ bool Sqlite::SupportReferenceFPTS(int support_id) const
     return query.value(0).toInt() >= 1;
 }
 
-bool Sqlite::ReadNodeTrans(TransShadowList& trans_shadow_list, int node_id)
+bool Sqlite::ReadTrans(TransShadowList& trans_shadow_list, int node_id)
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString& string { QSReadNodeTrans() };
+    CString& string { QSReadTrans() };
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
 
@@ -645,7 +643,7 @@ void Sqlite::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) co
 bool Sqlite::WriteTrans(TransShadow* trans_shadow)
 {
     QSqlQuery query(*db_);
-    CString& string { QSWriteNodeTrans() };
+    CString& string { QSWriteTrans() };
 
     query.prepare(string);
     WriteTransBind(trans_shadow, query);
@@ -660,7 +658,7 @@ bool Sqlite::WriteTrans(TransShadow* trans_shadow)
     return true;
 }
 
-bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
+bool Sqlite::WriteTransRange(const QList<TransShadow*>& list) const
 {
     if (list.isEmpty())
         return false;
@@ -675,7 +673,7 @@ bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
         return false;
     }
 
-    CString& string { QSWriteNodeTrans() };
+    CString& string { QSWriteTrans() };
 
     // 插入多条记录的 SQL 语句
     query.prepare(string);
@@ -767,7 +765,7 @@ bool Sqlite::WriteTransRangeO(const QList<TransShadow*>& list) const
 bool Sqlite::RemoveTrans(int trans_id)
 {
     QSqlQuery query(*db_);
-    auto part = QStringLiteral(R"(
+    auto part = QString(R"(
     UPDATE %1
     SET removed = 1
     WHERE id = :trans_id
@@ -830,11 +828,11 @@ bool Sqlite::WriteField(CString& table, CString& field, CVariant& value, int id)
 {
     QSqlQuery query(*db_);
 
-    auto part = QStringLiteral(R"(
+    auto part = QString(R"(
     UPDATE %1
     SET %2 = :value
     WHERE id = :id
-)")
+    )")
                     .arg(table, field);
 
     query.prepare(part);
@@ -857,8 +855,8 @@ bool Sqlite::WriteState(Check state) const
     const bool is_not_reverse { state != Check::kReverse };
 
     // 构建 SQL 查询字符串，调整三元运算符顺序，避免重复判断
-    const auto string { is_not_reverse ? QStringLiteral("UPDATE %1 SET state = :value").arg(info_.trans)
-                                       : QStringLiteral("UPDATE %1 SET state = NOT state").arg(info_.trans) };
+    const auto string { is_not_reverse ? QString("UPDATE %1 SET state = :value").arg(info_.trans)
+                                       : QString("UPDATE %1 SET state = NOT state").arg(info_.trans) };
 
     query.prepare(string);
 
@@ -888,7 +886,7 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
     query.prepare(string);
 
     query.bindValue(QStringLiteral(":text"), text);
-    query.bindValue(QStringLiteral(":description"), QStringLiteral("%%%1%").arg(text));
+    query.bindValue(QStringLiteral(":description"), QString("%%%1%").arg(text));
 
     if (!query.exec()) {
         qWarning() << "Failed in Search Trans" << query.lastError().text();
@@ -980,7 +978,7 @@ bool Sqlite::ReadTransRange(TransShadowList& trans_shadow_list, int node_id, con
     return true;
 }
 
-bool Sqlite::ReadSupportTransFPTS(TransShadowList& trans_shadow_list, int support_id)
+bool Sqlite::ReadSupportTrans(TransShadowList& trans_shadow_list, int support_id)
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -1026,7 +1024,7 @@ bool Sqlite::ReadRelationship(const NodeHash& node_hash, QSqlQuery& query) const
     if (node_hash.isEmpty())
         return false;
 
-    auto part = QStringLiteral(R"(
+    auto part = QString(R"(
     SELECT ancestor, descendant
     FROM %1
     WHERE distance = 1
@@ -1063,7 +1061,7 @@ bool Sqlite::ReadRelationship(const NodeHash& node_hash, QSqlQuery& query) const
 
 bool Sqlite::WriteRelationship(int node_id, int parent_id, QSqlQuery& query) const
 {
-    auto part = QStringLiteral(R"(
+    auto part = QString(R"(
     INSERT INTO %1 (ancestor, descendant, distance)
     SELECT ancestor, :node_id, distance + 1 FROM %1
     WHERE descendant = :parent

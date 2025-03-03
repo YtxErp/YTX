@@ -43,7 +43,7 @@ QString SqliteTask::QSInternalReference() const
     )");
 }
 
-QString SqliteTask::QSSupportReferenceFPTS() const
+QString SqliteTask::QSSupportReference() const
 {
     return QStringLiteral(R"(
     SELECT COUNT(*) FROM task_transaction
@@ -133,7 +133,7 @@ QString SqliteTask::QSSupportTransToRemoveFPTS() const
     )");
 }
 
-QString SqliteTask::QSReadNodeTrans() const
+QString SqliteTask::QSReadTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, unit_cost, lhs_debit, lhs_credit, rhs_node, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -171,7 +171,7 @@ void SqliteTask::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->support_id = query.value(QStringLiteral("support_id")).toInt();
 }
 
-QString SqliteTask::QSWriteNodeTrans() const
+QString SqliteTask::QSWriteTrans() const
 {
     return QStringLiteral(R"(
     INSERT INTO task_transaction

@@ -57,8 +57,8 @@ protected:
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
 
-    QString QSReadNodeTrans() const override;
-    QString QSWriteNodeTrans() const override;
+    QString QSReadTrans() const override;
+    QString QSWriteTrans() const override;
     QString QSUpdateProductReferenceSO() const override;
     QString QSUpdateStakeholderReferenceO() const override;
     QString QSSearchTrans() const override;

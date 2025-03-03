@@ -10,7 +10,7 @@ TableModelStakeholder::TableModelStakeholder(Sqlite* sql, bool rule, int node_id
     : TableModel { sql, rule, node_id, info, parent }
 {
     if (node_id >= 1)
-        sql_->ReadNodeTrans(trans_shadow_list_, node_id);
+        sql_->ReadTrans(trans_shadow_list_, node_id);
 }
 
 void TableModelStakeholder::RAppendPrice(TransShadow* trans_shadow)

@@ -9,7 +9,7 @@ TableModelSupport::TableModelSupport(Sqlite* sql, bool rule, int node_id, CInfo&
     : TableModel { sql, rule, node_id, info, parent }
 {
     if (node_id >= 1)
-        sql_->ReadSupportTransFPTS(trans_shadow_list_, node_id);
+        sql_->ReadSupportTrans(trans_shadow_list_, node_id);
 }
 
 void TableModelSupport::RAppendSupportTrans(const TransShadow* trans_shadow)

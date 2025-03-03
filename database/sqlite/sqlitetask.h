@@ -31,7 +31,7 @@ protected:
     QString QSWriteNode() const override;
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
-    QString QSSupportReferenceFPTS() const override;
+    QString QSSupportReference() const override;
     QString QSReplaceSupportTransFPTS() const override;
     QString QSRemoveSupportFPTS() const override;
     QString QSLeafTotalFPT() const override;
@@ -41,9 +41,9 @@ protected:
     QString QSNodeTransToRemove() const override;
     QString QSSupportTransToRemoveFPTS() const override;
 
-    QString QSReadNodeTrans() const override;
+    QString QSReadTrans() const override;
     QString QSReadSupportTransFPTS() const override;
-    QString QSWriteNodeTrans() const override;
+    QString QSWriteTrans() const override;
     QString QSReadTransRangeFPTS(CString& in_list) const override;
     QString QSReplaceNodeTransFPTS() const override;
     QString QSWriteTransValueFPTO() const override;

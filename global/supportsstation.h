@@ -17,18 +17,20 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SUPPORTSIGNALSTATION_H
-#define SUPPORTSIGNALSTATION_H
+#ifndef SUPPORTSSTATION_H
+#define SUPPORTSSTATION_H
 
 #include "component/enumclass.h"
 #include "table/supportmodel.h"
 #include "table/trans.h"
 
-class SupportSignalStation final : public QObject {
+// support node signal station
+
+class SupportSStation final : public QObject {
     Q_OBJECT
 
 public:
-    static SupportSignalStation& Instance();
+    static SupportSStation& Instance();
     void RegisterModel(Section section, int node_id, const SupportModel* model);
     void DeregisterModel(Section section, int node_id);
 
@@ -47,13 +49,13 @@ public slots:
     void RMoveMultiSupportTransFPTS(Section section, int new_support_id, const QList<int>& trans_id_list);
 
 private:
-    SupportSignalStation() = default;
-    ~SupportSignalStation() { };
+    SupportSStation() = default;
+    ~SupportSStation() { };
 
-    SupportSignalStation(const SupportSignalStation&) = delete;
-    SupportSignalStation& operator=(const SupportSignalStation&) = delete;
-    SupportSignalStation(SupportSignalStation&&) = delete;
-    SupportSignalStation& operator=(SupportSignalStation&&) = delete;
+    SupportSStation(const SupportSStation&) = delete;
+    SupportSStation& operator=(const SupportSStation&) = delete;
+    SupportSStation(SupportSStation&&) = delete;
+    SupportSStation& operator=(SupportSStation&&) = delete;
 
     const SupportModel* FindModel(Section section, int node_id) const
     {
@@ -68,4 +70,4 @@ private:
     QHash<std::pair<Section, int>, const SupportModel*> model_hash_ {};
 };
 
-#endif // SUPPORTSIGNALSTATION_H
+#endif // SUPPORTSSTATION_H

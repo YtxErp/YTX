@@ -17,18 +17,20 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNALSTATION_H
-#define SIGNALSTATION_H
+#ifndef LEAFSSTATION_H
+#define LEAFSSTATION_H
 
 #include "component/enumclass.h"
 #include "table/model/tablemodel.h"
 #include "table/trans.h"
 
-class SignalStation final : public QObject {
+// leaf node signal station
+
+class LeafSStation final : public QObject {
     Q_OBJECT
 
 public:
-    static SignalStation& Instance();
+    static LeafSStation& Instance();
     void RegisterModel(Section section, int node_id, const TableModel* model);
     void DeregisterModel(Section section, int node_id);
 
@@ -64,15 +66,15 @@ public slots:
     void RMoveMultiSupportTransFPTS(Section section, int new_support_id, const QList<int>& trans_id_list);
 
 private:
-    SignalStation() = default;
-    ~SignalStation() { };
+    LeafSStation() = default;
+    ~LeafSStation() { };
 
-    SignalStation(const SignalStation&) = delete;
-    SignalStation& operator=(const SignalStation&) = delete;
-    SignalStation(SignalStation&&) = delete;
-    SignalStation& operator=(SignalStation&&) = delete;
+    LeafSStation(const LeafSStation&) = delete;
+    LeafSStation& operator=(const LeafSStation&) = delete;
+    LeafSStation(LeafSStation&&) = delete;
+    LeafSStation& operator=(LeafSStation&&) = delete;
 
-    const TableModel* FindTableModel(Section section, int node_id) const
+    const TableModel* FindModel(Section section, int node_id) const
     {
         auto it = model_hash_.constFind(section);
         if (it == model_hash_.constEnd())
@@ -85,4 +87,4 @@ private:
     QHash<Section, QHash<int, const TableModel*>> model_hash_ {};
 };
 
-#endif // SIGNALSTATION_H
+#endif // LEAFSSTATION_H

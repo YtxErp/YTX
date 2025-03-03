@@ -58,7 +58,7 @@
 #include "dialog/search.h"
 #include "document.h"
 #include "global/resourcepool.h"
-#include "global/signalstation.h"
+#include "global/leafsstation.h"
 #include "global/sqlconnection.h"
 #include "mainwindowutils.h"
 #include "table/model/sortfilterproxymodel.h"
@@ -439,7 +439,7 @@ void MainWindow::CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, C
     }
 
     table_hash->insert(node_id, widget);
-    SignalStation::Instance().RegisterModel(section, node_id, model);
+    LeafSStation::Instance().RegisterModel(section, node_id, model);
 }
 
 void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id)
@@ -476,7 +476,7 @@ void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash
     }
 
     table_hash->insert(node_id, widget);
-    SignalStation::Instance().RegisterModel(section, node_id, model);
+    LeafSStation::Instance().RegisterModel(section, node_id, model);
 
     connect(data->sql, &Sqlite::SRemoveMultiTrans, model, &TableModel::RRemoveMultiTrans);
 }
@@ -521,11 +521,11 @@ void MainWindow::TableConnectFPT(PQTableView table_view, PTableModel table_model
     connect(table_model, &TableModel::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
     connect(table_model, &TableModel::SSyncDouble, tree_model, &TreeModel::RSyncDouble);
 
-    connect(table_model, &TableModel::SRemoveOneTrans, &SignalStation::Instance(), &SignalStation::RRemoveOneTrans);
-    connect(table_model, &TableModel::SAppendOneTrans, &SignalStation::Instance(), &SignalStation::RAppendOneTrans);
-    connect(table_model, &TableModel::SUpdateBalance, &SignalStation::Instance(), &SignalStation::RUpdateBalance);
-    connect(table_model, &TableModel::SRemoveSupportTrans, &SignalStation::Instance(), &SignalStation::RRemoveSupportTrans);
-    connect(table_model, &TableModel::SAppendSupportTrans, &SignalStation::Instance(), &SignalStation::RAppendSupportTrans);
+    connect(table_model, &TableModel::SRemoveOneTrans, &LeafSStation::Instance(), &LeafSStation::RRemoveOneTrans);
+    connect(table_model, &TableModel::SAppendOneTrans, &LeafSStation::Instance(), &LeafSStation::RAppendOneTrans);
+    connect(table_model, &TableModel::SUpdateBalance, &LeafSStation::Instance(), &LeafSStation::RUpdateBalance);
+    connect(table_model, &TableModel::SRemoveSupportTrans, &LeafSStation::Instance(), &LeafSStation::RRemoveSupportTrans);
+    connect(table_model, &TableModel::SAppendSupportTrans, &LeafSStation::Instance(), &LeafSStation::RAppendSupportTrans);
 
     connect(data->sql, &Sqlite::SRemoveMultiTrans, table_model, &TableModel::RRemoveMultiTrans);
     connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TableModel::RMoveMultiTrans);
@@ -558,8 +558,8 @@ void MainWindow::TableConnectS(PQTableView table_view, PTableModel table_model, 
     connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TableModel::RMoveMultiTrans);
     connect(data->sql, &Sqlite::SRemoveMultiTrans, table_model, &TableModel::RRemoveMultiTrans);
 
-    connect(table_model, &TableModel::SRemoveSupportTrans, &SignalStation::Instance(), &SignalStation::RRemoveSupportTrans);
-    connect(table_model, &TableModel::SAppendSupportTrans, &SignalStation::Instance(), &SignalStation::RAppendSupportTrans);
+    connect(table_model, &TableModel::SRemoveSupportTrans, &LeafSStation::Instance(), &LeafSStation::RRemoveSupportTrans);
+    connect(table_model, &TableModel::SAppendSupportTrans, &LeafSStation::Instance(), &LeafSStation::RAppendSupportTrans);
 }
 
 void MainWindow::DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const
@@ -831,7 +831,7 @@ void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
 
     connect(model, &TreeModel::SResizeColumnToContents, view, &QTreeView::resizeColumnToContents);
 
-    connect(model, &TreeModel::SRule, &SignalStation::Instance(), &SignalStation::RRule);
+    connect(model, &TreeModel::SRule, &LeafSStation::Instance(), &LeafSStation::RRule);
 
     connect(sql, &Sqlite::SRemoveNode, model, &TreeModel::RRemoveNode);
     connect(sql, &Sqlite::SUpdateMultiLeafTotal, model, &TreeModel::RUpdateMultiLeafTotal);
@@ -959,7 +959,7 @@ void MainWindow::RemoveNonBranch(PTreeModel tree_model, const QModelIndex& index
     if (widget) {
         MainWindowUtils::FreeWidget(widget);
         table_hash_->remove(node_id);
-        SignalStation::Instance().DeregisterModel(start_, node_id);
+        LeafSStation::Instance().DeregisterModel(start_, node_id);
     }
 }
 
@@ -1363,7 +1363,7 @@ void MainWindow::SetFinanceData()
     auto* model { new TreeModelFinance(sql, info, finance_settings_.default_unit, finance_table_hash_, interface_.separator, this) };
     finance_tree_ = new TreeWidgetFinance(model, info, finance_settings_, this);
 
-    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
+    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &LeafSStation::Instance(), &LeafSStation::RMoveMultiSupportTransFPTS);
 }
 
 void MainWindow::SetProductData()
@@ -1402,7 +1402,7 @@ void MainWindow::SetProductData()
     auto* model { new TreeModelProduct(sql, info, product_settings_.default_unit, product_table_hash_, interface_.separator, this) };
     product_tree_ = new TreeWidgetPT(model, product_settings_, this);
 
-    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
+    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &LeafSStation::Instance(), &LeafSStation::RMoveMultiSupportTransFPTS);
 }
 
 void MainWindow::SetStakeholderData()
@@ -1444,8 +1444,8 @@ void MainWindow::SetStakeholderData()
 
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
     connect(sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
-    connect(static_cast<SqliteStakeholder*>(sql), &SqliteStakeholder::SAppendPrice, &SignalStation::Instance(), &SignalStation::RAppendPrice);
-    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
+    connect(static_cast<SqliteStakeholder*>(sql), &SqliteStakeholder::SAppendPrice, &LeafSStation::Instance(), &LeafSStation::RAppendPrice);
+    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &LeafSStation::Instance(), &LeafSStation::RMoveMultiSupportTransFPTS);
 }
 
 void MainWindow::SetTaskData()
@@ -1483,7 +1483,7 @@ void MainWindow::SetTaskData()
 
     auto* model { new TreeModelTask(sql, info, task_settings_.default_unit, task_table_hash_, interface_.separator, this) };
     task_tree_ = new TreeWidgetPT(model, task_settings_, this);
-    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &SignalStation::Instance(), &SignalStation::RMoveMultiSupportTransFPTS);
+    connect(sql, &Sqlite::SMoveMultiSupportTransFPTS, &LeafSStation::Instance(), &LeafSStation::RMoveMultiSupportTransFPTS);
 }
 
 void MainWindow::SetSalesData()
@@ -2032,7 +2032,7 @@ void MainWindow::RFreeWidget(int node_id)
     if (widget) {
         MainWindowUtils::FreeWidget(widget);
         table_hash_->remove(node_id);
-        SignalStation::Instance().DeregisterModel(start_, node_id);
+        LeafSStation::Instance().DeregisterModel(start_, node_id);
     }
 }
 

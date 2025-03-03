@@ -71,7 +71,7 @@ QString SqliteProduct::QSReplaceSupportTransFPTS() const
     )");
 }
 
-QString SqliteProduct::QSRemoveSupportFPTS() const
+QString SqliteProduct::QSRemoveSupport() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -88,7 +88,7 @@ QString SqliteProduct::QSFreeViewFPT() const
     )");
 }
 
-QString SqliteProduct::QSSupportTransToMoveFPTS() const
+QString SqliteProduct::QSSupportTransToMove() const
 {
     return QStringLiteral(R"(
     SELECT id FROM product_transaction
@@ -96,7 +96,7 @@ QString SqliteProduct::QSSupportTransToMoveFPTS() const
     )");
 }
 
-QString SqliteProduct::QSNodeTransToRemove() const
+QString SqliteProduct::QSTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT rhs_node, id FROM product_transaction
@@ -107,7 +107,7 @@ QString SqliteProduct::QSNodeTransToRemove() const
     )");
 }
 
-QString SqliteProduct::QSSupportTransToRemoveFPTS() const
+QString SqliteProduct::QSSupportTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT support_id, id FROM product_transaction

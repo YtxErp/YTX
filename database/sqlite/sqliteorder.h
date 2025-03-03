@@ -64,7 +64,7 @@ protected:
     QString QSUpdateStakeholderReferenceO() const override;
     QString QSSearchTrans() const override;
     QString QSWriteTransValueFPTO() const override;
-    QString QSNodeTransToRemove() const override;
+    QString QSTransToRemove() const override;
 
 private:
     QString SearchNodeQS(CString& in_list) const;

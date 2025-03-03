@@ -40,12 +40,12 @@ protected:
     QString QSInternalReference() const override;
     QString QSSupportReference() const override;
     QString QSReplaceSupportTransFPTS() const override;
-    QString QSRemoveSupportFPTS() const override;
+    QString QSRemoveSupport() const override;
     QString QSFreeViewFPT() const override;
     QString QSLeafTotalFPT() const override;
-    QString QSSupportTransToMoveFPTS() const override;
-    QString QSNodeTransToRemove() const override;
-    QString QSSupportTransToRemoveFPTS() const override;
+    QString QSSupportTransToMove() const override;
+    QString QSTransToRemove() const override;
+    QString QSSupportTransToRemove() const override;
 
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;

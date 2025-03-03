@@ -48,7 +48,7 @@ signals:
     void SUpdateMultiLeafTotal(const QList<int>& node_id_list);
     void SRemoveNode(int node_id);
     // send to Mainwindow
-    void SFreeView(int node_id);
+    void SFreeWidget(int node_id);
     // send to sql itsself
     void SUpdateProduct(int old_node_id, int new_node_id);
     // send to sql itsself and treemodel
@@ -104,10 +104,10 @@ protected:
 
     virtual QString QSExternalReferencePS() const { return {}; }
     virtual QString QSSupportReference() const { return {}; }
-    virtual QString QSRemoveSupportFPTS() const { return {}; }
+    virtual QString QSRemoveSupport() const { return {}; }
     virtual QString QSLeafTotalFPT() const { return {}; }
     virtual QString QSWriteLeafValueFPTO() const { return {}; }
-    virtual QString QSSupportTransToMoveFPTS() const { return {}; }
+    virtual QString QSSupportTransToMove() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
     virtual QString QSReadReferencedTrans() const { return {}; };
 
@@ -135,10 +135,10 @@ protected:
     // table
     virtual QString QSReadTrans() const = 0;
     virtual QString QSWriteTrans() const = 0;
-    virtual QString QSNodeTransToRemove() const = 0;
+    virtual QString QSTransToRemove() const = 0;
 
     virtual QString QSReadSupportTransFPTS() const { return {}; }
-    virtual QString QSSupportTransToRemoveFPTS() const { return {}; }
+    virtual QString QSSupportTransToRemove() const { return {}; }
     virtual QString QSReplaceNodeTransFPTS() const { return {}; }
     virtual QString QSReplaceSupportTransFPTS() const { return {}; }
     virtual QString QSReadTransRangeFPTS(CString& in_list) const
@@ -189,8 +189,8 @@ protected:
 
     //
     void ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) const;
-    QMultiHash<int, int> TransToRemove(int node_id, int target_node_type) const;
-    QList<int> SupportTransToMoveFPTS(int support_id) const;
+    QMultiHash<int, int> TransToRemove(int node_id, int node_type) const;
+    QList<int> SupportTransToMove(int support_id) const;
     void RemoveSupportFunction(int support_id) const;
     void ReplaceSupportFunction(int old_support_id, int new_support_id);
     bool FreeView(int old_node_id, int new_node_id) const;

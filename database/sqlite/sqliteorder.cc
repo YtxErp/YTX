@@ -123,7 +123,7 @@ bool SqliteOrder::RetrieveNode(NodeHash& node_hash, int node_id)
 void SqliteOrder::RRemoveNode(int node_id, int /*node_type*/)
 {
     // Notify MainWindow to release the table view
-    emit SFreeView(node_id);
+    emit SFreeWidget(node_id);
     // Notify TreeModel to remove the node
     emit SRemoveNode(node_id);
 
@@ -248,7 +248,7 @@ QString SqliteOrder::QSWriteTransValueFPTO() const
         .arg(info_.trans);
 }
 
-QString SqliteOrder::QSNodeTransToRemove() const
+QString SqliteOrder::QSTransToRemove() const
 {
     return QString(R"(
     SELECT lhs_node, id FROM %1

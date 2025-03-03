@@ -136,7 +136,7 @@ QString SqliteFinance::QSReplaceSupportTransFPTS() const
     )");
 }
 
-QString SqliteFinance::QSRemoveSupportFPTS() const
+QString SqliteFinance::QSRemoveSupport() const
 {
     return QStringLiteral(R"(
     UPDATE finance_transaction SET
@@ -182,7 +182,7 @@ QString SqliteFinance::QSLeafTotalFPT() const
     )");
 }
 
-QString SqliteFinance::QSSupportTransToMoveFPTS() const
+QString SqliteFinance::QSSupportTransToMove() const
 {
     return QStringLiteral(R"(
     SELECT id FROM finance_transaction
@@ -190,7 +190,7 @@ QString SqliteFinance::QSSupportTransToMoveFPTS() const
     )");
 }
 
-QString SqliteFinance::QSNodeTransToRemove() const
+QString SqliteFinance::QSTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT rhs_node, id FROM finance_transaction
@@ -201,7 +201,7 @@ QString SqliteFinance::QSNodeTransToRemove() const
     )");
 }
 
-QString SqliteFinance::QSSupportTransToRemoveFPTS() const
+QString SqliteFinance::QSSupportTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT support_id, id FROM finance_transaction

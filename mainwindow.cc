@@ -835,7 +835,7 @@ void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
     connect(sql, &Sqlite::SRemoveNode, model, &TreeModel::RRemoveNode);
     connect(sql, &Sqlite::SUpdateMultiLeafTotal, model, &TreeModel::RUpdateMultiLeafTotal);
 
-    connect(sql, &Sqlite::SFreeView, this, &MainWindow::RFreeWidget);
+    connect(sql, &Sqlite::SFreeWidget, this, &MainWindow::RFreeWidget);
 }
 
 void MainWindow::InsertNodeFunction(const QModelIndex& parent, int parent_id, int row)

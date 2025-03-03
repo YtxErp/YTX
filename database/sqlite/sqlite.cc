@@ -19,18 +19,18 @@ Sqlite::~Sqlite() { qDeleteAll(trans_hash_); }
 void Sqlite::RRemoveNode(int node_id, int node_type)
 {
     // Notify MainWindow to release the table view
-    emit SFreeView(node_id);
+    emit SFreeWidget(node_id);
     // Notify TreeModel to remove the node
     emit SRemoveNode(node_id);
 
     // Mark Trans for removal
 
-    QMultiHash<int, int> node_trans {};
-    QMultiHash<int, int> support_trans {};
+    QMultiHash<int, int> node_trans_hash {};
+    QMultiHash<int, int> node_support_trans_hash {};
 
     if (node_type == kTypeLeaf) {
-        node_trans = TransToRemove(node_id, kTypeLeaf);
-        support_trans = TransToRemove(node_id, kTypeSupport);
+        node_trans_hash = TransToRemove(node_id, kTypeLeaf);
+        node_support_trans_hash = TransToRemove(node_id, kTypeSupport);
     }
 
     // Remove node, path, trans from the sqlite3 database
@@ -44,20 +44,20 @@ void Sqlite::RRemoveNode(int node_id, int node_type)
 
     // Handle node and trans based on the current section
 
-    emit SRemoveMultiTrans(node_trans);
-    emit SUpdateMultiLeafTotal(node_trans.uniqueKeys());
+    emit SRemoveMultiTrans(node_trans_hash);
+    emit SUpdateMultiLeafTotal(node_trans_hash.uniqueKeys());
 
-    if (!support_trans.isEmpty())
-        emit SRemoveMultiTrans(support_trans);
+    if (!node_support_trans_hash.isEmpty())
+        emit SRemoveMultiTrans(node_support_trans_hash);
 
     // Recycle trans resources
-    const auto trans { node_trans.values() };
+    const auto trans_list { node_trans_hash.values() };
 
-    for (int trans_id : trans)
+    for (int trans_id : trans_list)
         ResourcePool<Trans>::Instance().Recycle(trans_hash_.take(trans_id));
 }
 
-QMultiHash<int, int> Sqlite::TransToRemove(int node_id, int target_node_type) const
+QMultiHash<int, int> Sqlite::TransToRemove(int node_id, int node_type) const
 {
     QMultiHash<int, int> hash {};
 
@@ -66,12 +66,12 @@ QMultiHash<int, int> Sqlite::TransToRemove(int node_id, int target_node_type) co
 
     QString string {};
 
-    switch (target_node_type) {
+    switch (node_type) {
     case kTypeLeaf:
-        string = QSNodeTransToRemove();
+        string = QSTransToRemove();
         break;
     case kTypeSupport:
-        string = QSSupportTransToRemoveFPTS();
+        string = QSSupportTransToRemove();
         break;
     default:
         break;
@@ -91,14 +91,14 @@ QMultiHash<int, int> Sqlite::TransToRemove(int node_id, int target_node_type) co
     return hash;
 }
 
-QList<int> Sqlite::SupportTransToMoveFPTS(int support_id) const
+QList<int> Sqlite::SupportTransToMove(int support_id) const
 {
     QList<int> list {};
 
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString string { QSSupportTransToMoveFPTS() };
+    CString string { QSSupportTransToMove() };
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":support_id"), support_id);
@@ -162,7 +162,7 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type)
         break;
     case kTypeSupport:
         string = QSReplaceSupportTransFPTS();
-        support_trans = SupportTransToMoveFPTS(old_node_id);
+        support_trans = SupportTransToMove(old_node_id);
         break;
     default:
         break;
@@ -181,7 +181,7 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type)
     // end deal with database
 
     if (node_type == kTypeSupport) {
-        emit SFreeView(old_node_id);
+        emit SFreeWidget(old_node_id);
         emit SRemoveNode(old_node_id);
         emit SMoveMultiSupportTransFPTS(info_.section, new_node_id, support_trans);
 
@@ -202,7 +202,7 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type)
         emit SUpdateProduct(old_node_id, new_node_id);
 
     if (free) {
-        emit SFreeView(old_node_id);
+        emit SFreeWidget(old_node_id);
         emit SRemoveNode(old_node_id);
         RemoveNode(old_node_id, kTypeLeaf);
     }
@@ -388,7 +388,7 @@ bool Sqlite::RemoveNode(int node_id, int node_type) const
         string_second = QSRemoveBranch();
         break;
     case kTypeSupport:
-        string_second = QSRemoveSupportFPTS();
+        string_second = QSRemoveSupport();
         break;
     default:
         break;

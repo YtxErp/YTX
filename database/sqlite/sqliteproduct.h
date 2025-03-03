@@ -35,12 +35,12 @@ protected:
     QString QSExternalReferencePS() const override;
     QString QSSupportReference() const override;
     QString QSReplaceSupportTransFPTS() const override;
-    QString QSRemoveSupportFPTS() const override;
+    QString QSRemoveSupport() const override;
     QString QSFreeViewFPT() const override;
-    QString QSSupportTransToMoveFPTS() const override;
+    QString QSSupportTransToMove() const override;
 
-    QString QSNodeTransToRemove() const override;
-    QString QSSupportTransToRemoveFPTS() const override;
+    QString QSTransToRemove() const override;
+    QString QSSupportTransToRemove() const override;
 
     QString QSLeafTotalFPT() const override;
 

@@ -53,9 +53,9 @@ protected:
     QString QSExternalReferencePS() const override;
     QString QSSupportReference() const override;
     QString QSReplaceSupportTransFPTS() const override;
-    QString QSRemoveSupportFPTS() const override;
-    QString QSSupportTransToMoveFPTS() const override;
-    QString QSSupportTransToRemoveFPTS() const override;
+    QString QSRemoveSupport() const override;
+    QString QSSupportTransToMove() const override;
+    QString QSSupportTransToRemove() const override;
 
     // table
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
@@ -71,7 +71,7 @@ protected:
     QString QSUpdateProductReferenceSO() const override;
     QString QSSearchTrans() const override;
     QString QSRemoveNodeFirst() const override;
-    QString QSNodeTransToRemove() const override;
+    QString QSTransToRemove() const override;
 
 private:
     void ReadTransStakeholder(QSqlQuery& query);

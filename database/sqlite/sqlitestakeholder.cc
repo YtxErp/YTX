@@ -15,9 +15,9 @@ void SqliteStakeholder::RReplaceNode(int old_node_id, int new_node_id, int node_
 {
     QList<int> support_trans {};
     if (node_type == kTypeSupport)
-        support_trans = SupportTransToMoveFPTS(old_node_id);
+        support_trans = SupportTransToMove(old_node_id);
 
-    emit SFreeView(old_node_id);
+    emit SFreeWidget(old_node_id);
     emit SRemoveNode(old_node_id);
     emit SUpdateStakeholder(old_node_id, new_node_id);
 
@@ -46,7 +46,7 @@ void SqliteStakeholder::RReplaceNode(int old_node_id, int new_node_id, int node_
 
 void SqliteStakeholder::RRemoveNode(int node_id, int node_type)
 {
-    emit SFreeView(node_id);
+    emit SFreeWidget(node_id);
     emit SRemoveNode(node_id);
     emit SUpdateStakeholder(node_id, 0);
 
@@ -247,7 +247,7 @@ QString SqliteStakeholder::QSReplaceSupportTransFPTS() const
     )");
 }
 
-QString SqliteStakeholder::QSRemoveSupportFPTS() const
+QString SqliteStakeholder::QSRemoveSupport() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder_transaction SET
@@ -256,7 +256,7 @@ QString SqliteStakeholder::QSRemoveSupportFPTS() const
     )");
 }
 
-QString SqliteStakeholder::QSSupportTransToMoveFPTS() const
+QString SqliteStakeholder::QSSupportTransToMove() const
 {
     return QStringLiteral(R"(
     SELECT id FROM stakeholder_transaction
@@ -264,7 +264,7 @@ QString SqliteStakeholder::QSSupportTransToMoveFPTS() const
     )");
 }
 
-QString SqliteStakeholder::QSSupportTransToRemoveFPTS() const
+QString SqliteStakeholder::QSSupportTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT outside_product, id FROM stakeholder_transaction
@@ -339,7 +339,7 @@ QString SqliteStakeholder::QSRemoveNodeFirst() const
     )");
 }
 
-QString SqliteStakeholder::QSNodeTransToRemove() const
+QString SqliteStakeholder::QSTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT lhs_node, id FROM stakeholder_transaction

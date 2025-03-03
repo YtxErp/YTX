@@ -60,7 +60,7 @@ QString SqliteTask::QSReplaceSupportTransFPTS() const
     )");
 }
 
-QString SqliteTask::QSRemoveSupportFPTS() const
+QString SqliteTask::QSRemoveSupport() const
 {
     return QStringLiteral(R"(
     UPDATE task_transaction SET
@@ -106,7 +106,7 @@ QString SqliteTask::QSFreeViewFPT() const
     )");
 }
 
-QString SqliteTask::QSSupportTransToMoveFPTS() const
+QString SqliteTask::QSSupportTransToMove() const
 {
     return QStringLiteral(R"(
     SELECT id FROM task_transaction
@@ -114,7 +114,7 @@ QString SqliteTask::QSSupportTransToMoveFPTS() const
     )");
 }
 
-QString SqliteTask::QSNodeTransToRemove() const
+QString SqliteTask::QSTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT rhs_node, id FROM task_transaction
@@ -125,7 +125,7 @@ QString SqliteTask::QSNodeTransToRemove() const
     )");
 }
 
-QString SqliteTask::QSSupportTransToRemoveFPTS() const
+QString SqliteTask::QSSupportTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT support_id, id FROM task_transaction

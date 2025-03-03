@@ -225,6 +225,24 @@ void SqliteProduct::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSq
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
+void SqliteProduct::ReadReferencedTransQuery(Trans* trans, const QSqlQuery& query) const
+{
+    trans->id = query.value(QStringLiteral("party")).toInt();
+    trans->code = query.value(QStringLiteral("code")).toString();
+    trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
+    trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
+    trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
+    trans->description = query.value(QStringLiteral("description")).toString();
+    trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+    trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
+    trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
+    trans->discount = query.value(QStringLiteral("discount")).toDouble();
+    trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
+    trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
+    trans->date_time = query.value(QStringLiteral("date_time")).toString();
+    trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
+}
+
 QString SqliteProduct::QSReadNodeTrans() const
 {
     return QStringLiteral(R"(
@@ -306,5 +324,29 @@ QString SqliteProduct::QSSearchTrans() const
     FROM product_transaction
     WHERE (lhs_debit = :text OR lhs_credit = :text OR rhs_debit = :text OR rhs_credit = :text OR description LIKE :description) AND removed = 0
     ORDER BY date_time
+    )");
+}
+
+QString SqliteProduct::QSReadReferencedTrans() const
+{
+    return QStringLiteral(R"(
+    SELECT
+        st.code,
+        st.inside_product,
+        st.unit_price,
+        st.second,
+        st.lhs_node,
+        st.description,
+        st.first,
+        st.gross_amount,
+        st.discount,
+        st.net_amount,
+        st.outside_product,
+        st.discount_price,
+        sn.party,
+        sn.date_time
+    FROM sales_transaction st
+    LEFT JOIN sales sn ON st.lhs_node = sn.id
+    WHERE st.inside_product = :node_id AND st.removed = 0;
     )");
 }

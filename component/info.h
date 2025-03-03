@@ -36,6 +36,7 @@ struct Info {
     QStringList node_header {};
     QStringList trans_header {};
     QStringList support_header {};
+    QStringList reference_header {};
 
     QStringList search_trans_header {};
     QStringList search_node_header {};

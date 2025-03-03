@@ -88,6 +88,21 @@ enum class TableEnumSearch {
     kRhsNode
 };
 
+enum class TableEnumReferenceP {
+    kDateTime,
+    kLhsNode,
+    kParty,
+    kFirst,
+    kSecond,
+    kUnitPrice,
+    kDiscountPrice,
+    kCode,
+    kDescription,
+    kGrossAmount,
+    kDiscount,
+    kNetAmount
+};
+
 enum class TableEnumSupport {
     kDateTime,
     kID,

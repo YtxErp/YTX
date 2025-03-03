@@ -36,6 +36,10 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
         QObject::tr("RhsDebit"), QObject::tr("UnitCost"), QObject::tr("RhsNode") };
 
+    product.reference_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("CUST"), QObject::tr("First"), QObject::tr("Second"),
+        QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("GrossAmount"),
+        QObject::tr("Discount"), QObject::tr("NetAmount") };
+
     stakeholder.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"),
         QObject::tr("Type"), QObject::tr("Rule"), QObject::tr("Unit"), QObject::tr("Deadline"), QObject::tr("Employee"), QObject::tr("PaymentPeriod"),
         QObject::tr("TaxRate"), QObject::tr("Amount") };

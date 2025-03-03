@@ -36,6 +36,7 @@
 #include "table/model/tablemodelorder.h"
 #include "tree/model/treemodel.h"
 #include "ui_mainwindow.h"
+#include "widget/referencewidget/referencewidget.h"
 #include "widget/tablewidget/tablewidgetorder.h"
 #include "widget/treewidget/treewidget.h"
 
@@ -95,14 +96,16 @@ private slots:
     void RUpdateName(int node_id, const QString& name, bool branch);
     void RUpdateState();
 
-    void RFreeView(int node_id);
+    void RFreeWidget(int node_id);
     void REditTransDocument(const QModelIndex& index);
     void REditNodeDocument(const QModelIndex& index);
+    void RReference(const QModelIndex& index);
 
     void RTreeViewCustomContextMenuRequested(const QPoint& pos);
     void RTreeViewDoubleClicked(const QModelIndex& index);
 
     void RSectionGroup(int id);
+    void RReferenceTableViewDoubleClicked(const QModelIndex& index);
 
 private:
     void SetTabWidget();
@@ -128,6 +131,9 @@ private:
 
     void CreateTableSupport(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
+
+    void CreateTableReference(PTreeModel tree_model, RefWgtHash* ref_wgt_hash, CData& data, int node_id);
+    void DelegateReference(PQTableView table_view, CSettings* settings) const;
 
     void DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
     void SetSupportViewS(PQTableView table_view) const;
@@ -159,6 +165,7 @@ private:
 
     void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
     void SwitchTab(int node_id, int trans_id = 0) const;
+    void SwitchTabReference(int node_id) const;
 
     void RemoveTrans(TableWidget* table_widget);
     void RemoveNode(TreeWidget* tree_widget);
@@ -184,6 +191,9 @@ private:
     QStandardItemModel* CreateModelFromList(QStringList& list, QObject* parent = nullptr);
 
     void IniSectionGroup();
+    void ReferencePFunction(int node_id, int unit);
+    void ReferenceSFunction(int node_id, int unit);
+    void ReferenceNodeLocation(int node_id);
 
 private:
     Ui::MainWindow* ui {};
@@ -208,6 +218,7 @@ private:
     QHash<int, PDialog>* dialog_hash_ {};
     Settings* settings_ {};
     Data* data_ {};
+    RefWgtHash* ref_wgt_hash_ {};
 
     TreeWidget* finance_tree_ {};
     TableHash finance_table_hash_ {};
@@ -222,6 +233,7 @@ private:
     QHash<int, PDialog> product_dialog_hash_ {};
     Settings product_settings_ {};
     Data product_data_ {};
+    RefWgtHash product_ref_wgt_hash_ {};
 
     TreeWidget* task_tree_ {};
     TableHash task_table_hash_ {};

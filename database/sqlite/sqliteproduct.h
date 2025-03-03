@@ -50,6 +50,7 @@ protected:
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void ReadReferencedTransQuery(Trans* trans, const QSqlQuery& query) const override;
 
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
@@ -61,6 +62,7 @@ protected:
     QString QSReplaceNodeTransFPTS() const override;
     QString QSWriteTransValueFPTO() const override;
     QString QSSearchTrans() const override;
+    QString QSReadReferencedTrans() const override;
 };
 
 #endif // SQLITEPRODUCT_H

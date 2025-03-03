@@ -158,7 +158,7 @@ public:
     void UpdateName(int node_id, CString& new_name);
 
     // virtual functions
-    virtual void RetriveNodeOrder(int node_id) { Q_UNUSED(node_id); }
+    virtual void TrieveNode(int node_id) { Q_UNUSED(node_id); }
 
     virtual void UpdateSeparatorFPTS(CString& old_separator, CString& new_separator);
     virtual QStandardItemModel* UnitModelPS(int unit = 0) const

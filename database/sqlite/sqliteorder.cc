@@ -111,7 +111,7 @@ bool SqliteOrder::SearchNode(QList<const Node*>& node_list, const QList<int>& pa
     return true;
 }
 
-bool SqliteOrder::RetriveNode(NodeHash& node_hash, int node_id)
+bool SqliteOrder::RetrieveNode(NodeHash& node_hash, int node_id)
 {
     auto it = node_hash_buffer_.constFind(node_id);
     if (it != node_hash_buffer_.constEnd() && it.value())
@@ -265,6 +265,41 @@ QString SqliteOrder::SearchNodeQS(CString& in_list) const
     WHERE party IN (%2) AND removed = 0
     )")
         .arg(info_.node, in_list);
+}
+
+bool SqliteOrder::ReadNode(int node_id)
+{
+    CString string { QStringLiteral(R"(
+    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
+    FROM %1
+    WHERE (id = :node_id) AND removed = 0
+    )")
+            .arg(info_.node) };
+
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+    query.prepare(string);
+
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Section: " << std::to_underlying(info_.section) << "Failed in ReadNode" << query.lastError().text();
+        return false;
+    }
+
+    while (query.next()) {
+        int id = query.value(QStringLiteral("id")).toInt();
+
+        if (auto it = node_hash_buffer_.constFind(id); it != node_hash_buffer_.constEnd()) {
+            continue;
+        }
+
+        auto* node { ResourcePool<Node>::Instance().Allocate() };
+        ReadNodeQuery(node, query);
+        node_hash_buffer_.insert(id, node);
+    }
+
+    return true;
 }
 
 void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const

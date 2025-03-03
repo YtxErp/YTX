@@ -372,6 +372,8 @@ QList<int> Sqlite::SearchNodeName(CString& text) const
     return node_list;
 }
 
+bool Sqlite::ReadReferencedNode(TransList& trans_list, int node_id) const { }
+
 bool Sqlite::RemoveNode(int node_id, int node_type) const
 {
     QSqlQuery query(*db_);
@@ -909,6 +911,32 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
         trans->id = id;
 
         ReadTransQuery(trans, query);
+        trans_list.emplaceBack(trans);
+    }
+
+    return true;
+}
+
+bool Sqlite::ReadReferencedTrans(TransList& trans_list, int node_id) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    auto string { QSReadReferencedTrans() };
+    if (string.isEmpty())
+        return false;
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in TransRefRecord" << query.lastError().text();
+        return false;
+    }
+
+    while (query.next()) {
+        auto* trans { ResourcePool<Trans>::Instance().Allocate() };
+        ReadReferencedTransQuery(trans, query);
         trans_list.emplaceBack(trans);
     }
 

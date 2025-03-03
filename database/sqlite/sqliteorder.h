@@ -31,7 +31,8 @@ public:
 
     bool ReadNode(NodeHash& node_hash, const QDate& start_date, const QDate& end_date);
     bool SearchNode(QList<const Node*>& node_list, const QList<int>& party_id_list);
-    bool RetriveNode(NodeHash& node_hash, int node_id);
+    bool ReadNode(int node_id);
+    bool RetrieveNode(NodeHash& node_hash, int node_id);
 
 public slots:
     void RRemoveNode(int node_id, int node_type) override;

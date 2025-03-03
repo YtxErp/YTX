@@ -31,7 +31,7 @@ public:
     bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 
 signals:
-    void SEditDocument();
+    void SEditDocument(const QModelIndex& index);
 };
 
 #endif // DOCUMENT_H

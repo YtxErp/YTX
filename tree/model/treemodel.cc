@@ -69,7 +69,14 @@ QMimeData* TreeModel::mimeData(const QModelIndexList& indexes) const
     return mime_data;
 }
 
-QStringList* TreeModel::GetDocumentPointer(const QModelIndex& index) const { return &GetNodeByIndex(index)->document; }
+QStringList* TreeModel::GetDocumentPointer(int node_id) const
+{
+    auto it { node_hash_.constFind(node_id) };
+    if (it == node_hash_.constEnd())
+        return nullptr;
+
+    return &it.value()->document;
+}
 
 QStringList TreeModel::ChildrenNameFPTS(int node_id) const
 {

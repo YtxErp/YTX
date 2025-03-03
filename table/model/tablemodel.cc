@@ -335,7 +335,7 @@ QModelIndex TableModel::GetIndex(int trans_id) const
 
 QStringList* TableModel::GetDocumentPointer(const QModelIndex& index) const
 {
-    if (!index.isValid() || index.row() < 0 || index.row() >= trans_shadow_list_.size()) {
+    if (!index.isValid()) {
         qWarning() << "Invalid QModelIndex provided.";
         return nullptr;
     }

@@ -1778,47 +1778,37 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
     dialog->show();
 }
 
-void MainWindow::REditTransDocument()
+void MainWindow::REditTransDocument(const QModelIndex& index)
 {
     auto* table_widget { dynamic_cast<TableWidget*>(ui->tabWidget->currentWidget()) };
-    if (!table_widget)
-        return;
-
-    auto view { table_widget->View() };
-    if (!MainWindowUtils::HasSelection(view))
-        return;
-
-    const auto index { view->currentIndex() };
-    if (!index.isValid())
+    if (!table_widget || !index.isValid())
         return;
 
     const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
-    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnum::kID)).data().toInt() };
+    const int id { index.siblingAtColumn(std::to_underlying(TableEnum::kID)).data().toInt() };
 
     auto* document_pointer { table_widget->Model()->GetDocumentPointer(index) };
+    if (!document_pointer)
+        return;
+
     auto* dialog { new EditDocument(document_pointer, document_dir, this) };
 
     if (dialog->exec() == QDialog::Accepted)
-        data_->sql->WriteField(data_->info.trans, kDocument, document_pointer->join(kSemicolon), trans_id);
+        data_->sql->WriteField(data_->info.trans, kDocument, document_pointer->join(kSemicolon), id);
 }
 
-void MainWindow::REditNodeDocument()
+void MainWindow::REditNodeDocument(const QModelIndex& index)
 {
-    if (!tree_widget_)
-        return;
-
-    auto view { tree_widget_->View() };
-    if (!MainWindowUtils::HasSelection(view))
-        return;
-
-    const auto index { view->currentIndex() };
-    if (!index.isValid())
+    if (!tree_widget_ || !index.isValid())
         return;
 
     const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
     const int id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
 
-    auto* document_pointer { tree_widget_->Model()->GetDocumentPointer(index) };
+    auto* document_pointer { tree_widget_->Model()->GetDocumentPointer(id) };
+    if (!document_pointer)
+        return;
+
     auto* dialog { new EditDocument(document_pointer, document_dir, this) };
 
     if (dialog->exec() == QDialog::Accepted)

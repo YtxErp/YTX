@@ -17,7 +17,7 @@ void Document::paint(QPainter* painter, const QStyleOptionViewItem& option, cons
 bool Document::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
     if (event->type() == QEvent::MouseButtonDblClick && option.rect.contains(static_cast<QMouseEvent*>(event)->pos()))
-        emit SEditDocument();
+        emit SEditDocument(index);
 
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

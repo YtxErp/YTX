@@ -96,8 +96,8 @@ private slots:
     void RUpdateState();
 
     void RFreeView(int node_id);
-    void REditTransDocument();
-    void REditNodeDocument();
+    void REditTransDocument(const QModelIndex& index);
+    void REditNodeDocument(const QModelIndex& index);
 
     void RTreeViewCustomContextMenuRequested(const QPoint& pos);
     void RTreeViewDoubleClicked(const QModelIndex& index);

@@ -476,6 +476,7 @@ void MainWindow::CreateTableSupport(PTreeModel tree_model, TableHash* table_hash
     }
 
     table_hash->insert(node_id, widget);
+    SignalStation::Instance().RegisterModel(section, node_id, model);
 
     connect(data->sql, &Sqlite::SRemoveMultiTrans, model, &TableModel::RRemoveMultiTrans);
 }

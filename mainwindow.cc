@@ -2202,7 +2202,7 @@ void MainWindow::RNodeLocation(int node_id)
     ui->tabWidget->setCurrentWidget(widget);
 
     if (start_ == Section::kSales || start_ == Section::kPurchase)
-        tree_widget_->Model()->TrieveNode(node_id);
+        tree_widget_->Model()->RetrieveNode(node_id);
 
     auto index { tree_widget_->Model()->GetIndex(node_id) };
     widget->activateWindow();
@@ -2234,7 +2234,7 @@ void MainWindow::ReferenceNodeLocation(int node_id)
 
     ui->tabWidget->setCurrentWidget(tree_widget_);
 
-    tree_widget_->Model()->TrieveNode(node_id);
+    tree_widget_->Model()->RetrieveNode(node_id);
     tree_widget_->activateWindow();
 
     auto index { tree_widget_->Model()->GetIndex(node_id) };

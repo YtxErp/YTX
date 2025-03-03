@@ -98,12 +98,11 @@ QString TreeModelOrder::GetPath(int node_id) const
     return {};
 }
 
-void TreeModelOrder::TrieveNode(int node_id)
+void TreeModelOrder::RetrieveNode(int node_id)
 {
     if (node_hash_.contains(node_id))
         return;
 
-    sql_->ReadNode(node_id);
     sql_->RetrieveNode(node_hash_, node_id);
     auto* node { node_hash_.value(node_id) };
     node->parent = root_;

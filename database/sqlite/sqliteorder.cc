@@ -114,8 +114,8 @@ bool SqliteOrder::SearchNode(QList<const Node*>& node_list, const QList<int>& pa
 bool SqliteOrder::RetrieveNode(NodeHash& node_hash, int node_id)
 {
     auto it = node_hash_buffer_.constFind(node_id);
-    if (it != node_hash_buffer_.constEnd() && it.value())
-        node_hash.insert(node_id, it.value());
+    if (it == node_hash_buffer_.constEnd())
+        node_hash.insert(node_id, ReadNode(node_id));
 
     return true;
 }
@@ -142,7 +142,7 @@ void SqliteOrder::RRemoveNode(int node_id, int /*node_type*/)
 
 QString SqliteOrder::QSReadNode() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
     FROM %1
     WHERE ((DATE(date_time) BETWEEN :start_date AND :end_date) OR type = 1 OR unit = 2) AND removed = 0
@@ -152,7 +152,7 @@ QString SqliteOrder::QSReadNode() const
 
 QString SqliteOrder::QSWriteNode() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     INSERT INTO %1 (name, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount)
     VALUES (:name, :description, :rule, :type, :unit, :party, :employee, :date_time, :first, :second, :discount, :finished, :gross_amount, :net_amount)
     )")
@@ -161,7 +161,7 @@ QString SqliteOrder::QSWriteNode() const
 
 QString SqliteOrder::QSRemoveNodeSecond() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     UPDATE %1 SET
         removed = 1
     WHERE lhs_node = :node_id
@@ -171,7 +171,7 @@ QString SqliteOrder::QSRemoveNodeSecond() const
 
 QString SqliteOrder::QSInternalReference() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     SELECT COUNT(*) FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
@@ -180,7 +180,7 @@ QString SqliteOrder::QSInternalReference() const
 
 QString SqliteOrder::QSReadNodeTrans() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
     FROM %1
     WHERE lhs_node = :node_id AND removed = 0
@@ -190,7 +190,7 @@ QString SqliteOrder::QSReadNodeTrans() const
 
 QString SqliteOrder::QSWriteNodeTrans() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     INSERT INTO %1 (code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price)
     VALUES (:code, :inside_product, :unit_price, :second, :description, :lhs_node, :first, :gross_amount, :discount, :net_amount, :outside_product, :discount_price)
     )")
@@ -199,7 +199,7 @@ QString SqliteOrder::QSWriteNodeTrans() const
 
 QString SqliteOrder::QSUpdateProductReferenceSO() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     UPDATE %1 SET
         inside_product = :new_node_id
     WHERE inside_product = :old_node_id
@@ -209,7 +209,7 @@ QString SqliteOrder::QSUpdateProductReferenceSO() const
 
 QString SqliteOrder::QSUpdateStakeholderReferenceO() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     BEGIN TRANSACTION;
 
     -- Update the outside_product in transaction table
@@ -230,7 +230,7 @@ QString SqliteOrder::QSUpdateStakeholderReferenceO() const
 
 QString SqliteOrder::QSSearchTrans() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
     FROM %1
     WHERE (first = :text OR second = :text OR description LIKE :description) AND removed = 0
@@ -240,7 +240,7 @@ QString SqliteOrder::QSSearchTrans() const
 
 QString SqliteOrder::QSWriteTransValueFPTO() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     UPDATE %1 SET
         second = :second, gross_amount = :gross_amount, discount = :discount, net_amount = :net_amount
     WHERE id = :trans_id
@@ -250,7 +250,7 @@ QString SqliteOrder::QSWriteTransValueFPTO() const
 
 QString SqliteOrder::QSNodeTransToRemove() const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     SELECT lhs_node, id FROM %1
     WHERE lhs_node = :node_id AND removed = 0
     )")
@@ -259,7 +259,7 @@ QString SqliteOrder::QSNodeTransToRemove() const
 
 QString SqliteOrder::SearchNodeQS(CString& in_list) const
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
     FROM %1
     WHERE party IN (%2) AND removed = 0
@@ -267,9 +267,12 @@ QString SqliteOrder::SearchNodeQS(CString& in_list) const
         .arg(info_.node, in_list);
 }
 
-bool SqliteOrder::ReadNode(int node_id)
+Node* SqliteOrder::ReadNode(int node_id)
 {
-    CString string { QStringLiteral(R"(
+    if (auto it = node_hash_buffer_.constFind(node_id); it != node_hash_buffer_.constEnd())
+        return it.value();
+
+    CString string { QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
     FROM %1
     WHERE (id = :node_id) AND removed = 0
@@ -284,22 +287,18 @@ bool SqliteOrder::ReadNode(int node_id)
 
     if (!query.exec()) {
         qWarning() << "Section: " << std::to_underlying(info_.section) << "Failed in ReadNode" << query.lastError().text();
-        return false;
+        return nullptr;
     }
 
-    while (query.next()) {
-        int id = query.value(QStringLiteral("id")).toInt();
+    Node* node {};
 
-        if (auto it = node_hash_buffer_.constFind(id); it != node_hash_buffer_.constEnd()) {
-            continue;
-        }
-
-        auto* node { ResourcePool<Node>::Instance().Allocate() };
+    if (query.next()) {
+        node = ResourcePool<Node>::Instance().Allocate();
         ReadNodeQuery(node, query);
-        node_hash_buffer_.insert(id, node);
+        node_hash_buffer_.insert(node_id, node);
     }
 
-    return true;
+    return node;
 }
 
 void SqliteOrder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const

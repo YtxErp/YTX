@@ -247,7 +247,7 @@ QString YtxSqlite::NodeTask()
 
 QString YtxSqlite::NodeOrder(CString& order)
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
         id                INTEGER PRIMARY KEY AUTOINCREMENT,
         name              TEXT,
@@ -273,7 +273,7 @@ QString YtxSqlite::NodeOrder(CString& order)
 
 QString YtxSqlite::Path(CString& table_name)
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
         ancestor      INTEGER    CHECK (ancestor   >= 1),
         descendant    INTEGER    CHECK (descendant >= 1),
@@ -309,7 +309,7 @@ QString YtxSqlite::TransFinance()
 
 QString YtxSqlite::TransOrder(CString& order)
 {
-    return QStringLiteral(R"(
+    return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
         code                TEXT,

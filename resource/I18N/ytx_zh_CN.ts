@@ -1850,7 +1850,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2114"/>
+        <location filename="../../mainwindow.cc" line="+2113"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -2011,7 +2011,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-277"/>
-        <location filename="../../mainwindow.cc" line="-2221"/>
+        <location filename="../../mainwindow.cc" line="-2220"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2069,7 +2069,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+226"/>
-        <location filename="../../mainwindow.cc" line="+2106"/>
+        <location filename="../../mainwindow.cc" line="+2105"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2158,7 +2158,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1161"/>
+        <location filename="../../mainwindow.cc" line="-1160"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -2343,7 +2343,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location line="+2159"/>
+        <location line="+2158"/>
         <source>Export Completed</source>
         <translation>成功</translation>
     </message>
@@ -2368,7 +2368,7 @@ Rage, rage against the dying of the light.</source>
         <translation>导出版块</translation>
     </message>
     <message>
-        <location line="-1023"/>
+        <location line="-1022"/>
         <location line="+79"/>
         <location line="+42"/>
         <source>MS</source>

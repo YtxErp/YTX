@@ -49,7 +49,7 @@ public:
 
     void UpdateTree(const QDate& start_date, const QDate& end_date);
     QString GetPath(int node_id) const override;
-    void TrieveNode(int node_id) override;
+    void RetrieveNode(int node_id) override;
     int Party(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
 
     Node* GetNodeO(int node_id) const override;

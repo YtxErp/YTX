@@ -36,7 +36,7 @@
 #include "table/model/tablemodelorder.h"
 #include "tree/model/treemodel.h"
 #include "ui_mainwindow.h"
-#include "widget/referencewidget/referencewidget.h"
+#include "widget/referencewidget/reffetcherwidget.h"
 #include "widget/tablewidget/tablewidgetorder.h"
 #include "widget/treewidget/treewidget.h"
 

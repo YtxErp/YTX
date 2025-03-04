@@ -74,7 +74,7 @@
 #include "tree/model/treemodelstakeholder.h"
 #include "tree/model/treemodeltask.h"
 #include "ui_mainwindow.h"
-#include "widget/referencewidget/referencewidgetps.h"
+#include "widget/referencewidget/reffetcherwidgetps.h"
 #include "widget/tablewidget/tablewidgetfpts.h"
 #include "widget/treewidget/treewidgetfinance.h"
 #include "widget/treewidget/treewidgetorder.h"
@@ -1145,7 +1145,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
     auto* widget { ui->tabWidget->currentWidget() };
 
-    if (auto* current_widget = qobject_cast<ReferenceWidget*>(widget)) {
+    if (auto* current_widget = qobject_cast<RefFetcherWidget*>(widget)) {
         MainWindowUtils::FreeWidget(current_widget);
         ref_wgt_hash_->remove(node_id);
         return;
@@ -1257,7 +1257,7 @@ void MainWindow::CreateTableReference(PTreeModel tree_model, RefWgtHash* ref_wgt
     const Section section { info.section };
 
     auto* model { new TransRefFetcherModel(node_id, info, sql, this) };
-    auto* widget { new ReferenceWidgetPS(model, this) };
+    auto* widget { new RefFetcherWidgetPS(model, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };

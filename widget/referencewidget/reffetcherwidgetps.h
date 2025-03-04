@@ -17,29 +17,31 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef REFERENCEWIDGET_H
-#define REFERENCEWIDGET_H
+#ifndef REFFETCHERWIDGETPS_H
+#define REFFETCHERWIDGETPS_H
 
 #include <QPointer>
 #include <QTableView>
-#include <QWidget>
 
-class ReferenceWidget : public QWidget {
+#include "reffetcherwidget.h"
+
+namespace Ui {
+class RefFetcherWidgetPS;
+}
+
+class RefFetcherWidgetPS final : public RefFetcherWidget {
     Q_OBJECT
 
 public:
-    virtual ~ReferenceWidget() = default;
+    explicit RefFetcherWidgetPS(QAbstractItemModel* model, QWidget* parent = nullptr);
+    ~RefFetcherWidgetPS();
 
-    virtual QPointer<QAbstractItemModel> Model() const = 0;
-    virtual QPointer<QTableView> View() const = 0;
+    QPointer<QAbstractItemModel> Model() const override { return model_; }
+    QPointer<QTableView> View() const override;
 
-protected:
-    explicit ReferenceWidget(QWidget* parent = nullptr)
-        : QWidget { parent }
-    {
-    }
+private:
+    Ui::RefFetcherWidgetPS* ui;
+    QAbstractItemModel* model_ {};
 };
 
-using RefWgtHash = QHash<int, ReferenceWidget*>;
-
-#endif // REFERENCEWIDGET_H
+#endif // REFFETCHERWIDGETPS_H

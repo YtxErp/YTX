@@ -26,7 +26,7 @@ class TreeModelFinance final : public TreeModel {
     Q_OBJECT
 
 public:
-    TreeModelFinance(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent = nullptr);
+    TreeModelFinance(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
     ~TreeModelFinance() override;
 
 public slots:

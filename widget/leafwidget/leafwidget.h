@@ -17,32 +17,34 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TABLEWIDGETFPTS_H
-#define TABLEWIDGETFPTS_H
+#ifndef LEAFWIDGET_H
+#define LEAFWIDGET_H
 
+#include <QPointer>
 #include <QTableView>
+#include <QWidget>
 
 #include "table/model/tablemodel.h"
-#include "widget/tablewidget/tablewidget.h"
 
-namespace Ui {
-class TableWidgetFPTS;
-}
-
-class TableWidgetFPTS final : public TableWidget {
+class LeafWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TableWidgetFPTS(TableModel* model, QWidget* parent = nullptr);
-    ~TableWidgetFPTS();
+    virtual ~LeafWidget() = default;
 
-    QPointer<TableModel> Model() const override { return model_; }
-    QPointer<QTableView> View() const override;
-    bool IsTableWidget() const override { return true; }
+    virtual QPointer<TableModel> Model() const = 0;
+    virtual QPointer<QTableView> View() const = 0;
+    virtual bool IsTableWidget() const = 0;
 
-private:
-    Ui::TableWidgetFPTS* ui;
-    TableModel* model_ {};
+protected:
+    explicit LeafWidget(QWidget* parent = nullptr)
+        : QWidget { parent }
+    {
+    }
 };
 
-#endif // TABLEWIDGETFPTS_H
+using LeafWgtHash = QHash<int, QPointer<LeafWidget>>;
+using CLeafWgtHash = const QHash<int, QPointer<LeafWidget>>;
+using PTableView = QPointer<QTableView>;
+
+#endif // LEAFWIDGET_H

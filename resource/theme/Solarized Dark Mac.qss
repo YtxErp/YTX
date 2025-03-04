@@ -82,7 +82,7 @@ QTabBar::tab, QTreeView#treeViewFPT, QGroupBox#treeWidgetOrder {
     border-bottom: none;
 }
 
-QGroupBox#treeWidgetFPT, QTableView#tableViewOrder, QPushButton#pBtnCancelOrder, QPushButton#pBtnFinishOrder,
+QGroupBox#treeWidgetFPT, QTableView#tableViewO, QPushButton#pBtnCancelOrder, QPushButton#pBtnFinishOrder,
 QPushButton#pBtnSaveOrder {
     border-top: none;
 }

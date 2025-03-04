@@ -2,11 +2,11 @@
 
 #include <QQueue>
 
-TreeModel::TreeModel(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent)
+TreeModel::TreeModel(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
     : QAbstractItemModel(parent)
     , sql_ { sql }
     , info_ { info }
-    , table_hash_ { table_hash }
+    , leaf_wgt_hash_ { leaf_wgt_hash }
     , separator_ { separator }
 {
     TreeModelUtils::InitializeRoot(root_, default_unit);
@@ -252,7 +252,7 @@ bool TreeModel::UpdateTypeFPTS(Node* node, int value)
     if (TreeModelUtils::HasChildrenFPTS(node, message))
         return false;
 
-    if (TreeModelUtils::IsOpenedFPTS(table_hash_, node_id, message))
+    if (TreeModelUtils::IsOpenedFPTS(leaf_wgt_hash_, node_id, message))
         return false;
 
     if (TreeModelUtils::IsInternalReferencedFPTS(sql_, node_id, message))

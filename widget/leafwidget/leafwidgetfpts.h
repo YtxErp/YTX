@@ -17,30 +17,32 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SUPPORTWIDGET_H
-#define SUPPORTWIDGET_H
+#ifndef LEAFWIDGETFPTS_H
+#define LEAFWIDGETFPTS_H
 
-#include <QPointer>
 #include <QTableView>
-#include <QWidget>
 
-class SupportWidget : public QWidget {
+#include "table/model/tablemodel.h"
+#include "widget/leafwidget/leafwidget.h"
+
+namespace Ui {
+class LeafWidgetFPTS;
+}
+
+class LeafWidgetFPTS final : public LeafWidget {
     Q_OBJECT
 
 public:
-    virtual ~SupportWidget() = default;
+    explicit LeafWidgetFPTS(TableModel* model, QWidget* parent = nullptr);
+    ~LeafWidgetFPTS();
 
-    virtual QPointer<QAbstractItemModel> Model() const = 0;
-    virtual QPointer<QTableView> View() const = 0;
-    virtual bool IsSupportWidget() const = 0;
+    QPointer<TableModel> Model() const override { return model_; }
+    QPointer<QTableView> View() const override;
+    bool IsTableWidget() const override { return true; }
 
-protected:
-    explicit SupportWidget(QWidget* parent = nullptr)
-        : QWidget { parent }
-    {
-    }
+private:
+    Ui::LeafWidgetFPTS* ui;
+    TableModel* model_ {};
 };
 
-using SupWgtHash = QHash<int, SupportWidget*>;
-
-#endif // SUPPORTWIDGET_H
+#endif // LEAFWIDGETFPTS_H

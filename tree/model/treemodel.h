@@ -35,7 +35,7 @@ public:
     TreeModel() = delete;
 
 protected:
-    explicit TreeModel(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent = nullptr);
+    explicit TreeModel(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
 
 signals:
     // send to SignalStation
@@ -204,7 +204,7 @@ protected:
     QStandardItemModel* leaf_model_ {};
 
     CInfo& info_;
-    CTableHash& table_hash_;
+    CLeafWgtHash& leaf_wgt_hash_;
     CString& separator_;
 };
 

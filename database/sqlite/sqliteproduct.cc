@@ -226,7 +226,7 @@ void SqliteProduct::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSq
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
-void SqliteProduct::TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const
+void SqliteProduct::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -334,7 +334,7 @@ QString SqliteProduct::QSSearchTrans() const
     )");
 }
 
-QString SqliteProduct::QSTransRefFetcher() const
+QString SqliteProduct::QSReadTransRef() const
 {
     return QStringLiteral(R"(
     SELECT

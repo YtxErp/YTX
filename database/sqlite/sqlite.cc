@@ -857,12 +857,12 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
     return true;
 }
 
-bool Sqlite::TransRefFetcher(TransList& trans_list, int node_id) const
+bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    auto string { QSTransRefFetcher() };
+    auto string { QSReadTransRef() };
     if (string.isEmpty())
         return false;
 
@@ -874,7 +874,7 @@ bool Sqlite::TransRefFetcher(TransList& trans_list, int node_id) const
         return false;
     }
 
-    TransRefFetcherFunction(trans_list, query);
+    ReadTransRefQuery(trans_list, query);
 
     return true;
 }

@@ -430,7 +430,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QTableView" name="tableViewOrder"/>
+    <widget class="QTableView" name="tableViewO"/>
    </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -506,7 +506,7 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>tableViewOrder</tabstop>
+  <tabstop>tableViewO</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -151,7 +151,7 @@ void InsertNodeOrder::RSyncString(int node_id, int column, const QString& value)
     }
 }
 
-QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewOrder; }
+QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewO; }
 
 void InsertNodeOrder::IniDialog(CSettings* settings)
 {
@@ -184,7 +184,7 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->pBtnFinishOrder->setEnabled(false);
     ui->rBtnSP->setChecked(true);
 
-    ui->tableViewOrder->setModel(order_table_);
+    ui->tableViewO->setModel(order_table_);
 
     ui->comboParty->setFocus();
 }
@@ -203,7 +203,7 @@ void InsertNodeOrder::accept()
 
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);
-        ui->tableViewOrder->clearSelection();
+        ui->tableViewO->clearSelection();
 
         emit SUpdateLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
     }
@@ -236,7 +236,7 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
 
     ui->labEmployee->setEnabled(not_branch_enable);
     ui->comboEmployee->setEnabled(not_branch_enable);
-    ui->tableViewOrder->setEnabled(not_branch_enable);
+    ui->tableViewO->setEnabled(not_branch_enable);
 
     ui->rBtnIS->setEnabled(basic_enable);
     ui->rBtnMS->setEnabled(basic_enable);
@@ -338,7 +338,7 @@ void InsertNodeOrder::IniFinished(bool finished)
     if (finished) {
         ui->pBtnPrint->setFocus();
         ui->pBtnPrint->setDefault(true);
-        ui->tableViewOrder->clearSelection();
+        ui->tableViewO->clearSelection();
     }
 }
 
@@ -463,7 +463,7 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
         node_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
 
     ui->rBtnRefund->setChecked(false);
-    ui->tableViewOrder->clearSelection();
+    ui->tableViewO->clearSelection();
     ui->labParty->setText(enable ? tr("Branch") : party_);
 }
 

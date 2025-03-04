@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TABLEWIDGETORDER_H
-#define TABLEWIDGETORDER_H
+#ifndef LEAFWIDGETO_H
+#define LEAFWIDGETO_H
 
 #include <QButtonGroup>
 
@@ -26,18 +26,18 @@
 #include "component/settings.h"
 #include "table/model/tablemodel.h"
 #include "tree/model/treemodelstakeholder.h"
-#include "widget/tablewidget/tablewidget.h"
+#include "widget/leafwidget/leafwidget.h"
 
 namespace Ui {
-class TableWidgetOrder;
+class LeafWidgetO;
 }
 
-class TableWidgetOrder final : public TableWidget {
+class LeafWidgetO final : public LeafWidget {
     Q_OBJECT
 
 public:
-    TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent = nullptr);
-    ~TableWidgetOrder();
+    LeafWidgetO(CEditNodeParamsO& params, QWidget* parent = nullptr);
+    ~LeafWidgetO();
 
 signals:
     // send to TableModelOrder, MainWindow
@@ -92,7 +92,7 @@ private:
     void IniUnitGroup();
 
 private:
-    Ui::TableWidgetOrder* ui;
+    Ui::LeafWidgetO* ui;
     Node* node_ {};
     Sqlite* sql_ {};
     TableModel* order_table_ {};
@@ -109,4 +109,4 @@ private:
     int party_unit_ {};
 };
 
-#endif // TABLEWIDGETORDER_H
+#endif // LEAFWIDGETO_H

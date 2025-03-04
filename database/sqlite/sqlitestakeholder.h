@@ -62,7 +62,7 @@ protected:
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
     QMultiHash<int, int> ReplaceNodeFunction(int old_node_id, int new_node_id) const override;
-    void TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const override;
+    void ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const override;
 
     QString QSReadTransRangeFPTS(CString& in_list) const override;
     QString QSReadTrans() const override;
@@ -73,7 +73,7 @@ protected:
     QString QSSearchTrans() const override;
     QString QSRemoveNodeFirst() const override;
     QString QSTransToRemove() const override;
-    QString QSTransRefFetcher() const override;
+    QString QSReadTransRef() const override;
 
 private:
     void ReadTransStakeholder(QSqlQuery& query);

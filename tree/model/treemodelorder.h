@@ -29,7 +29,7 @@ class TreeModelOrder final : public TreeModel {
     Q_OBJECT
 
 public:
-    TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent = nullptr);
+    TreeModelOrder(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
     ~TreeModelOrder() override = default;
 
 public slots:

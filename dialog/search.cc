@@ -6,7 +6,6 @@
 #include "component/signalblocker.h"
 #include "delegate/readonly/checkboxr.h"
 #include "delegate/readonly/colorr.h"
-#include "delegate/readonly/doublespinr.h"
 #include "delegate/readonly/doublespinrnonezero.h"
 #include "delegate/readonly/stringmapr.h"
 #include "delegate/search/searchpathtabler.h"

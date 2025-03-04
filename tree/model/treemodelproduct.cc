@@ -2,8 +2,8 @@
 
 #include "global/resourcepool.h"
 
-TreeModelProduct::TreeModelProduct(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent)
-    : TreeModel(sql, info, default_unit, table_hash, separator, parent)
+TreeModelProduct::TreeModelProduct(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
+    : TreeModel(sql, info, default_unit, leaf_wgt_hash, separator, parent)
 {
     leaf_model_ = new QStandardItemModel(this);
     product_model_ = new QStandardItemModel(this);

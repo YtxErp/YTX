@@ -36,7 +36,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
         QObject::tr("RhsDebit"), QObject::tr("UnitCost"), QObject::tr("RhsNode") };
 
-    product.reference_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("CUST"), QObject::tr("OutsideProduct"), QObject::tr("First"),
+    product.trans_ref_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("CUST"), QObject::tr("Outside"), QObject::tr("First"),
         QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"),
         QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount") };
 
@@ -56,8 +56,8 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
         QObject::tr("RhsDebit"), QObject::tr("UnitPrice"), QObject::tr("RhsNode") };
 
-    stakeholder.reference_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("InsideProduct"), QObject::tr("OutsideProduct"),
-        QObject::tr("First"), QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"),
+    stakeholder.trans_ref_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("Inside"), QObject::tr("Outside"), QObject::tr("First"),
+        QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"),
         QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount") };
 
     task.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"), QObject::tr("Type"),

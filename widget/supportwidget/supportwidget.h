@@ -17,34 +17,30 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TABLEWIDGET_H
-#define TABLEWIDGET_H
+#ifndef SUPPORTWIDGET_H
+#define SUPPORTWIDGET_H
 
 #include <QPointer>
 #include <QTableView>
 #include <QWidget>
 
-#include "table/model/tablemodel.h"
-
-class TableWidget : public QWidget {
+class SupportWidget : public QWidget {
     Q_OBJECT
 
 public:
-    virtual ~TableWidget() = default;
+    virtual ~SupportWidget() = default;
 
-    virtual QPointer<TableModel> Model() const = 0;
+    virtual QPointer<QAbstractItemModel> Model() const = 0;
     virtual QPointer<QTableView> View() const = 0;
-    virtual bool IsTableWidget() const = 0;
+    virtual bool IsSupportWidget() const = 0;
 
 protected:
-    explicit TableWidget(QWidget* parent = nullptr)
+    explicit SupportWidget(QWidget* parent = nullptr)
         : QWidget { parent }
     {
     }
 };
 
-using TableHash = QHash<int, TableWidget*>;
-using CTableHash = const QHash<int, TableWidget*>;
-using PQTableView = QPointer<QTableView>;
+using SupWgtHash = QHash<int, QPointer<SupportWidget>>;
 
-#endif // TABLEWIDGET_H
+#endif // SUPPORTWIDGET_H

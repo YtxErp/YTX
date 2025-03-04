@@ -1,9 +1,9 @@
-#include "transreffetchermodel.h"
+#include "transrefmodel.h"
 
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
 
-TransRefFetcherModel::TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
+TransRefModel::TransRefModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
@@ -12,9 +12,9 @@ TransRefFetcherModel::TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql
     Query(node_id);
 }
 
-TransRefFetcherModel::~TransRefFetcherModel() { ResourcePool<Trans>::Instance().Recycle(trans_list_); }
+TransRefModel::~TransRefModel() { ResourcePool<Trans>::Instance().Recycle(trans_list_); }
 
-QModelIndex TransRefFetcherModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex TransRefModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -22,21 +22,21 @@ QModelIndex TransRefFetcherModel::index(int row, int column, const QModelIndex& 
     return createIndex(row, column);
 }
 
-QModelIndex TransRefFetcherModel::parent(const QModelIndex& index) const
+QModelIndex TransRefModel::parent(const QModelIndex& index) const
 {
     Q_UNUSED(index);
     return QModelIndex();
 }
 
-int TransRefFetcherModel::rowCount(const QModelIndex& parent) const
+int TransRefModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return trans_list_.size();
 }
 
-int TransRefFetcherModel::columnCount(const QModelIndex& /*parent*/) const { return info_.reference_header.size(); }
+int TransRefModel::columnCount(const QModelIndex& /*parent*/) const { return info_.trans_ref_header.size(); }
 
-QVariant TransRefFetcherModel::data(const QModelIndex& index, int role) const
+QVariant TransRefModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)
         return QVariant();
@@ -76,17 +76,17 @@ QVariant TransRefFetcherModel::data(const QModelIndex& index, int role) const
     }
 }
 
-QVariant TransRefFetcherModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant TransRefModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return info_.reference_header.at(section);
+        return info_.trans_ref_header.at(section);
 
     return QVariant();
 }
 
-void TransRefFetcherModel::sort(int column, Qt::SortOrder order)
+void TransRefModel::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.reference_header.size() - 1)
+    if (column <= -1 || column >= info_.trans_ref_header.size() - 1)
         return;
 
     auto Compare = [column, order](const Trans* lhs, const Trans* rhs) -> bool {
@@ -127,14 +127,14 @@ void TransRefFetcherModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void TransRefFetcherModel::Query(int node_id)
+void TransRefModel::Query(int node_id)
 {
     beginResetModel();
     if (!trans_list_.isEmpty())
         trans_list_.clear();
 
     if (node_id >= 1)
-        sql_->TransRefFetcher(trans_list_, node_id);
+        sql_->ReadTransRef(trans_list_, node_id);
 
     endResetModel();
 }

@@ -2,8 +2,8 @@
 
 #include "global/resourcepool.h"
 
-TreeModelStakeholder::TreeModelStakeholder(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent)
-    : TreeModel(sql, info, default_unit, table_hash, separator, parent)
+TreeModelStakeholder::TreeModelStakeholder(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
+    : TreeModel(sql, info, default_unit, leaf_wgt_hash, separator, parent)
 {
     cmodel_ = new QStandardItemModel(this);
     vmodel_ = new QStandardItemModel(this);
@@ -303,7 +303,7 @@ bool TreeModelStakeholder::UpdateTypeFPTS(Node* node, int value)
     if (TreeModelUtils::HasChildrenFPTS(node, message))
         return false;
 
-    if (TreeModelUtils::IsOpenedFPTS(table_hash_, node_id, message))
+    if (TreeModelUtils::IsOpenedFPTS(leaf_wgt_hash_, node_id, message))
         return false;
 
     if (TreeModelUtils::IsInternalReferencedFPTS(sql_, node_id, message))

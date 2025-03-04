@@ -17,19 +17,22 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSREFFETCHERMODEL_H
-#define TRANSREFFETCHERMODEL_H
+#ifndef TRANSREFMODEL_H
+#define TRANSREFMODEL_H
+
+// Leaf node referenced by transactions
+// such as a product node linked to order transactions or a stakeholder node associated with an order transaction.
 
 #include <QAbstractItemModel>
 
 #include "component/info.h"
 #include "database/sqlite/sqlite.h"
 
-class TransRefFetcherModel final : public QAbstractItemModel {
+class TransRefModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent = nullptr);
-    ~TransRefFetcherModel();
+    TransRefModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent = nullptr);
+    ~TransRefModel();
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -54,4 +57,4 @@ private:
     const int node_id_ {};
 };
 
-#endif // TRANSREFFETCHERMODEL_H
+#endif // TRANSREFMODEL_H

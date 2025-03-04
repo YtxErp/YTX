@@ -188,7 +188,7 @@ bool TreeModelUtils::HasChildrenFPTS(Node* node, CString& message)
     return false;
 }
 
-bool TreeModelUtils::IsOpenedFPTS(CTableHash& hash, int node_id, CString& message)
+bool TreeModelUtils::IsOpenedFPTS(CLeafWgtHash& hash, int node_id, CString& message)
 {
     if (hash.contains(node_id)) {
         MainWindowUtils::Message(QMessageBox::Warning, QObject::tr("Operation Blocked"), QObject::tr("%1 because it is opened.").arg(message), kThreeThousand);

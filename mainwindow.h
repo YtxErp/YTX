@@ -36,12 +36,12 @@
 #include "table/model/tablemodelorder.h"
 #include "tree/model/treemodel.h"
 #include "ui_mainwindow.h"
-#include "widget/referencewidget/supportwidget.h"
-#include "widget/tablewidget/tablewidgetorder.h"
+#include "widget/leafwidget/leafwidgeto.h"
+#include "widget/supportwidget/supportwidget.h"
 #include "widget/treewidget/treewidget.h"
 
 template <typename T>
-concept TableWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
+concept LeafWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
     { t.Model() } -> std::convertible_to<QPointer<TableModel>>;
     { t.View() } -> std::convertible_to<QPointer<QTableView>>;
 };
@@ -99,13 +99,13 @@ private slots:
     void RFreeWidget(int node_id);
     void REditTransDocument(const QModelIndex& index);
     void REditNodeDocument(const QModelIndex& index);
-    void RRefFetcher(const QModelIndex& index);
+    void RTransRef(const QModelIndex& index);
 
     void RTreeViewCustomContextMenuRequested(const QPoint& pos);
     void RTreeViewDoubleClicked(const QModelIndex& index);
 
     void RSectionGroup(int id);
-    void RRefFetcherDoubleClicked(const QModelIndex& index);
+    void RTransRefDoubleClicked(const QModelIndex& index);
 
 private:
     void SetTabWidget();
@@ -124,51 +124,51 @@ private:
     void CreateLeafFunction(int type, int node_id);
     void CreateSupportFunction(int type, int node_id);
 
-    void CreateLeafFPTS(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
-    void CreateLeafO(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
-    void DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
-    void DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
-    void DelegateS(PQTableView table_view) const;
-    void DelegateO(PQTableView table_view, CSettings* settings) const;
-    void SetTableView(PQTableView table_view, int stretch_column) const;
+    void CreateLeafFPTS(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, CData* data, CSettings* settings, int node_id);
+    void CreateLeafO(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, CData* data, CSettings* settings, int node_id);
+    void DelegateFPTS(PTableView table_view, PTreeModel tree_model, CSettings* settings) const;
+    void DelegateFPT(PTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
+    void DelegateS(PTableView table_view) const;
+    void DelegateO(PTableView table_view, CSettings* settings) const;
+    void SetTableView(PTableView table_view, int stretch_column) const;
 
     void CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
-    void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
+    void DelegateSupport(PTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id);
-    void DelegateRefFetcher(PQTableView table_view, CSettings* settings) const;
+    void CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id);
+    void DelegateTransRef(PTableView table_view, CSettings* settings) const;
 
-    void DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
-    void SetSupportViewS(PQTableView table_view) const;
+    void DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
+    void SetSupportViewS(PTableView table_view) const;
 
-    void TableConnectFPT(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
-    void TableConnectO(PQTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, TableWidgetOrder* widget) const;
-    void TableConnectS(PQTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
+    void TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
+    void TableConnectO(PTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, LeafWidgetO* widget) const;
+    void TableConnectS(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
 
-    void CreateSection(TreeWidget* tree_widget, TableHash& table_hash, CData& data, CSettings& settings, CString& name);
+    void CreateSection(TreeWidget* tree_widget, LeafWgtHash& leaf_wgt_hash, CData& data, CSettings& settings, CString& name);
     void SwitchSection(CTab& last_tab) const;
     void UpdateLastTab() const;
 
-    void SetDelegate(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
-    void DelegateFPTSO(PQTreeView tree_view, CInfo& info) const;
-    void DelegateF(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
-    void DelegateT(PQTreeView tree_view, CSettings& settings) const;
-    void DelegateP(PQTreeView tree_view, CSettings& settings) const;
-    void DelegateS(PQTreeView tree_view, CSettings& settings) const;
-    void DelegateO(PQTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void SetDelegate(PTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void DelegateFPTSO(PTreeView tree_view, CInfo& info) const;
+    void DelegateF(PTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void DelegateT(PTreeView tree_view, CSettings& settings) const;
+    void DelegateP(PTreeView tree_view, CSettings& settings) const;
+    void DelegateS(PTreeView tree_view, CSettings& settings) const;
+    void DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings) const;
 
-    void SetTreeView(PQTreeView tree_view, CInfo& info) const;
+    void SetTreeView(PTreeView tree_view, CInfo& info) const;
     void TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task
     void InsertNodeO(Node* node, const QModelIndex& parent, int row); // Purchase Sales
 
-    template <TableWidgetLike T> void AppendTrans(T* widget);
+    template <LeafWidgetLike T> void AppendTrans(T* widget);
 
     void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
 
-    void RemoveTrans(TableWidget* table_widget);
+    void RemoveTrans(LeafWidget* leaf_widget);
     void RemoveNode(TreeWidget* tree_widget);
     void RemoveNonBranch(PTreeModel tree_model, const QModelIndex& index, int node_id, int node_type);
     void RemoveBranch(PTreeModel tree_model, const QModelIndex& index, int node_id);
@@ -183,7 +183,7 @@ private:
     bool LockFile(const QFileInfo& file_info);
     bool NewFile(QString& file_path);
 
-    void RestoreTab(PTreeModel tree_model, TableHash& table_hash, CIntSet& set, CData& data, CSettings& settings);
+    void RestoreTab(PTreeModel tree_model, LeafWgtHash& leaf_wgt_hash, CIntSet& set, CData& data, CSettings& settings);
 
     void EnableAction(bool enable);
     void RestoreRecentFile();
@@ -192,11 +192,11 @@ private:
     QStandardItemModel* CreateModelFromList(QStringList& list, QObject* parent = nullptr);
 
     void IniSectionGroup();
-    void RefFetcherP(int node_id, int unit);
-    void RefFetcherS(int node_id, int unit);
-    void ReferenceNodeLocation(int node_id);
+    void TransRefP(int node_id, int unit);
+    void TransRefS(int node_id, int unit);
+    void SalesNodeLocation(int node_id);
 
-    void LeafToSupport(TableWidget* widget);
+    void LeafToSupport(LeafWidget* widget);
     void SupportToLeaf(SupportWidget* widget);
     void SwitchToLeaf(int node_id, int trans_id = 0) const;
     void SwitchToSupport(int node_id, int trans_id = 0) const;
@@ -219,7 +219,7 @@ private:
     QButtonGroup* section_group_ {};
 
     TreeWidget* tree_widget_ {};
-    TableHash* table_hash_ {};
+    LeafWgtHash* leaf_wgt_hash_ {};
     QList<PDialog>* dialog_list_ {};
     QHash<int, PDialog>* dialog_hash_ {};
     Settings* settings_ {};
@@ -227,7 +227,7 @@ private:
     SupWgtHash* sup_wgt_hash_ {};
 
     TreeWidget* finance_tree_ {};
-    TableHash finance_table_hash_ {};
+    LeafWgtHash finance_leaf_wgt_hash_ {};
     QList<PDialog> finance_dialog_list_ {};
     QHash<int, PDialog> finance_dialog_hash_ {};
     Settings finance_settings_ {};
@@ -235,7 +235,7 @@ private:
     SupWgtHash finance_sup_wgt_hash_ {};
 
     TreeWidget* product_tree_ {};
-    TableHash product_table_hash_ {};
+    LeafWgtHash product_leaf_wgt_hash_ {};
     QList<PDialog> product_dialog_list_ {};
     QHash<int, PDialog> product_dialog_hash_ {};
     Settings product_settings_ {};
@@ -243,7 +243,7 @@ private:
     SupWgtHash product_sup_wgt_hash_ {};
 
     TreeWidget* task_tree_ {};
-    TableHash task_table_hash_ {};
+    LeafWgtHash task_leaf_wgt_hash_ {};
     QList<PDialog> task_dialog_list_ {};
     QHash<int, PDialog> task_dialog_hash_ {};
     Settings task_settings_ {};
@@ -251,7 +251,7 @@ private:
     SupWgtHash task_sup_wgt_hash_ {};
 
     TreeWidget* stakeholder_tree_ {};
-    TableHash stakeholder_table_hash_ {};
+    LeafWgtHash stakeholder_leaf_wgt_hash_ {};
     QList<PDialog> stakeholder_dialog_list_ {};
     QHash<int, PDialog> stakeholder_dialog_hash_ {};
     Settings stakeholder_settings_ {};
@@ -259,14 +259,14 @@ private:
     SupWgtHash stakeholder_sup_wgt_hash_ {};
 
     TreeWidget* sales_tree_ {};
-    TableHash sales_table_hash_ {};
+    LeafWgtHash sales_leaf_wgt_hash_ {};
     QList<PDialog> sales_dialog_list_ {};
     QHash<int, PDialog> sales_dialog_hash_ {};
     Settings sales_settings_ {};
     Data sales_data_ {};
 
     TreeWidget* purchase_tree_ {};
-    TableHash purchase_table_hash_ {};
+    LeafWgtHash purchase_leaf_wgt_hash_ {};
     QList<PDialog> purchase_dialog_list_ {};
     QHash<int, PDialog> purchase_dialog_hash_ {};
     Settings purchase_settings_ {};

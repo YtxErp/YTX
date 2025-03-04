@@ -1,14 +1,14 @@
-#include "tablewidgetorder.h"
+#include "leafwidgeto.h"
 
 #include <QTimer>
 
 #include "component/signalblocker.h"
 #include "global/resourcepool.h"
-#include "ui_tablewidgetorder.h"
+#include "ui_leafwidgeto.h"
 
-TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
-    : TableWidget(parent)
-    , ui(new Ui::TableWidgetOrder)
+LeafWidgetO::LeafWidgetO(CEditNodeParamsO& params, QWidget* parent)
+    : LeafWidget(parent)
+    , ui(new Ui::LeafWidgetO)
     , node_ { params.node }
     , sql_ { params.sql }
     , order_table_ { params.order_table }
@@ -36,15 +36,15 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
     LockWidgets(finished);
 }
 
-TableWidgetOrder::~TableWidgetOrder()
+LeafWidgetO::~LeafWidgetO()
 {
     delete order_table_;
     delete ui;
 }
 
-QPointer<QTableView> TableWidgetOrder::View() const { return ui->tableViewOrder; }
+QPointer<QTableView> LeafWidgetO::View() const { return ui->tableViewO; }
 
-void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
+void LeafWidgetO::RSyncBool(int node_id, int column, bool value)
 {
     if (node_id != node_id_)
         return;
@@ -70,7 +70,7 @@ void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
     }
 }
 
-void TableWidgetOrder::RSyncInt(int node_id, int column, int value)
+void LeafWidgetO::RSyncInt(int node_id, int column, int value)
 {
     if (node_id != node_id_)
         return;
@@ -93,7 +93,7 @@ void TableWidgetOrder::RSyncInt(int node_id, int column, int value)
     }
 }
 
-void TableWidgetOrder::RSyncString(int node_id, int column, const QString& value)
+void LeafWidgetO::RSyncString(int node_id, int column, const QString& value)
 {
     if (node_id != node_id_)
         return;
@@ -114,7 +114,7 @@ void TableWidgetOrder::RSyncString(int node_id, int column, const QString& value
     }
 }
 
-void TableWidgetOrder::RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
+void LeafWidgetO::RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     if (node_id_ != node_id)
         return;
@@ -139,7 +139,7 @@ void TableWidgetOrder::RUpdateLeafValue(int node_id, double initial_delta, doubl
     emit SUpdateLeafValue(node_id_, adjusted_initial_delta, adjusted_final_delta, adjusted_first_delta, adjusted_second_delta, adjusted_discount_delta);
 }
 
-void TableWidgetOrder::IniDialog()
+void LeafWidgetO::IniDialog()
 {
     pmodel_ = stakeholder_tree_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(pmodel_);
@@ -161,12 +161,12 @@ void TableWidgetOrder::IniDialog()
     ui->dSpinSecond->setDecimals(settings_->common_decimal);
     ui->dSpinFirst->setDecimals(settings_->common_decimal);
 
-    ui->tableViewOrder->setFocus();
+    ui->tableViewO->setFocus();
 
     ui->chkBoxBranch->setEnabled(false);
 }
 
-void TableWidgetOrder::IniData()
+void LeafWidgetO::IniData()
 {
     IniLeafValue();
 
@@ -176,16 +176,16 @@ void TableWidgetOrder::IniData()
     ui->dateTimeEdit->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
     ui->pBtnFinishOrder->setChecked(node_->finished);
 
-    ui->tableViewOrder->setModel(order_table_);
+    ui->tableViewO->setModel(order_table_);
 }
 
-void TableWidgetOrder::IniConnect()
+void LeafWidgetO::IniConnect()
 {
-    connect(rule_group_, &QButtonGroup::idClicked, this, &TableWidgetOrder::RRuleGroupClicked);
-    connect(unit_group_, &QButtonGroup::idClicked, this, &TableWidgetOrder::RUnitGroupClicked);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &LeafWidgetO::RRuleGroupClicked);
+    connect(unit_group_, &QButtonGroup::idClicked, this, &LeafWidgetO::RUnitGroupClicked);
 }
 
-void TableWidgetOrder::IniDataCombo(int party, int employee)
+void LeafWidgetO::IniDataCombo(int party, int employee)
 {
     int party_index { ui->comboParty->findData(party) };
     ui->comboParty->setCurrentIndex(party_index);
@@ -194,7 +194,7 @@ void TableWidgetOrder::IniDataCombo(int party, int employee)
     ui->comboEmployee->setCurrentIndex(employee_index);
 }
 
-void TableWidgetOrder::LockWidgets(bool finished)
+void LeafWidgetO::LockWidgets(bool finished)
 {
     const bool enable { !finished };
 
@@ -213,7 +213,7 @@ void TableWidgetOrder::LockWidgets(bool finished)
 
     ui->labelEmployee->setEnabled(enable);
     ui->comboEmployee->setEnabled(enable);
-    ui->tableViewOrder->setEnabled(enable);
+    ui->tableViewO->setEnabled(enable);
 
     ui->rBtnIS->setEnabled(enable);
     ui->rBtnMS->setEnabled(enable);
@@ -232,7 +232,7 @@ void TableWidgetOrder::LockWidgets(bool finished)
     ui->pBtnPrint->setEnabled(finished);
 }
 
-void TableWidgetOrder::IniUnit(int unit)
+void LeafWidgetO::IniUnit(int unit)
 {
     const UnitO kUnit { unit };
 
@@ -251,7 +251,7 @@ void TableWidgetOrder::IniUnit(int unit)
     }
 }
 
-void TableWidgetOrder::IniLeafValue()
+void LeafWidgetO::IniLeafValue()
 {
     ui->dSpinNetAmount->setValue(node_->final_total);
     ui->dSpinDiscount->setValue(node_->discount);
@@ -260,7 +260,7 @@ void TableWidgetOrder::IniLeafValue()
     ui->dSpinGrossAmount->setValue(node_->initial_total);
 }
 
-void TableWidgetOrder::IniText(Section section)
+void LeafWidgetO::IniText(Section section)
 {
     const bool is_sales_section { section == Section::kSales };
 
@@ -269,7 +269,7 @@ void TableWidgetOrder::IniText(Section section)
     ui->labParty->setText(is_sales_section ? tr("CUST") : tr("VEND"));
 }
 
-void TableWidgetOrder::IniRule(bool rule)
+void LeafWidgetO::IniRule(bool rule)
 {
     const int kRule { static_cast<int>(rule) };
 
@@ -285,7 +285,7 @@ void TableWidgetOrder::IniRule(bool rule)
     }
 }
 
-void TableWidgetOrder::IniFinished(bool finished)
+void LeafWidgetO::IniFinished(bool finished)
 {
     ui->pBtnFinishOrder->setChecked(finished);
     ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
@@ -293,18 +293,18 @@ void TableWidgetOrder::IniFinished(bool finished)
     if (finished) {
         ui->pBtnPrint->setFocus();
         ui->pBtnPrint->setDefault(true);
-        ui->tableViewOrder->clearSelection();
+        ui->tableViewO->clearSelection();
     }
 }
 
-void TableWidgetOrder::IniRuleGroup()
+void LeafWidgetO::IniRuleGroup()
 {
     rule_group_ = new QButtonGroup(this);
     rule_group_->addButton(ui->rBtnSP, 0);
     rule_group_->addButton(ui->rBtnRefund, 1);
 }
 
-void TableWidgetOrder::IniUnitGroup()
+void LeafWidgetO::IniUnitGroup()
 {
     unit_group_ = new QButtonGroup(this);
     unit_group_->addButton(ui->rBtnIS, 0);
@@ -312,7 +312,7 @@ void TableWidgetOrder::IniUnitGroup()
     unit_group_->addButton(ui->rBtnPEND, 2);
 }
 
-void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
+void LeafWidgetO::on_comboParty_currentIndexChanged(int /*index*/)
 {
     int party_id { ui->comboParty->currentData().toInt() };
     if (party_id <= 0)
@@ -332,13 +332,13 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
     ui->rBtnMS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
 }
 
-void TableWidgetOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
+void LeafWidgetO::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
     node_->employee = ui->comboEmployee->currentData().toInt();
     sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
 }
 
-void TableWidgetOrder::on_pBtnInsert_clicked()
+void LeafWidgetO::on_pBtnInsert_clicked()
 {
     const auto& name { ui->comboParty->currentText() };
     if (name.isEmpty() || ui->comboParty->currentIndex() != -1)
@@ -357,19 +357,19 @@ void TableWidgetOrder::on_pBtnInsert_clicked()
     ui->comboParty->setCurrentIndex(party_index);
 }
 
-void TableWidgetOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
+void LeafWidgetO::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
     node_->date_time = date_time.toString(kDateTimeFST);
     sql_->WriteField(info_node_, kDateTime, node_->date_time, node_id_);
 }
 
-void TableWidgetOrder::on_lineDescription_editingFinished()
+void LeafWidgetO::on_lineDescription_editingFinished()
 {
     node_->description = ui->lineDescription->text();
     sql_->WriteField(info_node_, kDescription, node_->description, node_id_);
 }
 
-void TableWidgetOrder::RRuleGroupClicked(int id)
+void LeafWidgetO::RRuleGroupClicked(int id)
 {
     node_->rule = static_cast<bool>(id);
 
@@ -385,7 +385,7 @@ void TableWidgetOrder::RRuleGroupClicked(int id)
     sql_->WriteLeafValue(node_);
 }
 
-void TableWidgetOrder::RUnitGroupClicked(int id)
+void LeafWidgetO::RUnitGroupClicked(int id)
 {
     const UnitO unit { id };
 
@@ -408,7 +408,7 @@ void TableWidgetOrder::RUnitGroupClicked(int id)
     sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
 }
 
-void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
+void LeafWidgetO::on_pBtnFinishOrder_toggled(bool checked)
 {
     node_->finished = checked;
     sql_->WriteField(info_node_, kFinished, checked, node_id_);

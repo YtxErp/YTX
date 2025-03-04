@@ -26,7 +26,7 @@
 #include <QWidget>
 
 #include "component/constvalue.h"
-#include "widget/tablewidget/tablewidget.h"
+#include "widget/leafwidget/leafwidget.h"
 
 template <typename T>
 concept InheritQAbstractItemView = std::is_base_of_v<QAbstractItemView, T>;
@@ -40,7 +40,7 @@ concept MemberFunction = std::is_member_function_pointer_v<T>;
 class MainWindowUtils {
 public:
     static QString ResourceFile();
-    static QVariantList SaveTab(CTableHash& table_hash);
+    static QVariantList SaveTab(CLeafWgtHash& leaf_wgt_hash);
     static QSet<int> ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property);
 
     static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);
@@ -56,7 +56,7 @@ public:
         return view && view->selectionModel() && view->selectionModel()->hasSelection();
     }
 
-    template <InheritQWidget T> static void FreeWidget(T*& widget)
+    template <InheritQWidget T> static void FreeWidget(QPointer<T>& widget)
     {
         if (widget) {
             delete widget;

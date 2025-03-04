@@ -26,7 +26,7 @@ class TreeModelTask final : public TreeModel {
     Q_OBJECT
 
 public:
-    TreeModelTask(Sqlite* sql, CInfo& info, int default_unit, CTableHash& table_hash, CString& separator, QObject* parent = nullptr);
+    TreeModelTask(Sqlite* sql, CInfo& info, int default_unit, CLeafWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
     ~TreeModelTask() override;
 
 public slots:

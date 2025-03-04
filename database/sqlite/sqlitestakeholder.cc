@@ -347,7 +347,7 @@ QString SqliteStakeholder::QSTransToRemove() const
     )");
 }
 
-QString SqliteStakeholder::QSTransRefFetcher() const
+QString SqliteStakeholder::QSReadTransRef() const
 {
     return QStringLiteral(R"(
     SELECT
@@ -462,7 +462,7 @@ QMultiHash<int, int> SqliteStakeholder::ReplaceNodeFunction(int old_node_id, int
     return hash;
 }
 
-void SqliteStakeholder::TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const
+void SqliteStakeholder::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {

@@ -17,36 +17,22 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TREEWIDGET_H
-#define TREEWIDGET_H
+#ifndef NODENAMER_H
+#define NODENAMER_H
 
-#include <QPointer>
-#include <QTreeView>
-#include <QWidget>
+#include <QStandardItemModel>
 
+#include "delegate/styleditemdelegate.h"
 #include "tree/model/treemodel.h"
 
-class TreeWidget : public QWidget {
-    Q_OBJECT
-
-public slots:
-    virtual void RUpdateStatusValue() { };
-
+class NodeNameR : public StyledItemDelegate {
 public:
-    virtual ~TreeWidget() = default;
+    NodeNameR(CTreeModel* tree_model, QObject* parent = nullptr);
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
-    virtual void UpdateStatus() { };
-    virtual QPointer<QTreeView> View() const = 0;
-    virtual QPointer<TreeModel> Model() const = 0;
-    virtual bool IsTreeWidget() const = 0;
-
-protected:
-    TreeWidget(QWidget* parent = nullptr)
-        : QWidget { parent }
-    {
-    }
+private:
+    CTreeModel* tree_model_ {};
 };
 
-using PTreeView = QPointer<QTreeView>;
-
-#endif // TREEWIDGET_H
+#endif // NODENAMER_H

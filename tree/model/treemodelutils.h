@@ -24,7 +24,7 @@
 
 #include "component/using.h"
 #include "tree/node.h"
-#include "widget/tablewidget/tablewidget.h"
+#include "widget/leafwidget/leafwidget.h"
 
 class TreeModelUtils {
 public:
@@ -97,7 +97,7 @@ public:
     static void UpdateModelSeparatorFPTS(QStandardItemModel* model, CStringHash& source_path);
 
     static bool HasChildrenFPTS(Node* node, CString& message);
-    static bool IsOpenedFPTS(CTableHash& hash, int node_id, CString& message);
+    static bool IsOpenedFPTS(CLeafWgtHash& hash, int node_id, CString& message);
 
     static void UpdateBranchUnitF(const Node* root, Node* node);
 

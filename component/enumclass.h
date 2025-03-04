@@ -88,7 +88,7 @@ enum class TableEnumSearch {
     kRhsNode
 };
 
-enum class TableEnumReferenceP {
+enum class TableEnumRefFetcher {
     kDateTime,
     kLhsNode,
     kParty,

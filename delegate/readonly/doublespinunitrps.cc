@@ -35,7 +35,7 @@ bool DoubleSpinUnitRPS::editorEvent(QEvent* event, QAbstractItemModel* model, co
     const bool leaf { index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() == kTypeLeaf };
 
     if (leaf && event->type() == QEvent::MouseButtonDblClick && option.rect.contains(static_cast<QMouseEvent*>(event)->pos()))
-        emit SReference(index);
+        emit SRefFetcher(index);
 
     return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

@@ -1,8 +1,8 @@
-#include "referencedtransmodel.h"
+#include "transreffetchermodel.h"
 
 #include "component/enumclass.h"
 
-ReferencedTransModel::ReferencedTransModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
+TransRefFetcherModel::TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
@@ -11,9 +11,9 @@ ReferencedTransModel::ReferencedTransModel(int node_id, CInfo& info, Sqlite* sql
     Query(node_id);
 }
 
-ReferencedTransModel::~ReferencedTransModel() { trans_list_.clear(); }
+TransRefFetcherModel::~TransRefFetcherModel() { trans_list_.clear(); }
 
-QModelIndex ReferencedTransModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex TransRefFetcherModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -21,59 +21,59 @@ QModelIndex ReferencedTransModel::index(int row, int column, const QModelIndex& 
     return createIndex(row, column);
 }
 
-QModelIndex ReferencedTransModel::parent(const QModelIndex& index) const
+QModelIndex TransRefFetcherModel::parent(const QModelIndex& index) const
 {
     Q_UNUSED(index);
     return QModelIndex();
 }
 
-int ReferencedTransModel::rowCount(const QModelIndex& parent) const
+int TransRefFetcherModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return trans_list_.size();
 }
 
-int ReferencedTransModel::columnCount(const QModelIndex& /*parent*/) const { return info_.reference_header.size(); }
+int TransRefFetcherModel::columnCount(const QModelIndex& /*parent*/) const { return info_.reference_header.size(); }
 
-QVariant ReferencedTransModel::data(const QModelIndex& index, int role) const
+QVariant TransRefFetcherModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)
         return QVariant();
 
     auto* trans { trans_list_.at(index.row()) };
-    const TableEnumReferenceP kColumn { index.column() };
+    const TableEnumRefFetcher kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumReferenceP::kDateTime:
+    case TableEnumRefFetcher::kDateTime:
         return trans->date_time;
-    case TableEnumReferenceP::kParty:
+    case TableEnumRefFetcher::kParty:
         return trans->id;
-    case TableEnumReferenceP::kLhsNode:
+    case TableEnumRefFetcher::kLhsNode:
         return trans->lhs_node;
-    case TableEnumReferenceP::kFirst:
+    case TableEnumRefFetcher::kFirst:
         return trans->lhs_debit == 0 ? QVariant() : trans->lhs_debit;
-    case TableEnumReferenceP::kSecond:
+    case TableEnumRefFetcher::kSecond:
         return trans->lhs_credit == 0 ? QVariant() : trans->lhs_credit;
-    case TableEnumReferenceP::kUnitPrice:
+    case TableEnumRefFetcher::kUnitPrice:
         return trans->lhs_ratio == 0 ? QVariant() : trans->lhs_ratio;
-    case TableEnumReferenceP::kDiscountPrice:
+    case TableEnumRefFetcher::kDiscountPrice:
         return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
-    case TableEnumReferenceP::kDescription:
+    case TableEnumRefFetcher::kDescription:
         return trans->description;
-    case TableEnumReferenceP::kCode:
+    case TableEnumRefFetcher::kCode:
         return trans->code;
-    case TableEnumReferenceP::kGrossAmount:
+    case TableEnumRefFetcher::kGrossAmount:
         return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
-    case TableEnumReferenceP::kDiscount:
+    case TableEnumRefFetcher::kDiscount:
         return trans->discount == 0 ? QVariant() : trans->discount;
-    case TableEnumReferenceP::kNetAmount:
+    case TableEnumRefFetcher::kNetAmount:
         return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
     default:
         return QVariant();
     }
 }
 
-QVariant ReferencedTransModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant TransRefFetcherModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return info_.reference_header.at(section);
@@ -81,36 +81,36 @@ QVariant ReferencedTransModel::headerData(int section, Qt::Orientation orientati
     return QVariant();
 }
 
-void ReferencedTransModel::sort(int column, Qt::SortOrder order)
+void TransRefFetcherModel::sort(int column, Qt::SortOrder order)
 {
     if (column <= -1 || column >= info_.reference_header.size() - 1)
         return;
 
     auto Compare = [column, order](const Trans* lhs, const Trans* rhs) -> bool {
-        const TableEnumReferenceP kColumn { column };
+        const TableEnumRefFetcher kColumn { column };
 
         switch (kColumn) {
-        case TableEnumReferenceP::kDateTime:
+        case TableEnumRefFetcher::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TableEnumReferenceP::kCode:
+        case TableEnumRefFetcher::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TableEnumReferenceP::kParty:
+        case TableEnumRefFetcher::kParty:
             return (order == Qt::AscendingOrder) ? (lhs->id < rhs->id) : (lhs->id > rhs->id);
-        case TableEnumReferenceP::kUnitPrice:
+        case TableEnumRefFetcher::kUnitPrice:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_ratio < rhs->lhs_ratio) : (lhs->lhs_ratio > rhs->lhs_ratio);
-        case TableEnumReferenceP::kFirst:
+        case TableEnumRefFetcher::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_debit < rhs->lhs_debit) : (lhs->lhs_debit > rhs->lhs_debit);
-        case TableEnumReferenceP::kSecond:
+        case TableEnumRefFetcher::kSecond:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
-        case TableEnumReferenceP::kDescription:
+        case TableEnumRefFetcher::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TableEnumReferenceP::kDiscount:
+        case TableEnumRefFetcher::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-        case TableEnumReferenceP::kNetAmount:
+        case TableEnumRefFetcher::kNetAmount:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
-        case TableEnumReferenceP::kGrossAmount:
+        case TableEnumRefFetcher::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
-        case TableEnumReferenceP::kDiscountPrice:
+        case TableEnumRefFetcher::kDiscountPrice:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
         default:
             return false;
@@ -122,7 +122,7 @@ void ReferencedTransModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void ReferencedTransModel::Query(int node_id)
+void TransRefFetcherModel::Query(int node_id)
 {
     beginResetModel();
     if (!trans_list_.isEmpty())

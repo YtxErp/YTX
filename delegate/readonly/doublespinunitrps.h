@@ -27,7 +27,7 @@ class DoubleSpinUnitRPS final : public StyledItemDelegate {
     Q_OBJECT
 
 signals:
-    void SReference(const QModelIndex& index);
+    void SRefFetcher(const QModelIndex& index);
 
 public:
     DoubleSpinUnitRPS(const int& decimal, const int& unit, CStringMap& unit_symbol_map, QObject* parent = nullptr);

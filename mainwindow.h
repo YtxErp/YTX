@@ -99,13 +99,13 @@ private slots:
     void RFreeWidget(int node_id);
     void REditTransDocument(const QModelIndex& index);
     void REditNodeDocument(const QModelIndex& index);
-    void RReference(const QModelIndex& index);
+    void RRefFetcher(const QModelIndex& index);
 
     void RTreeViewCustomContextMenuRequested(const QPoint& pos);
     void RTreeViewDoubleClicked(const QModelIndex& index);
 
     void RSectionGroup(int id);
-    void RReferenceTableViewDoubleClicked(const QModelIndex& index);
+    void RRefTableViewDoubleClicked(const QModelIndex& index);
 
 private:
     void SetTabWidget();

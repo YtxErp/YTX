@@ -67,7 +67,7 @@
 #include "table/model/tablemodelstakeholder.h"
 #include "table/model/tablemodelsupport.h"
 #include "table/model/tablemodeltask.h"
-#include "table/referencedtransmodel.h"
+#include "table/transreffetchermodel.h"
 #include "tree/model/treemodelfinance.h"
 #include "tree/model/treemodelorder.h"
 #include "tree/model/treemodelproduct.h"
@@ -340,9 +340,9 @@ void MainWindow::RSectionGroup(int id)
     SwitchSection(data_->tab);
 }
 
-void MainWindow::RReferenceTableViewDoubleClicked(const QModelIndex& index)
+void MainWindow::RRefTableViewDoubleClicked(const QModelIndex& index)
 {
-    const int node_id { index.siblingAtColumn(std::to_underlying(TableEnumReferenceP::kLhsNode)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(TableEnumRefFetcher::kLhsNode)).data().toInt() };
     if (node_id <= 0)
         return;
 
@@ -756,7 +756,7 @@ void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
 
     auto* amount { new DoubleSpinUnitRPS(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kAmount), amount);
-    connect(amount, &DoubleSpinUnitRPS::SReference, this, &MainWindow::RReference);
+    connect(amount, &DoubleSpinUnitRPS::SRefFetcher, this, &MainWindow::RRefFetcher);
 
     auto* unit_price { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kUnitPrice), unit_price);
@@ -770,7 +770,7 @@ void MainWindow::DelegateS(PQTreeView tree_view, CSettings& settings) const
 {
     auto* amount { new DoubleSpinUnitRPS(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kAmount), amount);
-    connect(amount, &DoubleSpinUnitRPS::SReference, this, &MainWindow::RReference);
+    connect(amount, &DoubleSpinUnitRPS::SRefFetcher, this, &MainWindow::RRefFetcher);
 
     auto* payment_term { new Spin(0, std::numeric_limits<int>::max(), tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kPaymentTerm), payment_term);
@@ -1257,7 +1257,7 @@ void MainWindow::CreateTableReference(PTreeModel tree_model, RefWgtHash* ref_wgt
     const Info& info { data.info };
     const Section section { info.section };
 
-    auto* model { new ReferencedTransModel(node_id, info, sql, this) };
+    auto* model { new TransRefFetcherModel(node_id, info, sql, this) };
     auto* widget { new ReferenceWidgetPS(model, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, name) };
@@ -1267,9 +1267,9 @@ void MainWindow::CreateTableReference(PTreeModel tree_model, RefWgtHash* ref_wgt
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnumReferenceP::kDescription));
+    SetTableView(view, std::to_underlying(TableEnumRefFetcher::kDescription));
     DelegateReference(view, &sales_settings_);
-    connect(view, &QTableView::doubleClicked, this, &MainWindow::RReferenceTableViewDoubleClicked);
+    connect(view, &QTableView::doubleClicked, this, &MainWindow::RRefTableViewDoubleClicked);
 
     ref_wgt_hash->insert(node_id, widget);
 }
@@ -1277,27 +1277,27 @@ void MainWindow::CreateTableReference(PTreeModel tree_model, RefWgtHash* ref_wgt
 void MainWindow::DelegateReference(PQTableView table_view, CSettings* settings) const
 {
     auto* line { new Line(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kDescription), line);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kCode), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDescription), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kCode), line);
 
     auto* price { new DoubleSpinR(settings->amount_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kUnitPrice), price);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kDiscountPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kUnitPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDiscountPrice), price);
 
     auto* quantity { new DoubleSpinR(settings->common_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kFirst), quantity);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kSecond), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kSecond), quantity);
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kGrossAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kNetAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDiscount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kNetAmount), amount);
 
     auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kDateTime), date_time);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDateTime), date_time);
 
     auto* name { new OrderNameR(stakeholder_tree_->Model(), table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumReferenceP::kParty), name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kParty), name);
 }
 
 void MainWindow::DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
@@ -1917,7 +1917,7 @@ void MainWindow::REditNodeDocument(const QModelIndex& index)
         data_->sql->WriteField(data_->info.node, kDocument, document_pointer->join(kSemicolon), node_id);
 }
 
-void MainWindow::RReference(const QModelIndex& index)
+void MainWindow::RRefFetcher(const QModelIndex& index)
 {
     if (!tree_widget_ || !index.isValid())
         return;

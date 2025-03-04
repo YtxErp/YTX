@@ -17,19 +17,19 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef REFERENCEDTRANSMODEL_H
-#define REFERENCEDTRANSMODEL_H
+#ifndef TRANSREFFETCHERMODEL_H
+#define TRANSREFFETCHERMODEL_H
 
 #include <QAbstractItemModel>
 
 #include "component/info.h"
 #include "database/sqlite/sqlite.h"
 
-class ReferencedTransModel final : public QAbstractItemModel {
+class TransRefFetcherModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    ReferencedTransModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent = nullptr);
-    ~ReferencedTransModel();
+    TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent = nullptr);
+    ~TransRefFetcherModel();
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -54,4 +54,4 @@ private:
     const int node_id_ {};
 };
 
-#endif // REFERENCEDTRANSMODEL_H
+#endif // TRANSREFFETCHERMODEL_H

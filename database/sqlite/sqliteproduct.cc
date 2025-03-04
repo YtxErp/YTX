@@ -234,7 +234,6 @@ void SqliteProduct::TransRefFetcherFunction(TransList& trans_list, QSqlQuery& qu
 
         trans->id = query.value(QStringLiteral("party")).toInt();
         trans->code = query.value(QStringLiteral("code")).toString();
-        trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
@@ -340,7 +339,6 @@ QString SqliteProduct::QSTransRefFetcher() const
     return QStringLiteral(R"(
     SELECT
         st.code,
-        st.inside_product,
         st.unit_price,
         st.second,
         st.lhs_node,
@@ -354,7 +352,7 @@ QString SqliteProduct::QSTransRefFetcher() const
         sn.party,
         sn.date_time
     FROM sales_transaction st
-    LEFT JOIN sales sn ON st.lhs_node = sn.id
+    INNER JOIN sales sn ON st.lhs_node = sn.id
     WHERE st.inside_product = :node_id AND st.removed = 0;
     )");
 }

@@ -135,7 +135,7 @@ private:
     void CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id);
+    void CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id);
     void DelegateRefFetcher(PQTableView table_view, CSettings* settings) const;
 
     void DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;

@@ -36,9 +36,9 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
         QObject::tr("RhsDebit"), QObject::tr("UnitCost"), QObject::tr("RhsNode") };
 
-    product.reference_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("CUST"), QObject::tr("First"), QObject::tr("Second"),
-        QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("GrossAmount"),
-        QObject::tr("Discount"), QObject::tr("NetAmount") };
+    product.reference_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("CUST"), QObject::tr("OutsideProduct"), QObject::tr("First"),
+        QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"),
+        QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount") };
 
     stakeholder.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"),
         QObject::tr("Type"), QObject::tr("Rule"), QObject::tr("Unit"), QObject::tr("Deadline"), QObject::tr("Employee"), QObject::tr("PaymentPeriod"),
@@ -55,6 +55,10 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     stakeholder.support_header = { QObject::tr("DateTime"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("LhsNode"), QObject::tr("UnitPrice"),
         QObject::tr("LhsDebit"), QObject::tr("LhsCredit"), QObject::tr("Description"), QObject::tr("D"), QObject::tr("S"), QObject::tr("RhsCredit"),
         QObject::tr("RhsDebit"), QObject::tr("UnitPrice"), QObject::tr("RhsNode") };
+
+    stakeholder.reference_header = { QObject::tr("DateTime"), QObject::tr("LhsNode"), QObject::tr("InsideProduct"), QObject::tr("OutsideProduct"),
+        QObject::tr("First"), QObject::tr("Second"), QObject::tr("UnitPrice"), QObject::tr("DiscountPrice"), QObject::tr("Code"), QObject::tr("Description"),
+        QObject::tr("GrossAmount"), QObject::tr("Discount"), QObject::tr("NetAmount") };
 
     task.node_header = { QObject::tr("Name"), QObject::tr("ID"), QObject::tr("Code"), QObject::tr("Description"), QObject::tr("Note"), QObject::tr("Type"),
         QObject::tr("Rule"), QObject::tr("Unit"), QObject::tr("DateTime"), QObject::tr("Color"), QObject::tr("Document"), QObject::tr("Finished"),

@@ -347,6 +347,29 @@ QString SqliteStakeholder::QSTransToRemove() const
     )");
 }
 
+QString SqliteStakeholder::QSTransRefFetcher() const
+{
+    return QStringLiteral(R"(
+    SELECT
+        st.code,
+        st.inside_product,
+        st.unit_price,
+        st.second,
+        st.lhs_node,
+        st.description,
+        st.first,
+        st.gross_amount,
+        st.discount,
+        st.net_amount,
+        st.outside_product,
+        st.discount_price,
+        sn.date_time
+    FROM sales_transaction st
+    INNER JOIN sales sn ON st.lhs_node = sn.id
+    WHERE sn.party = :node_id AND st.removed = 0;
+    )");
+}
+
 void SqliteStakeholder::ReadTransStakeholder(QSqlQuery& query)
 {
     Trans* trans {};
@@ -437,6 +460,30 @@ QMultiHash<int, int> SqliteStakeholder::ReplaceNodeFunction(int old_node_id, int
     }
 
     return hash;
+}
+
+void SqliteStakeholder::TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const
+{
+    // remind to recycle these trans
+    while (query.next()) {
+        auto* trans { ResourcePool<Trans>::Instance().Allocate() };
+
+        trans->id = query.value(QStringLiteral("inside_product")).toInt();
+        trans->code = query.value(QStringLiteral("code")).toString();
+        trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
+        trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
+        trans->description = query.value(QStringLiteral("description")).toString();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+        trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
+        trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
+        trans->discount = query.value(QStringLiteral("discount")).toDouble();
+        trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
+        trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
+        trans->date_time = query.value(QStringLiteral("date_time")).toString();
+        trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
+
+        trans_list.emplaceBack(trans);
+    }
 }
 
 void SqliteStakeholder::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const

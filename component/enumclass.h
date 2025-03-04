@@ -92,6 +92,7 @@ enum class TableEnumRefFetcher {
     kDateTime,
     kLhsNode,
     kParty,
+    kOutsideProduct,
     kFirst,
     kSecond,
     kUnitPrice,

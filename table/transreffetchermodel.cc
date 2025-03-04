@@ -51,6 +51,8 @@ QVariant TransRefFetcherModel::data(const QModelIndex& index, int role) const
         return trans->id;
     case TableEnumRefFetcher::kLhsNode:
         return trans->lhs_node;
+    case TableEnumRefFetcher::kOutsideProduct:
+        return trans->support_id == 0 ? QVariant() : trans->support_id;
     case TableEnumRefFetcher::kFirst:
         return trans->lhs_debit == 0 ? QVariant() : trans->lhs_debit;
     case TableEnumRefFetcher::kSecond:
@@ -91,6 +93,8 @@ void TransRefFetcherModel::sort(int column, Qt::SortOrder order)
         const TableEnumRefFetcher kColumn { column };
 
         switch (kColumn) {
+        case TableEnumRefFetcher::kOutsideProduct:
+            return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
         case TableEnumRefFetcher::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
         case TableEnumRefFetcher::kCode:

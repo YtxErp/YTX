@@ -1274,14 +1274,14 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), node_name);
 }
 
-void MainWindow::CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id)
+void MainWindow::CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id)
 {
     if (!tree_model || !tree_model->Contains(node_id))
         return;
 
     CString name { tree_model->Name(node_id) };
-    auto* sql { data.sql };
-    const Info& info { data.info };
+    auto* sql { data->sql };
+    const Info& info { data->info };
     const Section section { info.section };
 
     auto* model { new TransRefFetcherModel(node_id, info, sql, this) };
@@ -1323,8 +1323,20 @@ void MainWindow::DelegateRefFetcher(PQTableView table_view, CSettings* settings)
     auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDateTime), date_time);
 
-    auto* name { new OrderNameR(stakeholder_tree_->Model(), table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kParty), name);
+    if (start_ == Section::kProduct) {
+        auto* name { new OrderNameR(stakeholder_tree_->Model(), table_view) };
+        table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kParty), name);
+    }
+
+    if (start_ == Section::kStakeholder) {
+        auto* product_tree_model { product_tree_->Model().data() };
+        auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
+        table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kParty), inside_product);
+    }
+
+    auto stakeholder_tree_model { stakeholder_tree_->Model() };
+    auto* support_node { new SupportID(stakeholder_tree_model, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kOutsideProduct), support_node);
 }
 
 void MainWindow::DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
@@ -2006,7 +2018,7 @@ void MainWindow::RefFetcherP(int node_id, int unit)
         return;
 
     if (!sup_wgt_hash_->contains(node_id)) {
-        CreateRefFetcher(tree_widget_->Model(), sup_wgt_hash_, product_data_, node_id);
+        CreateRefFetcher(tree_widget_->Model(), sup_wgt_hash_, data_, node_id);
     }
 
     auto* widget { sup_wgt_hash_->value(node_id, nullptr) };
@@ -2019,10 +2031,19 @@ void MainWindow::RefFetcherP(int node_id, int unit)
 
 void MainWindow::RefFetcherS(int node_id, int unit)
 {
-    if (start_ != Section::kStakeholder)
+    if (unit != std::to_underlying(UnitS::kCust) || start_ != Section::kStakeholder)
         return;
 
-    qDebug() << node_id;
+    if (!sup_wgt_hash_->contains(node_id)) {
+        CreateRefFetcher(tree_widget_->Model(), sup_wgt_hash_, data_, node_id);
+    }
+
+    auto* widget { sup_wgt_hash_->value(node_id, nullptr) };
+    if (!widget)
+        return;
+
+    ui->tabWidget->setCurrentWidget(widget);
+    widget->activateWindow();
 }
 
 void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)

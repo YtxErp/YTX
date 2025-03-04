@@ -1052,7 +1052,7 @@ void MainWindow::IniSectionGroup()
 
 void MainWindow::RefFetcherP(int node_id, int unit)
 {
-    if (unit == std::to_underlying(UnitP::kPos))
+    if (unit == std::to_underlying(UnitP::kPos) || start_ != Section::kProduct)
         return;
 
     if (!sup_wgt_hash_->contains(node_id)) {
@@ -1067,7 +1067,13 @@ void MainWindow::RefFetcherP(int node_id, int unit)
     widget->activateWindow();
 }
 
-void MainWindow::RefFetcherS(int node_id, int unit) { qDebug() << node_id; }
+void MainWindow::RefFetcherS(int node_id, int unit)
+{
+    if (start_ != Section::kStakeholder)
+        return;
+
+    qDebug() << node_id;
+}
 
 void MainWindow::RestoreRecentFile()
 {
@@ -2015,7 +2021,7 @@ void MainWindow::RRefFetcher(const QModelIndex& index)
     const int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
     const int unit { index.siblingAtColumn(std::to_underlying(TreeEnum::kUnit)).data().toInt() };
 
-    switch (data_->info.section) {
+    switch (start_) {
     case Section::kProduct:
         RefFetcherP(node_id, unit);
         break;

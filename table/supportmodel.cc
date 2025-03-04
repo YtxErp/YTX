@@ -199,24 +199,7 @@ void SupportModel::sort(int column, Qt::SortOrder order)
 
 Qt::ItemFlags SupportModel::flags(const QModelIndex& index) const
 {
-    if (!index.isValid())
-        return Qt::NoItemFlags;
-
-    auto flags { QAbstractItemModel::flags(index) };
-    const TableEnumSupport kColumn { index.column() };
-
-    switch (kColumn) {
-    case TableEnumSupport::kCode:
-    case TableEnumSupport::kDescription:
-    case TableEnumSupport::kDateTime:
-        flags |= Qt::ItemIsEditable;
-        break;
-    default:
-        flags &= ~Qt::ItemIsEditable;
-        break;
-    }
-
-    return flags;
+    return index.isValid() ? (QAbstractItemModel::flags(index) & ~Qt::ItemIsEditable) : Qt::NoItemFlags;
 }
 
 QVariant SupportModel::headerData(int section, Qt::Orientation orientation, int role) const

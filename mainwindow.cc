@@ -1253,19 +1253,11 @@ void MainWindow::SetTableView(PQTableView view, int stretch_column) const
 
 void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const
 {
-    auto* line { new Line(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kDescription), line);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kCode), line);
-
     auto* date_time { new TableDateTime(settings->date_format, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kDateTime), date_time);
 
     auto* state { new CheckBox(QEvent::MouseButtonRelease, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kState), state);
-
-    auto* document { new Document(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kDocument), document);
-    connect(document, &Document::SEditDocument, this, &MainWindow::REditTransDocument);
 
     auto* value { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient8, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsDebit), value);

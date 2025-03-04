@@ -228,6 +228,7 @@ void SqliteProduct::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSq
 
 void SqliteProduct::TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const
 {
+    // remind to recycle these trans
     while (query.next()) {
         auto* trans { ResourcePool<Trans>::Instance().Allocate() };
 

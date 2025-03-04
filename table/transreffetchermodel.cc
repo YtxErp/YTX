@@ -1,6 +1,7 @@
 #include "transreffetchermodel.h"
 
 #include "component/enumclass.h"
+#include "global/resourcepool.h"
 
 TransRefFetcherModel::TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
     : QAbstractItemModel { parent }
@@ -11,7 +12,7 @@ TransRefFetcherModel::TransRefFetcherModel(int node_id, CInfo& info, Sqlite* sql
     Query(node_id);
 }
 
-TransRefFetcherModel::~TransRefFetcherModel() { trans_list_.clear(); }
+TransRefFetcherModel::~TransRefFetcherModel() { ResourcePool<Trans>::Instance().Recycle(trans_list_); }
 
 QModelIndex TransRefFetcherModel::index(int row, int column, const QModelIndex& parent) const
 {

@@ -42,6 +42,7 @@ public:
 
     QPointer<QTreeView> View() const override;
     QPointer<TreeModel> Model() const override { return model_; };
+    bool IsTreeWidget() const override { return true; }
 
 private slots:
     void on_pBtnRefresh_clicked();

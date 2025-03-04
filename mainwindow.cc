@@ -892,12 +892,11 @@ void MainWindow::on_actionRemove_triggered()
     if (!widget || dynamic_cast<SupportWidget*>(widget))
         return;
 
-    if (auto* tree_widget = dynamic_cast<TreeWidget*>(widget)) {
+    if (auto* tree_widget { dynamic_cast<TreeWidget*>(widget) }) {
         RemoveNode(tree_widget);
-        return;
     }
 
-    if (auto* table_widget = dynamic_cast<TableWidget*>(widget)) {
+    if (auto* table_widget { dynamic_cast<TableWidget*>(widget) }) {
         RemoveTrans(table_widget);
     }
 }
@@ -1168,15 +1167,18 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
     const int node_id { ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id };
 
-    auto* widget { ui->tabWidget->currentWidget() };
+    auto* current_widget { ui->tabWidget->currentWidget() };
 
-    if (auto* current_widget = qobject_cast<SupportWidget*>(widget)) {
-        MainWindowUtils::FreeWidget(current_widget);
+    if (auto* widget { qobject_cast<SupportWidget*>(current_widget) }) {
+        MainWindowUtils::FreeWidget(widget);
         sup_wgt_hash_->remove(node_id);
         return;
     }
 
-    RFreeWidget(node_id);
+    if (auto* widget { qobject_cast<TableWidget*>(current_widget) }) {
+        MainWindowUtils::FreeWidget(widget);
+        table_hash_->remove(node_id);
+    }
 }
 
 void MainWindow::SetTabWidget()
@@ -1722,11 +1724,13 @@ void MainWindow::on_actionSupportJump_triggered()
     if (start_ == Section::kSales || start_ == Section::kPurchase)
         return;
 
-    if (auto* support_widget { dynamic_cast<SupportWidget*>(ui->tabWidget->currentWidget()) }) {
+    auto* widget { ui->tabWidget->currentWidget() };
+
+    if (auto* support_widget { dynamic_cast<SupportWidget*>(widget) }) {
         SupportToLeaf(support_widget);
     }
 
-    if (auto* table_widget { dynamic_cast<TableWidget*>(ui->tabWidget->currentWidget()) }) {
+    if (auto* table_widget { dynamic_cast<TableWidget*>(widget) }) {
         LeafToSupport(table_widget);
     }
 }
@@ -1748,8 +1752,7 @@ void MainWindow::LeafToSupport(TableWidget* widget)
     if (!model)
         return;
 
-    const int row { index.row() };
-    const int id { index.sibling(row, std::to_underlying(TableEnum::kSupportID)).data().toInt() };
+    const int id { index.siblingAtColumn(std::to_underlying(TableEnum::kSupportID)).data().toInt() };
 
     if (id <= 0)
         return;
@@ -1758,7 +1761,7 @@ void MainWindow::LeafToSupport(TableWidget* widget)
         CreateSupport(tree_widget_->Model(), sup_wgt_hash_, data_, settings_, id);
     }
 
-    const int trans_id { index.sibling(row, std::to_underlying(TableEnum::kID)).data().toInt() };
+    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnum::kID)).data().toInt() };
     SwitchToSupport(id, trans_id);
 }
 
@@ -1779,19 +1782,15 @@ void MainWindow::SupportToLeaf(SupportWidget* widget)
     if (!model)
         return;
 
-    const int row { index.row() };
     const int rhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSupport::kRhsNode)).data().toInt() };
     const int lhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSupport::kLhsNode)).data().toInt() };
 
     if (rhs_node == 0 || lhs_node == 0)
         return;
 
-    if (!table_hash_->contains(rhs_node) && !table_hash_->contains(lhs_node)) {
-        CreateLeafFPTS(tree_widget_->Model(), table_hash_, data_, settings_, rhs_node);
-    }
+    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSupport::kID)).data().toInt() };
 
-    const int trans_id { index.sibling(row, std::to_underlying(TableEnumSupport::kID)).data().toInt() };
-    SwitchToLeaf(rhs_node, trans_id);
+    RTransLocation(trans_id, lhs_node, rhs_node);
 }
 
 void MainWindow::RTreeViewCustomContextMenuRequested(const QPoint& pos)

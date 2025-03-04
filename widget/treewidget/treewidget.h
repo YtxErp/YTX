@@ -38,6 +38,7 @@ public:
     virtual void UpdateStatus() { };
     virtual QPointer<QTreeView> View() const = 0;
     virtual QPointer<TreeModel> Model() const = 0;
+    virtual bool IsTreeWidget() const = 0;
 
 protected:
     TreeWidget(QWidget* parent = nullptr)

@@ -34,6 +34,7 @@ public:
 
     virtual QPointer<TableModel> Model() const = 0;
     virtual QPointer<QTableView> View() const = 0;
+    virtual bool IsTableWidget() const = 0;
 
 protected:
     explicit TableWidget(QWidget* parent = nullptr)

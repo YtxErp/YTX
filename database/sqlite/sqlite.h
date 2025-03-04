@@ -40,10 +40,11 @@ protected:
 
 signals:
     // send to all TableModel
-    void SRemoveMultiTrans(const QMultiHash<int, int>& node_trans);
+    void SRemoveMultiTrans(const QMultiHash<int, int>& leaf_trans);
     void SMoveMultiTrans(int old_node_id, int new_node_id, const QList<int>& trans_id_list);
-    // send to SignalStation
-    void SMoveMultiSupportTransFPTS(Section section, int new_support_id, const QList<int>& trans_id_list);
+    // send to SupportStation
+    void SMoveMultiSupportTrans(Section section, int new_support_id, const QList<int>& trans_id_list);
+    void SRemoveMultiSupportTrans(const QMultiHash<int, int>& support_trans);
     // send to TreeModel
     void SUpdateMultiLeafTotal(const QList<int>& node_id_list);
     void SRemoveNode(int node_id);

@@ -35,13 +35,13 @@ public:
     void DeregisterModel(Section section, int node_id);
 
 signals:
-    // send to SupportModelSupport
+    // send to SupportModel
     void SAppendSupportTrans(const TransShadow* trans_shadow);
     void SRemoveSupportTrans(int support_id, int trans_id);
     void SAppendMultiSupportTransFPTS(int new_support_id, const QList<int>& trans_id_list);
 
 public slots:
-    // receive from SupportModel
+    // receive from TableModel
     void RAppendSupportTrans(Section section, const TransShadow* trans_shadow);
     void RRemoveSupportTrans(Section section, int support_id, int trans_id);
 

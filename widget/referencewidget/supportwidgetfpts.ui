@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RefFetcherWidgetPS</class>
- <widget class="QWidget" name="RefFetcherWidgetPS">
+ <class>SupportWidgetFPTS</class>
+ <widget class="QWidget" name="SupportWidgetFPTS">
   <property name="geometry">
    <rect>
     <x>0</x>

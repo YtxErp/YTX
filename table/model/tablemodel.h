@@ -93,7 +93,6 @@ public:
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
     virtual int GetNodeRow(int node_id) const;
-    virtual bool IsSupport() const { return false; }
 
     QModelIndex GetIndex(int trans_id) const;
     QStringList* GetDocumentPointer(const QModelIndex& index) const;

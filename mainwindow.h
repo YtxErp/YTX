@@ -36,7 +36,7 @@
 #include "table/model/tablemodelorder.h"
 #include "tree/model/treemodel.h"
 #include "ui_mainwindow.h"
-#include "widget/referencewidget/reffetcherwidget.h"
+#include "widget/referencewidget/supportwidget.h"
 #include "widget/tablewidget/tablewidgetorder.h"
 #include "widget/treewidget/treewidget.h"
 
@@ -121,18 +121,21 @@ private:
     void SetSalesData();
     void SetPurchaseData();
 
-    void CreateTableFPTS(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
-    void CreateTableO(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id, int party_id);
+    void CreateLeafFunction(int type, int node_id);
+    void CreateSupportFunction(int type, int node_id);
+
+    void CreateLeafFPTS(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
+    void CreateLeafO(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
     void DelegateFPTS(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
     void DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
     void DelegateS(PQTableView table_view) const;
     void DelegateO(PQTableView table_view, CSettings* settings) const;
     void SetTableView(PQTableView table_view, int stretch_column) const;
 
-    void CreateTableSupport(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id);
+    void CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void CreateTableReference(PTreeModel tree_model, RefWgtHash* ref_wgt_hash, CData& data, int node_id);
+    void CreateTableReference(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id);
     void DelegateReference(PQTableView table_view, CSettings* settings) const;
 
     void DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
@@ -164,8 +167,8 @@ private:
     template <TableWidgetLike T> void AppendTrans(T* widget);
 
     void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
-    void SwitchTab(int node_id, int trans_id = 0) const;
-    void SwitchTabReference(int node_id) const;
+    void SwitchToLeaf(int node_id, int trans_id = 0) const;
+    void SwitchToSupport(int node_id, int trans_id = 0) const;
 
     void RemoveTrans(TableWidget* table_widget);
     void RemoveNode(TreeWidget* tree_widget);
@@ -195,6 +198,9 @@ private:
     void ReferenceSFunction(int node_id, int unit);
     void ReferenceNodeLocation(int node_id);
 
+    void LeafToSupport(TableWidget* widget);
+    void SupportToLeaf(SupportWidget* widget);
+
 private:
     Ui::MainWindow* ui {};
 
@@ -218,7 +224,7 @@ private:
     QHash<int, PDialog>* dialog_hash_ {};
     Settings* settings_ {};
     Data* data_ {};
-    RefWgtHash* ref_wgt_hash_ {};
+    SupWgtHash* sup_wgt_hash_ {};
 
     TreeWidget* finance_tree_ {};
     TableHash finance_table_hash_ {};
@@ -226,6 +232,7 @@ private:
     QHash<int, PDialog> finance_dialog_hash_ {};
     Settings finance_settings_ {};
     Data finance_data_ {};
+    SupWgtHash finance_sup_wgt_hash_ {};
 
     TreeWidget* product_tree_ {};
     TableHash product_table_hash_ {};
@@ -233,7 +240,7 @@ private:
     QHash<int, PDialog> product_dialog_hash_ {};
     Settings product_settings_ {};
     Data product_data_ {};
-    RefWgtHash product_ref_wgt_hash_ {};
+    SupWgtHash product_sup_wgt_hash_ {};
 
     TreeWidget* task_tree_ {};
     TableHash task_table_hash_ {};
@@ -241,6 +248,7 @@ private:
     QHash<int, PDialog> task_dialog_hash_ {};
     Settings task_settings_ {};
     Data task_data_ {};
+    SupWgtHash task_sup_wgt_hash_ {};
 
     TreeWidget* stakeholder_tree_ {};
     TableHash stakeholder_table_hash_ {};
@@ -248,6 +256,7 @@ private:
     QHash<int, PDialog> stakeholder_dialog_hash_ {};
     Settings stakeholder_settings_ {};
     Data stakeholder_data_ {};
+    SupWgtHash stakeholder_sup_wgt_hash_ {};
 
     TreeWidget* sales_tree_ {};
     TableHash sales_table_hash_ {};

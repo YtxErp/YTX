@@ -41,7 +41,7 @@ void SqliteStakeholder::RReplaceNode(int old_node_id, int new_node_id, int node_
 
     ReplaceSupportFunction(old_node_id, new_node_id);
     RemoveNode(old_node_id, kTypeSupport);
-    emit SMoveMultiSupportTransFPTS(info_.section, new_node_id, support_trans);
+    emit SMoveMultiSupportTrans(info_.section, new_node_id, support_trans);
 }
 
 void SqliteStakeholder::RRemoveNode(int node_id, int node_type)

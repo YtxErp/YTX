@@ -1,7 +1,6 @@
 #include "global/leafsstation.h"
 
 #include "table/model/tablemodelstakeholder.h"
-#include "table/model/tablemodelsupport.h"
 
 LeafSStation& LeafSStation::Instance()
 {
@@ -53,31 +52,6 @@ void LeafSStation::RUpdateBalance(Section section, int node_id, int trans_id)
     emit SUpdateBalance(node_id, trans_id);
 }
 
-void LeafSStation::RAppendSupportTrans(Section section, const TransShadow* trans_shadow)
-{
-    if (!trans_shadow)
-        return;
-
-    const auto* model { FindModel(section, *trans_shadow->support_id) };
-    if (!model)
-        return;
-
-    const auto* cast_model { static_cast<const TableModelSupport*>(model) };
-    connect(this, &LeafSStation::SAppendSupportTrans, cast_model, &TableModelSupport::RAppendSupportTrans, Qt::SingleShotConnection);
-    emit SAppendSupportTrans(trans_shadow);
-}
-
-void LeafSStation::RRemoveSupportTrans(Section section, int support_id, int trans_id)
-{
-    const auto* model { FindModel(section, support_id) };
-    if (!model)
-        return;
-
-    const auto* cast_model { static_cast<const TableModelSupport*>(model) };
-    connect(this, &LeafSStation::SRemoveSupportTrans, cast_model, &TableModelSupport::RRemoveSupportTrans, Qt::SingleShotConnection);
-    emit SRemoveSupportTrans(support_id, trans_id);
-}
-
 void LeafSStation::RAppendPrice(Section section, TransShadow* trans_shadow)
 {
     if (!trans_shadow)
@@ -101,15 +75,4 @@ void LeafSStation::RRule(Section section, int node_id, bool rule)
 
     connect(this, &LeafSStation::SRule, model, &TableModel::RRule, Qt::SingleShotConnection);
     emit SRule(node_id, rule);
-}
-
-void LeafSStation::RMoveMultiSupportTransFPTS(Section section, int new_support_id, const QList<int>& trans_id_list)
-{
-    const auto* model { FindModel(section, new_support_id) };
-    if (!model)
-        return;
-
-    const auto* cast_model { static_cast<const TableModelSupport*>(model) };
-    connect(this, &LeafSStation::SAppendMultiSupportTransFPTS, cast_model, &TableModelSupport::RAppendMultiSupportTransFPTS, Qt::SingleShotConnection);
-    emit SAppendMultiSupportTransFPTS(new_support_id, trans_id_list);
 }

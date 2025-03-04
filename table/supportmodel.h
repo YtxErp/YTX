@@ -36,12 +36,15 @@ public slots:
     void RAppendSupportTrans(const TransShadow* trans_shadow);
     void RRemoveSupportTrans(int support_id, int trans_id);
 
-    // receive from SignalStation
-    void RAppendMultiSupportTransFPTS(int new_support_id, const QList<int>& trans_id_list);
+    // receive from SupportStation
+    void RAppendMultiSupportTrans(int new_support_id, const QList<int>& trans_id_list);
+
+    // receive from sql
+    bool RemoveMultiSupportTrans(const QMultiHash<int, int>& node_trans);
 
 public:
     inline int rowCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return trans_shadow_list_.size(); }
-    inline int columnCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return info_.trans_header.size(); }
+    inline int columnCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return info_.support_header.size(); }
     inline QModelIndex parent(const QModelIndex& /*index*/) const override { return QModelIndex(); }
 
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -53,8 +56,6 @@ public:
 
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-protected:
-    bool RemoveMultiTrans(const QList<int>& trans_id_list);
     QModelIndex GetIndex(int trans_id) const;
 
 private:

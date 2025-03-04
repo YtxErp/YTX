@@ -42,28 +42,17 @@ signals:
     void SRule(int node_id, bool rule);
     void SAppendPrice(TransShadow* trans_shadow);
 
-    // send to TableModelSupport
-    void SAppendSupportTrans(const TransShadow* trans_shadow);
-    void SRemoveSupportTrans(int support_id, int trans_id);
-    void SAppendMultiSupportTransFPTS(int new_support_id, const QList<int>& trans_id_list);
-
 public slots:
     // receive from TableModel
     void RAppendOneTrans(Section section, const TransShadow* trans_shadow);
     void RRemoveOneTrans(Section section, int node_id, int trans_id);
     void RUpdateBalance(Section section, int node_id, int trans_id);
 
-    void RAppendSupportTrans(Section section, const TransShadow* trans_shadow);
-    void RRemoveSupportTrans(Section section, int support_id, int trans_id);
-
     // receive from SqliteStakeholder
     void RAppendPrice(Section section, TransShadow* trans_shadow);
 
     // receive from TreeModel
     void RRule(Section section, int node_id, bool rule);
-
-    // receive from sqlite
-    void RMoveMultiSupportTransFPTS(Section section, int new_support_id, const QList<int>& trans_id_list);
 
 private:
     LeafSStation() = default;

@@ -25,12 +25,12 @@ void Sqlite::RRemoveNode(int node_id, int node_type)
 
     // Mark Trans for removal
 
-    QMultiHash<int, int> node_trans_hash {};
-    QMultiHash<int, int> node_support_trans_hash {};
+    QMultiHash<int, int> leaf_trans_hash {};
+    QMultiHash<int, int> support_trans_hash {};
 
     if (node_type == kTypeLeaf) {
-        node_trans_hash = TransToRemove(node_id, kTypeLeaf);
-        node_support_trans_hash = TransToRemove(node_id, kTypeSupport);
+        leaf_trans_hash = TransToRemove(node_id, kTypeLeaf);
+        support_trans_hash = TransToRemove(node_id, kTypeSupport);
     }
 
     // Remove node, path, trans from the sqlite3 database
@@ -44,14 +44,14 @@ void Sqlite::RRemoveNode(int node_id, int node_type)
 
     // Handle node and trans based on the current section
 
-    emit SRemoveMultiTrans(node_trans_hash);
-    emit SUpdateMultiLeafTotal(node_trans_hash.uniqueKeys());
+    emit SRemoveMultiTrans(leaf_trans_hash);
+    emit SUpdateMultiLeafTotal(leaf_trans_hash.uniqueKeys());
 
-    if (!node_support_trans_hash.isEmpty())
-        emit SRemoveMultiTrans(node_support_trans_hash);
+    if (!support_trans_hash.isEmpty())
+        emit SRemoveMultiSupportTrans(support_trans_hash);
 
     // Recycle trans resources
-    const auto trans_list { node_trans_hash.values() };
+    const auto trans_list { leaf_trans_hash.values() };
 
     for (int trans_id : trans_list)
         ResourcePool<Trans>::Instance().Recycle(trans_hash_.take(trans_id));
@@ -183,7 +183,7 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type)
     if (node_type == kTypeSupport) {
         emit SFreeWidget(old_node_id);
         emit SRemoveNode(old_node_id);
-        emit SMoveMultiSupportTransFPTS(info_.section, new_node_id, support_trans);
+        emit SMoveMultiSupportTrans(info_.section, new_node_id, support_trans);
 
         ReplaceSupportFunction(old_node_id, new_node_id);
         RemoveNode(old_node_id, kTypeSupport);

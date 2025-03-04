@@ -39,6 +39,6 @@ void SupportSStation::RMoveMultiSupportTransFPTS(Section section, int new_suppor
     if (!model)
         return;
 
-    connect(this, &SupportSStation::SAppendMultiSupportTransFPTS, model, &SupportModel::RAppendMultiSupportTransFPTS, Qt::SingleShotConnection);
+    connect(this, &SupportSStation::SAppendMultiSupportTransFPTS, model, &SupportModel::RAppendMultiSupportTrans, Qt::SingleShotConnection);
     emit SAppendMultiSupportTransFPTS(new_support_id, trans_id_list);
 }

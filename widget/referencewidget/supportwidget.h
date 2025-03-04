@@ -17,31 +17,30 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef REFFETCHERWIDGETPS_H
-#define REFFETCHERWIDGETPS_H
+#ifndef SUPPORTWIDGET_H
+#define SUPPORTWIDGET_H
 
 #include <QPointer>
 #include <QTableView>
+#include <QWidget>
 
-#include "reffetcherwidget.h"
-
-namespace Ui {
-class RefFetcherWidgetPS;
-}
-
-class RefFetcherWidgetPS final : public RefFetcherWidget {
+class SupportWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit RefFetcherWidgetPS(QAbstractItemModel* model, QWidget* parent = nullptr);
-    ~RefFetcherWidgetPS();
+    virtual ~SupportWidget() = default;
 
-    QPointer<QAbstractItemModel> Model() const override { return model_; }
-    QPointer<QTableView> View() const override;
+    virtual QPointer<QAbstractItemModel> Model() const = 0;
+    virtual QPointer<QTableView> View() const = 0;
+    virtual bool IsSupportWidget() const = 0;
 
-private:
-    Ui::RefFetcherWidgetPS* ui;
-    QAbstractItemModel* model_ {};
+protected:
+    explicit SupportWidget(QWidget* parent = nullptr)
+        : QWidget { parent }
+    {
+    }
 };
 
-#endif // REFFETCHERWIDGETPS_H
+using SupWgtHash = QHash<int, SupportWidget*>;
+
+#endif // SUPPORTWIDGET_H

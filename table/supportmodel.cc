@@ -65,7 +65,7 @@ void SupportModel::RRemoveSupportTrans(int support_id, int trans_id)
     endRemoveRows();
 }
 
-void SupportModel::RAppendMultiSupportTransFPTS(int support_id, const QList<int>& trans_id_list)
+void SupportModel::RAppendMultiSupportTrans(int support_id, const QList<int>& trans_id_list)
 {
     if (node_id_ != support_id)
         return;
@@ -225,17 +225,17 @@ QVariant SupportModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
-bool SupportModel::RemoveMultiTrans(const QList<int>& trans_id_list)
+bool SupportModel::RemoveMultiSupportTrans(const QMultiHash<int, int>& node_trans)
 {
-    if (trans_id_list.isEmpty())
+    if (!node_trans.contains(node_id_))
         return false;
 
-    int trans_id {};
+    const auto lsit { node_trans.values(node_id_) };
 
     for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        trans_id = *trans_shadow_list_.at(i)->id;
+        int trans_id { *trans_shadow_list_.at(i)->id };
 
-        if (trans_id_list.contains(trans_id)) {
+        if (lsit.contains(trans_id)) {
             beginRemoveRows(QModelIndex(), i, i);
             ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
             endRemoveRows();

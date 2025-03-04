@@ -26,7 +26,7 @@ void TreeModelStakeholder::RUpdateStakeholder(int old_node_id, int new_node_id)
 
 void TreeModelStakeholder::RSyncDouble(int node_id, int column, double value)
 {
-    if (column != std::to_underlying(TreeEnumStakeholder::kAmount) || node_id <= 0 || value == 0.0)
+    if (column != std::to_underlying(TreeEnumS::kAmount) || node_id <= 0 || value == 0.0)
         return;
 
     auto* node { node_hash_.value(node_id) };
@@ -62,16 +62,16 @@ bool TreeModelStakeholder::InsertNode(int row, const QModelIndex& parent, Node* 
     case kTypeLeaf: {
         leaf_path_.insert(node->id, path);
 
-        const UnitStakeholder kUnit { node->unit };
+        const UnitS kUnit { node->unit };
 
         switch (kUnit) {
-        case UnitStakeholder::kCust:
+        case UnitS::kCust:
             TreeModelUtils::AddItemToModel(cmodel_, path, node->id);
             break;
-        case UnitStakeholder::kVend:
+        case UnitS::kVend:
             TreeModelUtils::AddItemToModel(vmodel_, path, node->id);
             break;
-        case UnitStakeholder::kEmp:
+        case UnitS::kEmp:
             TreeModelUtils::AddItemToModel(emodel_, path, node->id);
             break;
         default:
@@ -103,14 +103,14 @@ QList<int> TreeModelStakeholder::PartyList(CString& text, int unit) const
 
 QStandardItemModel* TreeModelStakeholder::UnitModelPS(int unit) const
 {
-    const UnitStakeholder kUnit { unit };
+    const UnitS kUnit { unit };
 
     switch (kUnit) {
-    case UnitStakeholder::kCust:
+    case UnitS::kCust:
         return cmodel_;
-    case UnitStakeholder::kVend:
+    case UnitS::kVend:
         return vmodel_;
-    case UnitStakeholder::kEmp:
+    case UnitS::kEmp:
         return emodel_;
     default:
         return nullptr;
@@ -170,9 +170,9 @@ bool TreeModelStakeholder::UpdateNameFunction(Node* node, CString& value)
 
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, std::to_underlying(UnitStakeholder::kCust), Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, std::to_underlying(UnitStakeholder::kVend), Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, std::to_underlying(UnitStakeholder::kEmp), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, std::to_underlying(UnitS::kCust), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, std::to_underlying(UnitS::kVend), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, std::to_underlying(UnitS::kEmp), Filter::kIncludeSpecific);
 
     emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
     emit SSearch();
@@ -201,16 +201,16 @@ bool TreeModelStakeholder::UpdateAncestorValue(
 
 void TreeModelStakeholder::RemoveItem(int node_id, int unit)
 {
-    const UnitStakeholder kUnit { unit };
+    const UnitS kUnit { unit };
 
     switch (kUnit) {
-    case UnitStakeholder::kCust:
+    case UnitS::kCust:
         TreeModelUtils::RemoveItemFromModel(cmodel_, node_id);
         break;
-    case UnitStakeholder::kVend:
+    case UnitS::kVend:
         TreeModelUtils::RemoveItemFromModel(vmodel_, node_id);
         break;
-    case UnitStakeholder::kEmp:
+    case UnitS::kEmp:
         TreeModelUtils::RemoveItemFromModel(emodel_, node_id);
         break;
     default:
@@ -220,16 +220,16 @@ void TreeModelStakeholder::RemoveItem(int node_id, int unit)
 
 void TreeModelStakeholder::AddItem(int node_id, CString& path, int unit)
 {
-    const UnitStakeholder kUnit { unit };
+    const UnitS kUnit { unit };
 
     switch (kUnit) {
-    case UnitStakeholder::kCust:
+    case UnitS::kCust:
         TreeModelUtils::AddItemToModel(cmodel_, path, node_id);
         break;
-    case UnitStakeholder::kVend:
+    case UnitS::kVend:
         TreeModelUtils::AddItemToModel(vmodel_, path, node_id);
         break;
-    case UnitStakeholder::kEmp:
+    case UnitS::kEmp:
         TreeModelUtils::AddItemToModel(emodel_, path, node_id);
         break;
     default:
@@ -251,16 +251,16 @@ void TreeModelStakeholder::ConstructTree()
             root_->children.emplace_back(node);
         }
 
-        const UnitStakeholder kUnit { node->unit };
+        const UnitS kUnit { node->unit };
 
         switch (kUnit) {
-        case UnitStakeholder::kCust:
+        case UnitS::kCust:
             crange.insert(node->id);
             break;
-        case UnitStakeholder::kVend:
+        case UnitS::kVend:
             vrange.insert(node->id);
             break;
-        case UnitStakeholder::kEmp:
+        case UnitS::kEmp:
             erange.insert(node->id);
             break;
         default:
@@ -358,31 +358,31 @@ void TreeModelStakeholder::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
-        const TreeEnumStakeholder kColumn { column };
+        const TreeEnumS kColumn { column };
         switch (kColumn) {
-        case TreeEnumStakeholder::kName:
+        case TreeEnumS::kName:
             return (order == Qt::AscendingOrder) ? (lhs->name < rhs->name) : (lhs->name > rhs->name);
-        case TreeEnumStakeholder::kCode:
+        case TreeEnumS::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TreeEnumStakeholder::kDescription:
+        case TreeEnumS::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TreeEnumStakeholder::kNote:
+        case TreeEnumS::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
-        case TreeEnumStakeholder::kRule:
+        case TreeEnumS::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
-        case TreeEnumStakeholder::kType:
+        case TreeEnumS::kType:
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
-        case TreeEnumStakeholder::kUnit:
+        case TreeEnumS::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
-        case TreeEnumStakeholder::kDeadline:
+        case TreeEnumS::kDeadline:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TreeEnumStakeholder::kEmployee:
+        case TreeEnumS::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
-        case TreeEnumStakeholder::kPaymentTerm:
+        case TreeEnumS::kPaymentTerm:
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
-        case TreeEnumStakeholder::kTaxRate:
+        case TreeEnumS::kTaxRate:
             return (order == Qt::AscendingOrder) ? (lhs->second < rhs->second) : (lhs->second > rhs->second);
-        case TreeEnumStakeholder::kAmount:
+        case TreeEnumS::kAmount:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -438,7 +438,7 @@ bool TreeModelStakeholder::RemoveNode(int row, const QModelIndex& parent)
     node_hash_.remove(node_id);
 
     emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumStakeholder::kName));
+    emit SResizeColumnToContents(std::to_underlying(TreeEnumS::kName));
 
     return true;
 }
@@ -452,35 +452,35 @@ QVariant TreeModelStakeholder::data(const QModelIndex& index, int role) const
     if (node == root_)
         return QVariant();
 
-    const TreeEnumStakeholder kColumn { index.column() };
+    const TreeEnumS kColumn { index.column() };
     const bool kIsLeaf { node->type == kTypeLeaf };
 
     switch (kColumn) {
-    case TreeEnumStakeholder::kName:
+    case TreeEnumS::kName:
         return node->name;
-    case TreeEnumStakeholder::kID:
+    case TreeEnumS::kID:
         return node->id;
-    case TreeEnumStakeholder::kCode:
+    case TreeEnumS::kCode:
         return node->code;
-    case TreeEnumStakeholder::kDescription:
+    case TreeEnumS::kDescription:
         return node->description;
-    case TreeEnumStakeholder::kNote:
+    case TreeEnumS::kNote:
         return node->note;
-    case TreeEnumStakeholder::kRule:
+    case TreeEnumS::kRule:
         return node->rule;
-    case TreeEnumStakeholder::kType:
+    case TreeEnumS::kType:
         return node->type;
-    case TreeEnumStakeholder::kUnit:
+    case TreeEnumS::kUnit:
         return node->unit;
-    case TreeEnumStakeholder::kDeadline:
+    case TreeEnumS::kDeadline:
         return kIsLeaf && node->rule == kRuleMS ? node->date_time : QVariant();
-    case TreeEnumStakeholder::kEmployee:
+    case TreeEnumS::kEmployee:
         return kIsLeaf && node->employee != 0 ? node->employee : QVariant();
-    case TreeEnumStakeholder::kPaymentTerm:
+    case TreeEnumS::kPaymentTerm:
         return kIsLeaf && node->first != 0 ? node->first : QVariant();
-    case TreeEnumStakeholder::kTaxRate:
+    case TreeEnumS::kTaxRate:
         return kIsLeaf && node->second != 0 ? node->second : QVariant();
-    case TreeEnumStakeholder::kAmount:
+    case TreeEnumS::kAmount:
         return node->final_total;
     default:
         return QVariant();
@@ -496,37 +496,37 @@ bool TreeModelStakeholder::setData(const QModelIndex& index, const QVariant& val
     if (node == root_)
         return false;
 
-    const TreeEnumStakeholder kColumn { index.column() };
+    const TreeEnumS kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumStakeholder::kCode:
+    case TreeEnumS::kCode:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
         break;
-    case TreeEnumStakeholder::kDescription:
+    case TreeEnumS::kDescription:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
         break;
-    case TreeEnumStakeholder::kNote:
+    case TreeEnumS::kNote:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
         break;
-    case TreeEnumStakeholder::kRule:
+    case TreeEnumS::kRule:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kRule, &Node::rule, true);
         break;
-    case TreeEnumStakeholder::kType:
+    case TreeEnumS::kType:
         UpdateTypeFPTS(node, value.toInt());
         break;
-    case TreeEnumStakeholder::kUnit:
+    case TreeEnumS::kUnit:
         UpdateUnit(node, value.toInt());
         break;
-    case TreeEnumStakeholder::kDeadline:
+    case TreeEnumS::kDeadline:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDeadline, &Node::date_time, true);
         break;
-    case TreeEnumStakeholder::kEmployee:
+    case TreeEnumS::kEmployee:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee, true);
         break;
-    case TreeEnumStakeholder::kPaymentTerm:
+    case TreeEnumS::kPaymentTerm:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kPaymentTerm, &Node::first, true);
         break;
-    case TreeEnumStakeholder::kTaxRate:
+    case TreeEnumS::kTaxRate:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kTaxRate, &Node::second, true);
         break;
     default:
@@ -543,14 +543,14 @@ Qt::ItemFlags TreeModelStakeholder::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
-    const TreeEnumStakeholder kColumn { index.column() };
+    const TreeEnumS kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumStakeholder::kName:
+    case TreeEnumS::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         flags &= ~Qt::ItemIsEditable;
         break;
-    case TreeEnumStakeholder::kAmount:
+    case TreeEnumS::kAmount:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:
@@ -597,11 +597,11 @@ bool TreeModelStakeholder::dropMimeData(const QMimeData* data, Qt::DropAction ac
     sql_->DragNode(destination_parent->id, node_id);
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, std::to_underlying(UnitStakeholder::kCust), Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, std::to_underlying(UnitStakeholder::kVend), Filter::kIncludeSpecific);
-    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, std::to_underlying(UnitStakeholder::kEmp), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, cmodel_, node, std::to_underlying(UnitS::kCust), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, vmodel_, node, std::to_underlying(UnitS::kVend), Filter::kIncludeSpecific);
+    TreeModelUtils::UpdateUnitModel(leaf_path_, emodel_, node, std::to_underlying(UnitS::kEmp), Filter::kIncludeSpecific);
 
     emit SUpdateName(node_id, node->name, node->type == kTypeBranch);
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumStakeholder::kName));
+    emit SResizeColumnToContents(std::to_underlying(TreeEnumS::kName));
     return true;
 }

@@ -70,13 +70,13 @@ void TableModelOrder::RSyncBool(int node_id, int /*column*/, bool value)
 
 void TableModelOrder::RSyncInt(int node_id, int column, int value)
 {
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
     switch (kColumn) {
-    case TreeEnumOrder::kID:
+    case TreeEnumO::kID:
         UpdateLhsNode(node_id);
         break;
-    case TreeEnumOrder::kParty:
+    case TreeEnumO::kParty:
         UpdateParty(node_id, value);
         break;
     default:
@@ -90,34 +90,34 @@ QVariant TableModelOrder::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* trans_shadow { trans_shadow_list_.at(index.row()) };
-    const TableEnumOrder kColumn { index.column() };
+    const TableEnumO kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumOrder::kID:
+    case TableEnumO::kID:
         return *trans_shadow->id;
-    case TableEnumOrder::kCode:
+    case TableEnumO::kCode:
         return *trans_shadow->code;
-    case TableEnumOrder::kInsideProduct:
+    case TableEnumO::kInsideProduct:
         return *trans_shadow->rhs_node == 0 ? QVariant() : *trans_shadow->rhs_node;
-    case TableEnumOrder::kUnitPrice:
+    case TableEnumO::kUnitPrice:
         return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
-    case TableEnumOrder::kSecond:
+    case TableEnumO::kSecond:
         return *trans_shadow->lhs_credit == 0 ? QVariant() : *trans_shadow->lhs_credit;
-    case TableEnumOrder::kDescription:
+    case TableEnumO::kDescription:
         return *trans_shadow->description;
-    case TableEnumOrder::kColor:
+    case TableEnumO::kColor:
         return *trans_shadow->rhs_node == 0 ? QVariant() : product_tree_->Color(*trans_shadow->rhs_node);
-    case TableEnumOrder::kFirst:
+    case TableEnumO::kFirst:
         return *trans_shadow->lhs_debit == 0 ? QVariant() : *trans_shadow->lhs_debit;
-    case TableEnumOrder::kNetAmount:
+    case TableEnumO::kNetAmount:
         return *trans_shadow->rhs_credit == 0 ? QVariant() : *trans_shadow->rhs_credit;
-    case TableEnumOrder::kDiscount:
+    case TableEnumO::kDiscount:
         return *trans_shadow->discount == 0 ? QVariant() : *trans_shadow->discount;
-    case TableEnumOrder::kGrossAmount:
+    case TableEnumO::kGrossAmount:
         return *trans_shadow->rhs_debit == 0 ? QVariant() : *trans_shadow->rhs_debit;
-    case TableEnumOrder::kDiscountPrice:
+    case TableEnumO::kDiscountPrice:
         return *trans_shadow->rhs_ratio == 0 ? QVariant() : *trans_shadow->rhs_ratio;
-    case TableEnumOrder::kOutsideProduct:
+    case TableEnumO::kOutsideProduct:
         return *trans_shadow->support_id == 0 ? QVariant() : *trans_shadow->support_id;
     default:
         return QVariant();
@@ -129,7 +129,7 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
     if (!index.isValid() || role != Qt::EditRole)
         return false;
 
-    const TableEnumOrder kColumn { index.column() };
+    const TableEnumO kColumn { index.column() };
     const int kRow { index.row() };
 
     auto* trans_shadow { trans_shadow_list_.at(kRow) };
@@ -147,28 +147,28 @@ bool TableModelOrder::setData(const QModelIndex& index, const QVariant& value, i
     bool dis_changed { false };
 
     switch (kColumn) {
-    case TableEnumOrder::kCode:
+    case TableEnumO::kCode:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
-    case TableEnumOrder::kDescription:
+    case TableEnumO::kDescription:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description);
         break;
-    case TableEnumOrder::kInsideProduct:
+    case TableEnumO::kInsideProduct:
         ins_changed = UpdateInsideProduct(trans_shadow, value.toInt());
         break;
-    case TableEnumOrder::kUnitPrice:
+    case TableEnumO::kUnitPrice:
         uni_changed = UpdateUnitPrice(trans_shadow, value.toDouble());
         break;
-    case TableEnumOrder::kSecond:
+    case TableEnumO::kSecond:
         sec_changed = UpdateSecond(trans_shadow, value.toDouble());
         break;
-    case TableEnumOrder::kFirst:
+    case TableEnumO::kFirst:
         fir_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kFirst, value.toDouble(), &TransShadow::lhs_debit);
         break;
-    case TableEnumOrder::kDiscountPrice:
+    case TableEnumO::kDiscountPrice:
         dis_changed = UpdateDiscountPrice(trans_shadow, value.toDouble());
         break;
-    case TableEnumOrder::kOutsideProduct:
+    case TableEnumO::kOutsideProduct:
         ins_changed = UpdateOutsideProduct(trans_shadow, value.toInt());
         break;
     default:
@@ -222,28 +222,28 @@ void TableModelOrder::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {
-        const TableEnumOrder kColumn { column };
+        const TableEnumO kColumn { column };
 
         switch (kColumn) {
-        case TableEnumOrder::kCode:
+        case TableEnumO::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
-        case TableEnumOrder::kInsideProduct:
+        case TableEnumO::kInsideProduct:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_node < *rhs->rhs_node) : (*lhs->rhs_node > *rhs->rhs_node);
-        case TableEnumOrder::kUnitPrice:
+        case TableEnumO::kUnitPrice:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
-        case TableEnumOrder::kFirst:
+        case TableEnumO::kFirst:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_debit < *rhs->lhs_debit) : (*lhs->lhs_debit > *rhs->lhs_debit);
-        case TableEnumOrder::kSecond:
+        case TableEnumO::kSecond:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_credit < *rhs->lhs_credit) : (*lhs->lhs_credit > *rhs->lhs_credit);
-        case TableEnumOrder::kNetAmount:
+        case TableEnumO::kNetAmount:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_credit < *rhs->rhs_credit) : (*lhs->rhs_credit > *rhs->rhs_credit);
-        case TableEnumOrder::kGrossAmount:
+        case TableEnumO::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_debit < *rhs->rhs_debit) : (*lhs->rhs_debit > *rhs->rhs_debit);
-        case TableEnumOrder::kDiscountPrice:
+        case TableEnumO::kDiscountPrice:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_ratio < *rhs->rhs_ratio) : (*lhs->rhs_ratio > *rhs->rhs_ratio);
-        case TableEnumOrder::kOutsideProduct:
+        case TableEnumO::kOutsideProduct:
             return (order == Qt::AscendingOrder) ? (*lhs->support_id < *rhs->support_id) : (*lhs->support_id > *rhs->support_id);
-        case TableEnumOrder::kDiscount:
+        case TableEnumO::kDiscount:
             return (order == Qt::AscendingOrder) ? (*lhs->discount < *rhs->discount) : (*lhs->discount > *rhs->discount);
         default:
             return false;
@@ -261,14 +261,14 @@ Qt::ItemFlags TableModelOrder::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
-    const TableEnumOrder kColumn { index.column() };
+    const TableEnumO kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumOrder::kID:
-    case TableEnumOrder::kGrossAmount:
-    case TableEnumOrder::kDiscount:
-    case TableEnumOrder::kNetAmount:
-    case TableEnumOrder::kColor:
+    case TableEnumO::kID:
+    case TableEnumO::kGrossAmount:
+    case TableEnumO::kDiscount:
+    case TableEnumO::kNetAmount:
+    case TableEnumO::kColor:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:
@@ -306,8 +306,8 @@ bool TableModelOrder::UpdateInsideProduct(TransShadow* trans_shadow, int value)
     *trans_shadow->rhs_node = value;
 
     CrossSearch(trans_shadow, value, true);
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kUnitPrice));
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kOutsideProduct));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kUnitPrice));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kOutsideProduct));
 
     return true;
 }
@@ -326,8 +326,8 @@ bool TableModelOrder::UpdateOutsideProduct(TransShadow* trans_shadow, int value)
         sql_->WriteField(info_.trans, kOutsideProduct, value, *trans_shadow->id);
     }
 
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kUnitPrice));
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kInsideProduct));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kUnitPrice));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kInsideProduct));
 
     bool ins_changed { *trans_shadow->rhs_node != old_rhs_node };
     return ins_changed;
@@ -343,8 +343,8 @@ bool TableModelOrder::UpdateUnitPrice(TransShadow* trans_shadow, double value)
     *trans_shadow->rhs_debit += delta;
     *trans_shadow->lhs_ratio = value;
 
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kGrossAmount));
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kNetAmount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kGrossAmount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kNetAmount));
     sync_price_.insert(*trans_shadow->rhs_node, value);
 
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
@@ -365,8 +365,8 @@ bool TableModelOrder::UpdateDiscountPrice(TransShadow* trans_shadow, double valu
     *trans_shadow->discount += delta;
     *trans_shadow->rhs_ratio = value;
 
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kDiscount));
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kNetAmount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kDiscount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kNetAmount));
 
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return true;
@@ -388,9 +388,9 @@ bool TableModelOrder::UpdateSecond(TransShadow* trans_shadow, double value)
 
     *trans_shadow->lhs_credit = value;
 
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kGrossAmount));
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kDiscount));
-    emit SResizeColumnToContents(std::to_underlying(TableEnumOrder::kNetAmount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kGrossAmount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kDiscount));
+    emit SResizeColumnToContents(std::to_underlying(TableEnumO::kNetAmount));
 
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         // Return without writing data to SQLite

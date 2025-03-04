@@ -162,10 +162,10 @@ void SearchNodeModel::Query(const QString& text)
     beginResetModel();
     switch (info_.section) {
     case Section::kSales:
-        static_cast<SqliteOrder*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitStakeholder::kCust)));
+        static_cast<SqliteOrder*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kCust)));
         break;
     case Section::kPurchase:
-        static_cast<SqliteOrder*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitStakeholder::kVend)));
+        static_cast<SqliteOrder*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kVend)));
         break;
     case Section::kFinance:
     case Section::kProduct:

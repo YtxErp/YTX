@@ -16,7 +16,7 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
     , settings_ { params.settings }
     , node_id_ { params.node->id }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
-    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
+    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -45,19 +45,19 @@ void TableWidgetOrder::RSyncBool(int node_id, int column, bool value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
-    if (kColumn == TreeEnumOrder::kFinished)
+    if (kColumn == TreeEnumO::kFinished)
         emit SSyncBool(node_id_, 0, value); // just send to TableModelOrder, thereby set column to 0
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kRule:
+    case TreeEnumO::kRule:
         IniRule(value);
         IniLeafValue();
         break;
-    case TreeEnumOrder::kFinished:
+    case TreeEnumO::kFinished:
         IniFinished(value);
         LockWidgets(value);
         break;
@@ -71,15 +71,15 @@ void TableWidgetOrder::RSyncInt(int node_id, int column, int value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kUnit:
+    case TreeEnumO::kUnit:
         IniUnit(value);
         break;
-    case TreeEnumOrder::kEmployee: {
+    case TreeEnumO::kEmployee: {
         int employee_index { ui->comboEmployee->findData(value) };
         ui->comboEmployee->setCurrentIndex(employee_index);
         break;
@@ -94,15 +94,15 @@ void TableWidgetOrder::RSyncString(int node_id, int column, const QString& value
     if (node_id != node_id_)
         return;
 
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kDescription:
+    case TreeEnumO::kDescription:
         ui->lineDescription->setText(value);
         break;
-    case TreeEnumOrder::kDateTime:
+    case TreeEnumO::kDateTime:
         ui->dateTimeEdit->setDateTime(QDateTime::fromString(value, kDateTimeFST));
         break;
     default:
@@ -119,7 +119,7 @@ void TableWidgetOrder::RUpdateLeafValue(int node_id, double initial_delta, doubl
     const int coefficient { node_->rule ? -1 : 1 };
 
     const double adjusted_initial_delta { initial_delta * coefficient };
-    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0) * coefficient };
+    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitO::kIS) ? final_delta : 0.0) * coefficient };
     const double adjusted_first_delta { first_delta * coefficient };
     const double adjusted_second_delta { second_delta * coefficient };
     const double adjusted_discount_delta { discount_delta * coefficient };
@@ -140,7 +140,7 @@ void TableWidgetOrder::IniDialog()
     pmodel_ = stakeholder_tree_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(pmodel_);
 
-    emodel_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp));
+    emodel_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitS::kEmp));
     ui->comboEmployee->setModel(emodel_);
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
@@ -230,16 +230,16 @@ void TableWidgetOrder::LockWidgets(bool finished)
 
 void TableWidgetOrder::IniUnit(int unit)
 {
-    const UnitOrder kUnit { unit };
+    const UnitO kUnit { unit };
 
     switch (kUnit) {
-    case UnitOrder::kIS:
+    case UnitO::kIS:
         ui->rBtnIS->setChecked(true);
         break;
-    case UnitOrder::kMS:
+    case UnitO::kMS:
         ui->rBtnMS->setChecked(true);
         break;
-    case UnitOrder::kPEND:
+    case UnitO::kPEND:
         ui->rBtnPEND->setChecked(true);
         break;
     default:
@@ -316,7 +316,7 @@ void TableWidgetOrder::on_comboParty_currentIndexChanged(int /*index*/)
 
     node_->party = party_id;
     sql_->WriteField(info_node_, kParty, party_id, node_id_);
-    emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
+    emit SSyncInt(node_id_, std::to_underlying(TreeEnumO::kParty), party_id);
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
@@ -383,14 +383,14 @@ void TableWidgetOrder::RRuleGroupClicked(int id)
 
 void TableWidgetOrder::RUnitGroupClicked(int id)
 {
-    const UnitOrder unit { id };
+    const UnitO unit { id };
 
     switch (unit) {
-    case UnitOrder::kIS:
+    case UnitO::kIS:
         node_->final_total = node_->initial_total - node_->discount;
         break;
-    case UnitOrder::kMS:
-    case UnitOrder::kPEND:
+    case UnitO::kMS:
+    case UnitO::kPEND:
         node_->final_total = 0.0;
         break;
     default:
@@ -408,7 +408,7 @@ void TableWidgetOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     node_->finished = checked;
     sql_->WriteField(info_node_, kFinished, checked, node_id_);
-    emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
+    emit SSyncBool(node_id_, std::to_underlying(TreeEnumO::kFinished), checked);
 
     IniFinished(checked);
     LockWidgets(checked);

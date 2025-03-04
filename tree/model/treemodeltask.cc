@@ -66,11 +66,11 @@ void TreeModelTask::RUpdateMultiLeafTotal(const QList<int>& node_list)
 
 void TreeModelTask::RSyncDouble(int node_id, int column, double value)
 {
-    if (column != std::to_underlying(TreeEnumTask::kUnitCost) || node_id <= 0 || value == 0.0)
+    if (column != std::to_underlying(TreeEnumT::kUnitCost) || node_id <= 0 || value == 0.0)
         return;
 
     auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf || node->unit != std::to_underlying(UnitTask::kProd))
+    if (!node || node == root_ || node->type != kTypeLeaf || node->unit != std::to_underlying(UnitT::kProd))
         return;
 
     node->first += value;
@@ -86,39 +86,39 @@ QVariant TreeModelTask::data(const QModelIndex& index, int role) const
     if (node == root_)
         return QVariant();
 
-    const TreeEnumTask kColumn { index.column() };
+    const TreeEnumT kColumn { index.column() };
     const bool kIsLeaf { node->type == kTypeLeaf };
 
     switch (kColumn) {
-    case TreeEnumTask::kName:
+    case TreeEnumT::kName:
         return node->name;
-    case TreeEnumTask::kID:
+    case TreeEnumT::kID:
         return node->id;
-    case TreeEnumTask::kCode:
+    case TreeEnumT::kCode:
         return node->code;
-    case TreeEnumTask::kDescription:
+    case TreeEnumT::kDescription:
         return node->description;
-    case TreeEnumTask::kNote:
+    case TreeEnumT::kNote:
         return node->note;
-    case TreeEnumTask::kRule:
+    case TreeEnumT::kRule:
         return node->rule;
-    case TreeEnumTask::kType:
+    case TreeEnumT::kType:
         return node->type;
-    case TreeEnumTask::kUnit:
+    case TreeEnumT::kUnit:
         return node->unit;
-    case TreeEnumTask::kColor:
+    case TreeEnumT::kColor:
         return node->color;
-    case TreeEnumTask::kDateTime:
+    case TreeEnumT::kDateTime:
         return kIsLeaf ? node->date_time : QVariant();
-    case TreeEnumTask::kFinished:
+    case TreeEnumT::kFinished:
         return kIsLeaf && node->finished ? node->finished : QVariant();
-    case TreeEnumTask::kUnitCost:
+    case TreeEnumT::kUnitCost:
         return kIsLeaf && node->first != 0 ? node->first : QVariant();
-    case TreeEnumTask::kDocument:
+    case TreeEnumT::kDocument:
         return node->document.isEmpty() ? QVariant() : node->document.size();
-    case TreeEnumTask::kQuantity:
+    case TreeEnumT::kQuantity:
         return node->initial_total;
-    case TreeEnumTask::kAmount:
+    case TreeEnumT::kAmount:
         return node->final_total;
     default:
         return QVariant();
@@ -134,34 +134,34 @@ bool TreeModelTask::setData(const QModelIndex& index, const QVariant& value, int
     if (node == root_)
         return false;
 
-    const TreeEnumTask kColumn { index.column() };
+    const TreeEnumT kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumTask::kCode:
+    case TreeEnumT::kCode:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
         break;
-    case TreeEnumTask::kDescription:
+    case TreeEnumT::kDescription:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
         break;
-    case TreeEnumTask::kNote:
+    case TreeEnumT::kNote:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
         break;
-    case TreeEnumTask::kRule:
+    case TreeEnumT::kRule:
         UpdateRuleFPTO(node, value.toBool());
         break;
-    case TreeEnumTask::kType:
+    case TreeEnumT::kType:
         UpdateTypeFPTS(node, value.toInt());
         break;
-    case TreeEnumTask::kColor:
+    case TreeEnumT::kColor:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color, true);
         break;
-    case TreeEnumTask::kDateTime:
+    case TreeEnumT::kDateTime:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDateTime, &Node::date_time, true);
         break;
-    case TreeEnumTask::kUnit:
+    case TreeEnumT::kUnit:
         UpdateUnit(node, value.toInt());
         break;
-    case TreeEnumTask::kFinished:
+    case TreeEnumT::kFinished:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kFinished, &Node::finished, true);
         break;
     default:
@@ -178,35 +178,35 @@ void TreeModelTask::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
-        const TreeEnumTask kColumn { column };
+        const TreeEnumT kColumn { column };
         switch (kColumn) {
-        case TreeEnumTask::kName:
+        case TreeEnumT::kName:
             return (order == Qt::AscendingOrder) ? (lhs->name < rhs->name) : (lhs->name > rhs->name);
-        case TreeEnumTask::kCode:
+        case TreeEnumT::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TreeEnumTask::kDescription:
+        case TreeEnumT::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TreeEnumTask::kNote:
+        case TreeEnumT::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
-        case TreeEnumTask::kRule:
+        case TreeEnumT::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
-        case TreeEnumTask::kType:
+        case TreeEnumT::kType:
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
-        case TreeEnumTask::kFinished:
+        case TreeEnumT::kFinished:
             return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
-        case TreeEnumTask::kUnit:
+        case TreeEnumT::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
-        case TreeEnumTask::kColor:
+        case TreeEnumT::kColor:
             return (order == Qt::AscendingOrder) ? (lhs->color < rhs->color) : (lhs->color > rhs->color);
-        case TreeEnumTask::kDocument:
+        case TreeEnumT::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
-        case TreeEnumTask::kDateTime:
+        case TreeEnumT::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TreeEnumTask::kUnitCost:
+        case TreeEnumT::kUnitCost:
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
-        case TreeEnumTask::kQuantity:
+        case TreeEnumT::kQuantity:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
-        case TreeEnumTask::kAmount:
+        case TreeEnumT::kAmount:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -225,25 +225,25 @@ Qt::ItemFlags TreeModelTask::flags(const QModelIndex& index) const
 
     auto flags { QAbstractItemModel::flags(index) };
 
-    const TreeEnumTask kColumn { index.column() };
+    const TreeEnumT kColumn { index.column() };
     switch (kColumn) {
-    case TreeEnumTask::kName:
+    case TreeEnumT::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         break;
-    case TreeEnumTask::kDescription:
-    case TreeEnumTask::kCode:
-    case TreeEnumTask::kNote:
-    case TreeEnumTask::kType:
-    case TreeEnumTask::kRule:
-    case TreeEnumTask::kUnit:
-    case TreeEnumTask::kDateTime:
+    case TreeEnumT::kDescription:
+    case TreeEnumT::kCode:
+    case TreeEnumT::kNote:
+    case TreeEnumT::kType:
+    case TreeEnumT::kRule:
+    case TreeEnumT::kUnit:
+    case TreeEnumT::kDateTime:
         flags |= Qt::ItemIsEditable;
         break;
     default:
         break;
     }
 
-    const bool finished { index.siblingAtColumn(std::to_underlying(TreeEnumTask::kFinished)).data().toBool() };
+    const bool finished { index.siblingAtColumn(std::to_underlying(TreeEnumT::kFinished)).data().toBool() };
     if (finished)
         flags &= ~Qt::ItemIsEditable;
 

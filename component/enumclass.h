@@ -20,38 +20,38 @@
 #ifndef ENUMCLASS_H
 #define ENUMCLASS_H
 
-// Enum
-
 enum NodeType { kTypeLeaf, kTypeBranch, kTypeSupport };
 
-// Enum Class
-
-enum class UnitOrder { kIS, kMS, kPEND };
-
-enum class UnitStakeholder { kCust, kEmp, kVend };
-
-enum class UnitProduct { kPos = 1 };
-
-enum class UnitTask { kProd = 1 };
-
-// Enum class defining sections
+// defining section
 enum class Section { kFinance, kProduct, kTask, kStakeholder, kSales, kPurchase };
 
-// for delegate
+// Abbreviations: Finance -> F, Product -> P, Task -> T, Stakeholder -> S, Order -> O
+
+// defining section's unit
+
+enum class UnitO { kIS, kMS, kPEND };
+
+enum class UnitS { kCust, kEmp, kVend };
+
+enum class UnitP { kPos = 1 };
+
+enum class UnitT { kProd = 1 };
+
+// data filter
 enum class Filter { kIncludeSpecific, kExcludeSpecific, kIncludeSpecificWithNone, kIncludeAllWithNone };
 
-// Enum class defining trans columns
+// defining trans column
 enum class TableEnum { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode };
 
-enum class TableEnumFinance { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TableEnumF { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumTask { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TableEnumT { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumProduct { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TableEnumP { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumStakeholder { kDateTime, kID, kUnitPrice, kCode, kDescription, kOutsideProduct, kDocument, kState, kInsideProduct };
+enum class TableEnumS { kDateTime, kID, kUnitPrice, kCode, kDescription, kOutsideProduct, kDocument, kState, kInsideProduct };
 
-enum class TableEnumOrder {
+enum class TableEnumO {
     kInsideProduct,
     kID,
     kOutsideProduct,
@@ -120,18 +120,18 @@ enum class TableEnumSupport {
     kRhsNode
 };
 
-// Enum class defining node columns
+// defining node column
 enum class TreeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };
 
-enum class TreeEnumFinance { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kForeignTotal, kLocalTotal };
+enum class TreeEnumF { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kForeignTotal, kLocalTotal };
 
-enum class TreeEnumTask { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDateTime, kColor, kDocument, kFinished, kUnitCost, kQuantity, kAmount };
+enum class TreeEnumT { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDateTime, kColor, kDocument, kFinished, kUnitCost, kQuantity, kAmount };
 
-enum class TreeEnumProduct { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kColor, kUnitPrice, kCommission, kQuantity, kAmount };
+enum class TreeEnumP { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kColor, kUnitPrice, kCommission, kQuantity, kAmount };
 
-enum class TreeEnumStakeholder { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDeadline, kEmployee, kPaymentTerm, kTaxRate, kAmount };
+enum class TreeEnumS { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDeadline, kEmployee, kPaymentTerm, kTaxRate, kAmount };
 
-enum class TreeEnumOrder {
+enum class TreeEnumO {
     kName,
     kID,
     kParty,

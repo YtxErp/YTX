@@ -33,32 +33,32 @@ QVariant TableModelFinance::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* trans_shadow { trans_shadow_list_.at(index.row()) };
-    const TableEnumFinance kColumn { index.column() };
+    const TableEnumF kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumFinance::kID:
+    case TableEnumF::kID:
         return *trans_shadow->id;
-    case TableEnumFinance::kDateTime:
+    case TableEnumF::kDateTime:
         return *trans_shadow->date_time;
-    case TableEnumFinance::kCode:
+    case TableEnumF::kCode:
         return *trans_shadow->code;
-    case TableEnumFinance::kLhsRatio:
+    case TableEnumF::kLhsRatio:
         return *trans_shadow->lhs_ratio;
-    case TableEnumFinance::kDescription:
+    case TableEnumF::kDescription:
         return *trans_shadow->description;
-    case TableEnumFinance::kSupportID:
+    case TableEnumF::kSupportID:
         return *trans_shadow->support_id == 0 ? QVariant() : *trans_shadow->support_id;
-    case TableEnumFinance::kRhsNode:
+    case TableEnumF::kRhsNode:
         return *trans_shadow->rhs_node == 0 ? QVariant() : *trans_shadow->rhs_node;
-    case TableEnumFinance::kState:
+    case TableEnumF::kState:
         return *trans_shadow->state ? *trans_shadow->state : QVariant();
-    case TableEnumFinance::kDocument:
+    case TableEnumF::kDocument:
         return trans_shadow->document->isEmpty() ? QVariant() : trans_shadow->document->size();
-    case TableEnumFinance::kDebit:
+    case TableEnumF::kDebit:
         return *trans_shadow->lhs_debit == 0 ? QVariant() : *trans_shadow->lhs_debit;
-    case TableEnumFinance::kCredit:
+    case TableEnumF::kCredit:
         return *trans_shadow->lhs_credit == 0 ? QVariant() : *trans_shadow->lhs_credit;
-    case TableEnumFinance::kSubtotal:
+    case TableEnumF::kSubtotal:
         return trans_shadow->subtotal;
     default:
         return QVariant();
@@ -70,7 +70,7 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
     if (!index.isValid() || role != Qt::EditRole)
         return false;
 
-    const TableEnumFinance kColumn { index.column() };
+    const TableEnumF kColumn { index.column() };
     const int kRow { index.row() };
 
     auto* trans_shadow { trans_shadow_list_.at(kRow) };
@@ -84,31 +84,31 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
     bool sup_changed { false };
 
     switch (kColumn) {
-    case TableEnumFinance::kDateTime:
+    case TableEnumF::kDateTime:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDateTime, value.toString(), &TransShadow::date_time);
         break;
-    case TableEnumFinance::kCode:
+    case TableEnumF::kCode:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
-    case TableEnumFinance::kState:
+    case TableEnumF::kState:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
-    case TableEnumFinance::kDescription:
+    case TableEnumF::kDescription:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
         break;
-    case TableEnumFinance::kSupportID:
+    case TableEnumF::kSupportID:
         sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kSupportID, value.toInt(), &TransShadow::support_id);
         break;
-    case TableEnumFinance::kLhsRatio:
+    case TableEnumF::kLhsRatio:
         rat_changed = UpdateRatio(trans_shadow, value.toDouble());
         break;
-    case TableEnumFinance::kRhsNode:
+    case TableEnumF::kRhsNode:
         rhs_changed = TableModelUtils::UpdateRhsNode(trans_shadow, value.toInt());
         break;
-    case TableEnumFinance::kDebit:
+    case TableEnumF::kDebit:
         deb_changed = UpdateDebit(trans_shadow, value.toDouble());
         break;
-    case TableEnumFinance::kCredit:
+    case TableEnumF::kCredit:
         cre_changed = UpdateCredit(trans_shadow, value.toDouble());
         break;
     default:
@@ -119,7 +119,7 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
         sql_->WriteTrans(trans_shadow);
         TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
 
-        emit SResizeColumnToContents(std::to_underlying(TableEnumFinance::kSubtotal));
+        emit SResizeColumnToContents(std::to_underlying(TableEnumF::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
 
         double ratio { *trans_shadow->lhs_ratio };
@@ -154,7 +154,7 @@ bool TableModelFinance::setData(const QModelIndex& index, const QVariant& value,
 
     if (deb_changed || cre_changed) {
         TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
-        emit SResizeColumnToContents(std::to_underlying(TableEnumFinance::kSubtotal));
+        emit SResizeColumnToContents(std::to_underlying(TableEnumF::kSubtotal));
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
@@ -179,28 +179,28 @@ void TableModelFinance::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {
-        const TableEnumFinance kColumn { column };
+        const TableEnumF kColumn { column };
 
         switch (kColumn) {
-        case TableEnumFinance::kDateTime:
+        case TableEnumF::kDateTime:
             return (order == Qt::AscendingOrder) ? (*lhs->date_time < *rhs->date_time) : (*lhs->date_time > *rhs->date_time);
-        case TableEnumFinance::kCode:
+        case TableEnumF::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
-        case TableEnumFinance::kLhsRatio:
+        case TableEnumF::kLhsRatio:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
-        case TableEnumFinance::kDescription:
+        case TableEnumF::kDescription:
             return (order == Qt::AscendingOrder) ? (*lhs->description < *rhs->description) : (*lhs->description > *rhs->description);
-        case TableEnumFinance::kSupportID:
+        case TableEnumF::kSupportID:
             return (order == Qt::AscendingOrder) ? (*lhs->support_id < *rhs->support_id) : (*lhs->support_id > *rhs->support_id);
-        case TableEnumFinance::kRhsNode:
+        case TableEnumF::kRhsNode:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_node < *rhs->rhs_node) : (*lhs->rhs_node > *rhs->rhs_node);
-        case TableEnumFinance::kState:
+        case TableEnumF::kState:
             return (order == Qt::AscendingOrder) ? (*lhs->state < *rhs->state) : (*lhs->state > *rhs->state);
-        case TableEnumFinance::kDocument:
+        case TableEnumF::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document->size() < rhs->document->size()) : (lhs->document->size() > rhs->document->size());
-        case TableEnumFinance::kDebit:
+        case TableEnumF::kDebit:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_debit < *rhs->lhs_debit) : (*lhs->lhs_debit > *rhs->lhs_debit);
-        case TableEnumFinance::kCredit:
+        case TableEnumF::kCredit:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_credit < *rhs->lhs_credit) : (*lhs->lhs_credit > *rhs->lhs_credit);
         default:
             return false;
@@ -220,13 +220,13 @@ Qt::ItemFlags TableModelFinance::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
-    const TableEnumFinance kColumn { index.column() };
+    const TableEnumF kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumFinance::kID:
-    case TableEnumFinance::kSubtotal:
-    case TableEnumFinance::kDocument:
-    case TableEnumFinance::kState:
+    case TableEnumF::kID:
+    case TableEnumF::kSubtotal:
+    case TableEnumF::kDocument:
+    case TableEnumF::kState:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:

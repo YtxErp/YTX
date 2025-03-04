@@ -57,8 +57,8 @@
 #include "dialog/removenode.h"
 #include "dialog/search.h"
 #include "document.h"
-#include "global/resourcepool.h"
 #include "global/leafsstation.h"
+#include "global/resourcepool.h"
 #include "global/sqlconnection.h"
 #include "mainwindowutils.h"
 #include "table/model/sortfilterproxymodel.h"
@@ -245,7 +245,7 @@ void MainWindow::RTreeViewDoubleClicked(const QModelIndex& index)
                 return;
             }
 
-            const int party_id { index.siblingAtColumn(std::to_underlying(TreeEnumOrder::kParty)).data().toInt() };
+            const int party_id { index.siblingAtColumn(std::to_underlying(TreeEnumO::kParty)).data().toInt() };
             if (party_id <= 0)
                 return;
 
@@ -505,7 +505,7 @@ void MainWindow::CreateTableO(PTreeModel tree_model, TableHash* table_hash, CDat
     tab_bar->setTabToolTip(tab_index, stakeholder_tree_->Model()->GetPath(party_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnumOrder::kDescription));
+    SetTableView(view, std::to_underlying(TableEnumO::kDescription));
 
     TableConnectO(view, model, tree_model, widget);
     DelegateO(view, settings);
@@ -589,56 +589,56 @@ void MainWindow::DelegateFPT(PQTableView table_view, PTreeModel tree_model, CSet
 {
     auto* value { new DoubleSpin(
         settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kDebit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kCredit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kDebit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kCredit), value);
 
     auto* subtotal { new DoubleSpinR(settings->common_decimal, kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kSubtotal), subtotal);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kSubtotal), subtotal);
 
     auto* filter_model { new SortFilterProxyModel(node_id, table_view) };
     filter_model->setSourceModel(tree_model->LeafModel());
 
     auto* node { new TableCombo(tree_model, filter_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumFinance::kRhsNode), node);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kRhsNode), node);
 }
 
 void MainWindow::DelegateS(PQTableView table_view) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
     auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumStakeholder::kInsideProduct), inside_product);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumS::kInsideProduct), inside_product);
 }
 
 void MainWindow::DelegateO(PQTableView table_view, CSettings* settings) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
     auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kInsideProduct), inside_product);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kInsideProduct), inside_product);
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
     auto* support_node { new SupportID(stakeholder_tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kOutsideProduct), support_node);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kOutsideProduct), support_node);
 
     auto* color { new ColorR(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kColor), color);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kColor), color);
 
     auto* line { new Line(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDescription), line);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kCode), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kDescription), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kCode), line);
 
     auto* price { new DoubleSpin(settings->amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kUnitPrice), price);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDiscountPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kUnitPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kDiscountPrice), price);
 
     auto* quantity { new DoubleSpin(
         settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kFirst), quantity);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kSecond), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kSecond), quantity);
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kGrossAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumOrder::kNetAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kDiscount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kNetAmount), amount);
 }
 
 void MainWindow::CreateSection(TreeWidget* tree_widget, TableHash& table_hash, CData& data, CSettings& settings, CString& name)
@@ -718,103 +718,102 @@ void MainWindow::DelegateFPTSO(PQTreeView tree_view, CInfo& info) const
 void MainWindow::DelegateF(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* final_total { new DoubleSpinUnitR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kLocalTotal), final_total);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumF::kLocalTotal), final_total);
 
     auto* initial_total { new FinanceForeignR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumFinance::kForeignTotal), initial_total);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumF::kForeignTotal), initial_total);
 }
 
 void MainWindow::DelegateT(PQTreeView tree_view, CSettings& settings) const
 {
     auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kQuantity), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kQuantity), quantity);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kAmount), amount);
 
     auto* unit_cost { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kUnitCost), unit_cost);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kUnitCost), unit_cost);
 
     auto* color { new Color(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kColor), color);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kColor), color);
 
     auto* date_time { new TreeDateTime(settings.date_format, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kDateTime), date_time);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kDateTime), date_time);
 
     auto* finished { new CheckBox(QEvent::MouseButtonDblClick, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kFinished), finished);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kFinished), finished);
 
     auto* document { new Document(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumTask::kDocument), document);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kDocument), document);
     connect(document, &Document::SEditDocument, this, &MainWindow::REditNodeDocument);
 }
 
 void MainWindow::DelegateP(PQTreeView tree_view, CSettings& settings) const
 {
     auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kQuantity), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kQuantity), quantity);
 
     auto* amount { new DoubleSpinUnitRPS(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kAmount), amount);
     connect(amount, &DoubleSpinUnitRPS::SRefFetcher, this, &MainWindow::RRefFetcher);
 
     auto* unit_price { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kUnitPrice), unit_price);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kCommission), unit_price);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kUnitPrice), unit_price);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kCommission), unit_price);
 
     auto* color { new Color(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumProduct::kColor), color);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kColor), color);
 }
 
 void MainWindow::DelegateS(PQTreeView tree_view, CSettings& settings) const
 {
     auto* amount { new DoubleSpinUnitRPS(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kAmount), amount);
     connect(amount, &DoubleSpinUnitRPS::SRefFetcher, this, &MainWindow::RRefFetcher);
 
     auto* payment_term { new Spin(0, std::numeric_limits<int>::max(), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kPaymentTerm), payment_term);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kPaymentTerm), payment_term);
 
     auto* tax_rate { new TaxRate(settings.amount_decimal, 0.0, std::numeric_limits<double>::max(), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kTaxRate), tax_rate);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kTaxRate), tax_rate);
 
     auto* deadline { new TreeDateTime(kDD, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kDeadline), deadline);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kDeadline), deadline);
 
-    auto* employee { new SpecificUnit(
-        stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumStakeholder::kEmployee), employee);
+    auto* employee { new SpecificUnit(stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModelPS(std::to_underlying(UnitS::kEmp)), tree_view) };
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kEmployee), employee);
 }
 
 void MainWindow::DelegateO(PQTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* rule { new TreeCombo(info.rule_map, info.rule_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kRule), rule);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kRule), rule);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kGrossAmount), amount);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kNetAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kGrossAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kNetAmount), amount);
 
     auto* discount { new DoubleSpinUnitRNoneZero(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kDiscount), discount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kDiscount), discount);
 
     auto* quantity { new DoubleSpinRNoneZero(settings.common_decimal, kCoefficient16, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kSecond), quantity);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kFirst), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kSecond), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kFirst), quantity);
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
 
-    auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kEmployee), employee);
+    auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModelPS(std::to_underlying(UnitS::kEmp)), tree_view) };
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kEmployee), employee);
 
     auto* name { new OrderNameR(stakeholder_tree_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kName), name);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kName), name);
 
     auto* date_time { new TreeDateTime(settings.date_format, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kDateTime), date_time);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kDateTime), date_time);
 
     auto* finished { new CheckBox(QEvent::MouseButtonDblClick, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumOrder::kFinished), finished);
+    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kFinished), finished);
 }
 
 void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
@@ -1027,7 +1026,7 @@ void MainWindow::IniSectionGroup()
 
 void MainWindow::ReferencePFunction(int node_id, int unit)
 {
-    if (unit == std::to_underlying(UnitProduct::kPos))
+    if (unit == std::to_underlying(UnitP::kPos))
         return;
 
     if (!ref_wgt_hash_->contains(node_id)) {
@@ -1597,7 +1596,7 @@ void MainWindow::SetTreeView(PQTreeView tree_view, CInfo& info) const
 {
     tree_view->setColumnHidden(std::to_underlying(TreeEnum::kID), false);
     if (info.section == Section::kSales || info.section == Section::kPurchase)
-        tree_view->setColumnHidden(std::to_underlying(TreeEnumOrder::kParty), false);
+        tree_view->setColumnHidden(std::to_underlying(TreeEnumO::kParty), false);
 
     tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
     tree_view->setDragDropMode(QAbstractItemView::InternalMove);
@@ -1806,8 +1805,7 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
         break;
     case Section::kStakeholder:
         node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
-        dialog
-            = new InsertNodeStakeholder(std::move(params), tree_model->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp)), settings_->amount_decimal, this);
+        dialog = new InsertNodeStakeholder(std::move(params), tree_model->UnitModelPS(std::to_underlying(UnitS::kEmp)), settings_->amount_decimal, this);
         break;
     case Section::kProduct:
         dialog = new InsertNodeProduct(std::move(params), settings_->common_decimal, this);
@@ -1875,7 +1873,7 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
 
     dialog_list_->append(dialog);
 
-    SetTableView(dialog->View(), std::to_underlying(TableEnumOrder::kDescription));
+    SetTableView(dialog->View(), std::to_underlying(TableEnumO::kDescription));
     DelegateO(dialog->View(), settings_);
     dialog->show();
 }
@@ -2012,7 +2010,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
             auto* model { table_widget->Model().data() };
 
             if (qobject_cast<TableModelSupport*>(model) || qobject_cast<TableModelOrder*>(model)) {
-                column = std::to_underlying(TableEnumOrder::kDescription);
+                column = std::to_underlying(TableEnumO::kDescription);
             }
 
             ResizeColumn(header, column);
@@ -2244,7 +2242,7 @@ void MainWindow::ReferenceNodeLocation(int node_id)
 
 void MainWindow::RSyncInt(int node_id, int column, const QVariant& value)
 {
-    if (column != std::to_underlying(TreeEnumOrder::kParty))
+    if (column != std::to_underlying(TreeEnumO::kParty))
         return;
 
     const int party_id { value.toInt() };

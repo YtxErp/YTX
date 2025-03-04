@@ -16,7 +16,7 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     , stakeholder_tree_ { static_cast<TreeModelStakeholder*>(params.stakeholder_tree) }
     , order_table_ { params.order_table }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
-    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitStakeholder::kCust) : std::to_underlying(UnitStakeholder::kVend) }
+    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
     , party_ { params.section == Section::kSales ? tr("CUST") : tr("VEND") }
     , node_id_ { params.node->id }
 {
@@ -62,7 +62,7 @@ void InsertNodeOrder::RUpdateLeafValue(
     const int coefficient { node_->rule ? -1 : 1 };
 
     const double adjusted_initial_delta { initial_delta * coefficient };
-    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitOrder::kIS) ? final_delta : 0.0) * coefficient };
+    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitO::kIS) ? final_delta : 0.0) * coefficient };
     const double adjusted_first_delta { first_delta * coefficient };
     const double adjusted_second_delta { second_delta * coefficient };
     const double adjusted_discount_delta { discount_delta * coefficient };
@@ -85,19 +85,19 @@ void InsertNodeOrder::RSyncBool(int node_id, int column, bool value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
-    if (kColumn == TreeEnumOrder::kFinished)
+    if (kColumn == TreeEnumO::kFinished)
         emit SSyncBool(node_id_, 0, value);
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kRule:
+    case TreeEnumO::kRule:
         IniRule(value);
         IniLeafValue();
         break;
-    case TreeEnumOrder::kFinished: {
+    case TreeEnumO::kFinished: {
         IniFinished(value);
         LockWidgets(value, node_->type == kTypeBranch);
         break;
@@ -112,15 +112,15 @@ void InsertNodeOrder::RSyncInt(int node_id, int column, int value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kUnit:
+    case TreeEnumO::kUnit:
         IniUnit(value);
         break;
-    case TreeEnumOrder::kEmployee: {
+    case TreeEnumO::kEmployee: {
         int employee_index { ui->comboEmployee->findData(value) };
         ui->comboEmployee->setCurrentIndex(employee_index);
         break;
@@ -135,15 +135,15 @@ void InsertNodeOrder::RSyncString(int node_id, int column, const QString& value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumOrder kColumn { column };
+    const TreeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumOrder::kDescription:
+    case TreeEnumO::kDescription:
         ui->lineDescription->setText(value);
         break;
-    case TreeEnumOrder::kDateTime:
+    case TreeEnumO::kDateTime:
         ui->dateTimeEdit->setDateTime(QDateTime::fromString(value, kDateTimeFST));
         break;
     default:
@@ -159,7 +159,7 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->comboParty->setModel(combo_model_party_);
     ui->comboParty->setCurrentIndex(-1);
 
-    combo_model_employee_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitStakeholder::kEmp));
+    combo_model_employee_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitS::kEmp));
     ui->comboEmployee->setModel(combo_model_employee_);
     ui->comboEmployee->setCurrentIndex(-1);
 
@@ -199,7 +199,7 @@ void InsertNodeOrder::accept()
         node_id_ = node_->id;
 
         if (node_->type == kTypeLeaf)
-            emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kID), node_id_);
+            emit SSyncInt(node_id_, std::to_underlying(TreeEnumO::kID), node_id_);
 
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);
@@ -257,16 +257,16 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
 
 void InsertNodeOrder::IniUnit(int unit)
 {
-    const UnitOrder kUnit { unit };
+    const UnitO kUnit { unit };
 
     switch (kUnit) {
-    case UnitOrder::kIS:
+    case UnitO::kIS:
         ui->rBtnIS->setChecked(true);
         break;
-    case UnitOrder::kMS:
+    case UnitO::kMS:
         ui->rBtnMS->setChecked(true);
         break;
-    case UnitOrder::kPEND:
+    case UnitO::kPEND:
         ui->rBtnPEND->setChecked(true);
         break;
     default:
@@ -375,7 +375,7 @@ void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
         return;
 
     node_->party = party_id;
-    emit SSyncInt(node_id_, std::to_underlying(TreeEnumOrder::kParty), party_id);
+    emit SSyncInt(node_id_, std::to_underlying(TreeEnumO::kParty), party_id);
 
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
@@ -437,7 +437,7 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     sql_->WriteField(info_node_, kFinished, checked, node_id_);
     if (node_->type == kTypeLeaf)
-        emit SSyncBool(node_id_, std::to_underlying(TreeEnumOrder::kFinished), checked);
+        emit SSyncBool(node_id_, std::to_underlying(TreeEnumO::kFinished), checked);
 
     IniFinished(checked);
     LockWidgets(checked, node_->type == kTypeBranch);
@@ -487,14 +487,14 @@ void InsertNodeOrder::RRuleGroupClicked(int id)
 
 void InsertNodeOrder::RUnitGroupClicked(int id)
 {
-    const UnitOrder unit { id };
+    const UnitO unit { id };
 
     switch (unit) {
-    case UnitOrder::kIS:
+    case UnitO::kIS:
         node_->final_total = node_->initial_total - node_->discount;
         break;
-    case UnitOrder::kMS:
-    case UnitOrder::kPEND:
+    case UnitO::kMS:
+    case UnitO::kPEND:
         node_->final_total = 0.0;
         break;
     default:

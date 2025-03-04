@@ -129,7 +129,7 @@ void ReferencedTransModel::Query(int node_id)
         trans_list_.clear();
 
     if (node_id >= 1)
-        sql_->ReadReferencedTrans(trans_list_, node_id);
+        sql_->TransRefFetcher(trans_list_, node_id);
 
     endResetModel();
 }

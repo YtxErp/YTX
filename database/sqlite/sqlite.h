@@ -74,7 +74,6 @@ public:
     bool ReadLeafTotal(Node* node) const;
     bool WriteLeafValue(const Node* node) const;
     QList<int> SearchNodeName(CString& text) const;
-    bool ReadReferencedNode(TransList& trans_list, int node_id) const;
 
     // table
     bool ReadTrans(TransShadowList& trans_shadow_list, int node_id);
@@ -88,7 +87,7 @@ public:
     bool RemoveTrans(int trans_id);
     bool WriteState(Check state) const;
     bool SearchTrans(TransList& trans_list, CString& text) const;
-    bool ReadReferencedTrans(TransList& trans_list, int node_id) const;
+    bool TransRefFetcher(TransList& trans_list, int node_id) const;
 
     // common
     bool WriteField(CString& table, CString& field, CVariant& value, int id) const;
@@ -109,7 +108,7 @@ protected:
     virtual QString QSWriteLeafValueFPTO() const { return {}; }
     virtual QString QSSupportTransToMove() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
-    virtual QString QSReadReferencedTrans() const { return {}; };
+    virtual QString QSTransRefFetcher() const { return {}; };
 
     virtual void ReadNodeQuery(Node* node, const QSqlQuery& query) const = 0;
     virtual void WriteNodeBind(Node* node, QSqlQuery& query) const = 0;
@@ -170,9 +169,9 @@ protected:
         Q_UNUSED(new_node_id);
     }
 
-    virtual void ReadReferencedTransQuery(Trans* trans, const QSqlQuery& query) const
+    virtual void TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const
     {
-        Q_UNUSED(trans);
+        Q_UNUSED(trans_list);
         Q_UNUSED(query);
     };
 

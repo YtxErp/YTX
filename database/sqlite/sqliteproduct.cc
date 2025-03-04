@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 
 #include "component/constvalue.h"
+#include "global/resourcepool.h"
 
 SqliteProduct::SqliteProduct(CInfo& info, QObject* parent)
     : Sqlite(info, parent)
@@ -225,22 +226,28 @@ void SqliteProduct::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSq
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
-void SqliteProduct::ReadReferencedTransQuery(Trans* trans, const QSqlQuery& query) const
+void SqliteProduct::TransRefFetcherFunction(TransList& trans_list, QSqlQuery& query) const
 {
-    trans->id = query.value(QStringLiteral("party")).toInt();
-    trans->code = query.value(QStringLiteral("code")).toString();
-    trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
-    trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
-    trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
-    trans->description = query.value(QStringLiteral("description")).toString();
-    trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
-    trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
-    trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
-    trans->discount = query.value(QStringLiteral("discount")).toDouble();
-    trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
-    trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
-    trans->date_time = query.value(QStringLiteral("date_time")).toString();
-    trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
+    while (query.next()) {
+        auto* trans { ResourcePool<Trans>::Instance().Allocate() };
+
+        trans->id = query.value(QStringLiteral("party")).toInt();
+        trans->code = query.value(QStringLiteral("code")).toString();
+        trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
+        trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
+        trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
+        trans->description = query.value(QStringLiteral("description")).toString();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+        trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
+        trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
+        trans->discount = query.value(QStringLiteral("discount")).toDouble();
+        trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
+        trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
+        trans->date_time = query.value(QStringLiteral("date_time")).toString();
+        trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
+
+        trans_list.emplaceBack(trans);
+    }
 }
 
 QString SqliteProduct::QSReadTrans() const
@@ -327,7 +334,7 @@ QString SqliteProduct::QSSearchTrans() const
     )");
 }
 
-QString SqliteProduct::QSReadReferencedTrans() const
+QString SqliteProduct::QSTransRefFetcher() const
 {
     return QStringLiteral(R"(
     SELECT

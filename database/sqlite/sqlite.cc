@@ -370,8 +370,6 @@ QList<int> Sqlite::SearchNodeName(CString& text) const
     return node_list;
 }
 
-bool Sqlite::ReadReferencedNode(TransList& trans_list, int node_id) const { }
-
 bool Sqlite::RemoveNode(int node_id, int node_type) const
 {
     QSqlQuery query(*db_);
@@ -859,12 +857,12 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
     return true;
 }
 
-bool Sqlite::ReadReferencedTrans(TransList& trans_list, int node_id) const
+bool Sqlite::TransRefFetcher(TransList& trans_list, int node_id) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    auto string { QSReadReferencedTrans() };
+    auto string { QSTransRefFetcher() };
     if (string.isEmpty())
         return false;
 
@@ -876,11 +874,7 @@ bool Sqlite::ReadReferencedTrans(TransList& trans_list, int node_id) const
         return false;
     }
 
-    while (query.next()) {
-        auto* trans { ResourcePool<Trans>::Instance().Allocate() };
-        ReadReferencedTransQuery(trans, query);
-        trans_list.emplaceBack(trans);
-    }
+    TransRefFetcherFunction(trans_list, query);
 
     return true;
 }

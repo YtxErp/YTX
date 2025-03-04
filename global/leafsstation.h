@@ -65,15 +65,15 @@ private:
 
     const TableModel* FindModel(Section section, int node_id) const
     {
-        auto it = model_hash_.constFind(section);
+        auto it = model_hash_.constFind({ section, node_id });
         if (it == model_hash_.constEnd())
             return nullptr;
 
-        return it->value(node_id, nullptr);
+        return it.value();
     }
 
 private:
-    QHash<Section, QHash<int, const TableModel*>> model_hash_ {};
+    QHash<std::pair<Section, int>, const TableModel*> model_hash_ {};
 };
 
 #endif // LEAFSSTATION_H

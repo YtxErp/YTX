@@ -105,7 +105,7 @@ private slots:
     void RTreeViewDoubleClicked(const QModelIndex& index);
 
     void RSectionGroup(int id);
-    void RRefTableViewDoubleClicked(const QModelIndex& index);
+    void RRefFetcherDoubleClicked(const QModelIndex& index);
 
 private:
     void SetTabWidget();
@@ -135,8 +135,8 @@ private:
     void CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PQTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void CreateTableReference(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id);
-    void DelegateReference(PQTableView table_view, CSettings* settings) const;
+    void CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id);
+    void DelegateRefFetcher(PQTableView table_view, CSettings* settings) const;
 
     void DelegateSupportS(PQTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
     void SetSupportViewS(PQTableView table_view) const;
@@ -167,8 +167,6 @@ private:
     template <TableWidgetLike T> void AppendTrans(T* widget);
 
     void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
-    void SwitchToLeaf(int node_id, int trans_id = 0) const;
-    void SwitchToSupport(int node_id, int trans_id = 0) const;
 
     void RemoveTrans(TableWidget* table_widget);
     void RemoveNode(TreeWidget* tree_widget);
@@ -194,12 +192,14 @@ private:
     QStandardItemModel* CreateModelFromList(QStringList& list, QObject* parent = nullptr);
 
     void IniSectionGroup();
-    void ReferencePFunction(int node_id, int unit);
-    void ReferenceSFunction(int node_id, int unit);
+    void RefFetcherP(int node_id, int unit);
+    void RefFetcherS(int node_id, int unit);
     void ReferenceNodeLocation(int node_id);
 
     void LeafToSupport(TableWidget* widget);
     void SupportToLeaf(SupportWidget* widget);
+    void SwitchToLeaf(int node_id, int trans_id = 0) const;
+    void SwitchToSupport(int node_id, int trans_id = 0) const;
 
 private:
     Ui::MainWindow* ui {};

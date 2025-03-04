@@ -356,7 +356,7 @@ void MainWindow::RSectionGroup(int id)
     SwitchSection(data_->tab);
 }
 
-void MainWindow::RRefTableViewDoubleClicked(const QModelIndex& index)
+void MainWindow::RRefFetcherDoubleClicked(const QModelIndex& index)
 {
     const int node_id { index.siblingAtColumn(std::to_underlying(TableEnumRefFetcher::kLhsNode)).data().toInt() };
     if (node_id <= 0)
@@ -385,6 +385,7 @@ void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 
     view->setCurrentIndex(index);
     view->scrollTo(index.siblingAtColumn(std::to_underlying(TableEnum::kDateTime)), QAbstractItemView::PositionAtCenter);
+    view->closePersistentEditor(index);
 }
 
 void MainWindow::SwitchToSupport(int node_id, int trans_id) const
@@ -407,6 +408,7 @@ void MainWindow::SwitchToSupport(int node_id, int trans_id) const
 
     view->setCurrentIndex(index);
     view->scrollTo(index.siblingAtColumn(std::to_underlying(TableEnumS::kDateTime)), QAbstractItemView::PositionAtCenter);
+    view->closePersistentEditor(index);
 }
 
 void MainWindow::CreateLeafFPTS(PTreeModel tree_model, TableHash* table_hash, CData* data, CSettings* settings, int node_id)
@@ -1048,19 +1050,24 @@ void MainWindow::IniSectionGroup()
     section_group_->addButton(ui->rBtnPurchase, 5);
 }
 
-void MainWindow::ReferencePFunction(int node_id, int unit)
+void MainWindow::RefFetcherP(int node_id, int unit)
 {
     if (unit == std::to_underlying(UnitP::kPos))
         return;
 
     if (!sup_wgt_hash_->contains(node_id)) {
-        CreateTableReference(tree_widget_->Model(), sup_wgt_hash_, product_data_, node_id);
+        CreateRefFetcher(tree_widget_->Model(), sup_wgt_hash_, product_data_, node_id);
     }
 
-    SwitchToSupport(node_id);
+    auto* widget { sup_wgt_hash_->value(node_id, nullptr) };
+    if (!widget)
+        return;
+
+    ui->tabWidget->setCurrentWidget(widget);
+    widget->activateWindow();
 }
 
-void MainWindow::ReferenceSFunction(int node_id, int unit) { qDebug() << node_id; }
+void MainWindow::RefFetcherS(int node_id, int unit) { qDebug() << node_id; }
 
 void MainWindow::RestoreRecentFile()
 {
@@ -1167,7 +1174,39 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
     const int node_id { ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id };
 
+    // RefFetcher's widget is SupportWidget, its ID is Leaf Node's
+    // Only Product and Stakeholder have RefFetcher
+    auto* widget { dynamic_cast<SupportWidget*>(ui->tabWidget->currentWidget()) };
+
+    if ((start_ == Section::kProduct || start_ == Section::kStakeholder) && widget) {
+        sup_wgt_hash_->remove(node_id);
+        MainWindowUtils::FreeWidget(widget);
+        return;
+    }
+
     RFreeWidget(node_id);
+}
+
+void MainWindow::RFreeWidget(int node_id)
+{
+    QWidget* widget {};
+
+    switch (tree_widget_->Model()->Type(node_id)) {
+    case kTypeLeaf:
+        widget = table_hash_->value(node_id);
+        table_hash_->remove(node_id);
+        LeafSStation::Instance().DeregisterModel(start_, node_id);
+        break;
+    case kTypeSupport:
+        widget = sup_wgt_hash_->value(node_id);
+        sup_wgt_hash_->remove(node_id);
+        SupportSStation::Instance().DeregisterModel(start_, node_id);
+        break;
+    default:
+        break;
+    }
+
+    MainWindowUtils::FreeWidget(widget);
 }
 
 void MainWindow::SetTabWidget()
@@ -1262,7 +1301,7 @@ void MainWindow::DelegateSupport(PQTableView table_view, PTreeModel tree_model, 
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), node_name);
 }
 
-void MainWindow::CreateTableReference(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id)
+void MainWindow::CreateRefFetcher(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData& data, int node_id)
 {
     if (!tree_model || !tree_model->Contains(node_id))
         return;
@@ -1283,13 +1322,13 @@ void MainWindow::CreateTableReference(PTreeModel tree_model, SupWgtHash* sup_wgt
 
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TableEnumRefFetcher::kDescription));
-    DelegateReference(view, &sales_settings_);
-    connect(view, &QTableView::doubleClicked, this, &MainWindow::RRefTableViewDoubleClicked);
+    DelegateRefFetcher(view, &sales_settings_);
+    connect(view, &QTableView::doubleClicked, this, &MainWindow::RRefFetcherDoubleClicked);
 
     sup_wgt_hash->insert(node_id, widget);
 }
 
-void MainWindow::DelegateReference(PQTableView table_view, CSettings* settings) const
+void MainWindow::DelegateRefFetcher(PQTableView table_view, CSettings* settings) const
 {
     auto* line { new Line(table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDescription), line);
@@ -1978,10 +2017,10 @@ void MainWindow::RRefFetcher(const QModelIndex& index)
 
     switch (data_->info.section) {
     case Section::kProduct:
-        ReferencePFunction(node_id, unit);
+        RefFetcherP(node_id, unit);
         break;
     case Section::kStakeholder:
-        ReferenceSFunction(node_id, unit);
+        RefFetcherS(node_id, unit);
         break;
     default:
         break;
@@ -2075,27 +2114,6 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
             ResizeColumn(header, std::to_underlying(TreeEnum::kDescription));
         }
     }
-}
-void MainWindow::RFreeWidget(int node_id)
-{
-    QWidget* widget {};
-
-    switch (tree_widget_->Model()->Type(node_id)) {
-    case kTypeLeaf:
-        widget = table_hash_->value(node_id);
-        table_hash_->remove(node_id);
-        LeafSStation::Instance().DeregisterModel(start_, node_id);
-        break;
-    case kTypeSupport:
-        widget = sup_wgt_hash_->value(node_id);
-        sup_wgt_hash_->remove(node_id);
-        SupportSStation::Instance().DeregisterModel(start_, node_id);
-        break;
-    default:
-        break;
-    }
-
-    MainWindowUtils::FreeWidget(widget);
 }
 
 void MainWindow::UpdateInterface(CInterface& interface)

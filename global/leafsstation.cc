@@ -8,15 +8,9 @@ LeafSStation& LeafSStation::Instance()
     return instance;
 }
 
-void LeafSStation::RegisterModel(Section section, int node_id, const TableModel* model)
-{
-    if (!model_hash_.contains(section))
-        model_hash_[section] = QHash<int, const TableModel*>();
+void LeafSStation::RegisterModel(Section section, int node_id, const TableModel* model) { model_hash_.insert({ section, node_id }, model); }
 
-    model_hash_[section].insert(node_id, model);
-}
-
-void LeafSStation::DeregisterModel(Section section, int node_id) { model_hash_[section].remove(node_id); }
+void LeafSStation::DeregisterModel(Section section, int node_id) { model_hash_.remove({ section, node_id }); }
 
 void LeafSStation::RAppendOneTrans(Section section, const TransShadow* trans_shadow)
 {

@@ -1050,31 +1050,6 @@ void MainWindow::IniSectionGroup()
     section_group_->addButton(ui->rBtnPurchase, 5);
 }
 
-void MainWindow::RefFetcherP(int node_id, int unit)
-{
-    if (unit == std::to_underlying(UnitP::kPos) || start_ != Section::kProduct)
-        return;
-
-    if (!sup_wgt_hash_->contains(node_id)) {
-        CreateRefFetcher(tree_widget_->Model(), sup_wgt_hash_, product_data_, node_id);
-    }
-
-    auto* widget { sup_wgt_hash_->value(node_id, nullptr) };
-    if (!widget)
-        return;
-
-    ui->tabWidget->setCurrentWidget(widget);
-    widget->activateWindow();
-}
-
-void MainWindow::RefFetcherS(int node_id, int unit)
-{
-    if (start_ != Section::kStakeholder)
-        return;
-
-    qDebug() << node_id;
-}
-
 void MainWindow::RestoreRecentFile()
 {
     recent_file_ = app_settings_->value(kRecentFile).toStringList();
@@ -2031,6 +2006,31 @@ void MainWindow::RRefFetcher(const QModelIndex& index)
     default:
         break;
     }
+}
+
+void MainWindow::RefFetcherP(int node_id, int unit)
+{
+    if (unit == std::to_underlying(UnitP::kPos) || start_ != Section::kProduct)
+        return;
+
+    if (!sup_wgt_hash_->contains(node_id)) {
+        CreateRefFetcher(tree_widget_->Model(), sup_wgt_hash_, product_data_, node_id);
+    }
+
+    auto* widget { sup_wgt_hash_->value(node_id, nullptr) };
+    if (!widget)
+        return;
+
+    ui->tabWidget->setCurrentWidget(widget);
+    widget->activateWindow();
+}
+
+void MainWindow::RefFetcherS(int node_id, int unit)
+{
+    if (start_ != Section::kStakeholder)
+        return;
+
+    qDebug() << node_id;
 }
 
 void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)

@@ -29,7 +29,7 @@ class SearchTransModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
     SearchTransModel(CInfo& info, Sqlite* sql, QObject* parent = nullptr);
-    ~SearchTransModel();
+    ~SearchTransModel() = default;
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;

@@ -9,8 +9,6 @@ SearchTransModel::SearchTransModel(CInfo& info, Sqlite* sql, QObject* parent)
 {
 }
 
-SearchTransModel::~SearchTransModel() { trans_list_.clear(); }
-
 QModelIndex SearchTransModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))

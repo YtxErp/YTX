@@ -16,6 +16,8 @@ SupportModel::SupportModel(Sqlite* sql, bool rule, int node_id, CInfo& info, QOb
         sql_->ReadSupportTrans(trans_shadow_list_, node_id);
 }
 
+SupportModel::~SupportModel() { ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_); }
+
 void SupportModel::RAppendSupportTrans(const TransShadow* trans_shadow)
 {
     if (node_id_ != *trans_shadow->support_id)

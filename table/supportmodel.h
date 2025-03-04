@@ -30,6 +30,7 @@ class SupportModel final : public QAbstractItemModel {
 
 public:
     SupportModel(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent = nullptr);
+    ~SupportModel();
 
 public slots:
     // receive from TableModel

@@ -995,7 +995,7 @@ void MainWindow::RestoreTab(PTreeModel tree_model, TableHash& table_hash, CIntSe
         return;
 
     for (int node_id : set) {
-        switch (tree_model->TypeFPTS(node_id)) {
+        switch (tree_model->Type(node_id)) {
         case kTypeLeaf:
             CreateLeafFPTS(tree_model, &table_hash, &data, &settings, node_id);
             break;
@@ -1167,18 +1167,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
     const int node_id { ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id };
 
-    auto* current_widget { ui->tabWidget->currentWidget() };
-
-    if (auto* widget { qobject_cast<SupportWidget*>(current_widget) }) {
-        MainWindowUtils::FreeWidget(widget);
-        sup_wgt_hash_->remove(node_id);
-        return;
-    }
-
-    if (auto* widget { qobject_cast<TableWidget*>(current_widget) }) {
-        MainWindowUtils::FreeWidget(widget);
-        table_hash_->remove(node_id);
-    }
+    RFreeWidget(node_id);
 }
 
 void MainWindow::SetTabWidget()
@@ -2089,17 +2078,24 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
 }
 void MainWindow::RFreeWidget(int node_id)
 {
-    if (auto* widget { table_hash_->value(node_id) }) {
-        MainWindowUtils::FreeWidget(widget);
+    QWidget* widget {};
+
+    switch (tree_widget_->Model()->Type(node_id)) {
+    case kTypeLeaf:
+        widget = table_hash_->value(node_id);
         table_hash_->remove(node_id);
         LeafSStation::Instance().DeregisterModel(start_, node_id);
-    }
-
-    if (auto* widget { sup_wgt_hash_->value(node_id) }) {
-        MainWindowUtils::FreeWidget(widget);
+        break;
+    case kTypeSupport:
+        widget = sup_wgt_hash_->value(node_id);
         sup_wgt_hash_->remove(node_id);
         SupportSStation::Instance().DeregisterModel(start_, node_id);
+        break;
+    default:
+        break;
     }
+
+    MainWindowUtils::FreeWidget(widget);
 }
 
 void MainWindow::UpdateInterface(CInterface& interface)

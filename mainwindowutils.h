@@ -59,9 +59,6 @@ public:
     template <InheritQWidget T> static void FreeWidget(T*& widget)
     {
         if (widget) {
-            if (auto model = widget->Model())
-                delete model;
-
             delete widget;
             widget = nullptr;
         }

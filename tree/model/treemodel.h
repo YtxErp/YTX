@@ -131,7 +131,7 @@ public:
     // Default implementations
     double InitialTotalFPT(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::initial_total); }
     double FinalTotalFPT(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::final_total); }
-    int TypeFPTS(int node_id) { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::type); }
+    int Type(int node_id) { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::type); }
     int Unit(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::unit); }
     QString Name(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::name); }
     bool Rule(int node_id) const { return TreeModelUtils::GetValue(node_hash_, node_id, &Node::rule); }

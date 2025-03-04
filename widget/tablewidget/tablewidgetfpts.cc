@@ -11,6 +11,10 @@ TableWidgetFPTS::TableWidgetFPTS(TableModel* model, QWidget* parent)
     ui->tableView->setModel(model);
 }
 
-TableWidgetFPTS::~TableWidgetFPTS() { delete ui; }
+TableWidgetFPTS::~TableWidgetFPTS()
+{
+    delete model_;
+    delete ui;
+}
 
 QPointer<QTableView> TableWidgetFPTS::View() const { return ui->tableView; }

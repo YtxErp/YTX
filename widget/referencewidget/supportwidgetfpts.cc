@@ -11,6 +11,10 @@ SupportWidgetFPTS::SupportWidgetFPTS(QAbstractItemModel* model, QWidget* parent)
     ui->tableView->setModel(model);
 }
 
-SupportWidgetFPTS::~SupportWidgetFPTS() { delete ui; }
+SupportWidgetFPTS::~SupportWidgetFPTS()
+{
+    delete model_;
+    delete ui;
+}
 
 QPointer<QTableView> SupportWidgetFPTS::View() const { return ui->tableView; }

@@ -36,7 +36,11 @@ TableWidgetOrder::TableWidgetOrder(CEditNodeParamsO& params, QWidget* parent)
     LockWidgets(finished);
 }
 
-TableWidgetOrder::~TableWidgetOrder() { delete ui; }
+TableWidgetOrder::~TableWidgetOrder()
+{
+    delete order_table_;
+    delete ui;
+}
 
 QPointer<QTableView> TableWidgetOrder::View() const { return ui->tableViewOrder; }
 

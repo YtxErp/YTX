@@ -1673,34 +1673,6 @@ void MainWindow::on_actionAppendNode_triggered()
     InsertNodeFunction(parent_index, parent_id, 0);
 }
 
-template <LeafWidgetLike T> void MainWindow::AppendTrans(T* widget)
-{
-    if (!widget || dynamic_cast<SupportWidget*>(widget))
-        return;
-
-    auto model { widget->Model() };
-    if (!model)
-        return;
-
-    constexpr int ID_ZERO = 0;
-    const int empty_row = model->GetNodeRow(ID_ZERO);
-
-    QModelIndex target_index {};
-
-    if (empty_row == -1) {
-        const int new_row = model->rowCount();
-        if (!model->insertRows(new_row, 1))
-            return;
-
-        target_index = model->index(new_row, std::to_underlying(TableEnum::kDateTime));
-    } else if (start_ != Section::kSales && start_ != Section::kPurchase)
-        target_index = model->index(empty_row, std::to_underlying(TableEnum::kRhsNode));
-
-    if (target_index.isValid()) {
-        widget->View()->setCurrentIndex(target_index);
-    }
-}
-
 void MainWindow::on_actionJump_triggered()
 {
     if (start_ == Section::kSales || start_ == Section::kPurchase)
@@ -2480,7 +2452,7 @@ void MainWindow::on_actionAppendTrans_triggered()
 {
     auto* active_window { QApplication::activeWindow() };
     if (auto* edit_node_order = dynamic_cast<InsertNodeOrder*>(active_window)) {
-        AppendTrans(edit_node_order);
+        MainWindowUtils::AppendTrans(edit_node_order, start_);
         return;
     }
 
@@ -2489,7 +2461,7 @@ void MainWindow::on_actionAppendTrans_triggered()
         return;
 
     if (auto* leaf_widget = dynamic_cast<LeafWidget*>(widget)) {
-        AppendTrans(leaf_widget);
+        MainWindowUtils::AppendTrans(leaf_widget, start_);
     }
 }
 

@@ -61,7 +61,7 @@ public slots:
 public:
     QPointer<TableModel> Model() const override { return order_table_; }
     QPointer<QTableView> View() const override;
-    bool IsTableWidget() const override { return true; }
+    bool IsLeafWidget() const override { return true; }
 
 private slots:
 

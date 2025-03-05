@@ -40,12 +40,6 @@
 #include "widget/supportwidget/supportwidget.h"
 #include "widget/treewidget/treewidget.h"
 
-template <typename T>
-concept LeafWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
-    { t.Model() } -> std::convertible_to<QPointer<TableModel>>;
-    { t.View() } -> std::convertible_to<QPointer<QTableView>>;
-};
-
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -163,8 +157,6 @@ private:
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task
     void InsertNodeO(Node* node, const QModelIndex& parent, int row); // Purchase Sales
-
-    template <LeafWidgetLike T> void AppendTrans(T* widget);
 
     void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
 

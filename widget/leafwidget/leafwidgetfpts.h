@@ -38,7 +38,7 @@ public:
 
     QPointer<TableModel> Model() const override { return model_; }
     QPointer<QTableView> View() const override;
-    bool IsTableWidget() const override { return true; }
+    bool IsLeafWidget() const override { return true; }
 
 private:
     Ui::LeafWidgetFPTS* ui;

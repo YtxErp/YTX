@@ -27,6 +27,7 @@
 
 #include "component/constvalue.h"
 #include "widget/leafwidget/leafwidget.h"
+#include "widget/supportwidget/supportwidget.h"
 
 template <typename T>
 concept InheritQAbstractItemView = std::is_base_of_v<QAbstractItemView, T>;
@@ -36,6 +37,12 @@ concept InheritQWidget = std::is_base_of_v<QWidget, T>;
 
 template <typename T>
 concept MemberFunction = std::is_member_function_pointer_v<T>;
+
+template <typename T>
+concept LeafWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
+    { t.Model() } -> std::convertible_to<QPointer<TableModel>>;
+    { t.View() } -> std::convertible_to<QPointer<QTableView>>;
+};
 
 class MainWindowUtils {
 public:
@@ -72,6 +79,34 @@ public:
                     dialog->setVisible(enable);
                 }
             }
+        }
+    }
+
+    template <LeafWidgetLike T> static void AppendTrans(T* widget, Section start)
+    {
+        if (!widget || dynamic_cast<SupportWidget*>(widget))
+            return;
+
+        auto model { widget->Model() };
+        if (!model)
+            return;
+
+        constexpr int ID_ZERO = 0;
+        const int empty_row = model->GetNodeRow(ID_ZERO);
+
+        QModelIndex target_index {};
+
+        if (empty_row == -1) {
+            const int new_row = model->rowCount();
+            if (!model->insertRows(new_row, 1))
+                return;
+
+            target_index = model->index(new_row, std::to_underlying(TableEnum::kDateTime));
+        } else if (start != Section::kSales && start != Section::kPurchase)
+            target_index = model->index(empty_row, std::to_underlying(TableEnum::kRhsNode));
+
+        if (target_index.isValid()) {
+            widget->View()->setCurrentIndex(target_index);
         }
     }
 

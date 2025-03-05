@@ -1673,7 +1673,7 @@ void MainWindow::on_actionAppendNode_triggered()
     InsertNodeFunction(parent_index, parent_id, 0);
 }
 
-template <TableWidgetLike T> void MainWindow::AppendTrans(T* widget)
+template <LeafWidgetLike T> void MainWindow::AppendTrans(T* widget)
 {
     if (!widget || dynamic_cast<SupportWidget*>(widget))
         return;

@@ -186,8 +186,8 @@
      <property name="title">
       <string>Export</string>
      </property>
-     <addaction name="actionExportXlsx"/>
-     <addaction name="actionExportStructure"/>
+     <addaction name="actionExportExcel"/>
+     <addaction name="actionExportYTX"/>
     </widget>
     <addaction name="actionAbout"/>
     <addaction name="separator"/>
@@ -406,20 +406,20 @@
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="actionExportXlsx">
+  <action name="actionExportExcel">
    <property name="text">
-    <string>Export Xlsx...</string>
+    <string>Export Excel...</string>
    </property>
    <property name="toolTip">
-    <string>Export Xlsx...</string>
+    <string>Export Excel...</string>
    </property>
   </action>
-  <action name="actionExportStructure">
+  <action name="actionExportYTX">
    <property name="text">
-    <string>Export Structure</string>
+    <string>Export YTX...</string>
    </property>
    <property name="toolTip">
-    <string>Export Structure</string>
+    <string>Export YTX...</string>
    </property>
   </action>
  </widget>

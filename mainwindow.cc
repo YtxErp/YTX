@@ -1010,7 +1010,7 @@ void MainWindow::RestoreTab(PTreeModel tree_model, LeafWgtHash& leaf_wgt_hash, C
     }
 }
 
-void MainWindow::EnableAction(bool enable)
+void MainWindow::EnableAction(bool enable) const
 {
     ui->actionAppendNode->setEnabled(enable);
     ui->actionCheckAll->setEnabled(enable);
@@ -1024,8 +1024,8 @@ void MainWindow::EnableAction(bool enable)
     ui->actionSupportJump->setEnabled(enable);
     ui->actionRemove->setEnabled(enable);
     ui->actionAppendTrans->setEnabled(enable);
-    ui->actionExportXlsx->setEnabled(enable);
-    ui->actionExportStructure->setEnabled(enable);
+    ui->actionExportExcel->setEnabled(enable);
+    ui->actionExportYTX->setEnabled(enable);
 }
 
 QStandardItemModel* MainWindow::CreateModelFromList(QStringList& list, QObject* parent)
@@ -1119,7 +1119,7 @@ bool MainWindow::LockFile(const QFileInfo& file_info)
     return true;
 }
 
-bool MainWindow::NewFile(QString& file_path)
+bool MainWindow::NewFile(QString& file_path) const
 {
     if (file_path.isEmpty())
         return false;
@@ -2465,7 +2465,7 @@ void MainWindow::on_actionAppendTrans_triggered()
     }
 }
 
-void MainWindow::on_actionExportStructure_triggered()
+void MainWindow::on_actionExportYTX_triggered()
 {
     CString& source { SqlConnection::Instance().DatabaseName() };
     if (source.isEmpty())
@@ -2508,9 +2508,11 @@ void MainWindow::on_actionExportStructure_triggered()
     watcher->setFuture(future);
 }
 
-void MainWindow::on_actionExportXlsx_triggered()
+void MainWindow::on_actionExportExcel_triggered()
 {
     QString destination { QFileDialog::getSaveFileName(this, tr("Export Section"), QDir::homePath(), "*.xlsx") };
+    if (destination.isEmpty())
+        return;
 
     if (!destination.endsWith(".xlsx", Qt::CaseInsensitive))
         destination += ".xlsx";
@@ -2520,8 +2522,16 @@ void MainWindow::on_actionExportXlsx_triggered()
         QFile::remove(destination);
     }
 
-    yxlsx::Document d(destination, this);
+    const QStringList list { tr("Ancestor"), tr("Descendant"), tr("Distance") };
+
+    YXlsx::Document d(destination, this);
     auto book1 { d.GetWorkbook() };
-    book1->GetCurrentWorksheet()->Write(1, 1, "Hello YTX!");
+    book1->AppendSheet(data_->info.node);
+    book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.node_header);
+    book1->AppendSheet(data_->info.path);
+    book1->GetCurrentWorksheet()->WriteRow(1, 1, list);
+    book1->AppendSheet(data_->info.trans);
+    book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.trans_header);
+
     d.Save();
 }

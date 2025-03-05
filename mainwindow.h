@@ -75,8 +75,8 @@ private slots:
     void on_actionClearMenu_triggered();
     void on_actionNewFile_triggered();
     void on_actionOpenFile_triggered();
-    void on_actionExportStructure_triggered();
-    void on_actionExportXlsx_triggered();
+    void on_actionExportYTX_triggered();
+    void on_actionExportExcel_triggered();
 
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);
@@ -173,11 +173,11 @@ private:
 
     void AppSettings();
     bool LockFile(const QFileInfo& file_info);
-    bool NewFile(QString& file_path);
+    bool NewFile(QString& file_path) const;
 
     void RestoreTab(PTreeModel tree_model, LeafWgtHash& leaf_wgt_hash, CIntSet& set, CData& data, CSettings& settings);
 
-    void EnableAction(bool enable);
+    void EnableAction(bool enable) const;
     void RestoreRecentFile();
     void AddRecentFile(CString& file_path);
 

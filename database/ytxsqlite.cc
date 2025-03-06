@@ -163,13 +163,13 @@ QString YtxSqlite::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
         name             TEXT,
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
-        rule             BOOLEAN    DEFAULT 0,
         type             INTEGER,
+        rule             BOOLEAN    DEFAULT 0,
         unit             INTEGER,
         foreign_total    NUMERIC,
         local_total      NUMERIC,
@@ -182,13 +182,13 @@ QString YtxSqlite::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
         name              TEXT,
+        id                INTEGER PRIMARY KEY AUTOINCREMENT,
         code              TEXT,
         description       TEXT,
         note              TEXT,
-        rule              BOOLEAN    DEFAULT 0,
         type              INTEGER,
+        rule              BOOLEAN    DEFAULT 0,
         unit              INTEGER,
         deadline          TEXT,
         employee          INTEGER,
@@ -204,17 +204,17 @@ QString YtxSqlite::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
         name             TEXT,
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
-        rule             BOOLEAN    DEFAULT 0,
         type             INTEGER,
+        rule             BOOLEAN    DEFAULT 0,
         unit             INTEGER,
         color            TEXT,
-        commission       NUMERIC,
         unit_price       NUMERIC,
+        commission       NUMERIC,
         quantity         NUMERIC,
         amount           NUMERIC,
         removed          BOOLEAN    DEFAULT 0
@@ -226,18 +226,18 @@ QString YtxSqlite::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
         name             TEXT,
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
-        rule             BOOLEAN    DEFAULT 0,
         type             INTEGER,
+        rule             BOOLEAN    DEFAULT 0,
         unit             INTEGER,
-        finished         BOOLEAN    DEFAULT 0,
         date_time        TEXT,
         color            TEXT,
         document         TEXT,
+        finished         BOOLEAN    DEFAULT 0,
         unit_cost        NUMERIC,
         quantity         NUMERIC,
         amount           NUMERIC,
@@ -250,23 +250,23 @@ QString YtxSqlite::NodeOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
         name              TEXT,
-        description       TEXT,
-        rule              BOOLEAN    DEFAULT 0,
-        type              INTEGER,
-        unit              INTEGER,
+        id                INTEGER PRIMARY KEY AUTOINCREMENT,
         party             INTEGER,
+        description       TEXT,
         employee          INTEGER,
-        payment_id        INTEGER,
+        type              INTEGER,
+        rule              BOOLEAN    DEFAULT 0,
+        unit              INTEGER,
         date_time         TEXT,
         first             NUMERIC,
         second            NUMERIC,
-        discount          NUMERIC,
         finished          BOOLEAN    DEFAULT 0,
         gross_amount      NUMERIC,
+        discount          NUMERIC,
         net_amount        NUMERIC,
-        removed           BOOLEAN    DEFAULT 0
+        removed           BOOLEAN    DEFAULT 0,
+        payment_id        INTEGER
     );
     )")
         .arg(order);

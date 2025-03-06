@@ -57,10 +57,17 @@ inline constexpr char kPlus[] = "+";
 inline constexpr char kCheck[] = "check";
 
 // Constants for files' suffix
-inline constexpr char kSuffixINI[] = ".ini";
-inline constexpr char kSuffixLOCK[] = ".lock";
-inline constexpr char kSuffixYTX[] = ".ytx";
+inline constexpr char kDotSuffixINI[] = ".ini";
+inline constexpr char kDotSuffixLOCK[] = ".lock";
+inline constexpr char kDotSuffixYTX[] = ".ytx";
+inline constexpr char kDotSuffixXLSX[] = ".xlsx";
+
+inline constexpr char kSuffixYTX[] = "ytx";
+inline constexpr char kSuffixXLSX[] = "xlsx";
 inline constexpr char kSuffixPERCENT[] = "%";
+
+inline constexpr char kSourceConnection[] = "source_connection";
+inline constexpr char kDestinationConnection[] = "destination_connection";
 
 // Constants for app's language
 inline constexpr char kLanguage[] = "language";

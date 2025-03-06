@@ -151,7 +151,7 @@ bool MainWindow::ROpenFile(CString& file_path)
 
     const QFileInfo file_info(file_path);
 
-    if (!MainWindowUtils::IsValidFile(file_info)) {
+    if (!MainWindowUtils::CheckFileValid(file_path)) {
         MainWindowUtils::Message(
             QMessageBox::Critical, tr("Invalid File"), tr("The file \"%1\" is invalid. Please check the file and try again.").arg(file_path), kThreeThousand);
         return false;
@@ -171,7 +171,7 @@ bool MainWindow::ROpenFile(CString& file_path)
 
     this->setWindowTitle(complete_base_name);
     file_settings_ = std::make_unique<QSettings>(
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + kSlash + complete_base_name + kSuffixINI, QSettings::IniFormat);
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + kSlash + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
 
     ytx_sql_ = std::make_unique<YtxSqlite>(start_);
     SetFinanceData();
@@ -1102,7 +1102,7 @@ void MainWindow::AddRecentFile(CString& file_path)
 
 bool MainWindow::LockFile(const QFileInfo& file_info)
 {
-    CString lock_file_path { file_info.dir().filePath(file_info.completeBaseName() + kSuffixLOCK) };
+    CString lock_file_path { file_info.dir().filePath(file_info.completeBaseName() + kDotSuffixLOCK) };
 
     lock_file_ = std::make_unique<QLockFile>(lock_file_path);
 
@@ -1115,24 +1115,6 @@ bool MainWindow::LockFile(const QFileInfo& file_info)
         lock_file_.reset();
         return false;
     }
-
-    return true;
-}
-
-bool MainWindow::NewFile(QString& file_path) const
-{
-    if (file_path.isEmpty())
-        return false;
-
-    if (!file_path.endsWith(kSuffixYTX, Qt::CaseInsensitive))
-        file_path += kSuffixYTX;
-
-    if (QFile::exists(file_path)) {
-        qDebug() << "Destination file already exists. Overwriting:" << file_path;
-        QFile::remove(file_path);
-    }
-
-    ytx_sql_->NewFile(file_path);
 
     return true;
 }
@@ -2357,7 +2339,10 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionNewFile_triggered()
 {
     auto file_path { QFileDialog::getSaveFileName(this, tr("New File"), QDir::homePath(), "*.ytx", nullptr) };
-    if (NewFile(file_path))
+    if (!MainWindowUtils::CheckFileName(file_path, kDotSuffixYTX))
+        return;
+
+    if (ytx_sql_->NewFile(file_path))
         ROpenFile(file_path);
 }
 
@@ -2471,23 +2456,40 @@ void MainWindow::on_actionExportYTX_triggered()
     if (source.isEmpty())
         return;
 
-    QString destination { QFileDialog::getSaveFileName(this, tr("Export Structure"), QDir::homePath(), "*.ytx") };
-    if (!NewFile(destination))
+    QString destination { QFileDialog::getSaveFileName(this, tr("Export Structure"), QDir::homePath(), QStringLiteral("*.ytx")) };
+    if (!MainWindowUtils::CheckFileName(destination, kDotSuffixYTX))
+        return;
+
+    if (!ytx_sql_->NewFile(destination))
         return;
 
     auto future = QtConcurrent::run([source, destination]() {
+        QSqlDatabase source_db;
+        if (!MainWindowUtils::AddDatabase(source_db, source, kSourceConnection))
+            return false;
+
+        QSqlDatabase destination_db;
+        if (!MainWindowUtils::AddDatabase(destination_db, destination, kDestinationConnection)) {
+            MainWindowUtils::RemoveDatabase(kSourceConnection);
+            return false;
+        }
+
         try {
             QStringList tables { kFinance, kStakeholder, kTask, kProduct };
             QStringList columns { kName, kRule, kType, kUnit, kRemoved };
-            MainWindowUtils::ExportColumns(source, destination, tables, columns);
+            MainWindowUtils::ExportYTX(source, destination, tables, columns);
 
             tables = { kFinancePath, kStakeholderPath, kTaskPath, kProductPath };
             columns = { kAncestor, kDescendant, kDistance };
-            MainWindowUtils::ExportColumns(source, destination, tables, columns);
+            MainWindowUtils::ExportYTX(source, destination, tables, columns);
 
+            MainWindowUtils::RemoveDatabase(kSourceConnection);
+            MainWindowUtils::RemoveDatabase(kDestinationConnection);
             return true;
-        } catch (const std::exception& e) {
-            qWarning() << "Export failed:" << e.what();
+        } catch (...) {
+            qWarning() << "Export failed due to an unknown exception.";
+            MainWindowUtils::RemoveDatabase(kSourceConnection);
+            MainWindowUtils::RemoveDatabase(kDestinationConnection);
             return false;
         }
     });
@@ -2510,28 +2512,59 @@ void MainWindow::on_actionExportYTX_triggered()
 
 void MainWindow::on_actionExportExcel_triggered()
 {
-    QString destination { QFileDialog::getSaveFileName(this, tr("Export Section"), QDir::homePath(), "*.xlsx") };
-    if (destination.isEmpty())
+    CString& source { SqlConnection::Instance().DatabaseName() };
+    if (source.isEmpty())
         return;
 
-    if (!destination.endsWith(".xlsx", Qt::CaseInsensitive))
-        destination += ".xlsx";
+    QString destination { QFileDialog::getSaveFileName(this, tr("Export Excel"), QDir::homePath(), QStringLiteral("*.xlsx")) };
+    if (!MainWindowUtils::CheckFileName(destination, kDotSuffixXLSX))
+        return;
 
-    if (QFile::exists(destination)) {
-        qDebug() << "Destination file already exists. Overwriting:" << destination;
-        QFile::remove(destination);
-    }
+    auto future = QtConcurrent::run([source, destination, this]() {
+        QSqlDatabase source_db;
+        if (!MainWindowUtils::AddDatabase(source_db, source, kSourceConnection))
+            return false;
 
-    const QStringList list { tr("Ancestor"), tr("Descendant"), tr("Distance") };
+        try {
+            const QStringList list { tr("Ancestor"), tr("Descendant"), tr("Distance") };
 
-    YXlsx::Document d(destination, this);
-    auto book1 { d.GetWorkbook() };
-    book1->AppendSheet(data_->info.node);
-    book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.node_header);
-    book1->AppendSheet(data_->info.path);
-    book1->GetCurrentWorksheet()->WriteRow(1, 1, list);
-    book1->AppendSheet(data_->info.trans);
-    book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.trans_header);
+            YXlsx::Document d(destination);
 
-    d.Save();
+            auto book1 { d.GetWorkbook() };
+            book1->AppendSheet(data_->info.node);
+            book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.node_header);
+            MainWindowUtils::ExportExcel(source, data_->info.node, book1->GetCurrentWorksheet());
+
+            book1->AppendSheet(data_->info.path);
+            book1->GetCurrentWorksheet()->WriteRow(1, 1, list);
+            MainWindowUtils::ExportExcel(source, data_->info.path, book1->GetCurrentWorksheet(), false);
+
+            book1->AppendSheet(data_->info.trans);
+            book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.trans_header);
+            MainWindowUtils::ExportExcel(source, data_->info.trans, book1->GetCurrentWorksheet());
+
+            d.Save();
+            MainWindowUtils::RemoveDatabase(kSourceConnection);
+            return true;
+        } catch (...) {
+            qWarning() << "Export failed due to an unknown exception.";
+            MainWindowUtils::RemoveDatabase(kSourceConnection);
+            return false;
+        }
+    });
+
+    auto* watcher = new QFutureWatcher<bool>(this);
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [watcher, destination]() {
+        watcher->deleteLater();
+
+        bool success { watcher->future().result() };
+        if (success) {
+            MainWindowUtils::Message(QMessageBox::Information, tr("Export Completed"), tr("Export completed successfully."), kThreeThousand);
+        } else {
+            QFile::remove(destination);
+            MainWindowUtils::Message(QMessageBox::Critical, tr("Export Failed"), tr("Export failed. The file has been deleted."), kThreeThousand);
+        }
+    });
+
+    watcher->setFuture(future);
 }

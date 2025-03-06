@@ -33,7 +33,7 @@ public:
 
     void QuerySettings(Settings& settings, Section section);
     void UpdateSettings(CSettings& settings, Section section);
-    void NewFile(CString& file_path);
+    bool NewFile(CString& file_path);
 
 private:
     QString NodeFinance();

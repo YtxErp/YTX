@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlRecord>
 #include <QTimer>
 
 QString MainWindowUtils::ResourceFile()
@@ -96,31 +97,93 @@ void MainWindowUtils::WriteSettings(std::shared_ptr<QSettings> settings, const Q
     settings->setValue(QString("%1/%2").arg(section, property), value);
 }
 
-bool MainWindowUtils::CopyFile(CString& source, CString& destination)
+bool MainWindowUtils::CopyFile(CString& source, QString& destination)
 {
-    const QFileInfo source_info(source);
-    if (!IsValidFile(source_info)) {
+    if (!CheckFileValid(source, kSuffixYTX)) {
         qDebug() << "Invalid source file, must be an existing .ytx file:" << source;
         return false;
     }
 
-    if (QFile::exists(destination)) {
-        qDebug() << "Destination file already exists. Overwriting:" << destination;
-        QFile::remove(destination);
-    }
-
-    if (!QFile::copy(source, destination)) {
-        qDebug() << "Failed to copy file from:" << source << "to:" << destination;
+    if (!CheckFileName(destination, kDotSuffixYTX)) {
         return false;
     }
 
-    qDebug() << "File copied successfully from:" << source << "to:" << destination;
+    QSqlDatabase db;
+    if (AddDatabase(db, source, "copy_file"))
+        return false;
+
+    if (!db.open()) {
+        qDebug() << "Failed to open source database!";
+        return false;
+    }
+
+    QString string = QString("VACUUM INTO '%1'").arg(destination);
+    QSqlQuery query(db);
+    if (!query.exec(string)) {
+        qDebug() << "VACUUM INTO failed:" << query.lastError().text();
+    } else {
+        qDebug() << "Database export complete!";
+    }
+
+    RemoveDatabase("copy_file");
     return true;
 }
 
-bool MainWindowUtils::IsValidFile(const QFileInfo& file_info, CString& suffix)
+bool MainWindowUtils::AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name)
 {
-    CString& file_path { file_info.filePath() };
+    if (QSqlDatabase::contains(connection_name)) {
+        db = QSqlDatabase::database(connection_name);
+
+        if (db.isOpen()) {
+            return true;
+        }
+
+        if (db.open()) {
+            return true;
+        }
+
+        QSqlDatabase::removeDatabase(connection_name);
+    }
+
+    db = QSqlDatabase::addDatabase("QSQLITE", connection_name);
+    db.setDatabaseName(db_path);
+
+    if (!db.open()) {
+        qDebug() << "Failed in AddDatabase:" << db_path;
+        QSqlDatabase::removeDatabase(connection_name);
+        return false;
+    }
+
+    return true;
+}
+
+QSqlDatabase MainWindowUtils::GetDatabase(CString& connection_name)
+{
+    if (QSqlDatabase::contains(connection_name)) {
+        QSqlDatabase db { QSqlDatabase::database(connection_name) };
+        if (db.isOpen()) {
+            return db;
+        }
+    }
+
+    return QSqlDatabase();
+}
+
+void MainWindowUtils::RemoveDatabase(CString& connection_name)
+{
+    {
+        QSqlDatabase db = QSqlDatabase::database(connection_name);
+        if (db.isOpen()) {
+            db.close();
+        }
+    }
+
+    QSqlDatabase::removeDatabase(connection_name);
+}
+
+bool MainWindowUtils::CheckFileValid(CString& file_path, CString& suffix)
+{
+    const QFileInfo file_info(file_path);
 
     if (!file_info.exists()) {
         qDebug() << "File does not exist:" << file_path;
@@ -137,7 +200,7 @@ bool MainWindowUtils::IsValidFile(const QFileInfo& file_info, CString& suffix)
         return false;
     }
 
-    if (!IsSQLiteFile(file_path)) {
+    if (!CheckFileSQLite(file_path)) {
         qDebug() << "File is not a valid SQLite3 database:" << file_path;
         return false;
     }
@@ -145,12 +208,28 @@ bool MainWindowUtils::IsValidFile(const QFileInfo& file_info, CString& suffix)
     return true;
 }
 
-bool MainWindowUtils::IsSQLiteFile(CString& file_path)
+bool MainWindowUtils::CheckFileName(QString& file_path, CString& suffix)
+{
+    if (file_path.isEmpty())
+        return false;
+
+    if (!file_path.endsWith(suffix, Qt::CaseInsensitive))
+        file_path += suffix;
+
+    if (QFile::exists(file_path)) {
+        qDebug() << "Destination file already exists. Overwriting:" << file_path;
+        QFile::remove(file_path);
+    }
+
+    return true;
+}
+
+bool MainWindowUtils::CheckFileSQLite(CString& file_path)
 {
     QFile file(file_path);
 
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to open file for reading:" << file_path;
+        qDebug() << "Failed in CheckFileSQLite:" << file_path;
         return false;
     }
 
@@ -160,29 +239,19 @@ bool MainWindowUtils::IsSQLiteFile(CString& file_path)
     return file_header.startsWith("SQLite");
 }
 
-void MainWindowUtils::ExportColumns(CString& source, CString& destination, CStringList& table_names, CStringList& columns)
+void MainWindowUtils::ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns)
 {
-    if (!IsValidFile(QFileInfo(source)) || !IsValidFile(QFileInfo(destination))) {
+    if (!CheckFileValid(source) || !CheckFileValid(destination)) {
         return;
     }
 
-    QSqlDatabase source_db { QSqlDatabase::addDatabase("QSQLITE", "source_connection") };
-    source_db.setDatabaseName(source);
-
-    if (!source_db.open()) {
-        qDebug() << "Failed to open source database:" << source;
+    QSqlDatabase source_db = GetDatabase(kSourceConnection);
+    if (!source_db.isValid())
         return;
-    }
 
-    QSqlDatabase destination_db { QSqlDatabase::addDatabase("QSQLITE", "destination_connection") };
-    destination_db.setDatabaseName(destination);
-
-    if (!destination_db.open()) {
-        qDebug() << "Failed to open destination database:" << destination;
-        source_db.close();
-        QSqlDatabase::removeDatabase("source_connection");
+    QSqlDatabase destination_db = GetDatabase(kDestinationConnection);
+    if (!destination_db.isValid())
         return;
-    }
 
     QSqlQuery source_query(source_db);
     QSqlQuery destination_query(destination_db);
@@ -195,14 +264,10 @@ void MainWindowUtils::ExportColumns(CString& source, CString& destination, CStri
 
         if (!source_query.exec(select_query)) {
             qDebug() << "Failed to execute SELECT query for table:" << name << source_query.lastError().text();
-            source_db.close();
-            destination_db.close();
-            QSqlDatabase::removeDatabase("source_connection");
-            QSqlDatabase::removeDatabase("destination_connection");
             return;
         }
 
-        destination_query.exec("BEGIN TRANSACTION;");
+        destination_query.exec(QStringLiteral("BEGIN TRANSACTION;"));
         QString insert_query {};
 
         while (source_query.next()) {
@@ -215,24 +280,48 @@ void MainWindowUtils::ExportColumns(CString& source, CString& destination, CStri
 
             if (!destination_query.exec(insert_query)) {
                 qDebug() << "Failed to insert data into destination database for table:" << name << destination_query.lastError().text();
-                destination_query.exec("ROLLBACK;");
-                source_db.close();
-                destination_db.close();
-                QSqlDatabase::removeDatabase("source_connection");
-                QSqlDatabase::removeDatabase("destination_connection");
+                destination_query.exec(QStringLiteral("ROLLBACK;"));
                 return;
             }
         }
 
-        destination_query.exec("COMMIT;");
+        destination_query.exec(QStringLiteral("COMMIT;"));
+    }
+}
+
+void MainWindowUtils::ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where)
+{
+    if (!CheckFileValid(source) || !worksheet) {
+        return;
     }
 
-    source_db.close();
-    destination_db.close();
-    QSqlDatabase::removeDatabase("source_connection");
-    QSqlDatabase::removeDatabase("destination_connection");
+    QSqlDatabase source_db = GetDatabase(kSourceConnection);
+    if (!source_db.isValid())
+        return;
 
-    qDebug() << "Columns copied successfully from" << source << "to" << destination;
+    QSqlQuery source_query(source_db);
+    QString select_query = QString("SELECT * FROM %1 WHERE removed = 0;").arg(table);
+
+    if (!where)
+        select_query = QString("SELECT * FROM %1;").arg(table);
+
+    if (!source_query.exec(select_query)) {
+        qDebug() << "Failed to execute SELECT query for table in ExportExcel" << source_query.lastError().text();
+        return;
+    }
+
+    const int column { source_query.record().count() };
+    QList<QVariantList> list(column);
+
+    while (source_query.next()) {
+        for (int col = 0; col != column; ++col) {
+            list[col].append(source_query.value(col));
+        }
+    }
+
+    for (int col = 0; col != column; ++col) {
+        worksheet->WriteColumn(2, col + 1, list.at(col));
+    }
 }
 
 void MainWindowUtils::Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout)

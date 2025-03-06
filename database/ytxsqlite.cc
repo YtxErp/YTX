@@ -76,12 +76,12 @@ void YtxSqlite::UpdateSettings(CSettings& settings, Section section)
     }
 }
 
-void YtxSqlite::NewFile(CString& file_path)
+bool YtxSqlite::NewFile(CString& file_path)
 {
     QSqlDatabase db { QSqlDatabase::addDatabase(kQSQLITE) };
     db.setDatabaseName(file_path);
     if (!db.open())
-        return;
+        return false;
 
     QString finance = NodeFinance();
     QString finance_path = Path(kFinancePath);
@@ -156,6 +156,7 @@ void YtxSqlite::NewFile(CString& file_path)
     }
 
     db.close();
+    return true;
 }
 
 QString YtxSqlite::NodeFinance()

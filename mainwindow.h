@@ -173,7 +173,6 @@ private:
 
     void AppSettings();
     bool LockFile(const QFileInfo& file_info);
-    bool NewFile(QString& file_path) const;
 
     void RestoreTab(PTreeModel tree_model, LeafWgtHash& leaf_wgt_hash, CIntSet& set, CData& data, CSettings& settings);
 

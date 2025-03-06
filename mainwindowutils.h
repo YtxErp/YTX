@@ -28,6 +28,7 @@
 #include "component/constvalue.h"
 #include "widget/leafwidget/leafwidget.h"
 #include "widget/supportwidget/supportwidget.h"
+#include "worksheet.h"
 
 template <typename T>
 concept InheritQAbstractItemView = std::is_base_of_v<QAbstractItemView, T>;
@@ -51,12 +52,19 @@ public:
     static QSet<int> ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property);
 
     static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);
-    static void ExportColumns(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
+    static void ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
+    static void ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);
     static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
 
-    static bool CopyFile(CString& source, CString& destination);
-    static bool IsValidFile(const QFileInfo& file_info, CString& suffix = ytx);
     static bool IsTreeWidget(const QWidget* widget) { return widget && widget->inherits("TreeWidget"); }
+
+    static bool CheckFileName(QString& file_path, CString& suffix);
+    static bool CheckFileValid(CString& file_path, CString& suffix = kSuffixYTX);
+    static bool CheckFileSQLite(CString& file_path);
+
+    static bool AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name);
+    static QSqlDatabase GetDatabase(CString& connection_name);
+    static void RemoveDatabase(CString& connection_name);
 
     template <InheritQAbstractItemView T> static bool HasSelection(QPointer<T> view)
     {
@@ -142,8 +150,8 @@ public:
     }
 
 private:
-    static bool IsSQLiteFile(CString& file_path);
     static QString GeneratePlaceholder(const QVariantList& values);
+    static bool CopyFile(CString& source, QString& destination);
 };
 
 #endif // MAINWINDOWUTILS_H

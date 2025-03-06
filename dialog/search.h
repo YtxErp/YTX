@@ -47,7 +47,8 @@ public slots:
     void RSearch();
 
 private slots:
-    void RDoubleClicked(const QModelIndex& index);
+    void RNodeDoubleClicked(const QModelIndex& index);
+    void RTransDoubleClicked(const QModelIndex& index);
     void RContentGroup(int id);
 
 private:

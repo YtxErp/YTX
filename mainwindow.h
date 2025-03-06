@@ -192,6 +192,8 @@ private:
     void SwitchToLeaf(int node_id, int trans_id = 0) const;
     void SwitchToSupport(int node_id, int trans_id = 0) const;
 
+    void OrderTransLocation(int node_id);
+
 private:
     Ui::MainWindow* ui {};
 

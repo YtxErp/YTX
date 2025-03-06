@@ -76,11 +76,9 @@ enum class TableEnumSearch {
     kLhsDebit,
     kLhsCredit,
     kDescription,
-    kUnitPrice,
-    kDocument,
     kSupportID,
-    kDiscountPrice,
     kDiscount,
+    kDocument,
     kState,
     kRhsCredit,
     kRhsDebit,
@@ -102,23 +100,6 @@ enum class TableEnumRefFetcher {
     kGrossAmount,
     kDiscount,
     kNetAmount
-};
-
-enum class TableEnumSupport {
-    kDateTime,
-    kID,
-    kCode,
-    kLhsNode,
-    kLhsRatio,
-    kLhsDebit,
-    kLhsCredit,
-    kDescription,
-    kDocument,
-    kState,
-    kRhsCredit,
-    kRhsDebit,
-    kRhsRatio,
-    kRhsNode
 };
 
 // defining node column

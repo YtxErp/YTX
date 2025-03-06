@@ -45,7 +45,7 @@ public slots:
 
 public:
     inline int rowCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return trans_shadow_list_.size(); }
-    inline int columnCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return info_.support_header.size(); }
+    inline int columnCount(const QModelIndex& /*parent*/ = QModelIndex()) const override { return info_.search_trans_header.size(); }
     inline QModelIndex parent(const QModelIndex& /*index*/) const override { return QModelIndex(); }
 
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;

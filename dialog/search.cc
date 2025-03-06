@@ -10,6 +10,7 @@
 #include "delegate/readonly/stringmapr.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/search/searchpathtreer.h"
+#include "delegate/table/supportid.h"
 #include "ui_search.h"
 
 Search::Search(CTreeModel* tree, CTreeModel* stakeholder_tree, CTreeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent)
@@ -58,8 +59,8 @@ void Search::IniDialog()
 void Search::IniConnect()
 {
     connect(ui->lineEdit, &QLineEdit::returnPressed, this, &Search::RSearch);
-    connect(ui->searchViewNode, &QTableView::doubleClicked, this, &Search::RDoubleClicked);
-    connect(ui->searchViewTrans, &QTableView::doubleClicked, this, &Search::RDoubleClicked);
+    connect(ui->searchViewNode, &QTableView::doubleClicked, this, &Search::RNodeDoubleClicked);
+    connect(ui->searchViewTrans, &QTableView::doubleClicked, this, &Search::RTransDoubleClicked);
     connect(content_group_, &QButtonGroup::idClicked, this, &Search::RContentGroup);
 }
 
@@ -93,7 +94,6 @@ void Search::HideTreeColumn(QTableView* view, Section section)
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDiscount), true);
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinished), true);
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
-
         break;
     case Section::kStakeholder:
         view->setColumnHidden(std::to_underlying(TreeEnumSearch::kParty), true);
@@ -121,24 +121,14 @@ void Search::HideTableColumn(QTableView* view, Section section)
 
     switch (section) {
     case Section::kFinance:
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kUnitPrice), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscountPrice), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
-        break;
     case Section::kTask:
     case Section::kProduct:
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscountPrice), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsRatio), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsRatio), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
         break;
     case Section::kStakeholder:
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsRatio), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsDebit), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsCredit), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscountPrice), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsRatio), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsDebit), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsCredit), true);
@@ -147,8 +137,6 @@ void Search::HideTableColumn(QTableView* view, Section section)
     case Section::kPurchase:
     case Section::kSales:
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kDateTime), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsRatio), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsRatio), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kDocument), true);
         view->setColumnHidden(std::to_underlying(TableEnumSearch::kState), true);
     default:
@@ -215,8 +203,6 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
     auto* ratio { new DoubleSpinRNoneZero(settings_->common_decimal, kCoefficient8, view) };
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsRatio), ratio);
     view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsRatio), ratio);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDiscountPrice), ratio);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kUnitPrice), ratio);
 
     if (info_.section == Section::kFinance || info_.section == Section::kTask || info_.section == Section::kProduct) {
         auto* node_name { new SearchPathTableR(tree_, view) };
@@ -225,11 +211,12 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
     }
 
     if (info_.section == Section::kStakeholder) {
-        auto* rhs_node_name { new SearchPathTableR(tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), rhs_node_name);
-
-        auto* lhs_node_name { new SearchPathTableR(product_tree_, view) };
+        auto* lhs_node_name { new SearchPathTableR(tree_, view) };
         view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), lhs_node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kSupportID), lhs_node_name);
+
+        auto* rhs_node_name { new SearchPathTableR(product_tree_, view) };
+        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), rhs_node_name);
     }
 
     if (info_.section == Section::kSales || info_.section == Section::kPurchase) {
@@ -238,6 +225,9 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
 
         auto* lhs_node_name { new SearchPathTableR(product_tree_, view) };
         view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), lhs_node_name);
+
+        auto* support_id { new SearchPathTableR(stakeholder_tree_, view) };
+        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kSupportID), support_id);
     }
 
     auto* state { new CheckBoxR(view) };
@@ -281,31 +271,31 @@ void Search::RSearch()
     }
 }
 
-void Search::RDoubleClicked(const QModelIndex& index)
+void Search::RNodeDoubleClicked(const QModelIndex& index)
 {
-    if (ui->rBtnNode->isChecked()) {
-        int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
-        emit SNodeLocation(node_id);
-    }
+    int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
+    emit SNodeLocation(node_id);
+}
 
-    if (ui->rBtnTrans->isChecked()) {
-        int lhs_node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kLhsNode)).data().toInt() };
-        int rhs_node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kRhsNode)).data().toInt() };
-        int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kID)).data().toInt() };
-        int node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kSupportID)).data().toInt() };
+void Search::RTransDoubleClicked(const QModelIndex& index)
+{
+    int lhs_node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kLhsNode)).data().toInt() };
+    int rhs_node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kRhsNode)).data().toInt() };
+    int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kID)).data().toInt() };
 
-        switch (info_.section) {
-        case Section::kStakeholder:
-            emit STransLocation(trans_id, node_id, 0);
-            break;
-        case Section::kFinance:
-        case Section::kProduct:
-        case Section::kTask:
-            emit STransLocation(trans_id, lhs_node_id, rhs_node_id);
-            break;
-        default:
-            break;
-        }
+    switch (info_.section) {
+    case Section::kStakeholder:
+    case Section::kSales:
+    case Section::kPurchase:
+        emit STransLocation(trans_id, lhs_node_id, 0);
+        break;
+    case Section::kFinance:
+    case Section::kProduct:
+    case Section::kTask:
+        emit STransLocation(trans_id, lhs_node_id, rhs_node_id);
+        break;
+    default:
+        break;
     }
 }
 

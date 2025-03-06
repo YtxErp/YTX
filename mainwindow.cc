@@ -391,27 +391,13 @@ void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
     view->closePersistentEditor(index);
 }
 
-void MainWindow::SwitchToSupport(int node_id, int trans_id) const
+void MainWindow::OrderTransLocation(int node_id)
 {
-    auto widget { sup_wgt_hash_->value(node_id, nullptr) };
-    if (!widget)
-        return;
+    tree_widget_->Model()->RetrieveNode(node_id);
 
-    ui->tabWidget->setCurrentWidget(widget);
-    widget->activateWindow();
-
-    if (trans_id == 0)
-        return;
-
-    auto view { widget->View() };
-    auto index { dynamic_cast<SupportModel*>(widget->Model().data())->GetIndex(trans_id) };
-
-    if (!index.isValid())
-        return;
-
-    view->setCurrentIndex(index);
-    view->scrollTo(index.siblingAtColumn(std::to_underlying(TableEnumS::kDateTime)), QAbstractItemView::PositionAtCenter);
-    view->closePersistentEditor(index);
+    if (!leaf_wgt_hash_->contains(node_id)) {
+        CreateLeafO(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, node_id);
+    }
 }
 
 void MainWindow::CreateLeafFPTS(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, CData* data, CSettings* settings, int node_id)
@@ -496,8 +482,11 @@ void MainWindow::CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, 
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnumSupport::kDescription));
+    SetTableView(view, std::to_underlying(TableEnumSearch::kDescription));
     DelegateSupport(view, tree_model, settings);
+
+    view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
+    view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
 
     switch (section) {
     case Section::kStakeholder:
@@ -1239,24 +1228,24 @@ void MainWindow::SetTableView(PTableView view, int stretch_column) const
 void MainWindow::DelegateSupport(PTableView table_view, PTreeModel tree_model, CSettings* settings) const
 {
     auto* date_time { new TableDateTime(settings->date_format, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kDateTime), date_time);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDateTime), date_time);
 
     auto* state { new CheckBox(QEvent::MouseButtonRelease, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kState), state);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kState), state);
 
     auto* value { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsDebit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsDebit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsCredit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsCredit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsDebit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsDebit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsCredit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsCredit), value);
 
     auto* ratio { new DoubleSpinRNoneZero(settings->common_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsRatio), ratio);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsRatio), ratio);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsRatio), ratio);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsRatio), ratio);
 
     auto* node_name { new SearchPathTableR(tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsNode), node_name);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), node_name);
 }
 
 void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id)
@@ -1322,18 +1311,18 @@ void MainWindow::DelegateTransRef(PTableView table_view, CSettings* settings) co
 void MainWindow::DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
 {
     auto* lhs_node_name { new SearchPathTableR(tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kLhsNode), lhs_node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), lhs_node_name);
 
     auto* rhs_node_name { new SearchPathTableR(product_tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSupport::kRhsNode), rhs_node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), rhs_node_name);
 }
 
 void MainWindow::SetSupportViewS(PTableView table_view) const
 {
-    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kLhsDebit), true);
-    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kRhsDebit), true);
-    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kLhsCredit), true);
-    table_view->setColumnHidden(std::to_underlying(TableEnumSupport::kRhsCredit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsDebit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsDebit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsCredit), true);
+    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsCredit), true);
 }
 
 void MainWindow::SetConnect() const
@@ -1700,6 +1689,29 @@ void MainWindow::on_actionSupportJump_triggered()
     }
 }
 
+void MainWindow::SwitchToSupport(int node_id, int trans_id) const
+{
+    auto widget { sup_wgt_hash_->value(node_id, nullptr) };
+    if (!widget)
+        return;
+
+    ui->tabWidget->setCurrentWidget(widget);
+    widget->activateWindow();
+
+    if (trans_id == 0)
+        return;
+
+    auto view { widget->View() };
+    auto index { dynamic_cast<SupportModel*>(widget->Model().data())->GetIndex(trans_id) };
+
+    if (!index.isValid())
+        return;
+
+    view->setCurrentIndex(index);
+    view->scrollTo(index.siblingAtColumn(std::to_underlying(TableEnumS::kDateTime)), QAbstractItemView::PositionAtCenter);
+    view->closePersistentEditor(index);
+}
+
 void MainWindow::LeafToSupport(LeafWidget* widget)
 {
     if (!widget)
@@ -1747,13 +1759,13 @@ void MainWindow::SupportToLeaf(SupportWidget* widget)
     if (!model)
         return;
 
-    const int rhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSupport::kRhsNode)).data().toInt() };
-    const int lhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSupport::kLhsNode)).data().toInt() };
+    const int rhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kRhsNode)).data().toInt() };
+    const int lhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kLhsNode)).data().toInt() };
 
     if (rhs_node == 0 || lhs_node == 0)
         return;
 
-    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSupport::kID)).data().toInt() };
+    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kID)).data().toInt() };
 
     RTransLocation(trans_id, lhs_node, rhs_node);
 }
@@ -2273,8 +2285,24 @@ void MainWindow::RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id)
         return false;
     };
 
-    if (!Contains(lhs_node_id) && !Contains(rhs_node_id))
-        CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, id);
+    switch (start_) {
+    case Section::kSales:
+    case Section::kPurchase:
+        OrderTransLocation(lhs_node_id);
+        break;
+    case Section::kStakeholder:
+        if (!Contains(lhs_node_id))
+            CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, id);
+        break;
+    case Section::kFinance:
+    case Section::kProduct:
+    case Section::kTask:
+        if (!Contains(lhs_node_id) && !Contains(rhs_node_id))
+            CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, id);
+        break;
+    default:
+        break;
+    }
 
     SwitchToLeaf(id, trans_id);
 }

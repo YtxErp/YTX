@@ -95,36 +95,36 @@ QVariant SupportModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* trans_shadow { trans_shadow_list_.at(index.row()) };
-    const TableEnumSupport kColumn { index.column() };
+    const TableEnumSearch kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumSupport::kID:
+    case TableEnumSearch::kID:
         return *trans_shadow->id;
-    case TableEnumSupport::kDateTime:
+    case TableEnumSearch::kDateTime:
         return *trans_shadow->date_time;
-    case TableEnumSupport::kCode:
+    case TableEnumSearch::kCode:
         return *trans_shadow->code;
-    case TableEnumSupport::kLhsNode:
+    case TableEnumSearch::kLhsNode:
         return *trans_shadow->lhs_node;
-    case TableEnumSupport::kLhsRatio:
+    case TableEnumSearch::kLhsRatio:
         return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
-    case TableEnumSupport::kLhsDebit:
+    case TableEnumSearch::kLhsDebit:
         return *trans_shadow->lhs_debit == 0 ? QVariant() : *trans_shadow->lhs_debit;
-    case TableEnumSupport::kLhsCredit:
+    case TableEnumSearch::kLhsCredit:
         return *trans_shadow->lhs_credit == 0 ? QVariant() : *trans_shadow->lhs_credit;
-    case TableEnumSupport::kDescription:
+    case TableEnumSearch::kDescription:
         return *trans_shadow->description;
-    case TableEnumSupport::kRhsNode:
+    case TableEnumSearch::kRhsNode:
         return *trans_shadow->rhs_node;
-    case TableEnumSupport::kRhsRatio:
+    case TableEnumSearch::kRhsRatio:
         return *trans_shadow->rhs_ratio == 0 ? QVariant() : *trans_shadow->rhs_ratio;
-    case TableEnumSupport::kRhsDebit:
+    case TableEnumSearch::kRhsDebit:
         return *trans_shadow->rhs_debit == 0 ? QVariant() : *trans_shadow->rhs_debit;
-    case TableEnumSupport::kRhsCredit:
+    case TableEnumSearch::kRhsCredit:
         return *trans_shadow->rhs_credit == 0 ? QVariant() : *trans_shadow->rhs_credit;
-    case TableEnumSupport::kState:
+    case TableEnumSearch::kState:
         return *trans_shadow->state ? *trans_shadow->state : QVariant();
-    case TableEnumSupport::kDocument:
+    case TableEnumSearch::kDocument:
         return trans_shadow->document->isEmpty() ? QVariant() : trans_shadow->document->size();
     default:
         return QVariant();
@@ -136,13 +136,13 @@ bool SupportModel::setData(const QModelIndex& index, const QVariant& value, int 
     if (!index.isValid() || role != Qt::EditRole)
         return false;
 
-    const TableEnumSupport kColumn { index.column() };
+    const TableEnumSearch kColumn { index.column() };
     const int kRow { index.row() };
 
     auto* trans_shadow { trans_shadow_list_.at(kRow) };
 
     switch (kColumn) {
-    case TableEnumSupport::kState:
+    case TableEnumSearch::kState:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
     default:
@@ -158,34 +158,34 @@ void SupportModel::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const TransShadow* lhs, const TransShadow* rhs) -> bool {
-        const TableEnumSupport kColumn { column };
+        const TableEnumSearch kColumn { column };
 
         switch (kColumn) {
-        case TableEnumSupport::kDateTime:
+        case TableEnumSearch::kDateTime:
             return (order == Qt::AscendingOrder) ? (*lhs->date_time < *rhs->date_time) : (*lhs->date_time > *rhs->date_time);
-        case TableEnumSupport::kCode:
+        case TableEnumSearch::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
-        case TableEnumSupport::kLhsNode:
+        case TableEnumSearch::kLhsNode:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_node < *rhs->lhs_node) : (*lhs->lhs_node > *rhs->lhs_node);
-        case TableEnumSupport::kLhsRatio:
+        case TableEnumSearch::kLhsRatio:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
-        case TableEnumSupport::kLhsDebit:
+        case TableEnumSearch::kLhsDebit:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_debit < *rhs->lhs_debit) : (*lhs->lhs_debit > *rhs->lhs_debit);
-        case TableEnumSupport::kLhsCredit:
+        case TableEnumSearch::kLhsCredit:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_credit < *rhs->lhs_credit) : (*lhs->lhs_credit > *rhs->lhs_credit);
-        case TableEnumSupport::kDescription:
+        case TableEnumSearch::kDescription:
             return (order == Qt::AscendingOrder) ? (*lhs->description < *rhs->description) : (*lhs->description > *rhs->description);
-        case TableEnumSupport::kRhsNode:
+        case TableEnumSearch::kRhsNode:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_node < *rhs->rhs_node) : (*lhs->rhs_node > *rhs->rhs_node);
-        case TableEnumSupport::kRhsRatio:
+        case TableEnumSearch::kRhsRatio:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_ratio < *rhs->rhs_ratio) : (*lhs->rhs_ratio > *rhs->rhs_ratio);
-        case TableEnumSupport::kRhsDebit:
+        case TableEnumSearch::kRhsDebit:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_debit < *rhs->rhs_debit) : (*lhs->rhs_debit > *rhs->rhs_debit);
-        case TableEnumSupport::kRhsCredit:
+        case TableEnumSearch::kRhsCredit:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_credit < *rhs->rhs_credit) : (*lhs->rhs_credit > *rhs->rhs_credit);
-        case TableEnumSupport::kState:
+        case TableEnumSearch::kState:
             return (order == Qt::AscendingOrder) ? (*lhs->state < *rhs->state) : (*lhs->state > *rhs->state);
-        case TableEnumSupport::kDocument:
+        case TableEnumSearch::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document->size() < rhs->document->size()) : (lhs->document->size() > rhs->document->size());
         default:
             return false;
@@ -205,7 +205,7 @@ Qt::ItemFlags SupportModel::flags(const QModelIndex& index) const
 QVariant SupportModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return info_.support_header.at(section);
+        return info_.search_trans_header.at(section);
 
     return QVariant();
 }

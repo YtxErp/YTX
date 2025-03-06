@@ -288,8 +288,8 @@ QString YtxSqlite::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
         date_time      DATE,
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
         code           TEXT,
         lhs_node       INTEGER,
         lhs_ratio      NUMERIC                   CHECK (lhs_ratio   > 0),
@@ -314,17 +314,17 @@ QString YtxSqlite::TransOrder(CString& order)
     CREATE TABLE IF NOT EXISTS %1 (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
         code                TEXT,
-        inside_product      INTEGER,
+        lhs_node            INTEGER,
+        unit_price          NUMERIC,
         first               NUMERIC,
         second              NUMERIC,
         description         TEXT,
-        unit_price          NUMERIC,
-        lhs_node            INTEGER,
-        discount_price      NUMERIC,
-        gross_amount        NUMERIC,
+        outside_product     INTEGER,
         discount            NUMERIC,
         net_amount          NUMERIC,
-        outside_product     INTEGER,
+        gross_amount        NUMERIC,
+        discount_price      NUMERIC,
+        inside_product      INTEGER,
         removed             BOOLEAN    DEFAULT 0
     );
     )")
@@ -335,13 +335,13 @@ QString YtxSqlite::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
-        id                 INTEGER PRIMARY KEY AUTOINCREMENT,
         date_time          DATE,
+        id                 INTEGER PRIMARY KEY AUTOINCREMENT,
         code               TEXT,
         lhs_node           INTEGER,
-        outside_product    INTEGER,
-        description        TEXT,
         unit_price         NUMERIC,
+        description        TEXT,
+        outside_product    INTEGER,
         document           TEXT,
         state              BOOLEAN    DEFAULT 0,
         inside_product     INTEGER,
@@ -354,15 +354,15 @@ QString YtxSqlite::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
         date_time      DATE,
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
         code           TEXT,
         lhs_node       INTEGER,
+        unit_cost      NUMERIC,
         lhs_debit      NUMERIC                  CHECK (lhs_debit  >= 0),
         lhs_credit     NUMERIC                  CHECK (lhs_credit >= 0),
         description    TEXT,
         support_id     INTEGER,
-        unit_cost      NUMERIC,
         document       TEXT,
         state          BOOLEAN    DEFAULT 0,
         rhs_credit     NUMERIC                  CHECK (rhs_credit >= 0),
@@ -377,15 +377,15 @@ QString YtxSqlite::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
         date_time      DATE,
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
         code           TEXT,
         lhs_node       INTEGER,
+        unit_cost      NUMERIC,
         lhs_debit      NUMERIC                  CHECK (lhs_debit  >= 0),
         lhs_credit     NUMERIC                  CHECK (lhs_credit >= 0),
         description    TEXT,
         support_id     INTEGER,
-        unit_cost      NUMERIC,
         document       TEXT,
         state          BOOLEAN    DEFAULT 0,
         rhs_credit     NUMERIC                  CHECK (rhs_credit >= 0),

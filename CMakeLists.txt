@@ -13,6 +13,7 @@ include(FetchContent)
 FetchContent_Declare(
   YXlsx
   GIT_REPOSITORY https://github.com/YtxErp/YXlsx.git
+  GIT_TAG        main
   SOURCE_SUBDIR  YXlsx
 )
 FetchContent_MakeAvailable(YXlsx)

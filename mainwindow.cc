@@ -2572,7 +2572,7 @@ void MainWindow::on_actionExportExcel_triggered()
             MainWindowUtils::ExportExcel(source, data_->info.path, book1->GetCurrentWorksheet(), false);
 
             book1->AppendSheet(data_->info.trans);
-            book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.trans_header);
+            book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.excel_trans_header);
             MainWindowUtils::ExportExcel(source, data_->info.trans, book1->GetCurrentWorksheet());
 
             d.Save();

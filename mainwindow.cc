@@ -1695,6 +1695,10 @@ void MainWindow::SwitchToSupport(int node_id, int trans_id) const
     if (!widget)
         return;
 
+    auto* model { widget->Model().data() };
+    if (!model)
+        return;
+
     ui->tabWidget->setCurrentWidget(widget);
     widget->activateWindow();
 
@@ -1702,7 +1706,7 @@ void MainWindow::SwitchToSupport(int node_id, int trans_id) const
         return;
 
     auto view { widget->View() };
-    auto index { dynamic_cast<SupportModel*>(widget->Model().data())->GetIndex(trans_id) };
+    auto index { dynamic_cast<SupportModel*>(model)->GetIndex(trans_id) };
 
     if (!index.isValid())
         return;

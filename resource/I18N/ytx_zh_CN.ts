@@ -1974,7 +1974,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2195"/>
+        <location filename="../../mainwindow.cc" line="+2198"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -2143,7 +2143,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-277"/>
-        <location filename="../../mainwindow.cc" line="-2302"/>
+        <location filename="../../mainwindow.cc" line="-2305"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2201,7 +2201,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+226"/>
-        <location filename="../../mainwindow.cc" line="+2184"/>
+        <location filename="../../mainwindow.cc" line="+2187"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2290,7 +2290,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1255"/>
+        <location filename="../../mainwindow.cc" line="-1258"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -2455,7 +2455,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">现结</translation>
     </message>
     <message>
-        <location line="+569"/>
+        <location line="+572"/>
         <source>Language Changed</source>
         <translation>语言已更改</translation>
     </message>
@@ -2465,7 +2465,7 @@ Rage, rage against the dying of the light.</source>
         <translation>语言已更改，请重启应用程序以使更改生效。</translation>
     </message>
     <message>
-        <location line="-1833"/>
+        <location line="-1836"/>
         <source>Please open the file first.</source>
         <translation>请先打开文件。</translation>
     </message>
@@ -2475,7 +2475,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location line="+2242"/>
+        <location line="+2245"/>
         <location line="+59"/>
         <source>Export Completed</source>
         <translation>成功</translation>
@@ -2523,7 +2523,7 @@ Rage, rage against the dying of the light.</source>
         <translation>距离</translation>
     </message>
     <message>
-        <location line="-1128"/>
+        <location line="-1131"/>
         <location line="+81"/>
         <location line="+42"/>
         <source>MS</source>

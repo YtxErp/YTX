@@ -25,7 +25,7 @@
 
 #include "component/classparams.h"
 #include "component/settings.h"
-#include "tree/model/treemodelstakeholder.h"
+#include "tree/model/nodemodels.h"
 
 namespace Ui {
 class InsertNodeOrder;
@@ -60,7 +60,7 @@ public slots:
     void RSyncString(int node_id, int column, const QString& value);
 
 public:
-    QPointer<TableModel> Model();
+    QPointer<TransModel> Model();
     QPointer<QTableView> View();
 
 private slots:
@@ -98,8 +98,8 @@ private:
 
     Node* node_ {};
     Sqlite* sql_ {};
-    TreeModelStakeholder* stakeholder_tree_ {};
-    TableModel* order_table_ {};
+    NodeModelS* stakeholder_tree_ {};
+    TransModel* order_table_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
 

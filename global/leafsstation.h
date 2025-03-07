@@ -21,7 +21,7 @@
 #define LEAFSSTATION_H
 
 #include "component/enumclass.h"
-#include "table/model/tablemodel.h"
+#include "table/model/transmodel.h"
 #include "table/trans.h"
 
 // leaf node signal station
@@ -31,7 +31,7 @@ class LeafSStation final : public QObject {
 
 public:
     static LeafSStation& Instance();
-    void RegisterModel(Section section, int node_id, const TableModel* model);
+    void RegisterModel(Section section, int node_id, const TransModel* model);
     void DeregisterModel(Section section, int node_id);
 
 signals:
@@ -63,7 +63,7 @@ private:
     LeafSStation(LeafSStation&&) = delete;
     LeafSStation& operator=(LeafSStation&&) = delete;
 
-    const TableModel* FindModel(Section section, int node_id) const
+    const TransModel* FindModel(Section section, int node_id) const
     {
         auto it = model_hash_.constFind({ section, node_id });
         if (it == model_hash_.constEnd())
@@ -73,7 +73,7 @@ private:
     }
 
 private:
-    QHash<std::pair<Section, int>, const TableModel*> model_hash_ {};
+    QHash<std::pair<Section, int>, const TransModel*> model_hash_ {};
 };
 
 #endif // LEAFSSTATION_H

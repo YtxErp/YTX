@@ -54,12 +54,12 @@ QString MainWindowUtils::ResourceFile()
     return path;
 }
 
-QVariantList MainWindowUtils::SaveTab(CLeafWgtHash& leaf_wgt_hash)
+QVariantList MainWindowUtils::SaveTab(CTransWgtHash& trans_wgt_hash)
 {
-    if (leaf_wgt_hash.isEmpty())
+    if (trans_wgt_hash.isEmpty())
         return {};
 
-    const auto keys { leaf_wgt_hash.keys() };
+    const auto keys { trans_wgt_hash.keys() };
     QVariantList list {};
 
     for (int node_id : keys)

@@ -26,8 +26,8 @@ Search::Search(CTreeModel* tree, CTreeModel* stakeholder_tree, CTreeModel* produ
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    search_tree_ = new SearchNodeModel(info, tree_, stakeholder_tree, sql, this);
-    search_table_ = new SearchTransModel(info, sql, this);
+    search_tree_ = new NodeSearchModel(info, tree_, stakeholder_tree, sql, this);
+    search_table_ = new TransSearchModel(info, sql, this);
 
     TreeViewDelegate(ui->searchViewNode, search_tree_);
     TableViewDelegate(ui->searchViewTrans, search_table_);
@@ -151,7 +151,7 @@ void Search::IniContentGroup()
     content_group_->addButton(ui->rBtnTrans, 1);
 }
 
-void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
+void Search::TreeViewDelegate(QTableView* view, NodeSearchModel* model)
 {
     view->setModel(model);
 
@@ -189,7 +189,7 @@ void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
     view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kSecond), value);
 }
 
-void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
+void Search::TableViewDelegate(QTableView* view, TransSearchModel* model)
 {
     view->setModel(model);
 

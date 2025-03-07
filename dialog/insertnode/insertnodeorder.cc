@@ -13,7 +13,7 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     , ui(new Ui::InsertNodeOrder)
     , node_ { params.node }
     , sql_ { params.sql }
-    , stakeholder_tree_ { static_cast<TreeModelStakeholder*>(params.stakeholder_tree) }
+    , stakeholder_tree_ { static_cast<NodeModelS*>(params.stakeholder_tree) }
     , order_table_ { params.order_table }
     , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
     , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
@@ -53,7 +53,7 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
 
 InsertNodeOrder::~InsertNodeOrder() { delete ui; }
 
-QPointer<TableModel> InsertNodeOrder::Model() { return order_table_; }
+QPointer<TransModel> InsertNodeOrder::Model() { return order_table_; }
 
 void InsertNodeOrder::RUpdateLeafValue(
     int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)

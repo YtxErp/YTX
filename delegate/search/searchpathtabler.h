@@ -23,7 +23,7 @@
 // read only
 
 #include "delegate/styleditemdelegate.h"
-#include "tree/model/treemodel.h"
+#include "tree/model/nodemodel.h"
 
 class SearchPathTableR final : public StyledItemDelegate {
 public:

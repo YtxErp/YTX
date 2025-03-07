@@ -25,8 +25,8 @@
 #include <QTableView>
 
 #include "component/settings.h"
-#include "table/searchnodemodel.h"
-#include "table/searchtransmodel.h"
+#include "table/transsearchmodel.h"
+#include "tree/nodesearchmodel.h"
 
 namespace Ui {
 class Search;
@@ -55,8 +55,8 @@ private:
     void IniDialog();
     void IniConnect();
 
-    void TreeViewDelegate(QTableView* view, SearchNodeModel* model);
-    void TableViewDelegate(QTableView* view, SearchTransModel* model);
+    void TreeViewDelegate(QTableView* view, NodeSearchModel* model);
+    void TableViewDelegate(QTableView* view, TransSearchModel* model);
 
     void IniView(QTableView* view);
 
@@ -71,8 +71,8 @@ private:
 private:
     Ui::Search* ui;
 
-    SearchNodeModel* search_tree_ {};
-    SearchTransModel* search_table_ {};
+    NodeSearchModel* search_tree_ {};
+    TransSearchModel* search_table_ {};
     Sqlite* sql_ {};
     CTreeModel* tree_ {};
     CTreeModel* stakeholder_tree_ {};

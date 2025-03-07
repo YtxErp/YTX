@@ -23,7 +23,7 @@
 #include <QStandardItemModel>
 
 #include "delegate/styleditemdelegate.h"
-#include "tree/model/treemodel.h"
+#include "tree/model/nodemodel.h"
 
 class NodePathR : public StyledItemDelegate {
 public:

@@ -65,23 +65,23 @@
 #include "global/supportsstation.h"
 #include "mainwindowutils.h"
 #include "table/model/sortfilterproxymodel.h"
-#include "table/model/tablemodelfinance.h"
-#include "table/model/tablemodelproduct.h"
-#include "table/model/tablemodelstakeholder.h"
-#include "table/model/tablemodeltask.h"
+#include "table/model/transmodelf.h"
+#include "table/model/transmodelp.h"
+#include "table/model/transmodels.h"
+#include "table/model/transmodelt.h"
 #include "table/transrefmodel.h"
-#include "tree/model/treemodelfinance.h"
-#include "tree/model/treemodelorder.h"
-#include "tree/model/treemodelproduct.h"
-#include "tree/model/treemodelstakeholder.h"
-#include "tree/model/treemodeltask.h"
+#include "tree/model/nodemodelf.h"
+#include "tree/model/nodemodelo.h"
+#include "tree/model/nodemodelp.h"
+#include "tree/model/nodemodels.h"
+#include "tree/model/nodemodelt.h"
 #include "ui_mainwindow.h"
-#include "widget/leafwidget/leafwidgetfpts.h"
-#include "widget/supportwidget/supportwidgetfpts.h"
-#include "widget/treewidget/treewidgetfinance.h"
-#include "widget/treewidget/treewidgetorder.h"
-#include "widget/treewidget/treewidgetpt.h"
-#include "widget/treewidget/treewidgetstakeholder.h"
+#include "widget/node/nodewidgetf.h"
+#include "widget/node/nodewidgeto.h"
+#include "widget/node/nodewidgetpt.h"
+#include "widget/node/nodewidgets.h"
+#include "widget/support/supportwidgetfpts.h"
+#include "widget/trans/transwidgetfpts.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -125,16 +125,16 @@ MainWindow::~MainWindow()
     MainWindowUtils::WriteSettings(app_settings_, std::to_underlying(start_), kStart, kSection);
 
     if (lock_file_) {
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(finance_leaf_wgt_hash_), kFinance, kTabID);
+        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(finance_trans_wgt_hash_), kFinance, kTabID);
         MainWindowUtils::WriteSettings(finance_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kFinance, kHeaderState);
 
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(product_leaf_wgt_hash_), kProduct, kTabID);
+        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(product_trans_wgt_hash_), kProduct, kTabID);
         MainWindowUtils::WriteSettings(product_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kProduct, kHeaderState);
 
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(stakeholder_leaf_wgt_hash_), kStakeholder, kTabID);
+        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(stakeholder_trans_wgt_hash_), kStakeholder, kTabID);
         MainWindowUtils::WriteSettings(stakeholder_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kStakeholder, kHeaderState);
 
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(task_leaf_wgt_hash_), kTask, kTabID);
+        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(task_trans_wgt_hash_), kTask, kTabID);
         MainWindowUtils::WriteSettings(task_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kTask, kHeaderState);
 
         MainWindowUtils::WriteSettings(sales_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kSales, kHeaderState);
@@ -181,12 +181,12 @@ bool MainWindow::ROpenFile(CString& file_path)
     SetSalesData();
     SetPurchaseData();
 
-    CreateSection(finance_tree_, finance_leaf_wgt_hash_, finance_data_, finance_settings_, tr("Finance"));
-    CreateSection(stakeholder_tree_, stakeholder_leaf_wgt_hash_, stakeholder_data_, stakeholder_settings_, tr("Stakeholder"));
-    CreateSection(product_tree_, product_leaf_wgt_hash_, product_data_, product_settings_, tr("Product"));
-    CreateSection(task_tree_, task_leaf_wgt_hash_, task_data_, task_settings_, tr("Task"));
-    CreateSection(sales_tree_, sales_leaf_wgt_hash_, sales_data_, sales_settings_, tr("Sales"));
-    CreateSection(purchase_tree_, purchase_leaf_wgt_hash_, purchase_data_, purchase_settings_, tr("Purchase"));
+    CreateSection(finance_tree_, finance_trans_wgt_hash_, finance_data_, finance_settings_, tr("Finance"));
+    CreateSection(stakeholder_tree_, stakeholder_trans_wgt_hash_, stakeholder_data_, stakeholder_settings_, tr("Stakeholder"));
+    CreateSection(product_tree_, product_trans_wgt_hash_, product_data_, product_settings_, tr("Product"));
+    CreateSection(task_tree_, task_trans_wgt_hash_, task_data_, task_settings_, tr("Task"));
+    CreateSection(sales_tree_, sales_trans_wgt_hash_, sales_data_, sales_settings_, tr("Sales"));
+    CreateSection(purchase_tree_, purchase_trans_wgt_hash_, purchase_data_, purchase_settings_, tr("Purchase"));
 
     RSectionGroup(static_cast<int>(start_));
 
@@ -253,7 +253,7 @@ void MainWindow::RTreeViewDoubleClicked(const QModelIndex& index)
 
 void MainWindow::CreateLeafFunction(int type, int node_id)
 {
-    if (type != kTypeLeaf || leaf_wgt_hash_->contains(node_id))
+    if (type != kTypeLeaf || trans_wgt_hash_->contains(node_id))
         return;
 
     if (start_ == Section::kSales || start_ == Section::kPurchase) {
@@ -265,11 +265,11 @@ void MainWindow::CreateLeafFunction(int type, int node_id)
             return;
         }
 
-        CreateLeafO(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, node_id);
+        CreateLeafO(tree_widget_->Model(), trans_wgt_hash_, data_, settings_, node_id);
         return;
     }
 
-    CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, node_id);
+    CreateLeafFPTS(tree_widget_->Model(), trans_wgt_hash_, data_, settings_, node_id);
 }
 
 void MainWindow::CreateSupportFunction(int type, int node_id)
@@ -298,7 +298,7 @@ void MainWindow::RSectionGroup(int id)
     switch (kSection) {
     case Section::kFinance:
         tree_widget_ = finance_tree_;
-        leaf_wgt_hash_ = &finance_leaf_wgt_hash_;
+        trans_wgt_hash_ = &finance_trans_wgt_hash_;
         dialog_list_ = &finance_dialog_list_;
         dialog_hash_ = &finance_dialog_hash_;
         settings_ = &finance_settings_;
@@ -307,7 +307,7 @@ void MainWindow::RSectionGroup(int id)
         break;
     case Section::kProduct:
         tree_widget_ = product_tree_;
-        leaf_wgt_hash_ = &product_leaf_wgt_hash_;
+        trans_wgt_hash_ = &product_trans_wgt_hash_;
         dialog_list_ = &product_dialog_list_;
         dialog_hash_ = &product_dialog_hash_;
         settings_ = &product_settings_;
@@ -316,7 +316,7 @@ void MainWindow::RSectionGroup(int id)
         break;
     case Section::kTask:
         tree_widget_ = task_tree_;
-        leaf_wgt_hash_ = &task_leaf_wgt_hash_;
+        trans_wgt_hash_ = &task_trans_wgt_hash_;
         dialog_list_ = &task_dialog_list_;
         dialog_hash_ = &task_dialog_hash_;
         settings_ = &task_settings_;
@@ -325,7 +325,7 @@ void MainWindow::RSectionGroup(int id)
         break;
     case Section::kStakeholder:
         tree_widget_ = stakeholder_tree_;
-        leaf_wgt_hash_ = &stakeholder_leaf_wgt_hash_;
+        trans_wgt_hash_ = &stakeholder_trans_wgt_hash_;
         dialog_list_ = &stakeholder_dialog_list_;
         dialog_hash_ = &stakeholder_dialog_hash_;
         settings_ = &stakeholder_settings_;
@@ -334,7 +334,7 @@ void MainWindow::RSectionGroup(int id)
         break;
     case Section::kSales:
         tree_widget_ = sales_tree_;
-        leaf_wgt_hash_ = &sales_leaf_wgt_hash_;
+        trans_wgt_hash_ = &sales_trans_wgt_hash_;
         dialog_list_ = &sales_dialog_list_;
         dialog_hash_ = &sales_dialog_hash_;
         settings_ = &sales_settings_;
@@ -343,7 +343,7 @@ void MainWindow::RSectionGroup(int id)
         break;
     case Section::kPurchase:
         tree_widget_ = purchase_tree_;
-        leaf_wgt_hash_ = &purchase_leaf_wgt_hash_;
+        trans_wgt_hash_ = &purchase_trans_wgt_hash_;
         dialog_list_ = &purchase_dialog_list_;
         dialog_hash_ = &purchase_dialog_hash_;
         settings_ = &purchase_settings_;
@@ -370,7 +370,7 @@ void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
 
 void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 {
-    auto widget { leaf_wgt_hash_->value(node_id, nullptr) };
+    auto widget { trans_wgt_hash_->value(node_id, nullptr) };
     if (!widget)
         return;
 
@@ -395,14 +395,14 @@ void MainWindow::OrderTransLocation(int node_id)
 {
     tree_widget_->Model()->RetrieveNode(node_id);
 
-    if (!leaf_wgt_hash_->contains(node_id)) {
-        CreateLeafO(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, node_id);
+    if (!trans_wgt_hash_->contains(node_id)) {
+        CreateLeafO(tree_widget_->Model(), trans_wgt_hash_, data_, settings_, node_id);
     }
 }
 
-void MainWindow::CreateLeafFPTS(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, CData* data, CSettings* settings, int node_id)
+void MainWindow::CreateLeafFPTS(PTreeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id)
 {
-    if (!tree_model || !leaf_wgt_hash || !data || !settings || !tree_model->Contains(node_id))
+    if (!tree_model || !trans_wgt_hash || !data || !settings || !tree_model->Contains(node_id))
         return;
 
     CString name { tree_model->Name(node_id) };
@@ -411,26 +411,26 @@ void MainWindow::CreateLeafFPTS(PTreeModel tree_model, LeafWgtHash* leaf_wgt_has
     const Section section { info.section };
     const bool rule { tree_model->Rule(node_id) };
 
-    TableModel* model {};
+    TransModel* model {};
 
     switch (section) {
     case Section::kFinance:
-        model = new TableModelFinance(sql, rule, node_id, info, this);
+        model = new TransModelF(sql, rule, node_id, info, this);
         break;
     case Section::kProduct:
-        model = new TableModelProduct(sql, rule, node_id, info, this);
+        model = new TransModelP(sql, rule, node_id, info, this);
         break;
     case Section::kTask:
-        model = new TableModelTask(sql, rule, node_id, info, this);
+        model = new TransModelT(sql, rule, node_id, info, this);
         break;
     case Section::kStakeholder:
-        model = new TableModelStakeholder(sql, rule, node_id, info, this);
+        model = new TransModelS(sql, rule, node_id, info, this);
         break;
     default:
         break;
     }
 
-    LeafWidgetFPTS* widget { new LeafWidgetFPTS(model, this) };
+    TransWidgetFPTS* widget { new TransWidgetFPTS(model, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };
@@ -457,7 +457,7 @@ void MainWindow::CreateLeafFPTS(PTreeModel tree_model, LeafWgtHash* leaf_wgt_has
         break;
     }
 
-    leaf_wgt_hash->insert(node_id, widget);
+    trans_wgt_hash->insert(node_id, widget);
     LeafSStation::Instance().RegisterModel(section, node_id, model);
 }
 
@@ -503,7 +503,7 @@ void MainWindow::CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, 
     connect(data->sql, &Sqlite::SRemoveMultiSupportTrans, model, &SupportModel::RemoveMultiSupportTrans);
 }
 
-void MainWindow::CreateLeafO(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, CData* data, CSettings* settings, int node_id)
+void MainWindow::CreateLeafO(PTreeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id)
 {
     const auto& info { data->info };
     const Section section { info.section };
@@ -519,10 +519,10 @@ void MainWindow::CreateLeafO(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, 
 
     auto* sql { data->sql };
 
-    TableModelOrder* model { new TableModelOrder(sql, true, node_id, info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
+    TransModelO* model { new TransModelO(sql, true, node_id, info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
     auto params { EditNodeParamsO { node, sql, model, stakeholder_tree_->Model(), settings_, section } };
 
-    LeafWidgetO* widget { new LeafWidgetO(std::move(params), this) };
+    TransWidgetO* widget { new TransWidgetO(std::move(params), this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, stakeholder_tree_->Model()->Name(party_id)) };
     auto* tab_bar { ui->tabWidget->tabBar() };
@@ -536,58 +536,58 @@ void MainWindow::CreateLeafO(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, 
     TableConnectO(view, model, tree_model, widget);
     DelegateO(view, settings);
 
-    leaf_wgt_hash->insert(node_id, widget);
+    trans_wgt_hash->insert(node_id, widget);
 }
 
 void MainWindow::on_actionStatement_triggered() { }
 
 void MainWindow::TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
 {
-    connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
-    connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
+    connect(table_model, &TransModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
+    connect(table_model, &TransModel::SSearch, tree_model, &NodeModel::RSearch);
 
-    connect(table_model, &TableModel::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
-    connect(table_model, &TableModel::SSyncDouble, tree_model, &TreeModel::RSyncDouble);
+    connect(table_model, &TransModel::SUpdateLeafValue, tree_model, &NodeModel::RUpdateLeafValue);
+    connect(table_model, &TransModel::SSyncDouble, tree_model, &NodeModel::RSyncDouble);
 
-    connect(table_model, &TableModel::SRemoveOneTrans, &LeafSStation::Instance(), &LeafSStation::RRemoveOneTrans);
-    connect(table_model, &TableModel::SAppendOneTrans, &LeafSStation::Instance(), &LeafSStation::RAppendOneTrans);
-    connect(table_model, &TableModel::SUpdateBalance, &LeafSStation::Instance(), &LeafSStation::RUpdateBalance);
-    connect(table_model, &TableModel::SRemoveSupportTrans, &SupportSStation::Instance(), &SupportSStation::RRemoveSupportTrans);
-    connect(table_model, &TableModel::SAppendSupportTrans, &SupportSStation::Instance(), &SupportSStation::RAppendSupportTrans);
+    connect(table_model, &TransModel::SRemoveOneTrans, &LeafSStation::Instance(), &LeafSStation::RRemoveOneTrans);
+    connect(table_model, &TransModel::SAppendOneTrans, &LeafSStation::Instance(), &LeafSStation::RAppendOneTrans);
+    connect(table_model, &TransModel::SUpdateBalance, &LeafSStation::Instance(), &LeafSStation::RUpdateBalance);
+    connect(table_model, &TransModel::SRemoveSupportTrans, &SupportSStation::Instance(), &SupportSStation::RRemoveSupportTrans);
+    connect(table_model, &TransModel::SAppendSupportTrans, &SupportSStation::Instance(), &SupportSStation::RAppendSupportTrans);
 
-    connect(data->sql, &Sqlite::SRemoveMultiTrans, table_model, &TableModel::RRemoveMultiTrans);
-    connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TableModel::RMoveMultiTrans);
+    connect(data->sql, &Sqlite::SRemoveMultiTrans, table_model, &TransModel::RRemoveMultiTrans);
+    connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TransModel::RMoveMultiTrans);
 }
 
-void MainWindow::TableConnectO(PTableView table_view, TableModelOrder* table_model, PTreeModel tree_model, LeafWidgetO* widget) const
+void MainWindow::TableConnectO(PTableView table_view, TransModelO* table_model, PTreeModel tree_model, TransWidgetO* widget) const
 {
-    connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
-    connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
+    connect(table_model, &TransModel::SSearch, tree_model, &NodeModel::RSearch);
+    connect(table_model, &TransModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
 
-    connect(table_model, &TableModel::SUpdateLeafValue, widget, &LeafWidgetO::RUpdateLeafValue);
-    connect(widget, &LeafWidgetO::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
+    connect(table_model, &TransModel::SUpdateLeafValue, widget, &TransWidgetO::RUpdateLeafValue);
+    connect(widget, &TransWidgetO::SUpdateLeafValue, tree_model, &NodeModel::RUpdateLeafValue);
 
-    connect(widget, &LeafWidgetO::SSyncInt, table_model, &TableModel::RSyncInt);
-    connect(widget, &LeafWidgetO::SSyncBool, table_model, &TableModel::RSyncBool);
+    connect(widget, &TransWidgetO::SSyncInt, table_model, &TransModel::RSyncInt);
+    connect(widget, &TransWidgetO::SSyncBool, table_model, &TransModel::RSyncBool);
 
-    connect(widget, &LeafWidgetO::SSyncInt, this, &MainWindow::RSyncInt);
+    connect(widget, &TransWidgetO::SSyncInt, this, &MainWindow::RSyncInt);
 
-    connect(widget, &LeafWidgetO::SSyncBool, tree_model, &TreeModel::RSyncBool);
-    connect(tree_model, &TreeModel::SSyncBool, widget, &LeafWidgetO::RSyncBool);
-    connect(tree_model, &TreeModel::SSyncInt, widget, &LeafWidgetO::RSyncInt);
-    connect(tree_model, &TreeModel::SSyncString, widget, &LeafWidgetO::RSyncString);
+    connect(widget, &TransWidgetO::SSyncBool, tree_model, &NodeModel::RSyncBool);
+    connect(tree_model, &NodeModel::SSyncBool, widget, &TransWidgetO::RSyncBool);
+    connect(tree_model, &NodeModel::SSyncInt, widget, &TransWidgetO::RSyncInt);
+    connect(tree_model, &NodeModel::SSyncString, widget, &TransWidgetO::RSyncString);
 }
 
 void MainWindow::TableConnectS(PTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
 {
-    connect(table_model, &TableModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
-    connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
+    connect(table_model, &TransModel::SResizeColumnToContents, table_view, &QTableView::resizeColumnToContents);
+    connect(table_model, &TransModel::SSearch, tree_model, &NodeModel::RSearch);
 
-    connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TableModel::RMoveMultiTrans);
-    connect(data->sql, &Sqlite::SRemoveMultiTrans, table_model, &TableModel::RRemoveMultiTrans);
+    connect(data->sql, &Sqlite::SMoveMultiTrans, table_model, &TransModel::RMoveMultiTrans);
+    connect(data->sql, &Sqlite::SRemoveMultiTrans, table_model, &TransModel::RRemoveMultiTrans);
 
-    connect(table_model, &TableModel::SRemoveSupportTrans, &SupportSStation::Instance(), &SupportSStation::RRemoveSupportTrans);
-    connect(table_model, &TableModel::SAppendSupportTrans, &SupportSStation::Instance(), &SupportSStation::RAppendSupportTrans);
+    connect(table_model, &TransModel::SRemoveSupportTrans, &SupportSStation::Instance(), &SupportSStation::RRemoveSupportTrans);
+    connect(table_model, &TransModel::SAppendSupportTrans, &SupportSStation::Instance(), &SupportSStation::RAppendSupportTrans);
 }
 
 void MainWindow::DelegateFPTS(PTableView table_view, PTreeModel tree_model, CSettings* settings) const
@@ -669,7 +669,7 @@ void MainWindow::DelegateO(PTableView table_view, CSettings* settings) const
     table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kNetAmount), amount);
 }
 
-void MainWindow::CreateSection(TreeWidget* tree_widget, LeafWgtHash& leaf_wgt_hash, CData& data, CSettings& settings, CString& name)
+void MainWindow::CreateSection(NodeWidget* tree_widget, TransWgtHash& trans_wgt_hash, CData& data, CSettings& settings, CString& name)
 {
     const auto& info { data.info };
     auto* tab_widget { ui->tabWidget };
@@ -689,7 +689,7 @@ void MainWindow::CreateSection(TreeWidget* tree_widget, LeafWgtHash& leaf_wgt_ha
     case Section::kTask:
     case Section::kProduct:
     case Section::kStakeholder:
-        RestoreTab(model, leaf_wgt_hash, MainWindowUtils::ReadSettings(file_settings_, info.node, kTabID), data, settings);
+        RestoreTab(model, trans_wgt_hash, MainWindowUtils::ReadSettings(file_settings_, info.node, kTabID), data, settings);
         break;
     default:
         break;
@@ -844,7 +844,7 @@ void MainWindow::DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kFinished), finished);
 }
 
-void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
+void MainWindow::TreeConnect(NodeWidget* tree_widget, const Sqlite* sql) const
 {
     auto view { tree_widget->View() };
     auto model { tree_widget->Model() };
@@ -852,16 +852,16 @@ void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
     connect(view, &QTreeView::doubleClicked, this, &MainWindow::RTreeViewDoubleClicked);
     connect(view, &QTreeView::customContextMenuRequested, this, &MainWindow::RTreeViewCustomContextMenuRequested);
 
-    connect(model, &TreeModel::SUpdateName, this, &MainWindow::RUpdateName);
+    connect(model, &NodeModel::SUpdateName, this, &MainWindow::RUpdateName);
 
-    connect(model, &TreeModel::SUpdateStatusValue, tree_widget, &TreeWidget::RUpdateStatusValue);
+    connect(model, &NodeModel::SUpdateStatusValue, tree_widget, &NodeWidget::RUpdateStatusValue);
 
-    connect(model, &TreeModel::SResizeColumnToContents, view, &QTreeView::resizeColumnToContents);
+    connect(model, &NodeModel::SResizeColumnToContents, view, &QTreeView::resizeColumnToContents);
 
-    connect(model, &TreeModel::SRule, &LeafSStation::Instance(), &LeafSStation::RRule);
+    connect(model, &NodeModel::SRule, &LeafSStation::Instance(), &LeafSStation::RRule);
 
-    connect(sql, &Sqlite::SRemoveNode, model, &TreeModel::RRemoveNode);
-    connect(sql, &Sqlite::SUpdateMultiLeafTotal, model, &TreeModel::RUpdateMultiLeafTotal);
+    connect(sql, &Sqlite::SRemoveNode, model, &NodeModel::RRemoveNode);
+    connect(sql, &Sqlite::SUpdateMultiLeafTotal, model, &NodeModel::RUpdateMultiLeafTotal);
 
     connect(sql, &Sqlite::SFreeWidget, this, &MainWindow::RFreeWidget);
 }
@@ -888,16 +888,16 @@ void MainWindow::on_actionRemove_triggered()
     if (!widget || dynamic_cast<SupportWidget*>(widget))
         return;
 
-    if (auto* tree_widget { dynamic_cast<TreeWidget*>(widget) }) {
+    if (auto* tree_widget { dynamic_cast<NodeWidget*>(widget) }) {
         RemoveNode(tree_widget);
     }
 
-    if (auto* leaf_widget { dynamic_cast<LeafWidget*>(widget) }) {
+    if (auto* leaf_widget { dynamic_cast<TransWidget*>(widget) }) {
         RemoveTrans(leaf_widget);
     }
 }
 
-void MainWindow::RemoveNode(TreeWidget* tree_widget)
+void MainWindow::RemoveNode(NodeWidget* tree_widget)
 {
     auto view { tree_widget->View() };
     if (!view || !MainWindowUtils::HasSelection(view))
@@ -937,7 +937,7 @@ void MainWindow::RemoveNode(TreeWidget* tree_widget)
     dialog->exec();
 }
 
-void MainWindow::RemoveTrans(LeafWidget* leaf_widget)
+void MainWindow::RemoveTrans(TransWidget* leaf_widget)
 {
     auto view { leaf_widget->View() };
     if (!view || !MainWindowUtils::HasSelection(view))
@@ -977,15 +977,15 @@ void MainWindow::RemoveNonBranch(PTreeModel tree_model, const QModelIndex& index
     tree_model->RemoveNode(index.row(), index.parent());
     data_->sql->RemoveNode(node_id, node_type);
 
-    auto widget { leaf_wgt_hash_->value(node_id) };
+    auto widget { trans_wgt_hash_->value(node_id) };
     if (widget) {
         MainWindowUtils::FreeWidget(widget);
-        leaf_wgt_hash_->remove(node_id);
+        trans_wgt_hash_->remove(node_id);
         LeafSStation::Instance().DeregisterModel(start_, node_id);
     }
 }
 
-void MainWindow::RestoreTab(PTreeModel tree_model, LeafWgtHash& leaf_wgt_hash, CIntSet& set, CData& data, CSettings& settings)
+void MainWindow::RestoreTab(PTreeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSettings& settings)
 {
     if (!tree_model || set.isEmpty())
         return;
@@ -993,7 +993,7 @@ void MainWindow::RestoreTab(PTreeModel tree_model, LeafWgtHash& leaf_wgt_hash, C
     for (int node_id : set) {
         switch (tree_model->Type(node_id)) {
         case kTypeLeaf:
-            CreateLeafFPTS(tree_model, &leaf_wgt_hash, &data, &settings, node_id);
+            CreateLeafFPTS(tree_model, &trans_wgt_hash, &data, &settings, node_id);
             break;
         default:
             break;
@@ -1151,8 +1151,8 @@ void MainWindow::RFreeWidget(int node_id)
 
     switch (tree_widget_->Model()->Type(node_id)) {
     case kTypeLeaf:
-        widget = leaf_wgt_hash_->value(node_id);
-        leaf_wgt_hash_->remove(node_id);
+        widget = trans_wgt_hash_->value(node_id);
+        trans_wgt_hash_->remove(node_id);
         LeafSStation::Instance().DeregisterModel(start_, node_id);
         break;
     case kTypeSupport:
@@ -1371,8 +1371,8 @@ void MainWindow::SetFinanceData()
 
     sql = new SqliteFinance(info, this);
 
-    auto* model { new TreeModelFinance(sql, info, finance_settings_.default_unit, finance_leaf_wgt_hash_, interface_.separator, this) };
-    finance_tree_ = new TreeWidgetFinance(model, info, finance_settings_, this);
+    auto* model { new NodeModelF(sql, info, finance_settings_.default_unit, finance_trans_wgt_hash_, interface_.separator, this) };
+    finance_tree_ = new NodeWidgetF(model, info, finance_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTrans, &SupportSStation::Instance(), &SupportSStation::RMoveMultiSupportTransFPTS);
 }
@@ -1410,8 +1410,8 @@ void MainWindow::SetProductData()
 
     sql = new SqliteProduct(info, this);
 
-    auto* model { new TreeModelProduct(sql, info, product_settings_.default_unit, product_leaf_wgt_hash_, interface_.separator, this) };
-    product_tree_ = new TreeWidgetPT(model, product_settings_, this);
+    auto* model { new NodeModelP(sql, info, product_settings_.default_unit, product_trans_wgt_hash_, interface_.separator, this) };
+    product_tree_ = new NodeWidgetPT(model, product_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTrans, &SupportSStation::Instance(), &SupportSStation::RMoveMultiSupportTransFPTS);
 }
@@ -1450,11 +1450,11 @@ void MainWindow::SetStakeholderData()
 
     sql = new SqliteStakeholder(info, this);
 
-    auto* model { new TreeModelStakeholder(sql, info, stakeholder_settings_.default_unit, stakeholder_leaf_wgt_hash_, interface_.separator, this) };
-    stakeholder_tree_ = new TreeWidgetStakeholder(model, info, stakeholder_settings_, this);
+    auto* model { new NodeModelS(sql, info, stakeholder_settings_.default_unit, stakeholder_trans_wgt_hash_, interface_.separator, this) };
+    stakeholder_tree_ = new NodeWidgetS(model, info, stakeholder_settings_, this);
 
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
+    connect(sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
 
     connect(static_cast<SqliteStakeholder*>(sql), &SqliteStakeholder::SAppendPrice, &LeafSStation::Instance(), &LeafSStation::RAppendPrice);
     connect(sql, &Sqlite::SMoveMultiSupportTrans, &SupportSStation::Instance(), &SupportSStation::RMoveMultiSupportTransFPTS);
@@ -1493,8 +1493,8 @@ void MainWindow::SetTaskData()
 
     sql = new SqliteTask(info, this);
 
-    auto* model { new TreeModelTask(sql, info, task_settings_.default_unit, task_leaf_wgt_hash_, interface_.separator, this) };
-    task_tree_ = new TreeWidgetPT(model, task_settings_, this);
+    auto* model { new NodeModelT(sql, info, task_settings_.default_unit, task_trans_wgt_hash_, interface_.separator, this) };
+    task_tree_ = new NodeWidgetPT(model, task_settings_, this);
 
     connect(sql, &Sqlite::SMoveMultiSupportTrans, &SupportSStation::Instance(), &SupportSStation::RMoveMultiSupportTransFPTS);
 }
@@ -1533,12 +1533,12 @@ void MainWindow::SetSalesData()
 
     sql = new SqliteOrder(info, this);
 
-    auto* model { new TreeModelOrder(sql, info, sales_settings_.default_unit, sales_leaf_wgt_hash_, interface_.separator, this) };
-    sales_tree_ = new TreeWidgetOrder(model, info, sales_settings_, this);
+    auto* model { new NodeModelO(sql, info, sales_settings_.default_unit, sales_trans_wgt_hash_, interface_.separator, this) };
+    sales_tree_ = new NodeWidgetO(model, info, sales_settings_, this);
 
-    connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
+    connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(model, &TreeModel::SSyncDouble, stakeholder_tree_->Model(), &TreeModel::RSyncDouble);
+    connect(model, &NodeModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble);
 }
 
 void MainWindow::SetPurchaseData()
@@ -1575,12 +1575,12 @@ void MainWindow::SetPurchaseData()
 
     sql = new SqliteOrder(info, this);
 
-    auto* model { new TreeModelOrder(sql, info, purchase_settings_.default_unit, purchase_leaf_wgt_hash_, interface_.separator, this) };
-    purchase_tree_ = new TreeWidgetOrder(model, info, purchase_settings_, this);
+    auto* model { new NodeModelO(sql, info, purchase_settings_.default_unit, purchase_trans_wgt_hash_, interface_.separator, this) };
+    purchase_tree_ = new NodeWidgetO(model, info, purchase_settings_, this);
 
-    connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &TreeModel::RUpdateStakeholder);
+    connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
-    connect(model, &TreeModel::SSyncDouble, stakeholder_tree_->Model(), &TreeModel::RSyncDouble);
+    connect(model, &NodeModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble);
 }
 
 void MainWindow::SetAction() const
@@ -1652,7 +1652,7 @@ void MainWindow::on_actionJump_triggered()
     if (start_ == Section::kSales || start_ == Section::kPurchase)
         return;
 
-    auto* leaf_widget { dynamic_cast<LeafWidget*>(ui->tabWidget->currentWidget()) };
+    auto* leaf_widget { dynamic_cast<TransWidget*>(ui->tabWidget->currentWidget()) };
     if (!leaf_widget)
         return;
 
@@ -1669,8 +1669,8 @@ void MainWindow::on_actionJump_triggered()
     if (rhs_node_id == 0)
         return;
 
-    if (!leaf_wgt_hash_->contains(rhs_node_id))
-        CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, rhs_node_id);
+    if (!trans_wgt_hash_->contains(rhs_node_id))
+        CreateLeafFPTS(tree_widget_->Model(), trans_wgt_hash_, data_, settings_, rhs_node_id);
 
     const int trans_id { index.sibling(row, std::to_underlying(TransEnum::kID)).data().toInt() };
     SwitchToLeaf(rhs_node_id, trans_id);
@@ -1687,7 +1687,7 @@ void MainWindow::on_actionSupportJump_triggered()
         SupportToLeaf(support_widget);
     }
 
-    if (auto* leaf_widget { dynamic_cast<LeafWidget*>(widget) }) {
+    if (auto* leaf_widget { dynamic_cast<TransWidget*>(widget) }) {
         LeafToSupport(leaf_widget);
     }
 }
@@ -1719,7 +1719,7 @@ void MainWindow::SwitchToSupport(int node_id, int trans_id) const
     view->closePersistentEditor(index);
 }
 
-void MainWindow::LeafToSupport(LeafWidget* widget)
+void MainWindow::LeafToSupport(TransWidget* widget)
 {
     if (!widget)
         return;
@@ -1879,7 +1879,7 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
 
     auto* sql { data_->sql };
 
-    auto* table_model { new TableModelOrder(sql, node->rule, 0, data_->info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
+    auto* table_model { new TransModelO(sql, node->rule, 0, data_->info, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
     auto params { EditNodeParamsO { node, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
     auto* dialog { new InsertNodeOrder(std::move(params), this) };
@@ -1904,20 +1904,20 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
         }
     });
 
-    connect(table_model, &TableModel::SResizeColumnToContents, dialog->View(), &QTableView::resizeColumnToContents);
-    connect(table_model, &TableModel::SSearch, tree_model, &TreeModel::RSearch);
+    connect(table_model, &TransModel::SResizeColumnToContents, dialog->View(), &QTableView::resizeColumnToContents);
+    connect(table_model, &TransModel::SSearch, tree_model, &NodeModel::RSearch);
 
-    connect(table_model, &TableModel::SUpdateLeafValue, dialog, &InsertNodeOrder::RUpdateLeafValue);
-    connect(dialog, &InsertNodeOrder::SUpdateLeafValue, tree_model, &TreeModel::RUpdateLeafValue);
+    connect(table_model, &TransModel::SUpdateLeafValue, dialog, &InsertNodeOrder::RUpdateLeafValue);
+    connect(dialog, &InsertNodeOrder::SUpdateLeafValue, tree_model, &NodeModel::RUpdateLeafValue);
 
-    connect(dialog, &InsertNodeOrder::SSyncBool, tree_model, &TreeModel::RSyncBool);
+    connect(dialog, &InsertNodeOrder::SSyncBool, tree_model, &NodeModel::RSyncBool);
 
-    connect(dialog, &InsertNodeOrder::SSyncBool, table_model, &TableModel::RSyncBool);
-    connect(dialog, &InsertNodeOrder::SSyncInt, table_model, &TableModel::RSyncInt);
+    connect(dialog, &InsertNodeOrder::SSyncBool, table_model, &TransModel::RSyncBool);
+    connect(dialog, &InsertNodeOrder::SSyncInt, table_model, &TransModel::RSyncInt);
 
-    connect(tree_model, &TreeModel::SSyncBool, dialog, &InsertNodeOrder::RSyncBool);
-    connect(tree_model, &TreeModel::SSyncInt, dialog, &InsertNodeOrder::RSyncInt);
-    connect(tree_model, &TreeModel::SSyncString, dialog, &InsertNodeOrder::RSyncString);
+    connect(tree_model, &NodeModel::SSyncBool, dialog, &InsertNodeOrder::RSyncBool);
+    connect(tree_model, &NodeModel::SSyncInt, dialog, &InsertNodeOrder::RSyncInt);
+    connect(tree_model, &NodeModel::SSyncString, dialog, &InsertNodeOrder::RSyncString);
 
     dialog_list_->append(dialog);
 
@@ -1928,7 +1928,7 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
 
 void MainWindow::REditTransDocument(const QModelIndex& index)
 {
-    auto* leaf_widget { dynamic_cast<LeafWidget*>(ui->tabWidget->currentWidget()) };
+    auto* leaf_widget { dynamic_cast<TransWidget*>(ui->tabWidget->currentWidget()) };
     if (!leaf_widget || !index.isValid())
         return;
 
@@ -2032,7 +2032,7 @@ void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
         if (start_ == Section::kStakeholder)
             UpdateStakeholderReference(nodes, branch);
 
-        if (!leaf_wgt_hash_->contains(node_id))
+        if (!trans_wgt_hash_->contains(node_id))
             return;
 
     } else {
@@ -2085,13 +2085,13 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
     if (resize_column) {
         auto* current_widget { ui->tabWidget->currentWidget() };
 
-        if (auto* leaf_widget = dynamic_cast<LeafWidget*>(current_widget)) {
+        if (auto* leaf_widget = dynamic_cast<TransWidget*>(current_widget)) {
             auto* header { leaf_widget->View()->horizontalHeader() };
 
             int column { std::to_underlying(TransEnum::kDescription) };
             auto* model { leaf_widget->Model().data() };
 
-            if (qobject_cast<SupportModel*>(model) || qobject_cast<TableModelOrder*>(model)) {
+            if (qobject_cast<SupportModel*>(model) || qobject_cast<TransModelO*>(model)) {
                 column = std::to_underlying(TransEnumO::kDescription);
             }
 
@@ -2099,7 +2099,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
             return;
         }
 
-        if (auto* tree_widget = dynamic_cast<TreeWidget*>(current_widget)) {
+        if (auto* tree_widget = dynamic_cast<NodeWidget*>(current_widget)) {
             auto* header { tree_widget->View()->header() };
             ResizeColumn(header, std::to_underlying(NodeEnum::kDescription));
         }
@@ -2141,7 +2141,7 @@ void MainWindow::UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool br
 {
     auto* widget { ui->tabWidget };
     auto stakeholder_model { tree_widget_->Model() };
-    auto* order_model { static_cast<TreeModelOrder*>(sales_tree_->Model().data()) };
+    auto* order_model { static_cast<NodeModelO*>(sales_tree_->Model().data()) };
     auto* tab_bar { widget->tabBar() };
     int count { widget->count() };
 
@@ -2260,7 +2260,7 @@ void MainWindow::on_actionSearch_triggered()
 
     connect(dialog, &Search::SNodeLocation, this, &MainWindow::RNodeLocation);
     connect(dialog, &Search::STransLocation, this, &MainWindow::RTransLocation);
-    connect(tree_widget_->Model(), &TreeModel::SSearch, dialog, &Search::RSearch);
+    connect(tree_widget_->Model(), &NodeModel::SSearch, dialog, &Search::RSearch);
     connect(dialog, &QDialog::rejected, this, [=, this]() { dialog_list_->removeOne(dialog); });
 
     dialog_list_->append(dialog);
@@ -2285,7 +2285,7 @@ void MainWindow::RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id)
     int id { lhs_node_id };
 
     auto Contains = [&](int node_id) {
-        if (leaf_wgt_hash_->contains(node_id)) {
+        if (trans_wgt_hash_->contains(node_id)) {
             id = node_id;
             return true;
         }
@@ -2299,13 +2299,13 @@ void MainWindow::RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id)
         break;
     case Section::kStakeholder:
         if (!Contains(lhs_node_id))
-            CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, id);
+            CreateLeafFPTS(tree_widget_->Model(), trans_wgt_hash_, data_, settings_, id);
         break;
     case Section::kFinance:
     case Section::kProduct:
     case Section::kTask:
         if (!Contains(lhs_node_id) && !Contains(rhs_node_id))
-            CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, id);
+            CreateLeafFPTS(tree_widget_->Model(), trans_wgt_hash_, data_, settings_, id);
         break;
     default:
         break;
@@ -2411,7 +2411,7 @@ void MainWindow::on_tabWidget_tabBarDoubleClicked(int index) { RNodeLocation(ui-
 
 void MainWindow::RUpdateState()
 {
-    auto* leaf_widget { dynamic_cast<LeafWidget*>(ui->tabWidget->currentWidget()) };
+    auto* leaf_widget { dynamic_cast<TransWidget*>(ui->tabWidget->currentWidget()) };
     if (!leaf_widget)
         return;
 
@@ -2482,7 +2482,7 @@ void MainWindow::on_actionAppendTrans_triggered()
     if (!widget)
         return;
 
-    if (auto* leaf_widget = dynamic_cast<LeafWidget*>(widget)) {
+    if (auto* leaf_widget = dynamic_cast<TransWidget*>(widget)) {
         MainWindowUtils::AppendTrans(leaf_widget, start_);
     }
 }

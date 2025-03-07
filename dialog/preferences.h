@@ -27,7 +27,7 @@
 #include "component/info.h"
 #include "component/settings.h"
 #include "component/using.h"
-#include "tree/model/treemodel.h"
+#include "tree/model/nodemodel.h"
 
 namespace Ui {
 class Preferences;

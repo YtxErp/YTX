@@ -26,8 +26,8 @@
 #include <QWidget>
 
 #include "component/constvalue.h"
-#include "widget/leafwidget/leafwidget.h"
-#include "widget/supportwidget/supportwidget.h"
+#include "widget/support/supportwidget.h"
+#include "widget/trans/transwidget.h"
 #include "worksheet.h"
 
 template <typename T>
@@ -41,14 +41,14 @@ concept MemberFunction = std::is_member_function_pointer_v<T>;
 
 template <typename T>
 concept LeafWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
-    { t.Model() } -> std::convertible_to<QPointer<TableModel>>;
+    { t.Model() } -> std::convertible_to<QPointer<TransModel>>;
     { t.View() } -> std::convertible_to<QPointer<QTableView>>;
 };
 
 class MainWindowUtils {
 public:
     static QString ResourceFile();
-    static QVariantList SaveTab(CLeafWgtHash& leaf_wgt_hash);
+    static QVariantList SaveTab(CTransWgtHash& trans_wgt_hash);
     static QSet<int> ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property);
 
     static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);

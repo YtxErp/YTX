@@ -22,7 +22,7 @@
 
 #include <QDialog>
 
-#include "tree/model/treemodel.h"
+#include "tree/model/nodemodel.h"
 
 namespace Ui {
 class RemoveNode;

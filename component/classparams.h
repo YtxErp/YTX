@@ -24,8 +24,8 @@
 
 #include "component/settings.h"
 #include "database/sqlite/sqlite.h"
-#include "table/model/tablemodel.h"
-#include "tree/model/treemodel.h"
+#include "table/model/transmodel.h"
+#include "tree/model/nodemodel.h"
 #include "tree/node.h"
 
 struct InsertNodeParamsFPTS {
@@ -38,8 +38,8 @@ struct InsertNodeParamsFPTS {
 struct EditNodeParamsO {
     Node* node {};
     Sqlite* sql {};
-    TableModel* order_table {};
-    TreeModel* stakeholder_tree {};
+    TransModel* order_table {};
+    NodeModel* stakeholder_tree {};
     CSettings* settings {};
     Section section {};
 };

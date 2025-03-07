@@ -3,7 +3,7 @@
 #include "component/constvalue.h"
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
-#include "model/tablemodelutils.h"
+#include "model/transmodelutils.h"
 
 SupportModel::SupportModel(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent)
     : QAbstractItemModel { parent }
@@ -143,7 +143,7 @@ bool SupportModel::setData(const QModelIndex& index, const QVariant& value, int 
 
     switch (kColumn) {
     case TransSearchEnum::kState:
-        TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
+        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
     default:
         return false;

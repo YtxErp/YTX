@@ -22,7 +22,7 @@
 
 #include "delegate/styleditemdelegate.h"
 #include "table/model/sortfilterproxymodel.h"
-#include "tree/model/treemodel.h"
+#include "tree/model/nodemodel.h"
 
 class TableCombo final : public StyledItemDelegate {
 public:

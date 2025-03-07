@@ -366,7 +366,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLabel" name="labelNetAmount">
+         <widget class="QLabel" name="labelSettlement">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -374,7 +374,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>NetAmount</string>
+           <string>Settlement</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing</set>

@@ -264,7 +264,7 @@ QString YtxSqlite::NodeOrder(CString& order)
         finished          BOOLEAN    DEFAULT 0,
         gross_amount      NUMERIC,
         discount          NUMERIC,
-        net_amount        NUMERIC,
+        settlement        NUMERIC,
         removed           BOOLEAN    DEFAULT 0,
         payment_id        INTEGER
     );

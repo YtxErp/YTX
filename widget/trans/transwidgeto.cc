@@ -203,7 +203,7 @@ void TransWidgetO::LockWidgets(bool finished)
 
     ui->pBtnInsert->setEnabled(enable);
 
-    ui->labelNetAmount->setEnabled(enable);
+    ui->labelSettlement->setEnabled(enable);
     ui->dSpinNetAmount->setEnabled(enable);
 
     ui->dSpinGrossAmount->setEnabled(enable);

@@ -226,7 +226,7 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
 
     ui->pBtnInsert->setEnabled(not_branch_enable);
 
-    ui->labNetAmount->setEnabled(not_branch_enable);
+    ui->labSettlement->setEnabled(not_branch_enable);
     ui->dSpinNetAmount->setEnabled(not_branch_enable);
 
     ui->dSpinGrossAmount->setEnabled(not_branch_enable);

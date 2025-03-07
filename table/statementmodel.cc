@@ -43,9 +43,34 @@ QVariant StatementModel::data(const QModelIndex& index, int role) const
     if (!index.isValid() || role != Qt::DisplayRole)
         return QVariant();
 
-    const NodeSearchEnum kColumn { index.column() };
+    const StatementEnum kColumn { index.column() };
+    auto* trans { trans_list_.at(index.row()) };
 
     switch (kColumn) {
+    case StatementEnum::kParty:
+        return trans->id;
+        break;
+    case StatementEnum::kPBalance:
+        return trans->lhs_ratio;
+        break;
+    case StatementEnum::kCTransaction:
+        return trans->rhs_debit;
+        break;
+    case StatementEnum::kCSettlement:
+        return trans->rhs_credit;
+        break;
+    case StatementEnum::kCDiscount:
+        return trans->discount;
+        break;
+    case StatementEnum::kCBalance:
+        return trans->rhs_ratio;
+        break;
+    case StatementEnum::kFirst:
+        return trans->lhs_debit;
+        break;
+    case StatementEnum::kSecond:
+        return trans->lhs_credit;
+        break;
     default:
         return QVariant();
     }
@@ -65,9 +90,33 @@ void StatementModel::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Trans* lhs, const Trans* rhs) -> bool {
-        const NodeSearchEnum kColumn { column };
+        const StatementEnum kColumn { column };
 
         switch (kColumn) {
+        case StatementEnum::kParty:
+            return (order == Qt::AscendingOrder) ? (lhs->id < rhs->id) : (lhs->id > rhs->id);
+            break;
+        case StatementEnum::kPBalance:
+            return (order == Qt::AscendingOrder) ? (lhs->lhs_ratio < rhs->lhs_ratio) : (lhs->lhs_ratio > rhs->lhs_ratio);
+            break;
+        case StatementEnum::kCTransaction:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
+            break;
+        case StatementEnum::kCSettlement:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
+            break;
+        case StatementEnum::kCDiscount:
+            return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
+            break;
+        case StatementEnum::kCBalance:
+            return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
+            break;
+        case StatementEnum::kFirst:
+            return (order == Qt::AscendingOrder) ? (lhs->lhs_debit < rhs->lhs_debit) : (lhs->lhs_debit > rhs->lhs_debit);
+            break;
+        case StatementEnum::kSecond:
+            return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
+            break;
         default:
             return false;
         }

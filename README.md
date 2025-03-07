@@ -26,11 +26,11 @@ Welcome! I’d like to introduce you to YTX, a stand-alone software designed to 
 | stakeholder |  name   |   id    |  code   | description  |  note   |  type   |  rule   |  unit   |    X    | employee  | deadline  |    X    |      X      | payment_term |  tax_rate   |     X     |     X     |       X       |   amount    |
 | NodeEnumS   |  kName  |   kID   |  kCode  | kDescription |  kNote  |  kType  |  kRule  |  kUnit  |    X    | kEmployee | kDeadline |    X    |      X      | kPaymentTerm |  kTaxRate   |     X     |     X     |       X       |   kAmount   |
 |             |         |         |         |              |         |         |         |         |         |           |           |         |             |              |             |           |           |               |             |
-| purchase    |  name   |   id    |    X    | description  |    X    |  type   |  rule   |  unit   |  party  | employee  | date_time |    X    |      X      |    first     |   second    | discount  | finished  | gross_amount  | net_amount  |
-| NodeEnumO   |  kName  |   kID   |    X    | kDescription |    X    |  kType  |  kRule  |  kUnit  | kParty  | kEmployee | kDateTime |    X    |      X      |    kFirst    |   kSecond   | kDiscount | kFinished | kGrossAmount  | kNetAmount  |
+| purchase    |  name   |   id    |    X    | description  |    X    |  type   |  rule   |  unit   |  party  | employee  | date_time |    X    |      X      |    first     |   second    | discount  | finished  | gross_amount  | settlement  |
+| NodeEnumO   |  kName  |   kID   |    X    | kDescription |    X    |  kType  |  kRule  |  kUnit  | kParty  | kEmployee | kDateTime |    X    |      X      |    kFirst    |   kSecond   | kDiscount | kFinished | kGrossAmount  | kSettlement |
 |             |         |         |         |              |         |         |         |         |         |           |           |         |             |              |             |           |           |               |             |
-| sales       |  name   |   id    |    X    | description  |    X    |  type   |  rule   |  unit   |  party  | employee  | date_time |    X    |      X      |    first     |   second    | discount  | finished  | gross_amount  | net_amount  |
-| NodeEnumO   |  kName  |   kID   |    X    | kDescription |    X    |  kType  |  kRule  |  kUnit  | kParty  | kEmployee | kDateTime |    X    |      X      |    kFirst    |   kSecond   | kDiscount | kFinished | kGrossAmount  | kNetAmount  |
+| sales       |  name   |   id    |    X    | description  |    X    |  type   |  rule   |  unit   |  party  | employee  | date_time |    X    |      X      |    first     |   second    | discount  | finished  | gross_amount  | settlement  |
+| NodeEnumO   |  kName  |   kID   |    X    | kDescription |    X    |  kType  |  kRule  |  kUnit  | kParty  | kEmployee | kDateTime |    X    |      X      |    kFirst    |   kSecond   | kDiscount | kFinished | kGrossAmount  | kSettlement |
 
 ### Trans, Sqlite3 And Enum
 

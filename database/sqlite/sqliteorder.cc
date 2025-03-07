@@ -143,7 +143,7 @@ void SqliteOrder::RRemoveNode(int node_id, int /*node_type*/)
 QString SqliteOrder::QSReadNode() const
 {
     return QString(R"(
-    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
+    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
     FROM %1
     WHERE ((DATE(date_time) BETWEEN :start_date AND :end_date) OR type = 1 OR unit = 2) AND removed = 0
     )")
@@ -153,8 +153,8 @@ QString SqliteOrder::QSReadNode() const
 QString SqliteOrder::QSWriteNode() const
 {
     return QString(R"(
-    INSERT INTO %1 (name, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount)
-    VALUES (:name, :description, :rule, :type, :unit, :party, :employee, :date_time, :first, :second, :discount, :finished, :gross_amount, :net_amount)
+    INSERT INTO %1 (name, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement)
+    VALUES (:name, :description, :rule, :type, :unit, :party, :employee, :date_time, :first, :second, :discount, :finished, :gross_amount, :settlement)
     )")
         .arg(info_.node);
 }
@@ -260,7 +260,7 @@ QString SqliteOrder::QSTransToRemove() const
 QString SqliteOrder::SearchNodeQS(CString& in_list) const
 {
     return QString(R"(
-    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
+    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
     FROM %1
     WHERE party IN (%2) AND removed = 0
     )")
@@ -273,7 +273,7 @@ Node* SqliteOrder::ReadNode(int node_id)
         return it.value();
 
     CString string { QString(R"(
-    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, net_amount
+    SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
     FROM %1
     WHERE (id = :node_id) AND removed = 0
     )")
@@ -449,7 +449,7 @@ QString SqliteOrder::QSWriteLeafValueFPTO() const
 {
     return QStringLiteral(R"(
     UPDATE %1 SET
-        gross_amount = :gross_amount, net_amount = :net_amount, second = :second, discount = :discount, first = :first
+        gross_amount = :gross_amount, settlement = :settlement, second = :second, discount = :discount, first = :first
     WHERE id = :node_id
     )")
         .arg(info_.node);
@@ -461,7 +461,7 @@ void SqliteOrder::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) con
     query.bindValue(QStringLiteral(":second"), node->second);
     query.bindValue(QStringLiteral(":first"), node->first);
     query.bindValue(QStringLiteral(":discount"), node->discount);
-    query.bindValue(QStringLiteral(":net_amount"), node->final_total);
+    query.bindValue(QStringLiteral(":settlement"), node->final_total);
     query.bindValue(QStringLiteral(":node_id"), node->id);
 }
 
@@ -481,7 +481,7 @@ void SqliteOrder::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->discount = query.value(QStringLiteral("discount")).toDouble();
     node->finished = query.value(QStringLiteral("finished")).toBool();
     node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
-    node->final_total = query.value(QStringLiteral("net_amount")).toDouble();
+    node->final_total = query.value(QStringLiteral("settlement")).toDouble();
 }
 
 void SqliteOrder::WriteNodeBind(Node* node, QSqlQuery& query) const
@@ -499,5 +499,5 @@ void SqliteOrder::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":discount"), node->discount);
     query.bindValue(QStringLiteral(":finished"), node->finished);
     query.bindValue(QStringLiteral(":gross_amount"), node->initial_total);
-    query.bindValue(QStringLiteral(":net_amount"), node->final_total);
+    query.bindValue(QStringLiteral(":settlement"), node->final_total);
 }

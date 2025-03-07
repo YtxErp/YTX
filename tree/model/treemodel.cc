@@ -62,7 +62,7 @@ QMimeData* TreeModel::mimeData(const QModelIndexList& indexes) const
     auto first_index { indexes.first() };
 
     if (first_index.isValid()) {
-        int id { first_index.sibling(first_index.row(), std::to_underlying(TreeEnum::kID)).data().toInt() };
+        int id { first_index.sibling(first_index.row(), std::to_underlying(NodeEnum::kID)).data().toInt() };
         mime_data->setData(kNodeID, QByteArray::number(id));
     }
 
@@ -216,7 +216,7 @@ bool TreeModel::UpdateNameFunction(Node* node, CString& value)
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
 
-    emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
     emit SSearch();
     return true;
 }

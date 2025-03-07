@@ -41,17 +41,17 @@ enum class UnitT { kProd = 1 };
 enum class Filter { kIncludeSpecific, kExcludeSpecific, kIncludeSpecificWithNone, kIncludeAllWithNone };
 
 // defining trans column
-enum class TableEnum { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode };
+enum class TransEnum { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode };
 
-enum class TableEnumF { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TransEnumF { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumT { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TransEnumT { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumP { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
+enum class TransEnumP { kDateTime, kID, kUnitCost, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode, kDebit, kCredit, kSubtotal };
 
-enum class TableEnumS { kDateTime, kID, kUnitPrice, kCode, kDescription, kOutsideProduct, kDocument, kState, kInsideProduct };
+enum class TransEnumS { kDateTime, kID, kUnitPrice, kCode, kDescription, kOutsideProduct, kDocument, kState, kInsideProduct };
 
-enum class TableEnumO {
+enum class TransEnumO {
     kInsideProduct,
     kID,
     kOutsideProduct,
@@ -67,7 +67,7 @@ enum class TableEnumO {
     kNetAmount
 };
 
-enum class TableEnumSearch {
+enum class TransSearchEnum {
     kDateTime,
     kID,
     kCode,
@@ -86,10 +86,11 @@ enum class TableEnumSearch {
     kRhsNode
 };
 
-enum class TableEnumRefFetcher {
+// kPP: kParty or kProduct
+enum class TransRefEnum {
     kDateTime,
-    kLhsNode,
-    kParty,
+    kOrderNode,
+    kPP,
     kOutsideProduct,
     kFirst,
     kSecond,
@@ -102,18 +103,21 @@ enum class TableEnumRefFetcher {
     kNetAmount
 };
 
+// P:Previous, C:Current
+enum class StatementEnum { kParty, kPBalance, kCTransaction, kCSettlement, kCDiscount, kCBalance, kFirst, kSecond };
+
 // defining node column
-enum class TreeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };
+enum class NodeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };
 
-enum class TreeEnumF { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kForeignTotal, kLocalTotal };
+enum class NodeEnumF { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kForeignTotal, kLocalTotal };
 
-enum class TreeEnumT { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDateTime, kColor, kDocument, kFinished, kUnitCost, kQuantity, kAmount };
+enum class NodeEnumT { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDateTime, kColor, kDocument, kFinished, kUnitCost, kQuantity, kAmount };
 
-enum class TreeEnumP { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kColor, kUnitPrice, kCommission, kQuantity, kAmount };
+enum class NodeEnumP { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kColor, kUnitPrice, kCommission, kQuantity, kAmount };
 
-enum class TreeEnumS { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDeadline, kEmployee, kPaymentTerm, kTaxRate, kAmount };
+enum class NodeEnumS { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit, kDeadline, kEmployee, kPaymentTerm, kTaxRate, kAmount };
 
-enum class TreeEnumO {
+enum class NodeEnumO {
     kName,
     kID,
     kParty,
@@ -131,7 +135,7 @@ enum class TreeEnumO {
     kNetAmount
 };
 
-enum class TreeEnumSearch {
+enum class NodeSearchEnum {
     kName,
     kID,
     kCode,

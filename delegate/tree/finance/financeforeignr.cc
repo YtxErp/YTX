@@ -22,7 +22,7 @@ QSize FinanceForeignR::sizeHint(const QStyleOptionViewItem& option, const QModel
 
 QString FinanceForeignR::Format(const QModelIndex& index) const
 {
-    int unit { index.siblingAtColumn(std::to_underlying(TreeEnum::kUnit)).data().toInt() };
+    int unit { index.siblingAtColumn(std::to_underlying(NodeEnum::kUnit)).data().toInt() };
     if (unit == default_unit_)
         return kEmptyString;
 

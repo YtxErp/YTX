@@ -42,34 +42,34 @@ QVariant TransRefModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* trans { trans_list_.at(index.row()) };
-    const TableEnumRefFetcher kColumn { index.column() };
+    const TransRefEnum kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumRefFetcher::kDateTime:
+    case TransRefEnum::kDateTime:
         return trans->date_time;
-    case TableEnumRefFetcher::kParty:
+    case TransRefEnum::kPP:
         return trans->id;
-    case TableEnumRefFetcher::kLhsNode:
+    case TransRefEnum::kOrderNode:
         return trans->lhs_node;
-    case TableEnumRefFetcher::kOutsideProduct:
+    case TransRefEnum::kOutsideProduct:
         return trans->support_id == 0 ? QVariant() : trans->support_id;
-    case TableEnumRefFetcher::kFirst:
+    case TransRefEnum::kFirst:
         return trans->lhs_debit == 0 ? QVariant() : trans->lhs_debit;
-    case TableEnumRefFetcher::kSecond:
+    case TransRefEnum::kSecond:
         return trans->lhs_credit == 0 ? QVariant() : trans->lhs_credit;
-    case TableEnumRefFetcher::kUnitPrice:
+    case TransRefEnum::kUnitPrice:
         return trans->lhs_ratio == 0 ? QVariant() : trans->lhs_ratio;
-    case TableEnumRefFetcher::kDiscountPrice:
+    case TransRefEnum::kDiscountPrice:
         return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
-    case TableEnumRefFetcher::kDescription:
+    case TransRefEnum::kDescription:
         return trans->description;
-    case TableEnumRefFetcher::kCode:
+    case TransRefEnum::kCode:
         return trans->code;
-    case TableEnumRefFetcher::kGrossAmount:
+    case TransRefEnum::kGrossAmount:
         return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
-    case TableEnumRefFetcher::kDiscount:
+    case TransRefEnum::kDiscount:
         return trans->discount == 0 ? QVariant() : trans->discount;
-    case TableEnumRefFetcher::kNetAmount:
+    case TransRefEnum::kNetAmount:
         return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
     default:
         return QVariant();
@@ -90,32 +90,32 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Trans* lhs, const Trans* rhs) -> bool {
-        const TableEnumRefFetcher kColumn { column };
+        const TransRefEnum kColumn { column };
 
         switch (kColumn) {
-        case TableEnumRefFetcher::kOutsideProduct:
+        case TransRefEnum::kOutsideProduct:
             return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
-        case TableEnumRefFetcher::kDateTime:
+        case TransRefEnum::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TableEnumRefFetcher::kCode:
+        case TransRefEnum::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TableEnumRefFetcher::kParty:
+        case TransRefEnum::kPP:
             return (order == Qt::AscendingOrder) ? (lhs->id < rhs->id) : (lhs->id > rhs->id);
-        case TableEnumRefFetcher::kUnitPrice:
+        case TransRefEnum::kUnitPrice:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_ratio < rhs->lhs_ratio) : (lhs->lhs_ratio > rhs->lhs_ratio);
-        case TableEnumRefFetcher::kFirst:
+        case TransRefEnum::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_debit < rhs->lhs_debit) : (lhs->lhs_debit > rhs->lhs_debit);
-        case TableEnumRefFetcher::kSecond:
+        case TransRefEnum::kSecond:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
-        case TableEnumRefFetcher::kDescription:
+        case TransRefEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TableEnumRefFetcher::kDiscount:
+        case TransRefEnum::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-        case TableEnumRefFetcher::kNetAmount:
+        case TransRefEnum::kNetAmount:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
-        case TableEnumRefFetcher::kGrossAmount:
+        case TransRefEnum::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
-        case TableEnumRefFetcher::kDiscountPrice:
+        case TransRefEnum::kDiscountPrice:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
         default:
             return false;

@@ -108,7 +108,7 @@ bool TreeModelFinance::RemoveNode(int row, const QModelIndex& parent)
     node_hash_.remove(node_id);
 
     emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
     emit SUpdateStatusValue();
 
     return true;
@@ -173,28 +173,28 @@ QVariant TreeModelFinance::data(const QModelIndex& index, int role) const
     if (node == root_)
         return QVariant();
 
-    const TreeEnumF kColumn { index.column() };
+    const NodeEnumF kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumF::kName:
+    case NodeEnumF::kName:
         return node->name;
-    case TreeEnumF::kID:
+    case NodeEnumF::kID:
         return node->id;
-    case TreeEnumF::kCode:
+    case NodeEnumF::kCode:
         return node->code;
-    case TreeEnumF::kDescription:
+    case NodeEnumF::kDescription:
         return node->description;
-    case TreeEnumF::kNote:
+    case NodeEnumF::kNote:
         return node->note;
-    case TreeEnumF::kRule:
+    case NodeEnumF::kRule:
         return node->rule;
-    case TreeEnumF::kType:
+    case NodeEnumF::kType:
         return node->type;
-    case TreeEnumF::kUnit:
+    case NodeEnumF::kUnit:
         return node->unit;
-    case TreeEnumF::kForeignTotal:
+    case NodeEnumF::kForeignTotal:
         return node->unit == root_->unit ? QVariant() : node->initial_total;
-    case TreeEnumF::kLocalTotal:
+    case NodeEnumF::kLocalTotal:
         return node->final_total;
     default:
         return QVariant();
@@ -210,25 +210,25 @@ bool TreeModelFinance::setData(const QModelIndex& index, const QVariant& value, 
     if (node == root_)
         return false;
 
-    const TreeEnumF kColumn { index.column() };
+    const NodeEnumF kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumF::kCode:
+    case NodeEnumF::kCode:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
         break;
-    case TreeEnumF::kDescription:
+    case NodeEnumF::kDescription:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
         break;
-    case TreeEnumF::kNote:
+    case NodeEnumF::kNote:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
         break;
-    case TreeEnumF::kRule:
+    case NodeEnumF::kRule:
         UpdateRuleFPTO(node, value.toBool());
         break;
-    case TreeEnumF::kType:
+    case NodeEnumF::kType:
         UpdateTypeFPTS(node, value.toInt());
         break;
-    case TreeEnumF::kUnit:
+    case NodeEnumF::kUnit:
         UpdateUnit(node, value.toInt());
         break;
     default:
@@ -245,25 +245,25 @@ void TreeModelFinance::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
-        const TreeEnumF kColumn { column };
+        const NodeEnumF kColumn { column };
         switch (kColumn) {
-        case TreeEnumF::kName:
+        case NodeEnumF::kName:
             return (order == Qt::AscendingOrder) ? (lhs->name < rhs->name) : (lhs->name > rhs->name);
-        case TreeEnumF::kCode:
+        case NodeEnumF::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TreeEnumF::kDescription:
+        case NodeEnumF::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TreeEnumF::kNote:
+        case NodeEnumF::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
-        case TreeEnumF::kRule:
+        case NodeEnumF::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
-        case TreeEnumF::kType:
+        case NodeEnumF::kType:
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
-        case TreeEnumF::kUnit:
+        case NodeEnumF::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
-        case TreeEnumF::kForeignTotal:
+        case NodeEnumF::kForeignTotal:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
-        case TreeEnumF::kLocalTotal:
+        case NodeEnumF::kLocalTotal:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -281,15 +281,15 @@ Qt::ItemFlags TreeModelFinance::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
-    const TreeEnumF kColumn { index.column() };
+    const NodeEnumF kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumF::kName:
+    case NodeEnumF::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         flags &= ~Qt::ItemIsEditable;
         break;
-    case TreeEnumF::kForeignTotal:
-    case TreeEnumF::kLocalTotal:
+    case NodeEnumF::kForeignTotal:
+    case NodeEnumF::kLocalTotal:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:
@@ -337,7 +337,7 @@ bool TreeModelFinance::dropMimeData(const QMimeData* data, Qt::DropAction action
     TreeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     TreeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
     emit SUpdateName(node_id, node->name, node->type == kTypeBranch);
-    emit SResizeColumnToContents(std::to_underlying(TreeEnum::kName));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
 }

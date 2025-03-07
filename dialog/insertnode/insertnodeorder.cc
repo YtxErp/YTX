@@ -85,19 +85,19 @@ void InsertNodeOrder::RSyncBool(int node_id, int column, bool value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumO kColumn { column };
+    const NodeEnumO kColumn { column };
 
-    if (kColumn == TreeEnumO::kFinished)
+    if (kColumn == NodeEnumO::kFinished)
         emit SSyncBool(node_id_, 0, value);
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumO::kRule:
+    case NodeEnumO::kRule:
         IniRule(value);
         IniLeafValue();
         break;
-    case TreeEnumO::kFinished: {
+    case NodeEnumO::kFinished: {
         IniFinished(value);
         LockWidgets(value, node_->type == kTypeBranch);
         break;
@@ -112,15 +112,15 @@ void InsertNodeOrder::RSyncInt(int node_id, int column, int value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumO kColumn { column };
+    const NodeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumO::kUnit:
+    case NodeEnumO::kUnit:
         IniUnit(value);
         break;
-    case TreeEnumO::kEmployee: {
+    case NodeEnumO::kEmployee: {
         int employee_index { ui->comboEmployee->findData(value) };
         ui->comboEmployee->setCurrentIndex(employee_index);
         break;
@@ -135,15 +135,15 @@ void InsertNodeOrder::RSyncString(int node_id, int column, const QString& value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumO kColumn { column };
+    const NodeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumO::kDescription:
+    case NodeEnumO::kDescription:
         ui->lineDescription->setText(value);
         break;
-    case TreeEnumO::kDateTime:
+    case NodeEnumO::kDateTime:
         ui->dateTimeEdit->setDateTime(QDateTime::fromString(value, kDateTimeFST));
         break;
     default:
@@ -199,7 +199,7 @@ void InsertNodeOrder::accept()
         node_id_ = node_->id;
 
         if (node_->type == kTypeLeaf)
-            emit SSyncInt(node_id_, std::to_underlying(TreeEnumO::kID), node_id_);
+            emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kID), node_id_);
 
         ui->chkBoxBranch->setEnabled(false);
         ui->pBtnSaveOrder->setEnabled(false);
@@ -375,7 +375,7 @@ void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
         return;
 
     node_->party = party_id;
-    emit SSyncInt(node_id_, std::to_underlying(TreeEnumO::kParty), party_id);
+    emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kParty), party_id);
 
     if (node_id_ == 0) {
         ui->pBtnSaveOrder->setEnabled(true);
@@ -437,7 +437,7 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     sql_->WriteField(info_node_, kFinished, checked, node_id_);
     if (node_->type == kTypeLeaf)
-        emit SSyncBool(node_id_, std::to_underlying(TreeEnumO::kFinished), checked);
+        emit SSyncBool(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
 
     IniFinished(checked);
     LockWidgets(checked, node_->type == kTypeBranch);

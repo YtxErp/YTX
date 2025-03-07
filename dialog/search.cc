@@ -66,49 +66,49 @@ void Search::IniConnect()
 
 void Search::HideTreeColumn(QTableView* view, Section section)
 {
-    view->setColumnHidden(std::to_underlying(TreeEnumSearch::kID), false);
+    view->setColumnHidden(std::to_underlying(NodeSearchEnum::kID), false);
 
     switch (section) {
     case Section::kFinance:
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kParty), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kEmployee), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDateTime), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kColor), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFirst), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kSecond), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDiscount), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinished), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kParty), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kEmployee), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDateTime), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kColor), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kFirst), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kSecond), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kFinished), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDocument), true);
         break;
     case Section::kTask:
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kParty), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kEmployee), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kSecond), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDiscount), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinished), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kParty), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kEmployee), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kSecond), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kFinished), true);
         break;
     case Section::kProduct:
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kParty), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kEmployee), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDateTime), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDiscount), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinished), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kParty), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kEmployee), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDateTime), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kFinished), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDocument), true);
         break;
     case Section::kStakeholder:
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kParty), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kColor), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDiscount), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kFinished), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kInitialTotal), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kParty), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kColor), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kFinished), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kInitialTotal), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDocument), true);
         break;
     case Section::kSales:
     case Section::kPurchase:
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kColor), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kDocument), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kCode), true);
-        view->setColumnHidden(std::to_underlying(TreeEnumSearch::kNote), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kColor), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kDocument), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kCode), true);
+        view->setColumnHidden(std::to_underlying(NodeSearchEnum::kNote), true);
         break;
     default:
         break;
@@ -117,28 +117,28 @@ void Search::HideTreeColumn(QTableView* view, Section section)
 
 void Search::HideTableColumn(QTableView* view, Section section)
 {
-    view->setColumnHidden(std::to_underlying(TableEnumSearch::kID), false);
+    view->setColumnHidden(std::to_underlying(TransSearchEnum::kID), false);
 
     switch (section) {
     case Section::kFinance:
     case Section::kTask:
     case Section::kProduct:
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kSupportID), true);
         break;
     case Section::kStakeholder:
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsDebit), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsCredit), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsRatio), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsDebit), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsCredit), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsDebit), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsCredit), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsRatio), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsDebit), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsCredit), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kDiscount), true);
         break;
     case Section::kPurchase:
     case Section::kSales:
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDateTime), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kDocument), true);
-        view->setColumnHidden(std::to_underlying(TableEnumSearch::kState), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kDateTime), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kDocument), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kState), true);
     default:
         break;
     }
@@ -156,37 +156,37 @@ void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
     view->setModel(model);
 
     auto* unit { new StringMapR(info_.unit_map, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kUnit), unit);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kUnit), unit);
 
     auto* rule { new StringMapR(info_.rule_map, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kRule), rule);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kRule), rule);
 
     auto* total { new DoubleSpinRNoneZero(settings_->amount_decimal, kCoefficient8, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kInitialTotal), total);
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kFinalTotal), total);
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kDiscount), total);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kInitialTotal), total);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kFinalTotal), total);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kDiscount), total);
 
     auto* check { new CheckBoxR(view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kFinished), check);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kFinished), check);
 
     auto* type { new StringMapR(info_.type_map, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kType), type);
+    view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kType), type);
 
-    auto* name { new SearchPathTreeR(tree_, std::to_underlying(TreeEnumSearch::kID), view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kName), name);
+    auto* name { new SearchPathTreeR(tree_, std::to_underlying(NodeSearchEnum::kID), view) };
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kName), name);
 
     if (info_.section == Section::kProduct || info_.section == Section::kTask) {
         auto* color { new ColorR(view) };
-        view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kColor), color);
+        view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kColor), color);
     }
 
     auto* stakeholder { new SearchPathTableR(stakeholder_tree_, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kParty), stakeholder);
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kEmployee), stakeholder);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kParty), stakeholder);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kEmployee), stakeholder);
 
     auto* value { new DoubleSpinRNoneZero(settings_->amount_decimal, kCoefficient8, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kFirst), value);
-    view->setItemDelegateForColumn(std::to_underlying(TreeEnumSearch::kSecond), value);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kFirst), value);
+    view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kSecond), value);
 }
 
 void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
@@ -194,44 +194,44 @@ void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
     view->setModel(model);
 
     auto* value { new DoubleSpinRNoneZero(settings_->amount_decimal, kCoefficient8, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsDebit), value);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsDebit), value);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsCredit), value);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsCredit), value);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDiscount), value);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsDebit), value);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsDebit), value);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsCredit), value);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsCredit), value);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kDiscount), value);
 
     auto* ratio { new DoubleSpinRNoneZero(settings_->common_decimal, kCoefficient8, view) };
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsRatio), ratio);
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsRatio), ratio);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsRatio), ratio);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsRatio), ratio);
 
     if (info_.section == Section::kFinance || info_.section == Section::kTask || info_.section == Section::kProduct) {
         auto* node_name { new SearchPathTableR(tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), node_name);
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsNode), node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), node_name);
     }
 
     if (info_.section == Section::kStakeholder) {
         auto* lhs_node_name { new SearchPathTableR(tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), lhs_node_name);
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kSupportID), lhs_node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsNode), lhs_node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kSupportID), lhs_node_name);
 
         auto* rhs_node_name { new SearchPathTableR(product_tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), rhs_node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), rhs_node_name);
     }
 
     if (info_.section == Section::kSales || info_.section == Section::kPurchase) {
         auto* rhs_node_name { new SearchPathTableR(stakeholder_tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), rhs_node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), rhs_node_name);
 
         auto* lhs_node_name { new SearchPathTableR(product_tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), lhs_node_name);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), lhs_node_name);
 
         auto* support_id { new SearchPathTableR(stakeholder_tree_, view) };
-        view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kSupportID), support_id);
+        view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kSupportID), support_id);
     }
 
     auto* state { new CheckBoxR(view) };
-    view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kState), state);
+    view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kState), state);
 }
 
 void Search::IniView(QTableView* view)
@@ -247,13 +247,13 @@ void Search::IniView(QTableView* view)
 void Search::ResizeTreeColumn(QHeaderView* header)
 {
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(std::to_underlying(TreeEnumSearch::kDescription), QHeaderView::Stretch);
+    header->setSectionResizeMode(std::to_underlying(NodeSearchEnum::kDescription), QHeaderView::Stretch);
 }
 
 void Search::ResizeTableColumn(QHeaderView* header)
 {
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(std::to_underlying(TableEnumSearch::kDescription), QHeaderView::Stretch);
+    header->setSectionResizeMode(std::to_underlying(TransSearchEnum::kDescription), QHeaderView::Stretch);
 }
 
 void Search::RSearch()
@@ -273,15 +273,15 @@ void Search::RSearch()
 
 void Search::RNodeDoubleClicked(const QModelIndex& index)
 {
-    int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
+    int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
     emit SNodeLocation(node_id);
 }
 
 void Search::RTransDoubleClicked(const QModelIndex& index)
 {
-    int lhs_node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kLhsNode)).data().toInt() };
-    int rhs_node_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kRhsNode)).data().toInt() };
-    int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kID)).data().toInt() };
+    int lhs_node_id { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kLhsNode)).data().toInt() };
+    int rhs_node_id { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kRhsNode)).data().toInt() };
+    int trans_id { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kID)).data().toInt() };
 
     switch (info_.section) {
     case Section::kStakeholder:

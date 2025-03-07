@@ -49,19 +49,19 @@ void LeafWidgetO::RSyncBool(int node_id, int column, bool value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumO kColumn { column };
+    const NodeEnumO kColumn { column };
 
-    if (kColumn == TreeEnumO::kFinished)
+    if (kColumn == NodeEnumO::kFinished)
         emit SSyncBool(node_id_, 0, value); // just send to TableModelOrder, thereby set column to 0
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumO::kRule:
+    case NodeEnumO::kRule:
         IniRule(value);
         IniLeafValue();
         break;
-    case TreeEnumO::kFinished:
+    case NodeEnumO::kFinished:
         IniFinished(value);
         LockWidgets(value);
         break;
@@ -75,15 +75,15 @@ void LeafWidgetO::RSyncInt(int node_id, int column, int value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumO kColumn { column };
+    const NodeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumO::kUnit:
+    case NodeEnumO::kUnit:
         IniUnit(value);
         break;
-    case TreeEnumO::kEmployee: {
+    case NodeEnumO::kEmployee: {
         int employee_index { ui->comboEmployee->findData(value) };
         ui->comboEmployee->setCurrentIndex(employee_index);
         break;
@@ -98,15 +98,15 @@ void LeafWidgetO::RSyncString(int node_id, int column, const QString& value)
     if (node_id != node_id_)
         return;
 
-    const TreeEnumO kColumn { column };
+    const NodeEnumO kColumn { column };
 
     SignalBlocker blocker(this);
 
     switch (kColumn) {
-    case TreeEnumO::kDescription:
+    case NodeEnumO::kDescription:
         ui->lineDescription->setText(value);
         break;
-    case TreeEnumO::kDateTime:
+    case NodeEnumO::kDateTime:
         ui->dateTimeEdit->setDateTime(QDateTime::fromString(value, kDateTimeFST));
         break;
     default:
@@ -320,7 +320,7 @@ void LeafWidgetO::on_comboParty_currentIndexChanged(int /*index*/)
 
     node_->party = party_id;
     sql_->WriteField(info_node_, kParty, party_id, node_id_);
-    emit SSyncInt(node_id_, std::to_underlying(TreeEnumO::kParty), party_id);
+    emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kParty), party_id);
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
@@ -412,7 +412,7 @@ void LeafWidgetO::on_pBtnFinishOrder_toggled(bool checked)
 {
     node_->finished = checked;
     sql_->WriteField(info_node_, kFinished, checked, node_id_);
-    emit SSyncBool(node_id_, std::to_underlying(TreeEnumO::kFinished), checked);
+    emit SSyncBool(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
 
     IniFinished(checked);
     LockWidgets(checked);

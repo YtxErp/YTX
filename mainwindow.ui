@@ -242,6 +242,7 @@
    <addaction name="actionCheckReverse"/>
    <addaction name="actionCheckNone"/>
    <addaction name="separator"/>
+   <addaction name="actionStatement"/>
   </widget>
   <action name="actionInsertNode">
    <property name="text">
@@ -420,6 +421,17 @@
    </property>
    <property name="toolTip">
     <string>Export YTX...</string>
+   </property>
+  </action>
+  <action name="actionStatement">
+   <property name="text">
+    <string>Statement</string>
+   </property>
+   <property name="toolTip">
+    <string>Statement...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
  </widget>

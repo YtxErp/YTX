@@ -175,7 +175,7 @@ void TableModel::UpdateAllState(Check state)
         sql_->WriteState(state);
 
         // 刷新视图
-        int column { std::to_underlying(TableEnum::kState) };
+        int column { std::to_underlying(TransEnum::kState) };
         emit dataChanged(index(0, column), index(rowCount() - 1, column));
 
         // 释放 QFutureWatcher

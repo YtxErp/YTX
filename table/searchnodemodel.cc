@@ -45,46 +45,46 @@ QVariant SearchNodeModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* node { node_list_.at(index.row()) };
-    const TreeEnumSearch kColumn { index.column() };
+    const NodeSearchEnum kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumSearch::kName:
+    case NodeSearchEnum::kName:
         return node->name;
-    case TreeEnumSearch::kID:
+    case NodeSearchEnum::kID:
         return node->id;
-    case TreeEnumSearch::kCode:
+    case NodeSearchEnum::kCode:
         return node->code;
-    case TreeEnumSearch::kDescription:
+    case NodeSearchEnum::kDescription:
         return node->description;
-    case TreeEnumSearch::kNote:
+    case NodeSearchEnum::kNote:
         return node->note;
-    case TreeEnumSearch::kRule:
+    case NodeSearchEnum::kRule:
         return node->rule;
-    case TreeEnumSearch::kType:
+    case NodeSearchEnum::kType:
         return node->type;
-    case TreeEnumSearch::kUnit:
+    case NodeSearchEnum::kUnit:
         return node->unit;
-    case TreeEnumSearch::kParty:
+    case NodeSearchEnum::kParty:
         return node->party == 0 ? QVariant() : node->party;
-    case TreeEnumSearch::kEmployee:
+    case NodeSearchEnum::kEmployee:
         return node->employee == 0 ? QVariant() : node->employee;
-    case TreeEnumSearch::kDateTime:
+    case NodeSearchEnum::kDateTime:
         return node->date_time;
-    case TreeEnumSearch::kColor:
+    case NodeSearchEnum::kColor:
         return node->color;
-    case TreeEnumSearch::kDocument:
+    case NodeSearchEnum::kDocument:
         return node->document.isEmpty() ? QVariant() : node->document.size();
-    case TreeEnumSearch::kFirst:
+    case NodeSearchEnum::kFirst:
         return node->first == 0 ? QVariant() : node->first;
-    case TreeEnumSearch::kSecond:
+    case NodeSearchEnum::kSecond:
         return node->second == 0 ? QVariant() : node->second;
-    case TreeEnumSearch::kDiscount:
+    case NodeSearchEnum::kDiscount:
         return node->discount == 0 ? QVariant() : node->discount;
-    case TreeEnumSearch::kFinished:
+    case NodeSearchEnum::kFinished:
         return node->finished ? node->finished : QVariant();
-    case TreeEnumSearch::kInitialTotal:
+    case NodeSearchEnum::kInitialTotal:
         return node->initial_total == 0 ? QVariant() : node->initial_total;
-    case TreeEnumSearch::kFinalTotal:
+    case NodeSearchEnum::kFinalTotal:
         return node->final_total == 0 ? QVariant() : node->final_total;
     default:
         return QVariant();
@@ -105,44 +105,44 @@ void SearchNodeModel::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
-        const TreeEnumSearch kColumn { column };
+        const NodeSearchEnum kColumn { column };
 
         switch (kColumn) {
-        case TreeEnumSearch::kName:
+        case NodeSearchEnum::kName:
             return (order == Qt::AscendingOrder) ? (lhs->name < rhs->name) : (lhs->name > rhs->name);
-        case TreeEnumSearch::kCode:
+        case NodeSearchEnum::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TreeEnumSearch::kDescription:
+        case NodeSearchEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TreeEnumSearch::kNote:
+        case NodeSearchEnum::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
-        case TreeEnumSearch::kRule:
+        case NodeSearchEnum::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
-        case TreeEnumSearch::kType:
+        case NodeSearchEnum::kType:
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
-        case TreeEnumSearch::kUnit:
+        case NodeSearchEnum::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
-        case TreeEnumSearch::kParty:
+        case NodeSearchEnum::kParty:
             return (order == Qt::AscendingOrder) ? (lhs->party < rhs->party) : (lhs->party > rhs->party);
-        case TreeEnumSearch::kEmployee:
+        case NodeSearchEnum::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
-        case TreeEnumSearch::kDateTime:
+        case NodeSearchEnum::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TreeEnumSearch::kColor:
+        case NodeSearchEnum::kColor:
             return (order == Qt::AscendingOrder) ? (lhs->color < rhs->color) : (lhs->color > rhs->color);
-        case TreeEnumSearch::kDocument:
+        case NodeSearchEnum::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
-        case TreeEnumSearch::kFirst:
+        case NodeSearchEnum::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
-        case TreeEnumSearch::kSecond:
+        case NodeSearchEnum::kSecond:
             return (order == Qt::AscendingOrder) ? (lhs->second < rhs->second) : (lhs->second > rhs->second);
-        case TreeEnumSearch::kDiscount:
+        case NodeSearchEnum::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-        case TreeEnumSearch::kFinished:
+        case NodeSearchEnum::kFinished:
             return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
-        case TreeEnumSearch::kFinalTotal:
+        case NodeSearchEnum::kFinalTotal:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
-        case TreeEnumSearch::kInitialTotal:
+        case NodeSearchEnum::kInitialTotal:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
         default:
             return false;

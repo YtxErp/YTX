@@ -17,32 +17,32 @@ QVariant TableModelProduct::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* trans_shadow { trans_shadow_list_.at(index.row()) };
-    const TableEnumP kColumn { index.column() };
+    const TransEnumP kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumP::kID:
+    case TransEnumP::kID:
         return *trans_shadow->id;
-    case TableEnumP::kDateTime:
+    case TransEnumP::kDateTime:
         return *trans_shadow->date_time;
-    case TableEnumP::kCode:
+    case TransEnumP::kCode:
         return *trans_shadow->code;
-    case TableEnumP::kUnitCost:
+    case TransEnumP::kUnitCost:
         return *trans_shadow->lhs_ratio == 0 ? QVariant() : *trans_shadow->lhs_ratio;
-    case TableEnumP::kDescription:
+    case TransEnumP::kDescription:
         return *trans_shadow->description;
-    case TableEnumP::kSupportID:
+    case TransEnumP::kSupportID:
         return *trans_shadow->support_id == 0 ? QVariant() : *trans_shadow->support_id;
-    case TableEnumP::kRhsNode:
+    case TransEnumP::kRhsNode:
         return *trans_shadow->rhs_node == 0 ? QVariant() : *trans_shadow->rhs_node;
-    case TableEnumP::kState:
+    case TransEnumP::kState:
         return *trans_shadow->state ? *trans_shadow->state : QVariant();
-    case TableEnumP::kDocument:
+    case TransEnumP::kDocument:
         return trans_shadow->document->isEmpty() ? QVariant() : trans_shadow->document->size();
-    case TableEnumP::kDebit:
+    case TransEnumP::kDebit:
         return *trans_shadow->lhs_debit == 0 ? QVariant() : *trans_shadow->lhs_debit;
-    case TableEnumP::kCredit:
+    case TransEnumP::kCredit:
         return *trans_shadow->lhs_credit == 0 ? QVariant() : *trans_shadow->lhs_credit;
-    case TableEnumP::kSubtotal:
+    case TransEnumP::kSubtotal:
         return trans_shadow->subtotal;
     default:
         return QVariant();
@@ -54,7 +54,7 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
     if (!index.isValid() || role != Qt::EditRole)
         return false;
 
-    const TableEnumP kColumn { index.column() };
+    const TransEnumP kColumn { index.column() };
     const int kRow { index.row() };
 
     auto* trans_shadow { trans_shadow_list_.at(kRow) };
@@ -67,31 +67,31 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
     bool sup_changed { false };
 
     switch (kColumn) {
-    case TableEnumP::kDateTime:
+    case TransEnumP::kDateTime:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDateTime, value.toString(), &TransShadow::date_time);
         break;
-    case TableEnumP::kCode:
+    case TransEnumP::kCode:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
-    case TableEnumP::kState:
+    case TransEnumP::kState:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
-    case TableEnumP::kDescription:
+    case TransEnumP::kDescription:
         TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
         break;
-    case TableEnumP::kSupportID:
+    case TransEnumP::kSupportID:
         sup_changed = TableModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kSupportID, value.toInt(), &TransShadow::support_id);
         break;
-    case TableEnumP::kUnitCost:
+    case TransEnumP::kUnitCost:
         UpdateRatio(trans_shadow, value.toDouble());
         break;
-    case TableEnumP::kRhsNode:
+    case TransEnumP::kRhsNode:
         rhs_changed = TableModelUtils::UpdateRhsNode(trans_shadow, value.toInt());
         break;
-    case TableEnumP::kDebit:
+    case TransEnumP::kDebit:
         deb_changed = UpdateDebit(trans_shadow, value.toDouble());
         break;
-    case TableEnumP::kCredit:
+    case TransEnumP::kCredit:
         cre_changed = UpdateCredit(trans_shadow, value.toDouble());
         break;
     default:
@@ -102,7 +102,7 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
         sql_->WriteTrans(trans_shadow);
         TableModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
 
-        emit SResizeColumnToContents(std::to_underlying(TableEnumP::kSubtotal));
+        emit SResizeColumnToContents(std::to_underlying(TransEnumP::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
 
         double ratio { *trans_shadow->lhs_ratio };
@@ -135,7 +135,7 @@ bool TableModelProduct::setData(const QModelIndex& index, const QVariant& value,
 
         emit SSearch();
         emit SUpdateBalance(info_.section, old_rhs_node, *trans_shadow->id);
-        emit SResizeColumnToContents(std::to_underlying(TableEnumP::kSubtotal));
+        emit SResizeColumnToContents(std::to_underlying(TransEnumP::kSubtotal));
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
@@ -160,28 +160,28 @@ void TableModelProduct::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {
-        const TableEnumP kColumn { column };
+        const TransEnumP kColumn { column };
 
         switch (kColumn) {
-        case TableEnumP::kDateTime:
+        case TransEnumP::kDateTime:
             return (order == Qt::AscendingOrder) ? (*lhs->date_time < *rhs->date_time) : (*lhs->date_time > *rhs->date_time);
-        case TableEnumP::kCode:
+        case TransEnumP::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
-        case TableEnumP::kUnitCost:
+        case TransEnumP::kUnitCost:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_ratio < *rhs->lhs_ratio) : (*lhs->lhs_ratio > *rhs->lhs_ratio);
-        case TableEnumP::kDescription:
+        case TransEnumP::kDescription:
             return (order == Qt::AscendingOrder) ? (*lhs->description < *rhs->description) : (*lhs->description > *rhs->description);
-        case TableEnumP::kSupportID:
+        case TransEnumP::kSupportID:
             return (order == Qt::AscendingOrder) ? (*lhs->support_id < *rhs->support_id) : (*lhs->support_id > *rhs->support_id);
-        case TableEnumP::kRhsNode:
+        case TransEnumP::kRhsNode:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_node < *rhs->rhs_node) : (*lhs->rhs_node > *rhs->rhs_node);
-        case TableEnumP::kState:
+        case TransEnumP::kState:
             return (order == Qt::AscendingOrder) ? (*lhs->state < *rhs->state) : (*lhs->state > *rhs->state);
-        case TableEnumP::kDocument:
+        case TransEnumP::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document->size() < rhs->document->size()) : (lhs->document->size() > rhs->document->size());
-        case TableEnumP::kDebit:
+        case TransEnumP::kDebit:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_debit < *rhs->lhs_debit) : (*lhs->lhs_debit > *rhs->lhs_debit);
-        case TableEnumP::kCredit:
+        case TransEnumP::kCredit:
             return (order == Qt::AscendingOrder) ? (*lhs->lhs_credit < *rhs->lhs_credit) : (*lhs->lhs_credit > *rhs->lhs_credit);
         default:
             return false;
@@ -201,13 +201,13 @@ Qt::ItemFlags TableModelProduct::flags(const QModelIndex& index) const
         return Qt::NoItemFlags;
 
     auto flags { QAbstractItemModel::flags(index) };
-    const TableEnumP kColumn { index.column() };
+    const TransEnumP kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumP::kID:
-    case TableEnumP::kSubtotal:
-    case TableEnumP::kDocument:
-    case TableEnumP::kState:
+    case TransEnumP::kID:
+    case TransEnumP::kSubtotal:
+    case TransEnumP::kDocument:
+    case TransEnumP::kState:
         flags &= ~Qt::ItemIsEditable;
         break;
     default:

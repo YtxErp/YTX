@@ -21,7 +21,7 @@ void TreeModelOrder::RUpdateLeafValue(int node_id, double initial_delta, double 
     sql_->WriteLeafValue(node);
 
     auto index { GetIndex(node->id) };
-    emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumO::kNetAmount)));
+    emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kNetAmount)));
 
     if (node->finished) {
         UpdateAncestorValue(node, initial_delta, final_delta, first_delta, second_delta, discount_delta);
@@ -43,7 +43,7 @@ void TreeModelOrder::RUpdateStakeholder(int old_node_id, int new_node_id)
 
 void TreeModelOrder::RSyncBool(int node_id, int column, bool value)
 {
-    if (column != std::to_underlying(TreeEnumO::kFinished))
+    if (column != std::to_underlying(NodeEnumO::kFinished))
         return;
 
     auto it { node_hash_.constFind(node_id) };
@@ -57,7 +57,7 @@ void TreeModelOrder::RSyncBool(int node_id, int column, bool value)
         coefficient * node->discount);
 
     if (node->unit == std::to_underlying(UnitO::kMS))
-        emit SSyncDouble(node->party, std::to_underlying(TreeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
+        emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
 }
 
 void TreeModelOrder::UpdateTree(const QDate& start_date, const QDate& end_date)
@@ -138,7 +138,7 @@ bool TreeModelOrder::UpdateRuleFPTO(Node* node, bool value)
     node->final_total = -node->final_total;
 
     auto index { GetIndex(node->id) };
-    emit dataChanged(index.siblingAtColumn(std::to_underlying(TreeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(TreeEnumO::kNetAmount)));
+    emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kNetAmount)));
 
     sql_->WriteLeafValue(node);
     return true;
@@ -169,7 +169,7 @@ bool TreeModelOrder::UpdateUnit(Node* node, int value)
     sql_->WriteField(info_.node, kUnit, value, node->id);
     sql_->WriteField(info_.node, kNetAmount, node->final_total, node->id);
 
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumO::kNetAmount));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kNetAmount));
     return true;
 }
 
@@ -184,9 +184,9 @@ bool TreeModelOrder::UpdateFinished(Node* node, bool value)
         coefficient * node->discount);
 
     node->finished = value;
-    emit SSyncBool(node->id, std::to_underlying(TreeEnumO::kFinished), value);
+    emit SSyncBool(node->id, std::to_underlying(NodeEnumO::kFinished), value);
     if (node->unit == std::to_underlying(UnitO::kMS))
-        emit SSyncDouble(node->party, std::to_underlying(TreeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
+        emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
     sql_->WriteField(info_.node, kFinished, value, node->id);
     return true;
 }
@@ -196,7 +196,7 @@ bool TreeModelOrder::UpdateNameFunction(Node* node, CString& value)
     node->name = value;
     sql_->WriteField(info_.node, kName, value, node->id);
 
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumO::kName));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kName));
     emit SSearch();
     return true;
 }
@@ -228,8 +228,8 @@ bool TreeModelOrder::UpdateAncestorValue(Node* node, double initial_delta, doubl
         return false;
 
     const int kUnit { node->unit };
-    const int kColumnBegin { std::to_underlying(TreeEnumO::kFirst) };
-    int column_end { std::to_underlying(TreeEnumO::kNetAmount) };
+    const int kColumnBegin { std::to_underlying(NodeEnumO::kFirst) };
+    int column_end { std::to_underlying(NodeEnumO::kNetAmount) };
 
     // 确定需要更新的列范围
     if (initial_delta == 0.0 && final_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
@@ -261,35 +261,35 @@ void TreeModelOrder::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
-        const TreeEnumO kColumn { column };
+        const NodeEnumO kColumn { column };
         switch (kColumn) {
-        case TreeEnumO::kName:
+        case NodeEnumO::kName:
             return (order == Qt::AscendingOrder) ? (lhs->name < rhs->name) : (lhs->name > rhs->name);
-        case TreeEnumO::kDescription:
+        case NodeEnumO::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TreeEnumO::kRule:
+        case NodeEnumO::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
-        case TreeEnumO::kType:
+        case NodeEnumO::kType:
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
-        case TreeEnumO::kUnit:
+        case NodeEnumO::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
-        case TreeEnumO::kParty:
+        case NodeEnumO::kParty:
             return (order == Qt::AscendingOrder) ? (lhs->party < rhs->party) : (lhs->party > rhs->party);
-        case TreeEnumO::kEmployee:
+        case NodeEnumO::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
-        case TreeEnumO::kDateTime:
+        case NodeEnumO::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TreeEnumO::kFirst:
+        case NodeEnumO::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
-        case TreeEnumO::kSecond:
+        case NodeEnumO::kSecond:
             return (order == Qt::AscendingOrder) ? (lhs->second < rhs->second) : (lhs->second > rhs->second);
-        case TreeEnumO::kDiscount:
+        case NodeEnumO::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-        case TreeEnumO::kFinished:
+        case NodeEnumO::kFinished:
             return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
-        case TreeEnumO::kGrossAmount:
+        case NodeEnumO::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
-        case TreeEnumO::kNetAmount:
+        case NodeEnumO::kNetAmount:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -343,7 +343,7 @@ bool TreeModelOrder::RemoveNode(int row, const QModelIndex& parent)
             UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
 
             if (node->unit == std::to_underlying(UnitO::kMS))
-                emit SSyncDouble(node->party, std::to_underlying(TreeEnumS::kAmount), node->discount - node->initial_total);
+                emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), node->discount - node->initial_total);
         }
         break;
     default:
@@ -351,7 +351,7 @@ bool TreeModelOrder::RemoveNode(int row, const QModelIndex& parent)
     }
 
     emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumO::kName));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kName));
 
     ResourcePool<Node>::Instance().Recycle(node);
     node_hash_.remove(node->id);
@@ -368,39 +368,39 @@ QVariant TreeModelOrder::data(const QModelIndex& index, int role) const
     if (node == root_)
         return QVariant();
 
-    const TreeEnumO kColumn { index.column() };
+    const NodeEnumO kColumn { index.column() };
     bool branch { node->type == kTypeBranch };
 
     switch (kColumn) {
-    case TreeEnumO::kName:
+    case NodeEnumO::kName:
         return node->name;
-    case TreeEnumO::kID:
+    case NodeEnumO::kID:
         return node->id;
-    case TreeEnumO::kDescription:
+    case NodeEnumO::kDescription:
         return node->description;
-    case TreeEnumO::kRule:
+    case NodeEnumO::kRule:
         return branch ? -1 : node->rule;
-    case TreeEnumO::kType:
+    case NodeEnumO::kType:
         return branch ? node->type : QVariant();
-    case TreeEnumO::kUnit:
+    case NodeEnumO::kUnit:
         return node->unit;
-    case TreeEnumO::kParty:
+    case NodeEnumO::kParty:
         return node->party == 0 ? QVariant() : node->party;
-    case TreeEnumO::kEmployee:
+    case NodeEnumO::kEmployee:
         return node->employee == 0 ? QVariant() : node->employee;
-    case TreeEnumO::kDateTime:
+    case NodeEnumO::kDateTime:
         return branch || node->date_time.isEmpty() ? QVariant() : node->date_time;
-    case TreeEnumO::kFirst:
+    case NodeEnumO::kFirst:
         return node->first == 0 ? QVariant() : node->first;
-    case TreeEnumO::kSecond:
+    case NodeEnumO::kSecond:
         return node->second == 0 ? QVariant() : node->second;
-    case TreeEnumO::kDiscount:
+    case NodeEnumO::kDiscount:
         return node->discount == 0 ? QVariant() : node->discount;
-    case TreeEnumO::kFinished:
+    case NodeEnumO::kFinished:
         return !branch && node->finished ? node->finished : QVariant();
-    case TreeEnumO::kGrossAmount:
+    case NodeEnumO::kGrossAmount:
         return node->initial_total;
-    case TreeEnumO::kNetAmount:
+    case NodeEnumO::kNetAmount:
         return node->final_total;
     default:
         return QVariant();
@@ -416,33 +416,33 @@ bool TreeModelOrder::setData(const QModelIndex& index, const QVariant& value, in
     if (node == root_)
         return false;
 
-    const TreeEnumO kColumn { index.column() };
+    const NodeEnumO kColumn { index.column() };
 
     switch (kColumn) {
-    case TreeEnumO::kDescription:
+    case NodeEnumO::kDescription:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
         emit SSyncString(node->id, index.column(), value.toString());
         break;
-    case TreeEnumO::kRule:
+    case NodeEnumO::kRule:
         UpdateRuleFPTO(node, value.toBool());
         emit SSyncBool(node->id, index.column(), value.toBool());
         break;
-    case TreeEnumO::kUnit:
+    case NodeEnumO::kUnit:
         UpdateUnit(node, value.toInt());
         emit SSyncInt(node->id, index.column(), value.toInt());
         break;
-    case TreeEnumO::kParty:
+    case NodeEnumO::kParty:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kParty, &Node::party);
         break;
-    case TreeEnumO::kEmployee:
+    case NodeEnumO::kEmployee:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee);
         emit SSyncInt(node->id, index.column(), value.toInt());
         break;
-    case TreeEnumO::kDateTime:
+    case NodeEnumO::kDateTime:
         TreeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDateTime, &Node::date_time);
         emit SSyncString(node->id, index.column(), value.toString());
         break;
-    case TreeEnumO::kFinished:
+    case NodeEnumO::kFinished:
         UpdateFinished(node, value.toBool());
         break;
     default:
@@ -460,24 +460,24 @@ Qt::ItemFlags TreeModelOrder::flags(const QModelIndex& index) const
 
     auto flags { QAbstractItemModel::flags(index) };
 
-    const TreeEnumO kColumn { index.column() };
+    const NodeEnumO kColumn { index.column() };
     switch (kColumn) {
-    case TreeEnumO::kName:
+    case NodeEnumO::kName:
         flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
         break;
-    case TreeEnumO::kDescription:
-    case TreeEnumO::kUnit:
-    case TreeEnumO::kDateTime:
-    case TreeEnumO::kRule:
-    case TreeEnumO::kEmployee:
+    case NodeEnumO::kDescription:
+    case NodeEnumO::kUnit:
+    case NodeEnumO::kDateTime:
+    case NodeEnumO::kRule:
+    case NodeEnumO::kEmployee:
         flags |= Qt::ItemIsEditable;
         break;
     default:
         break;
     }
 
-    const bool non_editable { index.siblingAtColumn(std::to_underlying(TreeEnumO::kType)).data().toBool()
-        || index.siblingAtColumn(std::to_underlying(TreeEnumO::kFinished)).data().toBool() };
+    const bool non_editable { index.siblingAtColumn(std::to_underlying(NodeEnumO::kType)).data().toBool()
+        || index.siblingAtColumn(std::to_underlying(NodeEnumO::kFinished)).data().toBool() };
 
     if (non_editable)
         flags &= ~Qt::ItemIsEditable;
@@ -525,7 +525,7 @@ bool TreeModelOrder::dropMimeData(const QMimeData* data, Qt::DropAction action, 
     }
 
     sql_->DragNode(destination_parent->id, node_id);
-    emit SResizeColumnToContents(std::to_underlying(TreeEnumO::kName));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kName));
 
     return true;
 }

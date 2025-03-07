@@ -32,7 +32,7 @@ QString DoubleSpinUnitRPS::Format(const QModelIndex& index) const
 
 bool DoubleSpinUnitRPS::editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    const bool leaf { index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() == kTypeLeaf };
+    const bool leaf { index.siblingAtColumn(std::to_underlying(NodeEnum::kType)).data().toInt() == kTypeLeaf };
 
     if (leaf && event->type() == QEvent::MouseButtonDblClick && option.rect.contains(static_cast<QMouseEvent*>(event)->pos()))
         emit STransRef(index);

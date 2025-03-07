@@ -220,7 +220,7 @@ void MainWindow::on_actionInsertNode_triggered()
     auto parent_index { current_index.parent() };
     parent_index = parent_index.isValid() ? parent_index : QModelIndex();
 
-    const int parent_id { parent_index.isValid() ? parent_index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() : -1 };
+    const int parent_id { parent_index.isValid() ? parent_index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() : -1 };
     InsertNodeFunction(parent_index, parent_id, current_index.row() + 1);
 }
 
@@ -229,11 +229,11 @@ void MainWindow::RTreeViewDoubleClicked(const QModelIndex& index)
     if (index.column() != 0)
         return;
 
-    const int type { index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() };
+    const int type { index.siblingAtColumn(std::to_underlying(NodeEnum::kType)).data().toInt() };
     if (type == kTypeBranch)
         return;
 
-    const int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
     if (node_id <= 0)
         return;
 
@@ -359,8 +359,8 @@ void MainWindow::RSectionGroup(int id)
 
 void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
 {
-    const int kNodeID { index.siblingAtColumn(std::to_underlying(TableEnumRefFetcher::kLhsNode)).data().toInt() };
-    const int kColumn { std::to_underlying(TableEnumRefFetcher::kNetAmount) };
+    const int kNodeID { index.siblingAtColumn(std::to_underlying(TransRefEnum::kOrderNode)).data().toInt() };
+    const int kColumn { std::to_underlying(TransRefEnum::kNetAmount) };
 
     if (kNodeID <= 0 || index.column() != kColumn)
         return;
@@ -387,7 +387,7 @@ void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
         return;
 
     view->setCurrentIndex(index);
-    view->scrollTo(index.siblingAtColumn(std::to_underlying(TableEnum::kDateTime)), QAbstractItemView::PositionAtCenter);
+    view->scrollTo(index.siblingAtColumn(std::to_underlying(TransEnum::kDateTime)), QAbstractItemView::PositionAtCenter);
     view->closePersistentEditor(index);
 }
 
@@ -439,7 +439,7 @@ void MainWindow::CreateLeafFPTS(PTreeModel tree_model, LeafWgtHash* leaf_wgt_has
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnum::kDescription));
+    SetTableView(view, std::to_underlying(TransEnum::kDescription));
     DelegateFPTS(view, tree_model, settings);
 
     switch (section) {
@@ -482,11 +482,11 @@ void MainWindow::CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, 
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnumSearch::kDescription));
+    SetTableView(view, std::to_underlying(TransSearchEnum::kDescription));
     DelegateSupport(view, tree_model, settings);
 
-    view->setColumnHidden(std::to_underlying(TableEnumSearch::kSupportID), true);
-    view->setColumnHidden(std::to_underlying(TableEnumSearch::kDiscount), true);
+    view->setColumnHidden(std::to_underlying(TransSearchEnum::kSupportID), true);
+    view->setColumnHidden(std::to_underlying(TransSearchEnum::kDiscount), true);
 
     switch (section) {
     case Section::kStakeholder:
@@ -531,13 +531,15 @@ void MainWindow::CreateLeafO(PTreeModel tree_model, LeafWgtHash* leaf_wgt_hash, 
     tab_bar->setTabToolTip(tab_index, stakeholder_tree_->Model()->GetPath(party_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnumO::kDescription));
+    SetTableView(view, std::to_underlying(TransEnumO::kDescription));
 
     TableConnectO(view, model, tree_model, widget);
     DelegateO(view, settings);
 
     leaf_wgt_hash->insert(node_id, widget);
 }
+
+void MainWindow::on_actionStatement_triggered() { }
 
 void MainWindow::TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
 {
@@ -591,80 +593,80 @@ void MainWindow::TableConnectS(PTableView table_view, PTableModel table_model, P
 void MainWindow::DelegateFPTS(PTableView table_view, PTreeModel tree_model, CSettings* settings) const
 {
     auto* date_time { new TableDateTime(settings->date_format, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kDateTime), date_time);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kDateTime), date_time);
 
     auto* line { new Line(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kDescription), line);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kCode), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kDescription), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kCode), line);
 
     auto* state { new CheckBox(QEvent::MouseButtonRelease, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kState), state);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kState), state);
 
     auto* document { new Document(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kDocument), document);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kDocument), document);
     connect(document, &Document::SEditDocument, this, &MainWindow::REditTransDocument);
 
     auto* lhs_ratio { new DoubleSpin(settings->common_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kLhsRatio), lhs_ratio);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kLhsRatio), lhs_ratio);
 
     auto* support_node { new SupportID(tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnum::kSupportID), support_node);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnum::kSupportID), support_node);
 }
 
 void MainWindow::DelegateFPT(PTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const
 {
     auto* value { new DoubleSpin(
         settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kDebit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kCredit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumF::kDebit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumF::kCredit), value);
 
     auto* subtotal { new DoubleSpinR(settings->common_decimal, kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kSubtotal), subtotal);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumF::kSubtotal), subtotal);
 
     auto* filter_model { new SortFilterProxyModel(node_id, table_view) };
     filter_model->setSourceModel(tree_model->LeafModel());
 
     auto* node { new TableCombo(tree_model, filter_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumF::kRhsNode), node);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumF::kRhsNode), node);
 }
 
 void MainWindow::DelegateS(PTableView table_view) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
     auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumS::kInsideProduct), inside_product);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumS::kInsideProduct), inside_product);
 }
 
 void MainWindow::DelegateO(PTableView table_view, CSettings* settings) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
     auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kInsideProduct), inside_product);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kInsideProduct), inside_product);
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
     auto* support_node { new SupportID(stakeholder_tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kOutsideProduct), support_node);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kOutsideProduct), support_node);
 
     auto* color { new ColorR(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kColor), color);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kColor), color);
 
     auto* line { new Line(table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kDescription), line);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kCode), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kDescription), line);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kCode), line);
 
     auto* price { new DoubleSpin(settings->amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kUnitPrice), price);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kDiscountPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kUnitPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kDiscountPrice), price);
 
     auto* quantity { new DoubleSpin(
         settings->common_decimal, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kFirst), quantity);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kSecond), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kSecond), quantity);
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kGrossAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumO::kNetAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kDiscount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kNetAmount), amount);
 }
 
 void MainWindow::CreateSection(TreeWidget* tree_widget, LeafWgtHash& leaf_wgt_hash, CData& data, CSettings& settings, CString& name)
@@ -725,121 +727,121 @@ void MainWindow::SetDelegate(PTreeView tree_view, CInfo& info, CSettings& settin
 void MainWindow::DelegateFPTSO(PTreeView tree_view, CInfo& info) const
 {
     auto* line { new Line(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kCode), line);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kDescription), line);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kCode), line);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kDescription), line);
 
     auto* plain_text { new TreePlainText(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kNote), plain_text);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kNote), plain_text);
 
     auto* rule { new TreeCombo(info.rule_map, info.rule_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kRule), rule);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kRule), rule);
 
     auto* unit { new TreeCombo(info.unit_map, info.unit_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kUnit), unit);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kUnit), unit);
 
     auto* type { new TreeCombo(info.type_map, info.type_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnum::kType), type);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kType), type);
 }
 
 void MainWindow::DelegateF(PTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* final_total { new DoubleSpinUnitR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumF::kLocalTotal), final_total);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumF::kLocalTotal), final_total);
 
     auto* initial_total { new FinanceForeignR(settings.amount_decimal, settings.default_unit, info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumF::kForeignTotal), initial_total);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumF::kForeignTotal), initial_total);
 }
 
 void MainWindow::DelegateT(PTreeView tree_view, CSettings& settings) const
 {
     auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kQuantity), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kQuantity), quantity);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kAmount), amount);
 
     auto* unit_cost { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kUnitCost), unit_cost);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kUnitCost), unit_cost);
 
     auto* color { new Color(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kColor), color);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kColor), color);
 
     auto* date_time { new TreeDateTime(settings.date_format, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kDateTime), date_time);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kDateTime), date_time);
 
     auto* finished { new CheckBox(QEvent::MouseButtonDblClick, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kFinished), finished);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kFinished), finished);
 
     auto* document { new Document(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumT::kDocument), document);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumT::kDocument), document);
     connect(document, &Document::SEditDocument, this, &MainWindow::REditNodeDocument);
 }
 
 void MainWindow::DelegateP(PTreeView tree_view, CSettings& settings) const
 {
     auto* quantity { new DoubleSpinR(settings.common_decimal, kCoefficient16, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kQuantity), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kQuantity), quantity);
 
     auto* amount { new DoubleSpinUnitRPS(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kAmount), amount);
     connect(amount, &DoubleSpinUnitRPS::STransRef, this, &MainWindow::RTransRef);
 
     auto* unit_price { new DoubleSpin(settings.amount_decimal, 0, std::numeric_limits<double>::max(), kCoefficient8, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kUnitPrice), unit_price);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kCommission), unit_price);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kUnitPrice), unit_price);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kCommission), unit_price);
 
     auto* color { new Color(tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumP::kColor), color);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kColor), color);
 }
 
 void MainWindow::DelegateS(PTreeView tree_view, CSettings& settings) const
 {
     auto* amount { new DoubleSpinUnitRPS(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kAmount), amount);
     connect(amount, &DoubleSpinUnitRPS::STransRef, this, &MainWindow::RTransRef);
 
     auto* payment_term { new Spin(0, std::numeric_limits<int>::max(), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kPaymentTerm), payment_term);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kPaymentTerm), payment_term);
 
     auto* tax_rate { new TaxRate(settings.amount_decimal, 0.0, std::numeric_limits<double>::max(), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kTaxRate), tax_rate);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kTaxRate), tax_rate);
 
     auto* deadline { new TreeDateTime(kDD, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kDeadline), deadline);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kDeadline), deadline);
 
     auto* employee { new SpecificUnit(stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModelPS(std::to_underlying(UnitS::kEmp)), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumS::kEmployee), employee);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kEmployee), employee);
 }
 
 void MainWindow::DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings) const
 {
     auto* rule { new TreeCombo(info.rule_map, info.rule_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kRule), rule);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kRule), rule);
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kGrossAmount), amount);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kNetAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kGrossAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kNetAmount), amount);
 
     auto* discount { new DoubleSpinUnitRNoneZero(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kDiscount), discount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDiscount), discount);
 
     auto* quantity { new DoubleSpinRNoneZero(settings.common_decimal, kCoefficient16, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kSecond), quantity);
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kFirst), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kSecond), quantity);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kFirst), quantity);
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
 
     auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModelPS(std::to_underlying(UnitS::kEmp)), tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kEmployee), employee);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kEmployee), employee);
 
     auto* name { new OrderNameR(stakeholder_tree_model, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kName), name);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kName), name);
 
     auto* date_time { new TreeDateTime(settings.date_format, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kDateTime), date_time);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDateTime), date_time);
 
     auto* finished { new CheckBox(QEvent::MouseButtonDblClick, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(TreeEnumO::kFinished), finished);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kFinished), finished);
 }
 
 void MainWindow::TreeConnect(TreeWidget* tree_widget, const Sqlite* sql) const
@@ -909,8 +911,8 @@ void MainWindow::RemoveNode(TreeWidget* tree_widget)
     if (!model)
         return;
 
-    const int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
-    const int node_type { index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
+    const int node_type { index.siblingAtColumn(std::to_underlying(NodeEnum::kType)).data().toInt() };
 
     if (node_type == kTypeBranch) {
         RemoveBranch(model, index, node_id);
@@ -927,7 +929,7 @@ void MainWindow::RemoveNode(TreeWidget* tree_widget)
         return;
     }
 
-    const int unit { index.siblingAtColumn(std::to_underlying(TreeEnum::kUnit)).data().toInt() };
+    const int unit { index.siblingAtColumn(std::to_underlying(NodeEnum::kUnit)).data().toInt() };
 
     auto* dialog { new class RemoveNode(model, start_, node_id, node_type, unit, exteral_reference, this) };
     connect(dialog, &RemoveNode::SRemoveNode, sql, &Sqlite::RRemoveNode);
@@ -1015,6 +1017,7 @@ void MainWindow::EnableAction(bool enable) const
     ui->actionAppendTrans->setEnabled(enable);
     ui->actionExportExcel->setEnabled(enable);
     ui->actionExportYTX->setEnabled(enable);
+    ui->actionStatement->setEnabled(enable);
 }
 
 QStandardItemModel* MainWindow::CreateModelFromList(QStringList& list, QObject* parent)
@@ -1210,7 +1213,7 @@ void MainWindow::SetTableView(PTableView view, int stretch_column) const
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setAlternatingRowColors(true);
     view->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::CurrentChanged);
-    view->setColumnHidden(std::to_underlying(TableEnum::kID), false);
+    view->setColumnHidden(std::to_underlying(TransEnum::kID), false);
 
     auto* h_header { view->horizontalHeader() };
     ResizeColumn(h_header, stretch_column);
@@ -1222,30 +1225,30 @@ void MainWindow::SetTableView(PTableView view, int stretch_column) const
 
     view->scrollToBottom();
     view->setCurrentIndex(QModelIndex());
-    view->sortByColumn(std::to_underlying(TableEnum::kDateTime), Qt::AscendingOrder); // will run function: AccumulateSubtotal while sorting
+    view->sortByColumn(std::to_underlying(TransEnum::kDateTime), Qt::AscendingOrder); // will run function: AccumulateSubtotal while sorting
 }
 
 void MainWindow::DelegateSupport(PTableView table_view, PTreeModel tree_model, CSettings* settings) const
 {
     auto* date_time { new TableDateTime(settings->date_format, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kDateTime), date_time);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kDateTime), date_time);
 
     auto* state { new CheckBox(QEvent::MouseButtonRelease, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kState), state);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kState), state);
 
     auto* value { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsDebit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsDebit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsCredit), value);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsCredit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsDebit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsDebit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsCredit), value);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsCredit), value);
 
     auto* ratio { new DoubleSpinRNoneZero(settings->common_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsRatio), ratio);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsRatio), ratio);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsRatio), ratio);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsRatio), ratio);
 
     auto* node_name { new SearchPathTableR(tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), node_name);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsNode), node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), node_name);
 }
 
 void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id)
@@ -1268,7 +1271,7 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
     tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
 
     auto view { widget->View() };
-    SetTableView(view, std::to_underlying(TableEnumRefFetcher::kDescription));
+    SetTableView(view, std::to_underlying(TransRefEnum::kDescription));
     DelegateTransRef(view, &sales_settings_);
     connect(view, &QTableView::doubleClicked, this, &MainWindow::RTransRefDoubleClicked);
 
@@ -1278,51 +1281,51 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
 void MainWindow::DelegateTransRef(PTableView table_view, CSettings* settings) const
 {
     auto* price { new DoubleSpinR(settings->amount_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kUnitPrice), price);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDiscountPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kUnitPrice), price);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kDiscountPrice), price);
 
     auto* quantity { new DoubleSpinR(settings->common_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kFirst), quantity);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kSecond), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kSecond), quantity);
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kGrossAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kNetAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kDiscount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kNetAmount), amount);
 
     auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kDateTime), date_time);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kDateTime), date_time);
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
     auto* outside_product { new NodePathR(stakeholder_tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kOutsideProduct), outside_product);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kOutsideProduct), outside_product);
 
     if (start_ == Section::kProduct) {
         auto* name { new NodeNameR(stakeholder_tree_model, table_view) };
-        table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kParty), name);
+        table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kPP), name);
     }
 
     if (start_ == Section::kStakeholder) {
         auto* inside_product { new NodeNameR(product_tree_->Model(), table_view) };
-        table_view->setItemDelegateForColumn(std::to_underlying(TableEnumRefFetcher::kParty), inside_product);
+        table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kPP), inside_product);
     }
 }
 
 void MainWindow::DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const
 {
     auto* lhs_node_name { new SearchPathTableR(tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kLhsNode), lhs_node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsNode), lhs_node_name);
 
     auto* rhs_node_name { new SearchPathTableR(product_tree_model, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(TableEnumSearch::kRhsNode), rhs_node_name);
+    table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), rhs_node_name);
 }
 
 void MainWindow::SetSupportViewS(PTableView table_view) const
 {
-    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsDebit), true);
-    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsDebit), true);
-    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kLhsCredit), true);
-    table_view->setColumnHidden(std::to_underlying(TableEnumSearch::kRhsCredit), true);
+    table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsDebit), true);
+    table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsDebit), true);
+    table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsCredit), true);
+    table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsCredit), true);
 }
 
 void MainWindow::SetConnect() const
@@ -1605,9 +1608,9 @@ void MainWindow::SetAction() const
 
 void MainWindow::SetTreeView(PTreeView tree_view, CInfo& info) const
 {
-    tree_view->setColumnHidden(std::to_underlying(TreeEnum::kID), false);
+    tree_view->setColumnHidden(std::to_underlying(NodeEnum::kID), false);
     if (info.section == Section::kSales || info.section == Section::kPurchase)
-        tree_view->setColumnHidden(std::to_underlying(TreeEnumO::kParty), false);
+        tree_view->setColumnHidden(std::to_underlying(NodeEnumO::kParty), false);
 
     tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
     tree_view->setDragDropMode(QAbstractItemView::InternalMove);
@@ -1618,7 +1621,7 @@ void MainWindow::SetTreeView(PTreeView tree_view, CInfo& info) const
     tree_view->setExpandsOnDoubleClick(true);
 
     auto* header { tree_view->header() };
-    ResizeColumn(header, std::to_underlying(TreeEnum::kDescription));
+    ResizeColumn(header, std::to_underlying(NodeEnum::kDescription));
     header->setStretchLastSection(false);
     header->setDefaultAlignment(Qt::AlignCenter);
 }
@@ -1636,11 +1639,11 @@ void MainWindow::on_actionAppendNode_triggered()
     if (!parent_index.isValid())
         return;
 
-    const int type { parent_index.siblingAtColumn(std::to_underlying(TreeEnum::kType)).data().toInt() };
+    const int type { parent_index.siblingAtColumn(std::to_underlying(NodeEnum::kType)).data().toInt() };
     if (type != kTypeBranch)
         return;
 
-    const int parent_id { parent_index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
+    const int parent_id { parent_index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
     InsertNodeFunction(parent_index, parent_id, 0);
 }
 
@@ -1662,14 +1665,14 @@ void MainWindow::on_actionJump_triggered()
         return;
 
     int row { index.row() };
-    const int rhs_node_id { index.sibling(row, std::to_underlying(TableEnum::kRhsNode)).data().toInt() };
+    const int rhs_node_id { index.sibling(row, std::to_underlying(TransEnum::kRhsNode)).data().toInt() };
     if (rhs_node_id == 0)
         return;
 
     if (!leaf_wgt_hash_->contains(rhs_node_id))
         CreateLeafFPTS(tree_widget_->Model(), leaf_wgt_hash_, data_, settings_, rhs_node_id);
 
-    const int trans_id { index.sibling(row, std::to_underlying(TableEnum::kID)).data().toInt() };
+    const int trans_id { index.sibling(row, std::to_underlying(TransEnum::kID)).data().toInt() };
     SwitchToLeaf(rhs_node_id, trans_id);
 }
 
@@ -1712,7 +1715,7 @@ void MainWindow::SwitchToSupport(int node_id, int trans_id) const
         return;
 
     view->setCurrentIndex(index);
-    view->scrollTo(index.siblingAtColumn(std::to_underlying(TableEnumS::kDateTime)), QAbstractItemView::PositionAtCenter);
+    view->scrollTo(index.siblingAtColumn(std::to_underlying(TransEnumS::kDateTime)), QAbstractItemView::PositionAtCenter);
     view->closePersistentEditor(index);
 }
 
@@ -1733,7 +1736,7 @@ void MainWindow::LeafToSupport(LeafWidget* widget)
     if (!model)
         return;
 
-    const int id { index.siblingAtColumn(std::to_underlying(TableEnum::kSupportID)).data().toInt() };
+    const int id { index.siblingAtColumn(std::to_underlying(TransEnum::kSupportID)).data().toInt() };
 
     if (id <= 0)
         return;
@@ -1742,7 +1745,7 @@ void MainWindow::LeafToSupport(LeafWidget* widget)
         CreateSupport(tree_widget_->Model(), sup_wgt_hash_, data_, settings_, id);
     }
 
-    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnum::kID)).data().toInt() };
+    const int trans_id { index.siblingAtColumn(std::to_underlying(TransEnum::kID)).data().toInt() };
     SwitchToSupport(id, trans_id);
 }
 
@@ -1763,13 +1766,13 @@ void MainWindow::SupportToLeaf(SupportWidget* widget)
     if (!model)
         return;
 
-    const int rhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kRhsNode)).data().toInt() };
-    const int lhs_node { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kLhsNode)).data().toInt() };
+    const int rhs_node { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kRhsNode)).data().toInt() };
+    const int lhs_node { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kLhsNode)).data().toInt() };
 
     if (rhs_node == 0 || lhs_node == 0)
         return;
 
-    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnumSearch::kID)).data().toInt() };
+    const int trans_id { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kID)).data().toInt() };
 
     RTransLocation(trans_id, lhs_node, rhs_node);
 }
@@ -1803,7 +1806,7 @@ void MainWindow::on_actionEditNode_triggered()
     if (!index.isValid())
         return;
 
-    const int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
     EditNodeFPTS(index, node_id);
 }
 
@@ -1812,7 +1815,7 @@ void MainWindow::EditNodeFPTS(const QModelIndex& index, int node_id)
     auto model { tree_widget_->Model() };
 
     const auto& parent { index.parent() };
-    const int parent_id { parent.isValid() ? parent.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() : -1 };
+    const int parent_id { parent.isValid() ? parent.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() : -1 };
     auto parent_path { model->GetPath(parent_id) };
 
     if (!parent_path.isEmpty())
@@ -1918,7 +1921,7 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
 
     dialog_list_->append(dialog);
 
-    SetTableView(dialog->View(), std::to_underlying(TableEnumO::kDescription));
+    SetTableView(dialog->View(), std::to_underlying(TransEnumO::kDescription));
     DelegateO(dialog->View(), settings_);
     dialog->show();
 }
@@ -1930,7 +1933,7 @@ void MainWindow::REditTransDocument(const QModelIndex& index)
         return;
 
     const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
-    const int trans_id { index.siblingAtColumn(std::to_underlying(TableEnum::kID)).data().toInt() };
+    const int trans_id { index.siblingAtColumn(std::to_underlying(TransEnum::kID)).data().toInt() };
 
     auto* document_pointer { leaf_widget->Model()->GetDocumentPointer(index) };
     if (!document_pointer)
@@ -1948,7 +1951,7 @@ void MainWindow::REditNodeDocument(const QModelIndex& index)
         return;
 
     const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
-    const int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
 
     auto* document_pointer { tree_widget_->Model()->GetDocumentPointer(node_id) };
     if (!document_pointer)
@@ -1965,8 +1968,8 @@ void MainWindow::RTransRef(const QModelIndex& index)
     if (!tree_widget_ || !index.isValid())
         return;
 
-    const int node_id { index.siblingAtColumn(std::to_underlying(TreeEnum::kID)).data().toInt() };
-    const int unit { index.siblingAtColumn(std::to_underlying(TreeEnum::kUnit)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
+    const int unit { index.siblingAtColumn(std::to_underlying(NodeEnum::kUnit)).data().toInt() };
 
     switch (start_) {
     case Section::kProduct:
@@ -2085,11 +2088,11 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
         if (auto* leaf_widget = dynamic_cast<LeafWidget*>(current_widget)) {
             auto* header { leaf_widget->View()->horizontalHeader() };
 
-            int column { std::to_underlying(TableEnum::kDescription) };
+            int column { std::to_underlying(TransEnum::kDescription) };
             auto* model { leaf_widget->Model().data() };
 
             if (qobject_cast<SupportModel*>(model) || qobject_cast<TableModelOrder*>(model)) {
-                column = std::to_underlying(TableEnumO::kDescription);
+                column = std::to_underlying(TransEnumO::kDescription);
             }
 
             ResizeColumn(header, column);
@@ -2098,7 +2101,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
 
         if (auto* tree_widget = dynamic_cast<TreeWidget*>(current_widget)) {
             auto* header { tree_widget->View()->header() };
-            ResizeColumn(header, std::to_underlying(TreeEnum::kDescription));
+            ResizeColumn(header, std::to_underlying(NodeEnum::kDescription));
         }
     }
 }
@@ -2327,7 +2330,7 @@ void MainWindow::SalesNodeLocation(int node_id)
 
 void MainWindow::RSyncInt(int node_id, int column, const QVariant& value)
 {
-    if (column != std::to_underlying(TreeEnumO::kParty))
+    if (column != std::to_underlying(NodeEnumO::kParty))
         return;
 
     const int party_id { value.toInt() };
@@ -2448,6 +2451,8 @@ void MainWindow::on_tabWidget_currentChanged(int /*index*/)
     auto* widget { ui->tabWidget->currentWidget() };
     if (!widget)
         return;
+
+    ui->actionStatement->setEnabled(start_ == Section::kSales || start_ == Section::kPurchase);
 
     bool is_tree { MainWindowUtils::IsTreeWidget(widget) };
     bool is_order { start_ == Section::kSales || start_ == Section::kPurchase };

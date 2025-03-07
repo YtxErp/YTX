@@ -109,9 +109,9 @@ public:
             if (!model->insertRows(new_row, 1))
                 return;
 
-            target_index = model->index(new_row, std::to_underlying(TableEnum::kDateTime));
+            target_index = model->index(new_row, std::to_underlying(TransEnum::kDateTime));
         } else if (start != Section::kSales && start != Section::kPurchase)
-            target_index = model->index(empty_row, std::to_underlying(TableEnum::kRhsNode));
+            target_index = model->index(empty_row, std::to_underlying(TransEnum::kRhsNode));
 
         if (target_index.isValid()) {
             widget->View()->setCurrentIndex(target_index);

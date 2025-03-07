@@ -37,40 +37,40 @@ QVariant SearchTransModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     auto* trans { trans_list_.at(index.row()) };
-    const TableEnumSearch kColumn { index.column() };
+    const TransSearchEnum kColumn { index.column() };
 
     switch (kColumn) {
-    case TableEnumSearch::kID:
+    case TransSearchEnum::kID:
         return trans->id;
-    case TableEnumSearch::kDateTime:
+    case TransSearchEnum::kDateTime:
         return trans->date_time;
-    case TableEnumSearch::kCode:
+    case TransSearchEnum::kCode:
         return trans->code;
-    case TableEnumSearch::kLhsNode:
+    case TransSearchEnum::kLhsNode:
         return trans->lhs_node;
-    case TableEnumSearch::kLhsRatio:
+    case TransSearchEnum::kLhsRatio:
         return trans->lhs_ratio == 0 ? QVariant() : trans->lhs_ratio;
-    case TableEnumSearch::kLhsDebit:
+    case TransSearchEnum::kLhsDebit:
         return trans->lhs_debit == 0 ? QVariant() : trans->lhs_debit;
-    case TableEnumSearch::kLhsCredit:
+    case TransSearchEnum::kLhsCredit:
         return trans->lhs_credit == 0 ? QVariant() : trans->lhs_credit;
-    case TableEnumSearch::kDescription:
+    case TransSearchEnum::kDescription:
         return trans->description;
-    case TableEnumSearch::kSupportID:
+    case TransSearchEnum::kSupportID:
         return trans->support_id == 0 ? QVariant() : trans->support_id;
-    case TableEnumSearch::kDiscount:
+    case TransSearchEnum::kDiscount:
         return trans->discount == 0 ? QVariant() : trans->discount;
-    case TableEnumSearch::kDocument:
+    case TransSearchEnum::kDocument:
         return trans->document.isEmpty() ? QVariant() : trans->document.size();
-    case TableEnumSearch::kState:
+    case TransSearchEnum::kState:
         return trans->state ? trans->state : QVariant();
-    case TableEnumSearch::kRhsCredit:
+    case TransSearchEnum::kRhsCredit:
         return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
-    case TableEnumSearch::kRhsDebit:
+    case TransSearchEnum::kRhsDebit:
         return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
-    case TableEnumSearch::kRhsRatio:
+    case TransSearchEnum::kRhsRatio:
         return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
-    case TableEnumSearch::kRhsNode:
+    case TransSearchEnum::kRhsNode:
         return trans->rhs_node;
     default:
         return QVariant();
@@ -91,38 +91,38 @@ void SearchTransModel::sort(int column, Qt::SortOrder order)
         return;
 
     auto Compare = [column, order](const Trans* lhs, const Trans* rhs) -> bool {
-        const TableEnumSearch kColumn { column };
+        const TransSearchEnum kColumn { column };
 
         switch (kColumn) {
-        case TableEnumSearch::kDateTime:
+        case TransSearchEnum::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TableEnumSearch::kCode:
+        case TransSearchEnum::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
-        case TableEnumSearch::kLhsNode:
+        case TransSearchEnum::kLhsNode:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_node < rhs->lhs_node) : (lhs->lhs_node > rhs->lhs_node);
-        case TableEnumSearch::kLhsRatio:
+        case TransSearchEnum::kLhsRatio:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_ratio < rhs->lhs_ratio) : (lhs->lhs_ratio > rhs->lhs_ratio);
-        case TableEnumSearch::kLhsDebit:
+        case TransSearchEnum::kLhsDebit:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_debit < rhs->lhs_debit) : (lhs->lhs_debit > rhs->lhs_debit);
-        case TableEnumSearch::kLhsCredit:
+        case TransSearchEnum::kLhsCredit:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
-        case TableEnumSearch::kDescription:
+        case TransSearchEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TableEnumSearch::kSupportID:
+        case TransSearchEnum::kSupportID:
             return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
-        case TableEnumSearch::kDiscount:
+        case TransSearchEnum::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-        case TableEnumSearch::kDocument:
+        case TransSearchEnum::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
-        case TableEnumSearch::kState:
+        case TransSearchEnum::kState:
             return (order == Qt::AscendingOrder) ? (lhs->state < rhs->state) : (lhs->state > rhs->state);
-        case TableEnumSearch::kRhsCredit:
+        case TransSearchEnum::kRhsCredit:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
-        case TableEnumSearch::kRhsDebit:
+        case TransSearchEnum::kRhsDebit:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
-        case TableEnumSearch::kRhsRatio:
+        case TransSearchEnum::kRhsRatio:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
-        case TableEnumSearch::kRhsNode:
+        case TransSearchEnum::kRhsNode:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_node < rhs->rhs_node) : (lhs->rhs_node > rhs->rhs_node);
 
         default:

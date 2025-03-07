@@ -1,5 +1,6 @@
 #include "treewidgetorder.h"
 
+#include "component/signalblocker.h"
 #include "ui_treewidgetorder.h"
 
 TreeWidgetOrder::TreeWidgetOrder(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
@@ -12,6 +13,7 @@ TreeWidgetOrder::TreeWidgetOrder(TreeModel* model, CInfo& info, CSettings& setti
     , settings_ { settings }
 {
     ui->setupUi(this);
+    SignalBlocker blocker(this);
 
     ui->dateEditStart->setDisplayFormat(kDateFST);
     ui->dateEditEnd->setDisplayFormat(kDateFST);

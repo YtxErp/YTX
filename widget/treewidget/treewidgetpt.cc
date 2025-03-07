@@ -1,6 +1,7 @@
 #include "treewidgetpt.h"
 
 #include "component/constvalue.h"
+#include "component/signalblocker.h"
 #include "ui_treewidgetpt.h"
 
 TreeWidgetPT::TreeWidgetPT(TreeModel* model, CSettings& settings, QWidget* parent)
@@ -10,6 +11,8 @@ TreeWidgetPT::TreeWidgetPT(TreeModel* model, CSettings& settings, QWidget* paren
     , settings_ { settings }
 {
     ui->setupUi(this);
+    SignalBlocker blocker(this);
+
     ui->treeViewFPT->setModel(model);
     ui->dspin_box_dynamic_->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dspin_box_static_->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());

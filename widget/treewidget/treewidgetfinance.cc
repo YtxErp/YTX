@@ -1,6 +1,7 @@
 #include "treewidgetfinance.h"
 
 #include "component/constvalue.h"
+#include "component/signalblocker.h"
 #include "ui_treewidgetfinance.h"
 
 TreeWidgetFinance::TreeWidgetFinance(TreeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
@@ -11,6 +12,8 @@ TreeWidgetFinance::TreeWidgetFinance(TreeModel* model, CInfo& info, CSettings& s
     , settings_ { settings }
 {
     ui->setupUi(this);
+    SignalBlocker blocker(this);
+
     ui->treeViewFPT->setModel(model);
     ui->dspin_box_dynamic_->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dspin_box_static_->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());

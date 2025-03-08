@@ -44,7 +44,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 public:
-    void Query(UnitO unit = UnitO::kMS);
+    void Query(const QDateTime& start, const QDateTime& end, UnitO unit = UnitO::kMS);
 
 private:
     Sqlite* sql_ {};

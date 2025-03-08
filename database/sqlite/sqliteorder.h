@@ -66,7 +66,7 @@ protected:
     QString QSSearchTrans() const override;
     QString QSWriteTransValueFPTO() const override;
     QString QSTransToRemove() const override;
-    QString QSReadStatement() const override;
+    QString QSReadStatement(UnitO unit) const override;
 
 private:
     QString SearchNodeQS(CString& in_list) const;

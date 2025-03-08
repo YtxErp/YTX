@@ -69,6 +69,7 @@
 #include "table/model/transmodelp.h"
 #include "table/model/transmodels.h"
 #include "table/model/transmodelt.h"
+#include "table/statementmodel.h"
 #include "table/transrefmodel.h"
 #include "tree/model/nodemodelf.h"
 #include "tree/model/nodemodelo.h"
@@ -80,6 +81,7 @@
 #include "widget/node/nodewidgeto.h"
 #include "widget/node/nodewidgetpt.h"
 #include "widget/node/nodewidgets.h"
+#include "widget/support/statementwidget.h"
 #include "widget/support/supportwidgetfpts.h"
 #include "widget/trans/transwidgetfpts.h"
 
@@ -339,7 +341,7 @@ void MainWindow::RSectionGroup(int id)
         dialog_hash_ = &sales_dialog_hash_;
         settings_ = &sales_settings_;
         data_ = &sales_data_;
-        sup_wgt_hash_ = nullptr;
+        sup_wgt_hash_ = &sales_sup_wgt_hash_;
         break;
     case Section::kPurchase:
         tree_widget_ = purchase_tree_;
@@ -348,7 +350,7 @@ void MainWindow::RSectionGroup(int id)
         dialog_hash_ = &purchase_dialog_hash_;
         settings_ = &purchase_settings_;
         data_ = &purchase_data_;
-        sup_wgt_hash_ = nullptr;
+        sup_wgt_hash_ = &purchase_sup_wgt_hash_;
         break;
     default:
         break;
@@ -539,7 +541,26 @@ void MainWindow::CreateLeafO(PTreeModel tree_model, TransWgtHash* trans_wgt_hash
     trans_wgt_hash->insert(node_id, widget);
 }
 
-void MainWindow::on_actionStatement_triggered() { }
+void MainWindow::on_actionStatement_triggered()
+{
+    if (start_ != Section::kSales && start_ != Section::kPurchase)
+        return;
+
+    auto* sql { data_->sql };
+    const auto& info { data_->info };
+
+    auto* model { new StatementModel(sql, info, this) };
+    auto* widget { new StatementWidget(model, this) };
+
+    const int tab_index { ui->tabWidget->addTab(widget, tr("Statement")) };
+    auto* tab_bar { ui->tabWidget->tabBar() };
+
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id }));
+    tab_bar->setTabToolTip(tab_index, tr("Statement"));
+
+    sup_wgt_hash_->insert(statement_id, widget);
+    --statement_id;
+}
 
 void MainWindow::TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
 {

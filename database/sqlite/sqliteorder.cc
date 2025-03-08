@@ -257,7 +257,86 @@ QString SqliteOrder::QSTransToRemove() const
         .arg(info_.trans);
 }
 
-QString SqliteOrder::QSReadStatement() const { }
+QString SqliteOrder::QSReadStatement(UnitO unit) const
+{
+    switch (unit) {
+    case UnitO::kIS:
+        return QString(R"(
+            SELECT
+                party,
+                0 AS pbalance,
+                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN gross_amount ELSE 0 END) AS ctransaction,
+                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN settlement   ELSE 0 END) AS csettlement,
+                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN discount     ELSE 0 END) AS cdiscount,
+                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN first        ELSE 0 END) AS first,
+                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN second       ELSE 0 END) AS second,
+                0 AS cbalance
+            FROM %1
+            WHERE unit = 0 AND removed = 0
+            GROUP BY party
+            )")
+            .arg(info_.node);
+        break;
+    case UnitO::kMS:
+        return QString(R"(
+            WITH Statement AS (
+                SELECT
+                    party,
+                    SUM(CASE WHEN date_time < :start THEN gross_amount - discount - settlement ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN gross_amount          ELSE 0 END) AS ctransaction,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN settlement            ELSE 0 END) AS csettlement,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN discount              ELSE 0 END) AS cdiscount,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN first                 ELSE 0 END) AS first,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN second                ELSE 0 END) AS second
+                FROM %1
+                WHERE unit = 1 AND removed = 0
+                GROUP BY party
+            )
+            SELECT
+                party,
+                pbalance,
+                ctransaction,
+                csettlement,
+                cdiscount,
+                pbalance + ctransaction - csettlement - cdiscount AS cbalance,
+                first,
+                second
+            FROM Statement;
+            )")
+            .arg(info_.node);
+        break;
+    case UnitO::kPEND:
+        return QString(R"(
+            WITH Statement AS (
+                SELECT
+                    party,
+                    SUM(CASE WHEN date_time < :start THEN gross_amount - discount     ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN gross_amount ELSE 0 END) AS ctransaction,
+                    0 AS csettlement,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN discount     ELSE 0 END) AS cdiscount,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN first        ELSE 0 END) AS first,
+                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN second       ELSE 0 END) AS second
+                FROM %1
+                WHERE unit = 2 AND removed = 0
+                GROUP BY party
+            )
+            SELECT
+                party,
+                pbalance,
+                ctransaction,
+                csettlement,
+                cdiscount,
+                pbalance + ctransaction - cdiscount AS cbalance,
+                first,
+                second
+            FROM Statement;
+            )")
+            .arg(info_.node);
+        break;
+    default:
+        return {};
+    }
+}
 
 void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
 {

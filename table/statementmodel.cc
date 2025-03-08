@@ -8,7 +8,6 @@ StatementModel::StatementModel(Sqlite* sql, CInfo& info, QObject* parent)
     , sql_ { sql }
     , info_ { info }
 {
-    Query();
 }
 
 StatementModel::~StatementModel() { ResourcePool<Trans>::Instance().Recycle(is_trans_list_); }
@@ -128,9 +127,15 @@ void StatementModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void StatementModel::Query(UnitO unit)
+void StatementModel::Query(const QDateTime& start, const QDateTime& end, UnitO unit)
 {
-    beginResetModel();
+    if (!start.isValid() || !end.isValid())
+        return;
 
+    beginResetModel();
+    if (!trans_list_.isEmpty())
+        trans_list_.clear();
+
+    sql_->ReadStatement(trans_list_, start, end, unit);
     endResetModel();
 }

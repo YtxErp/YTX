@@ -200,6 +200,7 @@ private:
 
     QStringList recent_file_ {};
     Section start_ {};
+    int statement_id { -1 };
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};
@@ -258,6 +259,7 @@ private:
     QHash<int, PDialog> sales_dialog_hash_ {};
     Settings sales_settings_ {};
     Data sales_data_ {};
+    SupWgtHash sales_sup_wgt_hash_ {};
 
     NodeWidget* purchase_tree_ {};
     TransWgtHash purchase_trans_wgt_hash_ {};
@@ -265,5 +267,6 @@ private:
     QHash<int, PDialog> purchase_dialog_hash_ {};
     Settings purchase_settings_ {};
     Data purchase_data_ {};
+    SupWgtHash purchase_sup_wgt_hash_ {};
 };
 #endif // MAINWINDOW_H

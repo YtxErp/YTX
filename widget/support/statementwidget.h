@@ -22,10 +22,8 @@
 
 #include <QButtonGroup>
 
-#include "component/info.h"
-#include "component/settings.h"
 #include "supportwidget.h"
-#include "tree/model/nodemodelo.h"
+#include "table/statementmodel.h"
 
 namespace Ui {
 class StatementWidget;
@@ -39,7 +37,7 @@ public slots:
     void on_end_dateChanged(const QDate& date);
 
 public:
-    StatementWidget(NodeModel* model, CInfo& info, const Settings& settings, QWidget* parent = nullptr);
+    StatementWidget(StatementModel* model, QWidget* parent = nullptr);
     ~StatementWidget() override;
 
     QPointer<QTableView> View() const override;
@@ -52,17 +50,17 @@ private slots:
 
 private:
     void IniUnitGroup();
+    void IniConnect();
 
 private:
     Ui::StatementWidget* ui;
     QDateTime start_ {};
     QDateTime end_ {};
+    UnitO unit_ {};
 
     QButtonGroup* unit_group_ {};
 
-    NodeModelO* model_ {};
-    CInfo& info_;
-    const Settings& settings_;
+    StatementModel* model_ {};
 };
 
 #endif // STATEMENTWIDGET_H

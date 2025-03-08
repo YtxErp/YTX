@@ -1,19 +1,20 @@
 #include "statementwidget.h"
 
+#include "component/constvalue.h"
 #include "component/signalblocker.h"
 #include "ui_statementwidget.h"
 
-StatementWidget::StatementWidget(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
+StatementWidget::StatementWidget(StatementModel* model, QWidget* parent)
     : SupportWidget(parent)
     , ui(new Ui::StatementWidget)
-    , start_ { QDateTime(QDate::currentDate(), kStartTime) }
-    , end_ { QDateTime(QDate::currentDate(), kEndTime) }
-    , model_ { static_cast<NodeModelO*>(model) }
-    , info_ { info }
-    , settings_ { settings }
+    , start_ { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1), kStartTime) }
+    , end_ { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), QDate::currentDate().daysInMonth()), kEndTime) }
+    , unit_ { UnitO::kMS }
+    , model_ { model }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
+    IniUnitGroup();
 
     ui->start->setDisplayFormat(kDateFST);
     ui->end->setDisplayFormat(kDateFST);
@@ -22,6 +23,8 @@ StatementWidget::StatementWidget(NodeModel* model, CInfo& info, CSettings& setti
     ui->end->setDateTime(end_);
 
     ui->tableViewStatement->setModel(model);
+    model_->Query(start_, end_, unit_);
+    IniConnect();
 }
 
 StatementWidget::~StatementWidget() { delete ui; }
@@ -40,9 +43,9 @@ void StatementWidget::on_end_dateChanged(const QDate& date)
     end_.setDate(date);
 }
 
-void StatementWidget::on_pBtnRefresh_clicked() { model_->UpdateTree(start_, end_); }
+void StatementWidget::on_pBtnRefresh_clicked() { model_->Query(start_, end_, unit_); }
 
-void StatementWidget::RUnitGroupClicked(int id) { }
+void StatementWidget::RUnitGroupClicked(int id) { unit_ = UnitO(id); }
 
 void StatementWidget::IniUnitGroup()
 {
@@ -50,5 +53,6 @@ void StatementWidget::IniUnitGroup()
     unit_group_->addButton(ui->rBtnIS, 0);
     unit_group_->addButton(ui->rBtnMS, 1);
     unit_group_->addButton(ui->rBtnPEND, 2);
-    unit_group_->addButton(ui->rBtnAll, 3);
 }
+
+void StatementWidget::IniConnect() { connect(unit_group_, &QButtonGroup::idClicked, this, &StatementWidget::RUnitGroupClicked); }

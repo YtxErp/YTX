@@ -3200,155 +3200,155 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">%1 已经打开。</translation>
     </message>
     <message>
-        <location filename="../../component/stringinitializer.cc" line="+5"/>
-        <location line="+7"/>
-        <location line="+10"/>
-        <location line="+7"/>
-        <location line="+15"/>
-        <location line="+6"/>
-        <location line="+13"/>
-        <location line="+7"/>
-        <location line="+6"/>
-        <location line="+7"/>
+        <location filename="../../component/stringinitializer.cc" line="+6"/>
+        <location line="+28"/>
+        <location line="+59"/>
+        <location line="+31"/>
+        <location line="+74"/>
+        <location line="+29"/>
+        <location line="+71"/>
+        <location line="+33"/>
+        <location line="+24"/>
+        <location line="+34"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location line="-78"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+2"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+8"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+7"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+6"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
+        <location line="-382"/>
+        <location line="+13"/>
+        <location line="+15"/>
+        <location line="+22"/>
+        <location line="+19"/>
+        <location line="+18"/>
+        <location line="+16"/>
+        <location line="+15"/>
+        <location line="+22"/>
+        <location line="+19"/>
+        <location line="+33"/>
+        <location line="+16"/>
+        <location line="+13"/>
+        <location line="+22"/>
+        <location line="+19"/>
+        <location line="+30"/>
+        <location line="+18"/>
+        <location line="+15"/>
+        <location line="+24"/>
+        <location line="+18"/>
+        <location line="+16"/>
+        <location line="+21"/>
+        <location line="+18"/>
         <source>ID</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-85"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+2"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+5"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
+        <location line="-421"/>
+        <location line="+14"/>
+        <location line="+14"/>
+        <location line="+22"/>
+        <location line="+19"/>
+        <location line="+18"/>
+        <location line="+17"/>
+        <location line="+14"/>
+        <location line="+22"/>
+        <location line="+19"/>
+        <location line="+23"/>
         <location line="+10"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+4"/>
+        <location line="+17"/>
+        <location line="+12"/>
+        <location line="+22"/>
+        <location line="+19"/>
+        <location line="+20"/>
+        <location line="+10"/>
+        <location line="+19"/>
+        <location line="+14"/>
+        <location line="+48"/>
+        <location line="+10"/>
+        <location line="+21"/>
+        <location line="+18"/>
         <source>Code</source>
         <translation>编号</translation>
     </message>
     <message>
-        <location line="-85"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+4"/>
+        <location line="-421"/>
+        <location line="+14"/>
+        <location line="+14"/>
+        <location line="+26"/>
+        <location line="+19"/>
+        <location line="+14"/>
+        <location line="+17"/>
+        <location line="+14"/>
+        <location line="+26"/>
+        <location line="+19"/>
+        <location line="+19"/>
+        <location line="+10"/>
+        <location line="+17"/>
+        <location line="+12"/>
+        <location line="+26"/>
+        <location line="+17"/>
+        <location line="+18"/>
+        <location line="+10"/>
+        <location line="+19"/>
+        <location line="+14"/>
+        <location line="+24"/>
+        <location line="+22"/>
+        <location line="+12"/>
+        <location line="+25"/>
+        <location line="+18"/>
         <source>Description</source>
         <translation>描述</translation>
     </message>
     <message>
-        <location line="-86"/>
-        <location line="+7"/>
-        <location line="+10"/>
-        <location line="+7"/>
-        <location line="+15"/>
-        <location line="+6"/>
-        <location line="+13"/>
-        <location line="+7"/>
-        <location line="+13"/>
+        <location line="-425"/>
+        <location line="+28"/>
+        <location line="+59"/>
+        <location line="+31"/>
+        <location line="+74"/>
+        <location line="+29"/>
+        <location line="+71"/>
+        <location line="+33"/>
+        <location line="+58"/>
         <source>Note</source>
         <translation>备注</translation>
     </message>
     <message>
-        <location line="-77"/>
-        <location line="+7"/>
-        <location line="+10"/>
-        <location line="+7"/>
-        <location line="+15"/>
-        <location line="+6"/>
-        <location line="+13"/>
-        <location line="+7"/>
-        <location line="+6"/>
-        <location line="+7"/>
+        <location line="-381"/>
+        <location line="+28"/>
+        <location line="+59"/>
+        <location line="+31"/>
+        <location line="+74"/>
+        <location line="+29"/>
+        <location line="+71"/>
+        <location line="+33"/>
+        <location line="+24"/>
+        <location line="+34"/>
         <source>Rule</source>
         <translation>规则</translation>
     </message>
     <message>
-        <location line="-79"/>
-        <location line="+7"/>
-        <location line="+10"/>
-        <location line="+8"/>
-        <location line="+15"/>
-        <location line="+6"/>
-        <location line="+12"/>
-        <location line="+8"/>
-        <location line="+6"/>
-        <location line="+7"/>
+        <location line="-384"/>
+        <location line="+28"/>
+        <location line="+59"/>
+        <location line="+31"/>
+        <location line="+74"/>
+        <location line="+29"/>
+        <location line="+71"/>
+        <location line="+33"/>
+        <location line="+24"/>
+        <location line="+34"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location line="-78"/>
-        <location line="+7"/>
-        <location line="+10"/>
-        <location line="+7"/>
-        <location line="+15"/>
-        <location line="+6"/>
-        <location line="+13"/>
-        <location line="+7"/>
-        <location line="+6"/>
-        <location line="+7"/>
+        <location line="-381"/>
+        <location line="+28"/>
+        <location line="+59"/>
+        <location line="+31"/>
+        <location line="+74"/>
+        <location line="+29"/>
+        <location line="+71"/>
+        <location line="+33"/>
+        <location line="+24"/>
+        <location line="+34"/>
         <source>Unit</source>
         <translation>单位</translation>
     </message>
@@ -3361,182 +3361,207 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">本币</translation>
     </message>
     <message>
-        <location line="-76"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+8"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+4"/>
-        <location line="+7"/>
-        <location line="+6"/>
-        <location line="+3"/>
-        <location line="+3"/>
-        <location line="+5"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+6"/>
-        <location line="+7"/>
+        <location line="-377"/>
+        <location line="+37"/>
+        <location line="+19"/>
+        <location line="+34"/>
+        <location line="+37"/>
+        <location line="+19"/>
+        <location line="+17"/>
+        <location line="+32"/>
+        <location line="+35"/>
+        <location line="+19"/>
+        <location line="+14"/>
+        <location line="+24"/>
+        <location line="+10"/>
+        <location line="+25"/>
+        <location line="+22"/>
+        <location line="+36"/>
         <source>DateTime</source>
         <translation>日期</translation>
     </message>
     <message>
-        <location line="-76"/>
+        <location line="-378"/>
         <source>FXRate</source>
         <translation>汇率</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <location line="+7"/>
-        <location line="+4"/>
-        <location line="+7"/>
-        <location line="+7"/>
-        <location line="+4"/>
-        <location line="+30"/>
+        <location line="+3"/>
+        <location line="+40"/>
+        <location line="+19"/>
+        <location line="+31"/>
+        <location line="+40"/>
+        <location line="+19"/>
+        <location line="+148"/>
         <source>SupportID</source>
         <translation>辅助</translation>
     </message>
     <message>
-        <location line="-58"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+8"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+11"/>
-        <location line="+6"/>
-        <location line="+3"/>
-        <location line="+11"/>
+        <location line="-296"/>
+        <location line="+41"/>
+        <location line="+18"/>
+        <location line="+31"/>
+        <location line="+41"/>
+        <location line="+18"/>
+        <location line="+46"/>
+        <location line="+39"/>
+        <location line="+17"/>
+        <location line="+46"/>
         <source>D</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-59"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+8"/>
-        <location line="+6"/>
-        <location line="+4"/>
-        <location line="+11"/>
-        <location line="+6"/>
-        <location line="+3"/>
-        <location line="+11"/>
+        <location line="-296"/>
+        <location line="+41"/>
+        <location line="+18"/>
+        <location line="+31"/>
+        <location line="+41"/>
+        <location line="+18"/>
+        <location line="+46"/>
+        <location line="+39"/>
+        <location line="+17"/>
+        <location line="+46"/>
         <source>S</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-59"/>
-        <location line="+18"/>
-        <location line="+41"/>
+        <location line="-296"/>
+        <location line="+90"/>
+        <location line="+207"/>
         <source>RelatedNode</source>
         <translation>关联</translation>
     </message>
     <message>
-        <location line="-59"/>
-        <location line="+18"/>
-        <location line="+41"/>
+        <location line="-296"/>
+        <location line="+90"/>
+        <location line="+207"/>
         <source>Debit</source>
         <translation>借方</translation>
     </message>
     <message>
-        <location line="-59"/>
-        <location line="+18"/>
-        <location line="+41"/>
+        <location line="-296"/>
+        <location line="+90"/>
+        <location line="+207"/>
         <source>Credit</source>
         <translation>贷方</translation>
     </message>
     <message>
-        <location line="-59"/>
-        <location line="+18"/>
-        <location line="+41"/>
+        <location line="-296"/>
+        <location line="+90"/>
+        <location line="+207"/>
         <source>Subtotal</source>
         <translation>小计</translation>
     </message>
     <message>
-        <location line="-54"/>
-        <location line="+4"/>
-        <location line="+14"/>
-        <location line="+4"/>
-        <location line="+4"/>
+        <location line="-268"/>
         <location line="+19"/>
-        <location line="+27"/>
-        <location line="+4"/>
+        <location line="+71"/>
+        <location line="+19"/>
+        <location line="+15"/>
+        <location line="+100"/>
+        <location line="+130"/>
+        <location line="+18"/>
         <source>LhsNode</source>
         <translation>左节点</translation>
     </message>
     <message>
-        <location line="-76"/>
-        <location line="+4"/>
+        <location line="-371"/>
+        <location line="+19"/>
         <source>LhsFXRate</source>
         <translation>左汇率</translation>
     </message>
     <message>
-        <location line="-3"/>
-        <location line="+4"/>
-        <location line="+14"/>
-        <location line="+4"/>
+        <location line="-18"/>
+        <location line="+19"/>
+        <location line="+71"/>
+        <location line="+19"/>
         <source>LhsDebit</source>
         <translation>左借方</translation>
     </message>
     <message>
-        <location line="-22"/>
-        <location line="+4"/>
-        <location line="+14"/>
-        <location line="+4"/>
+        <location line="-108"/>
+        <location line="+19"/>
+        <location line="+71"/>
+        <location line="+19"/>
         <source>LhsCredit</source>
         <translation>左贷方</translation>
     </message>
     <message>
-        <location line="-21"/>
-        <location line="+4"/>
-        <location line="+14"/>
-        <location line="+4"/>
+        <location line="-103"/>
+        <location line="+18"/>
+        <location line="+72"/>
+        <location line="+18"/>
         <source>RhsCredit</source>
         <translation>右贷方</translation>
     </message>
     <message>
-        <location line="-22"/>
-        <location line="+4"/>
-        <location line="+14"/>
-        <location line="+4"/>
+        <location line="-107"/>
+        <location line="+18"/>
+        <location line="+72"/>
+        <location line="+18"/>
         <source>RhsDebit</source>
         <translation>右借方</translation>
     </message>
     <message>
-        <location line="-22"/>
-        <location line="+4"/>
+        <location line="-107"/>
+        <location line="+18"/>
         <source>RhsFXRate</source>
         <translation>右汇率</translation>
     </message>
     <message>
-        <location line="-4"/>
-        <location line="+4"/>
-        <location line="+14"/>
-        <location line="+4"/>
+        <location line="-17"/>
+        <location line="+18"/>
+        <location line="+72"/>
+        <location line="+17"/>
         <source>RhsNode</source>
         <translation>右节点</translation>
     </message>
     <message>
-        <location line="+40"/>
-        <location line="+7"/>
+        <location line="+191"/>
+        <location line="+38"/>
         <source>Settlement</source>
         <translation>结算</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>PBalance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CTransaction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CSettlement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CDiscount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CBalance</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>LhsRatio</source>
         <translation type="vanished">左比率</translation>
     </message>
     <message>
-        <location line="-62"/>
-        <location line="+7"/>
-        <location line="+11"/>
-        <location line="+6"/>
-        <location line="+6"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+20"/>
-        <location line="+6"/>
-        <location line="+4"/>
+        <location line="-348"/>
+        <location line="+35"/>
+        <location line="+51"/>
+        <location line="+28"/>
+        <location line="+37"/>
+        <location line="+19"/>
+        <location line="+16"/>
+        <location line="+90"/>
+        <location line="+36"/>
+        <location line="+18"/>
         <source>UnitPrice</source>
         <translation>单价</translation>
     </message>
@@ -3545,71 +3570,71 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">右比率</translation>
     </message>
     <message>
-        <location line="-67"/>
-        <location line="+7"/>
+        <location line="-331"/>
         <location line="+34"/>
-        <location line="+7"/>
-        <location line="+9"/>
+        <location line="+172"/>
+        <location line="+35"/>
+        <location line="+40"/>
         <source>Color</source>
         <translation>颜色</translation>
     </message>
     <message>
-        <location line="-57"/>
-        <location line="+8"/>
+        <location line="-279"/>
+        <location line="+35"/>
         <source>Commission</source>
         <translation>提成</translation>
     </message>
     <message>
-        <location line="-8"/>
-        <location line="+8"/>
-        <location line="+34"/>
-        <location line="+7"/>
+        <location line="-34"/>
+        <location line="+37"/>
+        <location line="+170"/>
+        <location line="+37"/>
         <source>Quantity</source>
         <translation>数量</translation>
     </message>
     <message>
-        <location line="-48"/>
-        <location line="+7"/>
-        <location line="+15"/>
-        <location line="+6"/>
-        <location line="+13"/>
-        <location line="+7"/>
+        <location line="-243"/>
+        <location line="+37"/>
+        <location line="+68"/>
+        <location line="+35"/>
+        <location line="+67"/>
+        <location line="+37"/>
         <source>Amount</source>
         <translation>金额</translation>
     </message>
     <message>
-        <location line="-46"/>
-        <location line="+6"/>
-        <location line="+2"/>
-        <location line="+2"/>
-        <location line="+29"/>
-        <location line="+2"/>
-        <location line="+5"/>
+        <location line="-238"/>
+        <location line="+39"/>
+        <location line="+10"/>
+        <location line="+9"/>
+        <location line="+141"/>
+        <location line="+8"/>
+        <location line="+26"/>
         <source>UnitCost</source>
         <translation>成本</translation>
     </message>
     <message>
-        <location line="-32"/>
+        <location line="-160"/>
         <source>CUST</source>
         <translation>客户</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <location line="+6"/>
+        <location line="+22"/>
+        <location line="+31"/>
         <source>Deadline</source>
         <translation>止期</translation>
     </message>
     <message>
-        <location line="-6"/>
-        <location line="+6"/>
-        <location line="+25"/>
-        <location line="+8"/>
+        <location line="-30"/>
+        <location line="+29"/>
+        <location line="+123"/>
+        <location line="+39"/>
         <source>Employee</source>
         <translation>职员</translation>
     </message>
     <message>
-        <location line="-39"/>
-        <location line="+7"/>
+        <location line="-190"/>
+        <location line="+32"/>
         <source>PaymentPeriod</source>
         <translation>帐期</translation>
     </message>
@@ -3618,8 +3643,8 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">分类</translation>
     </message>
     <message>
-        <location line="-6"/>
-        <location line="+6"/>
+        <location line="-31"/>
+        <location line="+32"/>
         <source>TaxRate</source>
         <translation>税率</translation>
     </message>
@@ -3629,31 +3654,31 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">金额</translation>
     </message>
     <message>
-        <location line="+35"/>
-        <location line="+4"/>
+        <location line="+177"/>
+        <location line="+18"/>
         <source>OutsideProduct</source>
         <translation>外部产品</translation>
     </message>
     <message>
-        <location line="-3"/>
-        <location line="+4"/>
+        <location line="-11"/>
+        <location line="+16"/>
         <source>InsideProduct</source>
         <translation>内部产品</translation>
     </message>
     <message>
-        <location line="-86"/>
-        <location line="+7"/>
+        <location line="-427"/>
+        <location line="+37"/>
         <source>ForeignTotal</source>
         <translation>外币</translation>
     </message>
     <message>
-        <location line="-7"/>
-        <location line="+7"/>
+        <location line="-36"/>
+        <location line="+37"/>
         <source>LocalTotal</source>
         <translation>本币</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+171"/>
         <source>PlaceHolder</source>
         <translation>占位</translation>
     </message>
@@ -3662,96 +3687,99 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">金额</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <location line="+7"/>
+        <location line="+85"/>
+        <location line="+35"/>
         <source>Document</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location line="-7"/>
-        <location line="+14"/>
-        <location line="+7"/>
+        <location line="-34"/>
+        <location line="+57"/>
+        <location line="+39"/>
         <source>Finished</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location line="-32"/>
-        <location line="+3"/>
-        <location line="+20"/>
-        <location line="+8"/>
+        <location line="-153"/>
+        <location line="+19"/>
+        <location line="+86"/>
+        <location line="+40"/>
+        <location line="+48"/>
         <source>Party</source>
         <translation>合作</translation>
     </message>
     <message>
-        <location line="-44"/>
-        <location line="+19"/>
+        <location line="-259"/>
+        <location line="+100"/>
+        <location line="+78"/>
+        <location line="+12"/>
+        <location line="+26"/>
+        <location line="+13"/>
         <location line="+18"/>
-        <location line="+2"/>
-        <location line="+6"/>
-        <location line="+1"/>
-        <location line="+4"/>
+        <location line="+18"/>
         <source>First</source>
         <translation>第一</translation>
     </message>
     <message>
-        <location line="-49"/>
-        <location line="+19"/>
-        <location line="+17"/>
-        <location line="+2"/>
-        <location line="+6"/>
-        <location line="+2"/>
-        <location line="+4"/>
+        <location line="-264"/>
+        <location line="+100"/>
+        <location line="+78"/>
+        <location line="+12"/>
+        <location line="+26"/>
+        <location line="+13"/>
+        <location line="+18"/>
+        <location line="+18"/>
         <source>Second</source>
         <translation>第二</translation>
     </message>
     <message>
-        <location line="-49"/>
-        <location line="+19"/>
-        <location line="+17"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+2"/>
-        <location line="+4"/>
+        <location line="-259"/>
+        <location line="+100"/>
+        <location line="+75"/>
+        <location line="+16"/>
+        <location line="+20"/>
+        <location line="+15"/>
+        <location line="+18"/>
         <source>Discount</source>
         <translation>优惠</translation>
     </message>
     <message>
-        <location line="-49"/>
-        <location line="+19"/>
+        <location line="-245"/>
+        <location line="+100"/>
+        <location line="+75"/>
+        <location line="+16"/>
+        <location line="+23"/>
         <location line="+17"/>
-        <location line="+3"/>
-        <location line="+4"/>
-        <location line="+3"/>
-        <location line="+4"/>
+        <location line="+16"/>
         <source>GrossAmount</source>
         <translatorcomment>总额</translatorcomment>
         <translation>总额</translation>
     </message>
     <message>
-        <location line="-50"/>
-        <location line="+19"/>
-        <location line="+20"/>
-        <location line="+6"/>
-        <location line="+4"/>
+        <location line="-245"/>
+        <location line="+100"/>
+        <location line="+91"/>
+        <location line="+37"/>
+        <location line="+16"/>
         <source>NetAmount</source>
         <translation>净额</translation>
     </message>
     <message>
-        <location line="-43"/>
+        <location line="-216"/>
+        <location line="+42"/>
+        <location line="+14"/>
         <location line="+6"/>
-        <location line="+3"/>
-        <location line="+2"/>
-        <location line="+20"/>
+        <location line="+89"/>
         <source>Inside</source>
         <translation>内部</translation>
     </message>
     <message>
-        <location line="-39"/>
-        <location line="+8"/>
-        <location line="+6"/>
-        <location line="+3"/>
-        <location line="+2"/>
-        <location line="+20"/>
+        <location line="-188"/>
+        <location line="+34"/>
+        <location line="+38"/>
+        <location line="+17"/>
+        <location line="+11"/>
+        <location line="+90"/>
         <source>Outside</source>
         <translation>外部</translation>
     </message>
@@ -3760,11 +3788,11 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">结算</translation>
     </message>
     <message>
-        <location line="-38"/>
-        <location line="+19"/>
-        <location line="+20"/>
-        <location line="+8"/>
-        <location line="+4"/>
+        <location line="-186"/>
+        <location line="+100"/>
+        <location line="+90"/>
+        <location line="+45"/>
+        <location line="+16"/>
         <source>DiscountPrice</source>
         <translation>优惠单价</translation>
     </message>

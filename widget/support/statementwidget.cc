@@ -6,8 +6,8 @@
 StatementWidget::StatementWidget(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
     : SupportWidget(parent)
     , ui(new Ui::StatementWidget)
-    , start_ { QDate::currentDate() }
-    , end_ { QDate::currentDate() }
+    , start_ { QDateTime(QDate::currentDate(), kStartTime) }
+    , end_ { QDateTime(QDate::currentDate(), kEndTime) }
     , model_ { static_cast<NodeModelO*>(model) }
     , info_ { info }
     , settings_ { settings }
@@ -15,11 +15,11 @@ StatementWidget::StatementWidget(NodeModel* model, CInfo& info, CSettings& setti
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    ui->dateEditStart->setDisplayFormat(kDateFST);
-    ui->dateEditEnd->setDisplayFormat(kDateFST);
+    ui->start->setDisplayFormat(kDateFST);
+    ui->end->setDisplayFormat(kDateFST);
 
-    ui->dateEditStart->setDate(start_);
-    ui->dateEditEnd->setDate(end_);
+    ui->start->setDateTime(start_);
+    ui->end->setDateTime(end_);
 
     ui->tableViewStatement->setModel(model);
 }
@@ -28,16 +28,16 @@ StatementWidget::~StatementWidget() { delete ui; }
 
 QPointer<QTableView> StatementWidget::View() const { return ui->tableViewStatement; }
 
-void StatementWidget::on_dateEditStart_dateChanged(const QDate& date)
+void StatementWidget::on_start_dateChanged(const QDate& date)
 {
-    ui->pBtnRefresh->setEnabled(date <= end_);
-    start_ = date;
+    ui->pBtnRefresh->setEnabled(date <= end_.date());
+    start_.setDate(date);
 }
 
-void StatementWidget::on_dateEditEnd_dateChanged(const QDate& date)
+void StatementWidget::on_end_dateChanged(const QDate& date)
 {
-    ui->pBtnRefresh->setEnabled(date >= start_);
-    end_ = date;
+    ui->pBtnRefresh->setEnabled(date >= start_.date());
+    end_.setDate(date);
 }
 
 void StatementWidget::on_pBtnRefresh_clicked() { model_->UpdateTree(start_, end_); }
@@ -50,5 +50,5 @@ void StatementWidget::IniUnitGroup()
     unit_group_->addButton(ui->rBtnIS, 0);
     unit_group_->addButton(ui->rBtnMS, 1);
     unit_group_->addButton(ui->rBtnPEND, 2);
-    unit_group_->addButton(ui->rBtnAll, 2);
+    unit_group_->addButton(ui->rBtnAll, 3);
 }

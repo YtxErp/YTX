@@ -23,7 +23,6 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "component/using.h"
 #include "database/sqlite/sqlite.h"
 
 class StatementModel final : public QAbstractItemModel {
@@ -45,7 +44,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 public:
-    void Query(CString& text);
+    void Query(UnitO unit = UnitO::kMS);
 
 private:
     Sqlite* sql_ {};

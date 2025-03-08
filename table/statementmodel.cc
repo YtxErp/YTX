@@ -8,6 +8,7 @@ StatementModel::StatementModel(Sqlite* sql, CInfo& info, QObject* parent)
     , sql_ { sql }
     , info_ { info }
 {
+    Query();
 }
 
 StatementModel::~StatementModel() { ResourcePool<Trans>::Instance().Recycle(is_trans_list_); }
@@ -35,7 +36,7 @@ int StatementModel::rowCount(const QModelIndex& parent) const
 int StatementModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    return info_.search_node_header.size();
+    return info_.statement_header.size();
 }
 
 QVariant StatementModel::data(const QModelIndex& index, int role) const
@@ -79,14 +80,14 @@ QVariant StatementModel::data(const QModelIndex& index, int role) const
 QVariant StatementModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return info_.search_node_header.at(section);
+        return info_.statement_header.at(section);
 
     return QVariant();
 }
 
 void StatementModel::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.search_node_header.size())
+    if (column <= -1 || column >= info_.statement_header.size())
         return;
 
     auto Compare = [column, order](const Trans* lhs, const Trans* rhs) -> bool {
@@ -127,22 +128,9 @@ void StatementModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void StatementModel::Query(const QString& text)
+void StatementModel::Query(UnitO unit)
 {
     beginResetModel();
-    switch (info_.section) {
-    case Section::kSales:
-        break;
-    case Section::kPurchase:
-        break;
-    case Section::kFinance:
-    case Section::kProduct:
-    case Section::kTask:
-    case Section::kStakeholder:
-        break;
-    default:
-        break;
-    }
 
     endResetModel();
 }

@@ -22,8 +22,8 @@
 
 #include "component/info.h"
 #include "component/settings.h"
-#include "tree/model/nodemodelo.h"
 #include "nodewidget.h"
+#include "tree/model/nodemodelo.h"
 
 namespace Ui {
 class NodeWidgetO;
@@ -33,8 +33,8 @@ class NodeWidgetO final : public NodeWidget {
     Q_OBJECT
 
 public slots:
-    void on_dateEditStart_dateChanged(const QDate& date);
-    void on_dateEditEnd_dateChanged(const QDate& date);
+    void on_start_dateChanged(const QDate& date);
+    void on_end_dateChanged(const QDate& date);
 
 public:
     NodeWidgetO(NodeModel* model, CInfo& info, const Settings& settings, QWidget* parent = nullptr);
@@ -49,8 +49,8 @@ private slots:
 
 private:
     Ui::NodeWidgetO* ui;
-    QDate start_ {};
-    QDate end_ {};
+    QDateTime start_ {};
+    QDateTime end_ {};
 
     NodeModelO* model_ {};
     CInfo& info_;

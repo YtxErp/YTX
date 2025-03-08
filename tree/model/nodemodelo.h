@@ -47,7 +47,7 @@ public:
     bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
     bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
 
-    void UpdateTree(const QDate& start_date, const QDate& end_date);
+    void UpdateTree(const QDateTime& start, const QDateTime& end);
     QString GetPath(int node_id) const override;
     void RetrieveNode(int node_id) override;
     int Party(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::party); };

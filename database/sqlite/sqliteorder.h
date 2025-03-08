@@ -29,7 +29,7 @@ public:
     SqliteOrder(CInfo& info, QObject* parent = nullptr);
     ~SqliteOrder();
 
-    bool ReadNode(NodeHash& node_hash, const QDate& start_date, const QDate& end_date);
+    bool ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end);
     bool SearchNode(QList<const Node*>& node_list, const QList<int>& party_id_list);
     bool RetrieveNode(NodeHash& node_hash, int node_id);
 
@@ -54,6 +54,7 @@ protected:
     void UpdateStakeholderReferenceO(int old_node_id, int new_node_id) const override;
     void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
     void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const override;
+    void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const override;
 
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
@@ -65,6 +66,7 @@ protected:
     QString QSSearchTrans() const override;
     QString QSWriteTransValueFPTO() const override;
     QString QSTransToRemove() const override;
+    QString QSReadStatement() const override;
 
 private:
     QString SearchNodeQS(CString& in_list) const;

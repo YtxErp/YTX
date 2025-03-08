@@ -879,6 +879,28 @@ bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
     return true;
 }
 
+bool Sqlite::ReadStatement(TransList& trans_list, int node_id) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    auto string { QSReadStatement() };
+    if (string.isEmpty())
+        return false;
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in TransRefRecord" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementQuery(trans_list, query);
+
+    return true;
+}
+
 bool Sqlite::ReadTransRange(TransShadowList& trans_shadow_list, int node_id, const QList<int>& trans_id_list)
 {
     if (trans_id_list.empty() || node_id <= 0)

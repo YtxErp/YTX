@@ -6,8 +6,8 @@
 NodeWidgetO::NodeWidgetO(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
     : NodeWidget(parent)
     , ui(new Ui::NodeWidgetO)
-    , start_ { QDate::currentDate() }
-    , end_ { QDate::currentDate() }
+    , start_ { QDateTime(QDate::currentDate(), kStartTime) }
+    , end_ { QDateTime(QDate::currentDate(), kEndTime) }
     , model_ { static_cast<NodeModelO*>(model) }
     , info_ { info }
     , settings_ { settings }
@@ -15,11 +15,11 @@ NodeWidgetO::NodeWidgetO(NodeModel* model, CInfo& info, CSettings& settings, QWi
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    ui->dateEditStart->setDisplayFormat(kDateFST);
-    ui->dateEditEnd->setDisplayFormat(kDateFST);
+    ui->start->setDisplayFormat(kDateFST);
+    ui->end->setDisplayFormat(kDateFST);
 
-    ui->dateEditStart->setDate(start_);
-    ui->dateEditEnd->setDate(end_);
+    ui->start->setDateTime(start_);
+    ui->end->setDateTime(end_);
 
     ui->treeViewOrder->setModel(model);
 }
@@ -28,16 +28,16 @@ NodeWidgetO::~NodeWidgetO() { delete ui; }
 
 QPointer<QTreeView> NodeWidgetO::View() const { return ui->treeViewOrder; }
 
-void NodeWidgetO::on_dateEditStart_dateChanged(const QDate& date)
+void NodeWidgetO::on_start_dateChanged(const QDate& date)
 {
-    ui->pBtnRefresh->setEnabled(date <= end_);
-    start_ = date;
+    ui->pBtnRefresh->setEnabled(date <= end_.date());
+    start_.setDate(date);
 }
 
-void NodeWidgetO::on_dateEditEnd_dateChanged(const QDate& date)
+void NodeWidgetO::on_end_dateChanged(const QDate& date)
 {
-    ui->pBtnRefresh->setEnabled(date >= start_);
-    end_ = date;
+    ui->pBtnRefresh->setEnabled(date >= start_.date());
+    end_.setDate(date);
 }
 
 void NodeWidgetO::on_pBtnRefresh_clicked() { model_->UpdateTree(start_, end_); }

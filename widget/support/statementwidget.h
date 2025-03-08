@@ -35,8 +35,8 @@ class StatementWidget final : public SupportWidget {
     Q_OBJECT
 
 public slots:
-    void on_dateEditStart_dateChanged(const QDate& date);
-    void on_dateEditEnd_dateChanged(const QDate& date);
+    void on_start_dateChanged(const QDate& date);
+    void on_end_dateChanged(const QDate& date);
 
 public:
     StatementWidget(NodeModel* model, CInfo& info, const Settings& settings, QWidget* parent = nullptr);
@@ -55,8 +55,8 @@ private:
 
 private:
     Ui::StatementWidget* ui;
-    QDate start_ {};
-    QDate end_ {};
+    QDateTime start_ {};
+    QDateTime end_ {};
 
     QButtonGroup* unit_group_ {};
 

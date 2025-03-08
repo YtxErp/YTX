@@ -41,5 +41,7 @@ using PDialog = QPointer<QDialog>;
 
 inline const QString kEmptyString {};
 inline const QString kDD { "dd" };
+inline const QTime kStartTime { 0, 0 }; // 00:00
+inline const QTime kEndTime { 23, 59 }; // 23:59
 
 #endif // USING_H

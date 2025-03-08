@@ -14,7 +14,7 @@ SqliteOrder::SqliteOrder(CInfo& info, QObject* parent)
 
 SqliteOrder::~SqliteOrder() { qDeleteAll(node_hash_buffer_); }
 
-bool SqliteOrder::ReadNode(NodeHash& node_hash, const QDate& start_date, const QDate& end_date)
+bool SqliteOrder::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end)
 {
     CString& string { QSReadNode() };
     if (string.isEmpty())
@@ -24,8 +24,8 @@ bool SqliteOrder::ReadNode(NodeHash& node_hash, const QDate& start_date, const Q
     query.setForwardOnly(true);
     query.prepare(string);
 
-    query.bindValue(QStringLiteral(":start_date"), start_date.toString(kDateFST));
-    query.bindValue(QStringLiteral(":end_date"), end_date.toString(kDateFST));
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
 
     if (!query.exec()) {
         qWarning() << "Section: " << std::to_underlying(info_.section) << "Failed in ReadNode" << query.lastError().text();
@@ -145,7 +145,7 @@ QString SqliteOrder::QSReadNode() const
     return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
     FROM %1
-    WHERE ((DATE(date_time) BETWEEN :start_date AND :end_date) OR type = 1 OR unit = 2) AND removed = 0
+    WHERE ((date_time BETWEEN :start AND :end) OR type = 1 OR unit = 2) AND removed = 0
     )")
         .arg(info_.node);
 }
@@ -255,6 +255,27 @@ QString SqliteOrder::QSTransToRemove() const
     WHERE lhs_node = :node_id AND removed = 0
     )")
         .arg(info_.trans);
+}
+
+QString SqliteOrder::QSReadStatement() const { }
+
+void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
+{
+    // remind to recycle these trans
+    while (query.next()) {
+        auto* trans { ResourcePool<Trans>::Instance().Allocate() };
+
+        trans->id = query.value(QStringLiteral("party")).toInt();
+        trans->lhs_ratio = query.value(QStringLiteral("pbalance")).toDouble();
+        trans->lhs_credit = query.value(QStringLiteral("ctransaction")).toDouble();
+        trans->lhs_debit = query.value(QStringLiteral("csettlement")).toInt();
+        trans->rhs_debit = query.value(QStringLiteral("cdiscount")).toDouble();
+        trans->rhs_credit = query.value(QStringLiteral("cbalance")).toDouble();
+        trans->discount = query.value(QStringLiteral("first")).toDouble();
+        trans->rhs_ratio = query.value(QStringLiteral("second")).toDouble();
+
+        trans_list.emplaceBack(trans);
+    }
 }
 
 QString SqliteOrder::SearchNodeQS(CString& in_list) const

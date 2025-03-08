@@ -60,11 +60,11 @@ void NodeModelO::RSyncBool(int node_id, int column, bool value)
         emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
 }
 
-void NodeModelO::UpdateTree(const QDate& start_date, const QDate& end_date)
+void NodeModelO::UpdateTree(const QDateTime& start, const QDateTime& end)
 {
     beginResetModel();
     root_->children.clear();
-    sql_->ReadNode(node_hash_, start_date, end_date);
+    sql_->ReadNode(node_hash_, start, end);
 
     const auto& const_node_hash { std::as_const(node_hash_) };
 
@@ -203,7 +203,8 @@ bool NodeModelO::UpdateNameFunction(Node* node, CString& value)
 
 void NodeModelO::ConstructTree()
 {
-    sql_->ReadNode(node_hash_, QDate::currentDate(), QDate::currentDate());
+    const QDate kCurrentDate { QDate::currentDate() };
+    sql_->ReadNode(node_hash_, QDateTime(kCurrentDate, kStartTime), QDateTime(kCurrentDate, kEndTime));
 
     const auto& const_node_hash { std::as_const(node_hash_) };
 

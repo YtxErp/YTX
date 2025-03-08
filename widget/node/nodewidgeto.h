@@ -20,8 +20,6 @@
 #ifndef NODEWIDGETO_H
 #define NODEWIDGETO_H
 
-#include "component/info.h"
-#include "component/settings.h"
 #include "nodewidget.h"
 #include "tree/model/nodemodelo.h"
 
@@ -37,7 +35,7 @@ public slots:
     void on_end_dateChanged(const QDate& date);
 
 public:
-    NodeWidgetO(NodeModel* model, CInfo& info, const Settings& settings, QWidget* parent = nullptr);
+    NodeWidgetO(NodeModel* model, QWidget* parent = nullptr);
     ~NodeWidgetO() override;
 
     QPointer<QTreeView> View() const override;
@@ -49,12 +47,10 @@ private slots:
 
 private:
     Ui::NodeWidgetO* ui;
+    NodeModelO* model_ {};
+
     QDateTime start_ {};
     QDateTime end_ {};
-
-    NodeModelO* model_ {};
-    CInfo& info_;
-    const Settings& settings_;
 };
 
 #endif // NODEWIDGETO_H

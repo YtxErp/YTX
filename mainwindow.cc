@@ -1451,7 +1451,7 @@ void MainWindow::SetStakeholderData()
     sql = new SqliteStakeholder(info, this);
 
     auto* model { new NodeModelS(sql, info, stakeholder_settings_.default_unit, stakeholder_trans_wgt_hash_, interface_.separator, this) };
-    stakeholder_tree_ = new NodeWidgetS(model, info, stakeholder_settings_, this);
+    stakeholder_tree_ = new NodeWidgetS(model, this);
 
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
     connect(sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
@@ -1534,7 +1534,7 @@ void MainWindow::SetSalesData()
     sql = new SqliteOrder(info, this);
 
     auto* model { new NodeModelO(sql, info, sales_settings_.default_unit, sales_trans_wgt_hash_, interface_.separator, this) };
-    sales_tree_ = new NodeWidgetO(model, info, sales_settings_, this);
+    sales_tree_ = new NodeWidgetO(model, this);
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
@@ -1576,7 +1576,7 @@ void MainWindow::SetPurchaseData()
     sql = new SqliteOrder(info, this);
 
     auto* model { new NodeModelO(sql, info, purchase_settings_.default_unit, purchase_trans_wgt_hash_, interface_.separator, this) };
-    purchase_tree_ = new NodeWidgetO(model, info, purchase_settings_, this);
+    purchase_tree_ = new NodeWidgetO(model, this);
 
     connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);

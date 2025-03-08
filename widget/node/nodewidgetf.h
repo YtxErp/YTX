@@ -56,8 +56,8 @@ private:
 
 private:
     Ui::NodeWidgetF* ui;
-
     NodeModel* model_ {};
+
     CInfo& info_ {};
     CSettings& settings_ {};
 

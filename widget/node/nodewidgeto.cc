@@ -3,14 +3,12 @@
 #include "component/signalblocker.h"
 #include "ui_nodewidgeto.h"
 
-NodeWidgetO::NodeWidgetO(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
+NodeWidgetO::NodeWidgetO(NodeModel* model, QWidget* parent)
     : NodeWidget(parent)
     , ui(new Ui::NodeWidgetO)
+    , model_ { static_cast<NodeModelO*>(model) }
     , start_ { QDateTime(QDate::currentDate(), kStartTime) }
     , end_ { QDateTime(QDate::currentDate(), kEndTime) }
-    , model_ { static_cast<NodeModelO*>(model) }
-    , info_ { info }
-    , settings_ { settings }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);

@@ -20,8 +20,6 @@
 #ifndef NODEWIDGETS_H
 #define NODEWIDGETS_H
 
-#include "component/info.h"
-#include "component/settings.h"
 #include "nodewidget.h"
 
 namespace Ui {
@@ -32,7 +30,7 @@ class NodeWidgetS final : public NodeWidget {
     Q_OBJECT
 
 public:
-    NodeWidgetS(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);
+    NodeWidgetS(NodeModel* model, QWidget* parent = nullptr);
     ~NodeWidgetS() override;
 
     QPointer<QTreeView> View() const override;
@@ -41,10 +39,7 @@ public:
 
 private:
     Ui::NodeWidgetS* ui;
-
     NodeModel* model_ {};
-    CInfo& info_ {};
-    CSettings& settings_ {};
 };
 
 #endif // NODEWIDGETS_H

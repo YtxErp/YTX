@@ -2,12 +2,10 @@
 
 #include "ui_nodewidgets.h"
 
-NodeWidgetS::NodeWidgetS(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent)
+NodeWidgetS::NodeWidgetS(NodeModel* model, QWidget* parent)
     : NodeWidget(parent)
     , ui(new Ui::NodeWidgetS)
     , model_ { model }
-    , info_ { info }
-    , settings_ { settings }
 {
     ui->setupUi(this);
     ui->treeViewStakeholder->setModel(model);

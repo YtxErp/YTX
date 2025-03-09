@@ -28,7 +28,7 @@ void SqliteStakeholder::RReplaceNode(int old_node_id, int new_node_id, int node_
 
     // begin deal with database
     QSqlQuery query(*db_);
-    CString& string { QSReplaceSupportTransFPTS() };
+    CString string { QSReplaceSupportTransFPTS() };
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
@@ -153,7 +153,7 @@ bool SqliteStakeholder::ReadTrans(int node_id)
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString& string { QSReadTrans() };
+    CString string { QSReadTrans() };
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
 
@@ -373,26 +373,25 @@ QString SqliteStakeholder::QSReadTransRef() const
 void SqliteStakeholder::ReadTransStakeholder(QSqlQuery& query)
 {
     Trans* trans {};
-    int id {};
 
     while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
+        const int kID { query.value(QStringLiteral("id")).toInt() };
 
-        if (trans_hash_.contains(id))
+        if (trans_hash_.contains(kID))
             continue;
 
         trans = ResourcePool<Trans>::Instance().Allocate();
-        trans->id = id;
+        trans->id = kID;
 
         ReadTransQuery(trans, query);
-        trans_hash_.insert(id, trans);
+        trans_hash_.insert(kID, trans);
     }
 }
 
 bool SqliteStakeholder::WriteTrans(Trans* trans)
 {
     QSqlQuery query(*db_);
-    CString& string { QSWriteTrans() };
+    CString string { QSWriteTrans() };
 
     query.prepare(string);
     WriteTransBind(trans, query);

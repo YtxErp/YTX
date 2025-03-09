@@ -56,8 +56,6 @@ void TransModel::RAppendOneTrans(const TransShadow* trans_shadow)
     new_trans_shadow->code = trans_shadow->code;
     new_trans_shadow->document = trans_shadow->document;
     new_trans_shadow->state = trans_shadow->state;
-    new_trans_shadow->lhs_ratio = trans_shadow->lhs_ratio;
-    new_trans_shadow->rhs_ratio = trans_shadow->rhs_ratio;
     new_trans_shadow->discount = trans_shadow->discount;
     new_trans_shadow->support_id = trans_shadow->support_id;
 
@@ -365,12 +363,11 @@ bool TransModel::RemoveMultiTrans(const QList<int>& trans_id_list)
         return false;
 
     int min_row { -1 };
-    int trans_id {};
 
     for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        trans_id = *trans_shadow_list_.at(i)->id;
+        const int kTransID { *trans_shadow_list_.at(i)->id };
 
-        if (trans_id_list.contains(trans_id)) {
+        if (trans_id_list.contains(kTransID)) {
             if (min_row == -1 || i < min_row)
                 min_row = i;
 

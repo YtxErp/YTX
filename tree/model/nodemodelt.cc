@@ -436,9 +436,8 @@ void NodeModelT::ConstructTree()
         }
     }
 
-    QString path {};
     for (auto* node : const_node_hash) {
-        path = NodeModelUtils::ConstructPathFPTS(root_, node, separator_);
+        const auto path { NodeModelUtils::ConstructPathFPTS(root_, node, separator_) };
 
         switch (node->type) {
         case kTypeBranch:

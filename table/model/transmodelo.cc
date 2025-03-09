@@ -402,10 +402,9 @@ bool TransModelO::UpdateSecond(TransShadow* trans_shadow, double value)
 
 void TransModelO::PurifyTransShadow(int lhs_node_id)
 {
-    TransShadow* trans_shadow {};
-
     for (auto i { trans_shadow_list_.size() - 1 }; i >= 0; --i) {
-        trans_shadow = trans_shadow_list_.at(i);
+        auto* trans_shadow { trans_shadow_list_.at(i) };
+
         if (*trans_shadow->rhs_node == 0) {
             beginRemoveRows(QModelIndex(), i, i);
             ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));

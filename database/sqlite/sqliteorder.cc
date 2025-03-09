@@ -16,7 +16,7 @@ SqliteOrder::~SqliteOrder() { qDeleteAll(node_hash_buffer_); }
 
 bool SqliteOrder::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end)
 {
-    CString& string { QSReadNode() };
+    CString string { QSReadNode() };
     if (string.isEmpty())
         return false;
 
@@ -36,12 +36,11 @@ bool SqliteOrder::ReadNode(NodeHash& node_hash, const QDateTime& start, const QD
         node_hash.clear();
 
     Node* node {};
-    int id {};
 
     while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
+        const int kID { query.value(QStringLiteral("id")).toInt() };
 
-        if (auto it = node_hash_buffer_.constFind(id); it != node_hash_buffer_.constEnd()) {
+        if (auto it = node_hash_buffer_.constFind(kID); it != node_hash_buffer_.constEnd()) {
             it.value()->children.clear();
             it.value()->parent = nullptr;
             node_hash.insert(it.key(), it.value());
@@ -50,8 +49,8 @@ bool SqliteOrder::ReadNode(NodeHash& node_hash, const QDateTime& start, const QD
 
         node = ResourcePool<Node>::Instance().Allocate();
         ReadNodeQuery(node, query);
-        node_hash.insert(id, node);
-        node_hash_buffer_.insert(id, node);
+        node_hash.insert(kID, node);
+        node_hash_buffer_.insert(kID, node);
     }
 
     if (!node_hash.isEmpty())
@@ -458,18 +457,17 @@ void SqliteOrder::ReadTransFunction(TransShadowList& trans_shadow_list, int /*no
 {
     TransShadow* trans_shadow {};
     Trans* trans {};
-    int id {};
 
     while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
+        const int kID { query.value(QStringLiteral("id")).toInt() };
 
         trans = ResourcePool<Trans>::Instance().Allocate();
         trans_shadow = ResourcePool<TransShadow>::Instance().Allocate();
 
-        trans->id = id;
+        trans->id = kID;
 
         ReadTransQuery(trans, query);
-        trans_hash_.insert(id, trans);
+        trans_hash_.insert(kID, trans);
 
         ConvertTrans(trans, trans_shadow, true);
         trans_shadow_list.emplaceBack(trans_shadow);

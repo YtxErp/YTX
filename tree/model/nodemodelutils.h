@@ -72,7 +72,7 @@ public:
     static void InitializeRoot(Node*& root, int default_unit);
 
     static Node* GetNodeByID(CNodeHash& hash, int node_id);
-    static bool IsDescendant(Node* lhs, Node* rhs);
+    static bool IsDescendant(const Node* lhs, const Node* rhs);
 
     static void SortIterative(Node* node, std::function<bool(const Node*, const Node*)> Compare);
     static void UpdateComboModel(QStandardItemModel* model, const QVector<std::pair<QString, int>>& items);

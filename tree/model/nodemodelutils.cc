@@ -16,14 +16,12 @@ void NodeModelUtils::UpdateBranchUnitF(const Node* root, Node* node)
     QQueue<const Node*> queue {};
     queue.enqueue(node);
 
-    const Node* current {};
-
     double initial_total { 0.0 };
     const int unit { node->unit };
     const bool rule { node->rule };
 
     while (!queue.isEmpty()) {
-        current = queue.dequeue();
+        const auto* current { queue.dequeue() };
 
         switch (current->type) {
         case kTypeBranch: {
@@ -47,13 +45,9 @@ void NodeModelUtils::UpdatePathFPTS(StringHash& leaf, StringHash& branch, String
     QQueue<const Node*> queue {};
     queue.enqueue(node);
 
-    const Node* current {};
-    QString path {};
-
     while (!queue.isEmpty()) {
-        current = queue.dequeue();
-
-        path = ConstructPathFPTS(root, current, separator);
+        const auto* current { queue.dequeue() };
+        const auto path { ConstructPathFPTS(root, current, separator) };
 
         switch (current->type) {
         case kTypeBranch:
@@ -94,7 +88,7 @@ Node* NodeModelUtils::GetNodeByID(CNodeHash& hash, int node_id)
     return nullptr;
 }
 
-bool NodeModelUtils::IsDescendant(Node* lhs, Node* rhs)
+bool NodeModelUtils::IsDescendant(const Node* lhs, const Node* rhs)
 {
     if (!lhs || !rhs || lhs == rhs)
         return false;
@@ -113,16 +107,14 @@ void NodeModelUtils::SortIterative(Node* node, std::function<bool(const Node*, c
     QQueue<Node*> queue {};
     queue.enqueue(node);
 
-    Node* current {};
-
     while (!queue.isEmpty()) {
-        current = queue.dequeue();
+        auto* current { queue.dequeue() };
 
         if (current->children.isEmpty())
             continue;
 
         std::sort(current->children.begin(), current->children.end(), Compare);
-        for (auto* child : current->children) {
+        for (auto* child : std::as_const(current->children)) {
             queue.enqueue(child);
         }
     }
@@ -460,10 +452,8 @@ void NodeModelUtils::UpdateModel(CStringHash& leaf, QStandardItemModel* leaf_mod
     QSet<int> support_range {};
     QSet<int> leaf_range {};
 
-    const Node* current {};
-
     while (!queue.isEmpty()) {
-        current = queue.dequeue();
+        const auto* current { queue.dequeue() };
 
         switch (current->type) {
         case kTypeBranch:
@@ -492,7 +482,6 @@ void NodeModelUtils::UpdateUnitModel(CStringHash& leaf, QStandardItemModel* unit
         return;
 
     QQueue<const Node*> queue {};
-    const Node* current {};
     QSet<int> range {};
 
     queue.enqueue(node);
@@ -509,7 +498,7 @@ void NodeModelUtils::UpdateUnitModel(CStringHash& leaf, QStandardItemModel* unit
     };
 
     while (!queue.isEmpty()) {
-        current = queue.dequeue();
+        const Node* current { queue.dequeue() };
 
         switch (current->type) {
         case kTypeBranch:

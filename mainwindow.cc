@@ -2103,14 +2103,13 @@ void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
         nodes = model->ChildrenIDFPTS(node_id);
     }
 
-    int tab_node_id {};
     QString path {};
 
     for (int index = 0; index != count; ++index) {
-        tab_node_id = tab_bar->tabData(index).value<Tab>().node_id;
+        const int kNodeID { tab_bar->tabData(index).value<Tab>().node_id };
 
-        if (widget->isTabVisible(index) && nodes.contains(tab_node_id)) {
-            path = model->GetPath(tab_node_id);
+        if (widget->isTabVisible(index) && nodes.contains(kNodeID)) {
+            path = model->GetPath(kNodeID);
 
             if (!branch) {
                 tab_bar->setTabText(index, name);
@@ -2149,7 +2148,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
     if (resize_column) {
         auto* current_widget { ui->tabWidget->currentWidget() };
 
-        if (auto* leaf_widget = dynamic_cast<TransWidget*>(current_widget)) {
+        if (const auto* leaf_widget = dynamic_cast<TransWidget*>(current_widget)) {
             auto* header { leaf_widget->View()->horizontalHeader() };
 
             int column { std::to_underlying(TransEnum::kDescription) };
@@ -2163,7 +2162,7 @@ void MainWindow::RUpdateSettings(const Settings& settings, const Interface& inte
             return;
         }
 
-        if (auto* tree_widget = dynamic_cast<NodeWidget*>(current_widget)) {
+        if (const auto* tree_widget = dynamic_cast<NodeWidget*>(current_widget)) {
             auto* header { tree_widget->View()->header() };
             ResizeColumn(header, std::to_underlying(NodeEnum::kDescription));
         }
@@ -2492,13 +2491,12 @@ void MainWindow::SwitchSection(CTab& last_tab) const
     auto* tab_widget { ui->tabWidget };
     auto* tab_bar { tab_widget->tabBar() };
     const int count { tab_widget->count() };
-    Tab tab {};
 
     for (int index = 0; index != count; ++index) {
-        tab = tab_bar->tabData(index).value<Tab>();
-        tab_widget->setTabVisible(index, tab.section == start_);
+        const auto kTab { tab_bar->tabData(index).value<Tab>() };
+        tab_widget->setTabVisible(index, kTab.section == start_);
 
-        if (tab == last_tab)
+        if (kTab == last_tab)
             tab_widget->setCurrentIndex(index);
     }
 

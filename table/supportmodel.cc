@@ -30,8 +30,6 @@ void SupportModel::RAppendSupportTrans(const TransShadow* trans_shadow)
     new_trans_shadow->code = trans_shadow->code;
     new_trans_shadow->document = trans_shadow->document;
     new_trans_shadow->state = trans_shadow->state;
-    new_trans_shadow->lhs_ratio = trans_shadow->lhs_ratio;
-    new_trans_shadow->rhs_ratio = trans_shadow->rhs_ratio;
     new_trans_shadow->discount = trans_shadow->discount;
     new_trans_shadow->support_id = trans_shadow->support_id;
 

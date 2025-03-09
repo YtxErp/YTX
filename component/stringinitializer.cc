@@ -444,7 +444,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     sales.statement_header = {
         QObject::tr("Party"),
         QObject::tr("PBalance"),
-        QObject::tr("CTransaction"),
+        QObject::tr("CGrossAmount"),
         QObject::tr("CSettlement"),
         QObject::tr("CDiscount"),
         QObject::tr("CBalance"),

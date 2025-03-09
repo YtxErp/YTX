@@ -278,16 +278,15 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
     case UnitO::kIS:
         return QString(R"(
             SELECT
-                s.id,
+                s.id AS party,
                 0 AS pbalance,
+                0 AS cbalance,
 
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS ctransaction,
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS cgross_amount,
                 SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.settlement   ELSE 0 END) AS csettlement,
                 SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount     ELSE 0 END) AS cdiscount,
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS first,
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS second,
-
-                0 AS cbalance
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS cfirst,
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS csecond
 
             FROM stakeholder s
             INNER JOIN %1 o ON s.id = o.party
@@ -301,12 +300,14 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
             WITH Statement AS (
                 SELECT
                     s.id AS party,
+
                     SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount - o.settlement ELSE 0 END) AS pbalance,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount              ELSE 0 END) AS ctransaction,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount              ELSE 0 END) AS cgross_amount,
                     SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.settlement                ELSE 0 END) AS csettlement,
                     SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount                  ELSE 0 END) AS cdiscount,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first                     ELSE 0 END) AS first,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second                    ELSE 0 END) AS second
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first                     ELSE 0 END) AS cfirst,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second                    ELSE 0 END) AS csecond
+
                 FROM stakeholder s
                 INNER JOIN %1 o ON s.id = o.party
                 WHERE o.unit = 1 AND o.finished = 1 AND o.removed = 0
@@ -315,12 +316,12 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
             SELECT
                 party,
                 pbalance,
-                ctransaction,
+                cgross_amount,
                 csettlement,
                 cdiscount,
-                pbalance + ctransaction - csettlement - cdiscount AS cbalance,
-                first,
-                second
+                pbalance + cgross_amount - csettlement - cdiscount AS cbalance,
+                cfirst,
+                csecond
             FROM Statement;
             )")
             .arg(info_.node);
@@ -330,12 +331,14 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
             WITH Statement AS (
                 SELECT
                     s.id AS party,
-                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount   ELSE 0 END) AS pbalance,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS ctransaction,
                     0 AS csettlement,
+
+                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount   ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS cgross_amount,
                     SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount     ELSE 0 END) AS cdiscount,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS first,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS second
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS cfirst,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS csecond
+
                 FROM stakeholder s
                 INNER JOIN %1 o ON s.id = o.party
                 WHERE o.unit = 2 AND o.removed = 0
@@ -344,12 +347,12 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
             SELECT
                 party,
                 pbalance,
-                ctransaction,
+                cgross_amount,
                 csettlement,
                 cdiscount,
-                pbalance + ctransaction - cdiscount AS cbalance,
-                first,
-                second
+                pbalance + cgross_amount - cdiscount AS cbalance,
+                cfirst,
+                csecond
             FROM Statement;
             )")
             .arg(info_.node);
@@ -367,12 +370,12 @@ void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) co
 
         trans->id = query.value(QStringLiteral("party")).toInt();
         trans->lhs_ratio = query.value(QStringLiteral("pbalance")).toDouble();
-        trans->rhs_debit = query.value(QStringLiteral("ctransaction")).toDouble();
+        trans->rhs_debit = query.value(QStringLiteral("cgross_amount")).toDouble();
         trans->rhs_credit = query.value(QStringLiteral("csettlement")).toInt();
         trans->discount = query.value(QStringLiteral("cdiscount")).toDouble();
         trans->rhs_ratio = query.value(QStringLiteral("cbalance")).toDouble();
-        trans->lhs_debit = query.value(QStringLiteral("first")).toDouble();
-        trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
+        trans->lhs_debit = query.value(QStringLiteral("cfirst")).toDouble();
+        trans->lhs_credit = query.value(QStringLiteral("csecond")).toDouble();
 
         trans_list.emplaceBack(trans);
     }

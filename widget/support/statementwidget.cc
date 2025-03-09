@@ -58,6 +58,8 @@ void StatementWidget::IniWidget(StatementModel* model)
     ui->tableViewStatement->setModel(model);
     ui->start->setDateTime(start_);
     ui->end->setDateTime(end_);
+
+    ui->pBtnRefresh->setFocus();
 }
 
 void StatementWidget::IniData() { model_->Query(start_, end_, unit_); }

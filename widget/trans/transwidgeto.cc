@@ -21,7 +21,7 @@ TransWidgetO::TransWidgetO(CEditNodeParamsO& params, QWidget* parent)
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog();
+    IniWidget();
     IniText(params.section);
     IniUnit(params.node->unit);
     IniRuleGroup();
@@ -139,7 +139,7 @@ void TransWidgetO::RUpdateLeafValue(int node_id, double initial_delta, double fi
     emit SUpdateLeafValue(node_id_, adjusted_initial_delta, adjusted_final_delta, adjusted_first_delta, adjusted_second_delta, adjusted_discount_delta);
 }
 
-void TransWidgetO::IniDialog()
+void TransWidgetO::IniWidget()
 {
     pmodel_ = stakeholder_tree_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(pmodel_);

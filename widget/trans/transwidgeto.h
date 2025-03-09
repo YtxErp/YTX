@@ -78,7 +78,7 @@ private slots:
     void RUnitGroupClicked(int id);
 
 private:
-    void IniDialog();
+    void IniWidget();
     void IniData();
     void IniConnect();
     void IniDataCombo(int party, int employee);

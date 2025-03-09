@@ -558,7 +558,9 @@ void MainWindow::on_actionStatement_triggered()
     tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id }));
     tab_bar->setTabToolTip(tab_index, tr("Statement"));
 
-    SetStatementView(widget->View());
+    auto view { widget->View() };
+    SetStatementView(view);
+    DelegateStatement(view, settings_);
 
     sup_wgt_hash_->insert(statement_id, widget);
     --statement_id;
@@ -1365,6 +1367,23 @@ void MainWindow::SetStatementView(PTableView view) const
     v_header->setDefaultSectionSize(kRowHeight);
     v_header->setSectionResizeMode(QHeaderView::Fixed);
     v_header->setHidden(true);
+}
+
+void MainWindow::DelegateStatement(PTableView table_view, CSettings* settings) const
+{
+    auto* quantity { new DoubleSpinR(settings->common_decimal, kCoefficient8, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kSecond), quantity);
+
+    auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCDiscount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCSettlement), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kPBalance), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCBalance), amount);
+
+    auto* inside_product { new NodeNameR(product_tree_->Model(), table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kParty), inside_product);
 }
 
 void MainWindow::SetConnect() const

@@ -104,7 +104,7 @@ enum class TransRefEnum {
 };
 
 // P:Previous, C:Current
-enum class StatementEnum { kParty, kPBalance, kCGrossAmount, kCSettlement, kCDiscount, kCBalance, kFirst, kSecond, kPlaceholder };
+enum class StatementEnum { kParty, kPBalance, kCGrossAmount, kCSettlement, kCDiscount, kCBalance, kCFirst, kCSecond, kPlaceholder };
 
 // defining node column
 enum class NodeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };

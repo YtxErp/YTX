@@ -1372,8 +1372,8 @@ void MainWindow::SetStatementView(PTableView view) const
 void MainWindow::DelegateStatement(PTableView table_view, CSettings* settings) const
 {
     auto* quantity { new DoubleSpinR(settings->common_decimal, kCoefficient8, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kFirst), quantity);
-    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kSecond), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCSecond), quantity);
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCGrossAmount), amount);

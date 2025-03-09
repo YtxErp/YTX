@@ -370,6 +370,10 @@ void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
     SalesNodeLocation(kNodeID);
 }
 
+void MainWindow::RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount) { }
+
+void MainWindow::RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount) { }
+
 void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 {
     auto widget { trans_wgt_hash_->value(node_id, nullptr) };
@@ -561,6 +565,9 @@ void MainWindow::on_actionStatement_triggered()
     auto view { widget->View() };
     SetStatementView(view);
     DelegateStatement(view, settings_);
+
+    connect(widget, &StatementWidget::SPrimaryStatement, this, &MainWindow::RPrimaryStatement);
+    connect(widget, &StatementWidget::SSecondaryStatement, this, &MainWindow::RSecondaryStatement);
 
     sup_wgt_hash_->insert(statement_id, widget);
     --statement_id;

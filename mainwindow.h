@@ -102,6 +102,9 @@ private slots:
     void RSectionGroup(int id);
     void RTransRefDoubleClicked(const QModelIndex& index);
 
+    void RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount);
+    void RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount);
+
 private:
     void SetTabWidget();
     void SetClearMenuAction();

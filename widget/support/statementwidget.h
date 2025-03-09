@@ -32,6 +32,10 @@ class StatementWidget;
 class StatementWidget final : public SupportWidget {
     Q_OBJECT
 
+signals:
+    void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount);
+    void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount);
+
 public slots:
     void on_start_dateChanged(const QDate& date);
     void on_end_dateChanged(const QDate& date);
@@ -46,6 +50,7 @@ public:
 
 private slots:
     void on_pBtnRefresh_clicked();
+    void on_tableViewStatement_doubleClicked(const QModelIndex& index);
     void RUnitGroupClicked(int id);
 
 private:

@@ -1945,7 +1945,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2261"/>
+        <location filename="../../mainwindow.cc" line="+2274"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -1974,7 +1974,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="../../mainwindow.cc" line="-1893"/>
+        <location filename="../../mainwindow.cc" line="-1896"/>
         <location line="+4"/>
         <source>Statement</source>
         <translation>对帐单</translation>
@@ -1989,7 +1989,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">导出 Xlsx...</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="+1999"/>
+        <location filename="../../mainwindow.cc" line="+2002"/>
         <source>Export Structure</source>
         <translation>导出 Ytx</translation>
     </message>
@@ -2126,7 +2126,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-278"/>
-        <location filename="../../mainwindow.cc" line="-2370"/>
+        <location filename="../../mainwindow.cc" line="-2383"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2184,7 +2184,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+227"/>
-        <location filename="../../mainwindow.cc" line="+2250"/>
+        <location filename="../../mainwindow.cc" line="+2263"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2363,7 +2363,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">无效的文件: %1</translation>
     </message>
     <message>
-        <location line="-986"/>
+        <location line="-999"/>
         <source>Invalid File</source>
         <translation>无效的文件</translation>
     </message>
@@ -2373,7 +2373,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件 %1 是无效的，请检查后再重新试试。</translation>
     </message>
     <message>
-        <location line="+969"/>
+        <location line="+982"/>
         <source>Lock Failed</source>
         <translation>锁定失败</translation>
     </message>
@@ -2448,7 +2448,7 @@ Rage, rage against the dying of the light.</source>
         <translation>语言已更改，请重启应用程序以使更改生效。</translation>
     </message>
     <message>
-        <location line="-1895"/>
+        <location line="-1908"/>
         <source>Please open the file first.</source>
         <translation>请先打开文件。</translation>
     </message>
@@ -2458,7 +2458,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location line="+2310"/>
+        <location line="+2323"/>
         <location line="+59"/>
         <source>Export Completed</source>
         <translation>成功</translation>
@@ -3535,6 +3535,16 @@ Rage, rage against the dying of the light.</source>
         <translation>当期总额</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>CFirst</source>
+        <translation>第一</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CSecond</source>
+        <translation>第二</translation>
+    </message>
+    <message>
         <source>CTransaction</source>
         <translation type="vanished">当期交易</translation>
     </message>
@@ -3558,7 +3568,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">左比率</translation>
     </message>
     <message>
-        <location line="-348"/>
+        <location line="-350"/>
         <location line="+35"/>
         <location line="+51"/>
         <location line="+28"/>
@@ -3723,24 +3733,22 @@ Rage, rage against the dying of the light.</source>
         <location line="+26"/>
         <location line="+13"/>
         <location line="+18"/>
-        <location line="+18"/>
         <source>First</source>
         <translation>第一</translation>
     </message>
     <message>
-        <location line="-264"/>
+        <location line="-246"/>
         <location line="+100"/>
         <location line="+78"/>
         <location line="+12"/>
         <location line="+26"/>
         <location line="+13"/>
         <location line="+18"/>
-        <location line="+18"/>
         <source>Second</source>
         <translation>第二</translation>
     </message>
     <message>
-        <location line="-259"/>
+        <location line="-241"/>
         <location line="+100"/>
         <location line="+75"/>
         <location line="+16"/>

@@ -10,7 +10,7 @@ StatementModel::StatementModel(Sqlite* sql, CInfo& info, QObject* parent)
 {
 }
 
-StatementModel::~StatementModel() { ResourcePool<Trans>::Instance().Recycle(is_trans_list_); }
+StatementModel::~StatementModel() { ResourcePool<Trans>::Instance().Recycle(trans_list_); }
 
 QModelIndex StatementModel::index(int row, int column, const QModelIndex& parent) const
 {
@@ -29,7 +29,7 @@ QModelIndex StatementModel::parent(const QModelIndex& index) const
 int StatementModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    return is_trans_list_.size();
+    return trans_list_.size();
 }
 
 int StatementModel::columnCount(const QModelIndex& parent) const
@@ -49,28 +49,20 @@ QVariant StatementModel::data(const QModelIndex& index, int role) const
     switch (kColumn) {
     case StatementEnum::kParty:
         return trans->id;
-        break;
     case StatementEnum::kPBalance:
-        return trans->lhs_ratio;
-        break;
+        return trans->lhs_ratio == 0 ? QVariant() : trans->lhs_ratio;
     case StatementEnum::kCTransaction:
-        return trans->rhs_debit;
-        break;
+        return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
     case StatementEnum::kCSettlement:
-        return trans->rhs_credit;
-        break;
+        return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
     case StatementEnum::kCDiscount:
-        return trans->discount;
-        break;
+        return trans->discount == 0 ? QVariant() : trans->discount;
     case StatementEnum::kCBalance:
-        return trans->rhs_ratio;
-        break;
+        return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
     case StatementEnum::kFirst:
-        return trans->lhs_debit;
-        break;
+        return trans->lhs_debit == 0 ? QVariant() : trans->lhs_debit;
     case StatementEnum::kSecond:
-        return trans->lhs_credit;
-        break;
+        return trans->lhs_credit == 0 ? QVariant() : trans->lhs_credit;
     default:
         return QVariant();
     }
@@ -95,28 +87,20 @@ void StatementModel::sort(int column, Qt::SortOrder order)
         switch (kColumn) {
         case StatementEnum::kParty:
             return (order == Qt::AscendingOrder) ? (lhs->id < rhs->id) : (lhs->id > rhs->id);
-            break;
         case StatementEnum::kPBalance:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_ratio < rhs->lhs_ratio) : (lhs->lhs_ratio > rhs->lhs_ratio);
-            break;
         case StatementEnum::kCTransaction:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
-            break;
         case StatementEnum::kCSettlement:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
-            break;
         case StatementEnum::kCDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-            break;
         case StatementEnum::kCBalance:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
-            break;
         case StatementEnum::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_debit < rhs->lhs_debit) : (lhs->lhs_debit > rhs->lhs_debit);
-            break;
         case StatementEnum::kSecond:
             return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
-            break;
         default:
             return false;
         }

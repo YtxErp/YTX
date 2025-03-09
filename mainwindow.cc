@@ -558,6 +558,8 @@ void MainWindow::on_actionStatement_triggered()
     tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id }));
     tab_bar->setTabToolTip(tab_index, tr("Statement"));
 
+    SetStatementView(widget->View());
+
     sup_wgt_hash_->insert(statement_id, widget);
     --statement_id;
 }
@@ -1347,6 +1349,22 @@ void MainWindow::SetSupportViewS(PTableView table_view) const
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsDebit), true);
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsCredit), true);
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsCredit), true);
+}
+
+void MainWindow::SetStatementView(PTableView view) const
+{
+    view->setSortingEnabled(true);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
+    view->setSelectionBehavior(QAbstractItemView::SelectRows);
+    view->setAlternatingRowColors(true);
+
+    auto* h_header { view->horizontalHeader() };
+    ResizeColumn(h_header, std::to_underlying(StatementEnum::kPlaceholder));
+
+    auto* v_header { view->verticalHeader() };
+    v_header->setDefaultSectionSize(kRowHeight);
+    v_header->setSectionResizeMode(QHeaderView::Fixed);
+    v_header->setHidden(true);
 }
 
 void MainWindow::SetConnect() const
@@ -2293,8 +2311,12 @@ void MainWindow::RNodeLocation(int node_id)
     auto* widget { tree_widget_ };
     ui->tabWidget->setCurrentWidget(widget);
 
-    if (start_ == Section::kSales || start_ == Section::kPurchase)
+    if (start_ == Section::kSales || start_ == Section::kPurchase) {
+        if (node_id <= 0)
+            return;
+
         tree_widget_->Model()->RetrieveNode(node_id);
+    }
 
     auto index { tree_widget_->Model()->GetIndex(node_id) };
     widget->activateWindow();

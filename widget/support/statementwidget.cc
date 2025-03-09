@@ -15,15 +15,8 @@ StatementWidget::StatementWidget(StatementModel* model, QWidget* parent)
     ui->setupUi(this);
     SignalBlocker blocker(this);
     IniUnitGroup();
-
-    ui->start->setDisplayFormat(kDateFST);
-    ui->end->setDisplayFormat(kDateFST);
-
-    ui->start->setDateTime(start_);
-    ui->end->setDateTime(end_);
-
-    ui->tableViewStatement->setModel(model);
-    model_->Query(start_, end_, unit_);
+    IniWidget(model);
+    IniData();
     IniConnect();
 }
 
@@ -56,3 +49,15 @@ void StatementWidget::IniUnitGroup()
 }
 
 void StatementWidget::IniConnect() { connect(unit_group_, &QButtonGroup::idClicked, this, &StatementWidget::RUnitGroupClicked); }
+
+void StatementWidget::IniWidget(StatementModel* model)
+{
+    ui->start->setDisplayFormat(kDateFST);
+    ui->end->setDisplayFormat(kDateFST);
+    ui->rBtnMS->setChecked(true);
+    ui->tableViewStatement->setModel(model);
+    ui->start->setDateTime(start_);
+    ui->end->setDateTime(end_);
+}
+
+void StatementWidget::IniData() { model_->Query(start_, end_, unit_); }

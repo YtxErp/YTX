@@ -100,7 +100,7 @@ QString NodeModelO::GetPath(int node_id) const
 
 void NodeModelO::RetrieveNode(int node_id)
 {
-    if (node_hash_.contains(node_id))
+    if (node_hash_.contains(node_id) || node_id <= 0)
         return;
 
     sql_->RetrieveNode(node_hash_, node_id);
@@ -167,7 +167,7 @@ bool NodeModelO::UpdateUnit(Node* node, int value)
     }
 
     sql_->WriteField(info_.node, kUnit, value, node->id);
-    sql_->WriteField(info_.node, kNetAmount, node->final_total, node->id);
+    sql_->WriteField(info_.node, kSettlement, node->final_total, node->id);
 
     emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kNetAmount));
     return true;
@@ -175,7 +175,7 @@ bool NodeModelO::UpdateUnit(Node* node, int value)
 
 bool NodeModelO::UpdateFinished(Node* node, bool value)
 {
-    if (node->finished == value)
+    if (node->finished == value || node->unit == std::to_underlying(UnitO::kPEND) || node->type != kTypeLeaf)
         return false;
 
     int coefficient = value ? 1 : -1;
@@ -187,6 +187,7 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
     emit SSyncBool(node->id, std::to_underlying(NodeEnumO::kFinished), value);
     if (node->unit == std::to_underlying(UnitO::kMS))
         emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
+
     sql_->WriteField(info_.node, kFinished, value, node->id);
     return true;
 }

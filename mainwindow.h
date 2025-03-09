@@ -136,6 +136,8 @@ private:
     void DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
     void SetSupportViewS(PTableView table_view) const;
 
+    void SetStatementView(PTableView table_view) const;
+
     void TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
     void TableConnectO(PTableView table_view, TransModelO* table_model, PTreeModel tree_model, TransWidgetO* widget) const;
     void TableConnectS(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;

@@ -96,6 +96,7 @@ inline constexpr char kFinished[] = "finished";
 inline constexpr char kSecond[] = "second";
 inline constexpr char kState[] = "state";
 inline constexpr char kNetAmount[] = "net_amount";
+inline constexpr char kSettlement[] = "settlement";
 inline constexpr char kGrossAmount[] = "gross_amount";
 inline constexpr char kTaxRate[] = "tax_rate";
 inline constexpr char kUnit[] = "unit";

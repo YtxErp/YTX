@@ -1762,7 +1762,7 @@ Rage, rage against the dying of the light.</source>
     <name>MainWindow</name>
     <message>
         <location filename="../../mainwindow.ui" line="+85"/>
-        <location filename="../../mainwindow.cc" line="+184"/>
+        <location filename="../../mainwindow.cc" line="+186"/>
         <source>Finance</source>
         <translation>财务</translation>
     </message>
@@ -1945,7 +1945,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2201"/>
+        <location filename="../../mainwindow.cc" line="+2220"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -1974,6 +1974,8 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+5"/>
+        <location filename="../../mainwindow.cc" line="-1852"/>
+        <location line="+4"/>
         <source>Statement</source>
         <translation>对帐单</translation>
     </message>
@@ -1987,7 +1989,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">导出 Xlsx...</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="+110"/>
+        <location filename="../../mainwindow.cc" line="+1958"/>
         <source>Export Structure</source>
         <translation>导出 Ytx</translation>
     </message>
@@ -2124,7 +2126,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-278"/>
-        <location filename="../../mainwindow.cc" line="-2310"/>
+        <location filename="../../mainwindow.cc" line="-2329"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2182,7 +2184,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+227"/>
-        <location filename="../../mainwindow.cc" line="+2190"/>
+        <location filename="../../mainwindow.cc" line="+2209"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2361,7 +2363,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">无效的文件: %1</translation>
     </message>
     <message>
-        <location line="-963"/>
+        <location line="-982"/>
         <source>Invalid File</source>
         <translation>无效的文件</translation>
     </message>
@@ -2371,7 +2373,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件 %1 是无效的，请检查后再重新试试。</translation>
     </message>
     <message>
-        <location line="+946"/>
+        <location line="+965"/>
         <source>Lock Failed</source>
         <translation>锁定失败</translation>
     </message>
@@ -2446,7 +2448,7 @@ Rage, rage against the dying of the light.</source>
         <translation>语言已更改，请重启应用程序以使更改生效。</translation>
     </message>
     <message>
-        <location line="-1839"/>
+        <location line="-1858"/>
         <source>Please open the file first.</source>
         <translation>请先打开文件。</translation>
     </message>
@@ -2456,7 +2458,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location line="+2250"/>
+        <location line="+2269"/>
         <location line="+59"/>
         <source>Export Completed</source>
         <translation>成功</translation>
@@ -3525,27 +3527,27 @@ Rage, rage against the dying of the light.</source>
     <message>
         <location line="+39"/>
         <source>PBalance</source>
-        <translation type="unfinished"></translation>
+        <translation>期初余额</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>CTransaction</source>
-        <translation type="unfinished"></translation>
+        <translation>当期交易</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>CSettlement</source>
-        <translation type="unfinished"></translation>
+        <translation>当期结算</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>CDiscount</source>
-        <translation type="unfinished"></translation>
+        <translation>当期优惠</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>CBalance</source>
-        <translation type="unfinished"></translation>
+        <translation>期末余额</translation>
     </message>
     <message>
         <source>LhsRatio</source>
@@ -4048,9 +4050,8 @@ Rage, rage against the dying of the light.</source>
         <translation>挂帐</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>All</source>
-        <translation>全部</translation>
+        <translation type="vanished">全部</translation>
     </message>
     <message>
         <location line="+7"/>

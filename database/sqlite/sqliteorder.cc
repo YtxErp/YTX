@@ -140,12 +140,27 @@ void SqliteOrder::RRemoveNode(int node_id, int /*node_type*/)
         ResourcePool<Trans>::Instance().Recycle(trans_hash_.take(trans_id));
 }
 
+/**
+ * @brief Read all relevant nodes from the database table.
+ *
+ * This SQL query retrieves records from the table specified in \a info_.node.
+ * It includes:
+ * - Branch nodes (\c type = 1)
+ * - Unfinished nodes (\c finished = 0)
+ * - Pending nodes (\c unit = 2)
+ * - Nodes within the specified date range (\c date_time BETWEEN :start AND :end)
+ * - Excludes removed nodes (\c removed = 0)
+ *
+ * The table name is dynamically set by \a info_.node.
+ *
+ * @return A SQL query string for node selection.
+ */
 QString SqliteOrder::QSReadNode() const
 {
     return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
     FROM %1
-    WHERE ((date_time BETWEEN :start AND :end) OR type = 1 OR unit = 2) AND removed = 0
+    WHERE ((date_time BETWEEN :start AND :end) OR type = 1 OR finished = 0 OR unit = 2) AND removed = 0
     )")
         .arg(info_.node);
 }
@@ -263,34 +278,39 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
     case UnitO::kIS:
         return QString(R"(
             SELECT
-                party,
+                s.id,
                 0 AS pbalance,
-                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN gross_amount ELSE 0 END) AS ctransaction,
-                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN settlement   ELSE 0 END) AS csettlement,
-                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN discount     ELSE 0 END) AS cdiscount,
-                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN first        ELSE 0 END) AS first,
-                SUM(CASE WHEN date_time BETWEEN :start AND :end THEN second       ELSE 0 END) AS second,
+
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS ctransaction,
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.settlement   ELSE 0 END) AS csettlement,
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount     ELSE 0 END) AS cdiscount,
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS first,
+                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS second,
+
                 0 AS cbalance
-            FROM %1
-            WHERE unit = 0 AND removed = 0
-            GROUP BY party
-            )")
+
+            FROM stakeholder s
+            INNER JOIN %1 o ON s.id = o.party
+            WHERE o.unit = 0 AND o.finished = 1 AND o.removed = 0
+            GROUP BY s.id
+    )")
             .arg(info_.node);
         break;
     case UnitO::kMS:
         return QString(R"(
             WITH Statement AS (
                 SELECT
-                    party,
-                    SUM(CASE WHEN date_time < :start THEN gross_amount - discount - settlement ELSE 0 END) AS pbalance,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN gross_amount          ELSE 0 END) AS ctransaction,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN settlement            ELSE 0 END) AS csettlement,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN discount              ELSE 0 END) AS cdiscount,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN first                 ELSE 0 END) AS first,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN second                ELSE 0 END) AS second
-                FROM %1
-                WHERE unit = 1 AND removed = 0
-                GROUP BY party
+                    s.id AS party,
+                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount - o.settlement ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount              ELSE 0 END) AS ctransaction,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.settlement                ELSE 0 END) AS csettlement,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount                  ELSE 0 END) AS cdiscount,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first                     ELSE 0 END) AS first,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second                    ELSE 0 END) AS second
+                FROM stakeholder s
+                INNER JOIN %1 o ON s.id = o.party
+                WHERE o.unit = 1 AND o.finished = 1 AND o.removed = 0
+                GROUP BY s.id
             )
             SELECT
                 party,
@@ -309,16 +329,17 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
         return QString(R"(
             WITH Statement AS (
                 SELECT
-                    party,
-                    SUM(CASE WHEN date_time < :start THEN gross_amount - discount     ELSE 0 END) AS pbalance,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN gross_amount ELSE 0 END) AS ctransaction,
+                    s.id AS party,
+                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount   ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS ctransaction,
                     0 AS csettlement,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN discount     ELSE 0 END) AS cdiscount,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN first        ELSE 0 END) AS first,
-                    SUM(CASE WHEN date_time BETWEEN :start AND :end THEN second       ELSE 0 END) AS second
-                FROM %1
-                WHERE unit = 2 AND removed = 0
-                GROUP BY party
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount     ELSE 0 END) AS cdiscount,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS first,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS second
+                FROM stakeholder s
+                INNER JOIN %1 o ON s.id = o.party
+                WHERE o.unit = 2 AND o.removed = 0
+                GROUP BY s.id
             )
             SELECT
                 party,
@@ -346,12 +367,12 @@ void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) co
 
         trans->id = query.value(QStringLiteral("party")).toInt();
         trans->lhs_ratio = query.value(QStringLiteral("pbalance")).toDouble();
-        trans->lhs_credit = query.value(QStringLiteral("ctransaction")).toDouble();
-        trans->lhs_debit = query.value(QStringLiteral("csettlement")).toInt();
-        trans->rhs_debit = query.value(QStringLiteral("cdiscount")).toDouble();
-        trans->rhs_credit = query.value(QStringLiteral("cbalance")).toDouble();
-        trans->discount = query.value(QStringLiteral("first")).toDouble();
-        trans->rhs_ratio = query.value(QStringLiteral("second")).toDouble();
+        trans->rhs_debit = query.value(QStringLiteral("ctransaction")).toDouble();
+        trans->rhs_credit = query.value(QStringLiteral("csettlement")).toInt();
+        trans->discount = query.value(QStringLiteral("cdiscount")).toDouble();
+        trans->rhs_ratio = query.value(QStringLiteral("cbalance")).toDouble();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toDouble();
+        trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
 
         trans_list.emplaceBack(trans);
     }

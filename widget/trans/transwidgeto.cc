@@ -289,6 +289,7 @@ void TransWidgetO::IniFinished(bool finished)
 {
     ui->pBtnFinishOrder->setChecked(finished);
     ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
+    ui->pBtnFinishOrder->setEnabled(node_->unit != std::to_underlying(UnitO::kPEND));
 
     if (finished) {
         ui->pBtnPrint->setFocus();
@@ -388,14 +389,17 @@ void TransWidgetO::RRuleGroupClicked(int id)
 void TransWidgetO::RUnitGroupClicked(int id)
 {
     const UnitO unit { id };
+    node_->final_total = 0.0;
 
     switch (unit) {
     case UnitO::kIS:
         node_->final_total = node_->initial_total - node_->discount;
-        break;
+        [[fallthrough]];
     case UnitO::kMS:
+        ui->pBtnFinishOrder->setEnabled(true);
+        break;
     case UnitO::kPEND:
-        node_->final_total = 0.0;
+        ui->pBtnFinishOrder->setEnabled(false);
         break;
     default:
         break;
@@ -405,7 +409,7 @@ void TransWidgetO::RUnitGroupClicked(int id)
     ui->dSpinNetAmount->setValue(node_->final_total);
 
     sql_->WriteField(info_node_, kUnit, id, node_id_);
-    sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
+    sql_->WriteField(info_node_, kSettlement, node_->final_total, node_id_);
 }
 
 void TransWidgetO::on_pBtnFinishOrder_toggled(bool checked)

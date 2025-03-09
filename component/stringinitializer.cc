@@ -450,6 +450,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("CBalance"),
         QObject::tr("First"),
         QObject::tr("Second"),
+        QObject::tr("PlaceHolder"),
     };
 
     purchase.node_header = sales.node_header;

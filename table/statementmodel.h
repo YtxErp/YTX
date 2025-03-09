@@ -51,9 +51,6 @@ private:
     CInfo& info_;
 
     TransList trans_list_ {};
-    TransList is_trans_list_ {};
-    TransList ms_trans_list_ {};
-    TransList pend_trans_list_ {};
 };
 
 #endif // STATEMENTMODEL_H

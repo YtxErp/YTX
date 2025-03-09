@@ -488,14 +488,17 @@ void InsertNodeOrder::RRuleGroupClicked(int id)
 void InsertNodeOrder::RUnitGroupClicked(int id)
 {
     const UnitO unit { id };
+    node_->final_total = 0.0;
 
     switch (unit) {
     case UnitO::kIS:
         node_->final_total = node_->initial_total - node_->discount;
-        break;
+        [[fallthrough]];
     case UnitO::kMS:
+        ui->pBtnFinishOrder->setEnabled(ui->comboParty->currentIndex() != -1);
+        break;
     case UnitO::kPEND:
-        node_->final_total = 0.0;
+        ui->pBtnFinishOrder->setEnabled(false);
         break;
     default:
         break;
@@ -506,7 +509,7 @@ void InsertNodeOrder::RUnitGroupClicked(int id)
 
     if (node_id_ != 0) {
         sql_->WriteField(info_node_, kUnit, id, node_id_);
-        sql_->WriteField(info_node_, kNetAmount, node_->final_total, node_id_);
+        sql_->WriteField(info_node_, kSettlement, node_->final_total, node_id_);
     }
 }
 

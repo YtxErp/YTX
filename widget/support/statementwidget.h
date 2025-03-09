@@ -51,6 +51,8 @@ private slots:
 private:
     void IniUnitGroup();
     void IniConnect();
+    void IniWidget(StatementModel* model);
+    void IniData();
 
 private:
     Ui::StatementWidget* ui;

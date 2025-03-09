@@ -151,13 +151,13 @@ void TransWidgetO::IniDialog()
 
     ui->dSpinDiscount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinGrossAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-    ui->dSpinNetAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinSettlement->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinSecond->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinFirst->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
 
     ui->dSpinDiscount->setDecimals(settings_->amount_decimal);
     ui->dSpinGrossAmount->setDecimals(settings_->amount_decimal);
-    ui->dSpinNetAmount->setDecimals(settings_->amount_decimal);
+    ui->dSpinSettlement->setDecimals(settings_->amount_decimal);
     ui->dSpinSecond->setDecimals(settings_->common_decimal);
     ui->dSpinFirst->setDecimals(settings_->common_decimal);
 
@@ -204,7 +204,7 @@ void TransWidgetO::LockWidgets(bool finished)
     ui->pBtnInsert->setEnabled(enable);
 
     ui->labelSettlement->setEnabled(enable);
-    ui->dSpinNetAmount->setEnabled(enable);
+    ui->dSpinSettlement->setEnabled(enable);
 
     ui->dSpinGrossAmount->setEnabled(enable);
 
@@ -253,7 +253,7 @@ void TransWidgetO::IniUnit(int unit)
 
 void TransWidgetO::IniLeafValue()
 {
-    ui->dSpinNetAmount->setValue(node_->final_total);
+    ui->dSpinSettlement->setValue(node_->final_total);
     ui->dSpinDiscount->setValue(node_->discount);
     ui->dSpinFirst->setValue(node_->first);
     ui->dSpinSecond->setValue(node_->second);
@@ -406,7 +406,7 @@ void TransWidgetO::RUnitGroupClicked(int id)
     }
 
     node_->unit = id;
-    ui->dSpinNetAmount->setValue(node_->final_total);
+    ui->dSpinSettlement->setValue(node_->final_total);
 
     sql_->WriteField(info_node_, kUnit, id, node_id_);
     sql_->WriteField(info_node_, kSettlement, node_->final_total, node_id_);

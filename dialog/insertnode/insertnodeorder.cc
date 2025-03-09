@@ -170,13 +170,13 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
 
     ui->dSpinDiscount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinGrossAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-    ui->dSpinNetAmount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    ui->dSpinSettlement->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinSecond->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinFirst->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
 
     ui->dSpinDiscount->setDecimals(settings->amount_decimal);
     ui->dSpinGrossAmount->setDecimals(settings->amount_decimal);
-    ui->dSpinNetAmount->setDecimals(settings->amount_decimal);
+    ui->dSpinSettlement->setDecimals(settings->amount_decimal);
     ui->dSpinSecond->setDecimals(settings->common_decimal);
     ui->dSpinFirst->setDecimals(settings->common_decimal);
 
@@ -227,7 +227,7 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
     ui->pBtnInsert->setEnabled(not_branch_enable);
 
     ui->labSettlement->setEnabled(not_branch_enable);
-    ui->dSpinNetAmount->setEnabled(not_branch_enable);
+    ui->dSpinSettlement->setEnabled(not_branch_enable);
 
     ui->dSpinGrossAmount->setEnabled(not_branch_enable);
 
@@ -311,7 +311,7 @@ void InsertNodeOrder::IniLeafValue()
     ui->dSpinSecond->setValue(node_->second);
     ui->dSpinGrossAmount->setValue(node_->initial_total);
     ui->dSpinDiscount->setValue(node_->discount);
-    ui->dSpinNetAmount->setValue(node_->final_total);
+    ui->dSpinSettlement->setValue(node_->final_total);
 }
 
 void InsertNodeOrder::IniRuleGroup()
@@ -505,7 +505,7 @@ void InsertNodeOrder::RUnitGroupClicked(int id)
     }
 
     node_->unit = id;
-    ui->dSpinNetAmount->setValue(node_->final_total);
+    ui->dSpinSettlement->setValue(node_->final_total);
 
     if (node_id_ != 0) {
         sql_->WriteField(info_node_, kUnit, id, node_id_);

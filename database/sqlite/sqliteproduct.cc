@@ -215,7 +215,7 @@ void SqliteProduct::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) 
     query.bindValue(QStringLiteral(":rhs_credit"), *trans_shadow->rhs_credit);
 }
 
-void SqliteProduct::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqliteProduct::SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_debit"), *trans_shadow->lhs_debit);
@@ -233,7 +233,6 @@ void SqliteProduct::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) c
         auto* trans { ResourcePool<Trans>::Instance().Allocate() };
 
         trans->id = query.value(QStringLiteral("party")).toInt();
-        trans->code = query.value(QStringLiteral("code")).toString();
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
@@ -259,7 +258,7 @@ QString SqliteProduct::QSReadTrans() const
     )");
 }
 
-QString SqliteProduct::QSWriteLeafValueFPTO() const
+QString SqliteProduct::QSSyncLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE product SET
@@ -268,7 +267,7 @@ QString SqliteProduct::QSWriteLeafValueFPTO() const
     )");
 }
 
-void SqliteProduct::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const
+void SqliteProduct::SyncLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":quantity"), node->initial_total);
     query.bindValue(QStringLiteral(":amount"), node->final_total);
@@ -314,7 +313,7 @@ QString SqliteProduct::QSReplaceNodeTransFPTS() const
     )");
 }
 
-QString SqliteProduct::QSWriteTransValueFPTO() const
+QString SqliteProduct::QSSyncTransValue() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -338,7 +337,6 @@ QString SqliteProduct::QSReadTransRef() const
 {
     return QStringLiteral(R"(
     SELECT
-        st.code,
         st.unit_price,
         st.second,
         st.lhs_node,
@@ -353,6 +351,6 @@ QString SqliteProduct::QSReadTransRef() const
         sn.date_time
     FROM sales_transaction st
     INNER JOIN sales sn ON st.lhs_node = sn.id
-    WHERE st.inside_product = :node_id AND st.removed = 0;
+    WHERE st.inside_product = :node_id AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0;
     )");
 }

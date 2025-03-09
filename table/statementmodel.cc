@@ -107,7 +107,7 @@ void StatementModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void StatementModel::Query(const QDateTime& start, const QDateTime& end, UnitO unit)
+void StatementModel::RRetrieveData(int unit, const QDateTime& start, const QDateTime& end)
 {
     if (!start.isValid() || !end.isValid())
         return;
@@ -116,6 +116,6 @@ void StatementModel::Query(const QDateTime& start, const QDateTime& end, UnitO u
     if (!trans_list_.isEmpty())
         trans_list_.clear();
 
-    sql_->ReadStatement(trans_list_, start, end, unit);
+    sql_->ReadStatement(trans_list_, unit, start, end);
     endResetModel();
 }

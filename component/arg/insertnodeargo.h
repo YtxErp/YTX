@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CLASSPARAMS_H
-#define CLASSPARAMS_H
+#ifndef INSERTNODEARGO_H
+#define INSERTNODEARGO_H
 
 #include <QStandardItemModel>
 
@@ -28,23 +28,15 @@
 #include "tree/model/nodemodel.h"
 #include "tree/node.h"
 
-struct InsertNodeParamsFPTS {
-    Node* node {};
-    QStandardItemModel* unit_model {};
-    CString& parent_path {};
-    CStringList& name_list {};
-};
-
-struct EditNodeParamsO {
+struct InsertNodeArgO {
     Node* node {};
     Sqlite* sql {};
-    TransModel* order_table {};
-    NodeModel* stakeholder_tree {};
-    CSettings* settings {};
+    TransModel* order_trans {};
+    NodeModel* stakeholder_node {};
+    const Settings* settings {};
     Section section {};
 };
 
-using CInsertNodeParamsFPTS = const InsertNodeParamsFPTS;
-using CEditNodeParamsO = const EditNodeParamsO;
+using CInsertNodeArgO = const InsertNodeArgO;
 
-#endif // CLASSPARAMS_H
+#endif // INSERTNODEARGO_H

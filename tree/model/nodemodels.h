@@ -26,7 +26,7 @@ class NodeModelS final : public NodeModel {
     Q_OBJECT
 
 public:
-    NodeModelS(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
+    NodeModelS(CNodeModelArg& arg, QObject* parent = nullptr);
     ~NodeModelS() override;
 
 public slots:
@@ -43,7 +43,6 @@ public:
     bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
     bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
 
-    int Employee(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::employee); }
     QList<int> PartyList(CString& text, int unit) const;
     QStandardItemModel* UnitModelPS(int unit) const override;
     void UpdateSeparatorFPTS(CString& old_separator, CString& new_separator) override;

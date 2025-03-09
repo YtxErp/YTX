@@ -257,10 +257,9 @@ void MainWindowUtils::ExportYTX(CString& source, CString& destination, CStringLi
     QSqlQuery destination_query(destination_db);
 
     const QString column_names { columns.join(", ") };
-    QString select_query {};
 
     for (CString& name : table_names) {
-        select_query = QString("SELECT %1 FROM %2;").arg(column_names, name);
+        const auto select_query { QString("SELECT %1 FROM %2;").arg(column_names, name) };
 
         if (!source_query.exec(select_query)) {
             qDebug() << "Failed to execute SELECT query for table:" << name << source_query.lastError().text();
@@ -268,7 +267,6 @@ void MainWindowUtils::ExportYTX(CString& source, CString& destination, CStringLi
         }
 
         destination_query.exec(QStringLiteral("BEGIN TRANSACTION;"));
-        QString insert_query {};
 
         while (source_query.next()) {
             QVariantList values;
@@ -276,7 +274,7 @@ void MainWindowUtils::ExportYTX(CString& source, CString& destination, CStringLi
                 values.append(source_query.value(i).toString());
             }
 
-            insert_query = QString("INSERT INTO %1 (%2) VALUES (%3);").arg(name, column_names, GeneratePlaceholder(values));
+            const auto insert_query { QString("INSERT INTO %1 (%2) VALUES (%3);").arg(name, column_names, GeneratePlaceholder(values)) };
 
             if (!destination_query.exec(insert_query)) {
                 qDebug() << "Failed to insert data into destination database for table:" << name << destination_query.lastError().text();

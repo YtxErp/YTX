@@ -4,7 +4,7 @@
 
 #include "widget/combobox.h"
 
-SupportID::SupportID(CTreeModel* tree_model, QObject* parent)
+SupportID::SupportID(CNodeModel* tree_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
     , support_model_ { tree_model->SupportModel() }

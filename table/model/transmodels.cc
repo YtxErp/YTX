@@ -6,11 +6,11 @@
 #include "global/resourcepool.h"
 #include "transmodelutils.h"
 
-TransModelS::TransModelS(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent)
-    : TransModel { sql, rule, node_id, info, parent }
+TransModelS::TransModelS(CTransModelArg& arg, QObject* parent)
+    : TransModel { arg, parent }
 {
-    if (node_id >= 1)
-        sql_->ReadTrans(trans_shadow_list_, node_id);
+    if (node_id_ >= 1)
+        sql_->ReadTrans(trans_shadow_list_, node_id_);
 }
 
 void TransModelS::RAppendPrice(TransShadow* trans_shadow)
@@ -62,12 +62,10 @@ bool TransModelS::RemoveMultiTrans(const QList<int>& trans_id_list)
     if (trans_id_list.isEmpty())
         return false;
 
-    int trans_id {};
-
     for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        trans_id = *trans_shadow_list_.at(i)->id;
+        const int kTransID { *trans_shadow_list_.at(i)->id };
 
-        if (trans_id_list.contains(trans_id)) {
+        if (trans_id_list.contains(kTransID)) {
             beginRemoveRows(QModelIndex(), i, i);
             ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
             endRemoveRows();

@@ -29,12 +29,11 @@ class TransModelO final : public TransModel {
     Q_OBJECT
 
 public:
-    TransModelO(
-        Sqlite* sql, bool rule, int node_id, CInfo& info, const Node* node, CTreeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent = nullptr);
+    TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent = nullptr);
     ~TransModelO() override;
 
 public slots:
-    void RSyncBool(int node_id, int column, bool value) override; // kFinished
+    void RSyncBoolWD(int node_id, int column, bool value) override; // kFinished, kRule
     void RSyncInt(int node_id, int column, int value) override; // node_id, party_id
 
 public:
@@ -51,7 +50,8 @@ private:
 
     bool UpdateUnitPrice(TransShadow* trans_shadow, double value);
     bool UpdateDiscountPrice(TransShadow* trans_shadow, double value);
-    bool UpdateSecond(TransShadow* trans_shadow, double value);
+    bool UpdateSecond(TransShadow* trans_shadow, double value, int kCoefficient);
+    bool UpdateFirst(TransShadow* trans_shadow, double value, int kCoefficient);
     void PurifyTransShadow(int lhs_node_id = 0);
 
     void CrossSearch(TransShadow* trans_shadow, int product_id, bool is_inside) const;
@@ -59,6 +59,7 @@ private:
     void UpdateLhsNode(int node_id);
     void UpdateParty(int node_id, int party_id);
     void UpdatePrice();
+    void SyncRule(int node_id, bool value);
 
 private:
     const NodeModelP* product_tree_ {};

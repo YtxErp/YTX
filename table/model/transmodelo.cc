@@ -3,16 +3,15 @@
 #include "global/resourcepool.h"
 #include "transmodelutils.h"
 
-TransModelO::TransModelO(
-    Sqlite* sql, bool rule, int node_id, CInfo& info, const Node* node, CTreeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent)
-    : TransModel { sql, rule, node_id, info, parent }
+TransModelO::TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent)
+    : TransModel { arg, parent }
     , product_tree_ { static_cast<const NodeModelP*>(product_tree) }
     , sqlite_stakeholder_ { static_cast<SqliteStakeholder*>(sqlite_stakeholder) }
     , node_ { node }
     , party_id_ { node->party }
 {
-    if (node_id >= 1)
-        sql_->ReadTrans(trans_shadow_list_, node_id);
+    if (node_id_ >= 1)
+        sql_->ReadTrans(trans_shadow_list_, node_id_);
 
     if (party_id_ >= 1)
         sqlite_stakeholder_->ReadTrans(party_id_);
@@ -21,7 +20,7 @@ TransModelO::TransModelO(
 TransModelO::~TransModelO()
 {
     if (node_id_ != 0) {
-        RSyncBool(node_id_, 0, true);
+        RSyncBoolWD(node_id_, 0, true);
     }
 }
 
@@ -59,13 +58,43 @@ void TransModelO::UpdatePrice()
     sync_price_.clear();
 }
 
-void TransModelO::RSyncBool(int node_id, int /*column*/, bool value)
+void TransModelO::SyncRule(int node_id, bool value)
 {
-    if (node_id != node_id_ || !value || sync_price_.isEmpty())
+    if (node_id != node_id_ || node_rule_ == value)
         return;
 
-    PurifyTransShadow();
-    UpdatePrice();
+    node_rule_ = value;
+
+    if (trans_shadow_list_.isEmpty())
+        return;
+
+    beginResetModel();
+    for (auto* trans_shadow : std::as_const(trans_shadow_list_)) {
+        *trans_shadow->lhs_debit *= -1;
+        *trans_shadow->lhs_credit *= -1;
+        *trans_shadow->discount *= -1;
+        *trans_shadow->rhs_credit *= -1;
+        *trans_shadow->rhs_debit *= -1;
+    }
+    endResetModel();
+}
+
+void TransModelO::RSyncBoolWD(int node_id, int column, bool value)
+{
+    if (node_id != node_id_)
+        return;
+
+    if (NodeEnumO(column) == NodeEnumO::kFinished) {
+        if (!value || sync_price_.isEmpty())
+            return;
+
+        PurifyTransShadow();
+        UpdatePrice();
+    }
+
+    if (NodeEnumO(column) == NodeEnumO::kRule) {
+        SyncRule(node_id, value);
+    }
 }
 
 void TransModelO::RSyncInt(int node_id, int column, int value)
@@ -146,6 +175,8 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
     bool uni_changed { false };
     bool dis_changed { false };
 
+    const int kCoefficient { node_rule_ ? -1 : 1 };
+
     switch (kColumn) {
     case TransEnumO::kCode:
         TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
@@ -160,10 +191,10 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
         uni_changed = UpdateUnitPrice(trans_shadow, value.toDouble());
         break;
     case TransEnumO::kSecond:
-        sec_changed = UpdateSecond(trans_shadow, value.toDouble());
+        sec_changed = UpdateSecond(trans_shadow, value.toDouble(), kCoefficient);
         break;
     case TransEnumO::kFirst:
-        fir_changed = TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kFirst, value.toDouble(), &TransShadow::lhs_debit);
+        fir_changed = UpdateFirst(trans_shadow, value.toDouble(), kCoefficient);
         break;
     case TransEnumO::kDiscountPrice:
         dis_changed = UpdateDiscountPrice(trans_shadow, value.toDouble());
@@ -175,11 +206,13 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
         return false;
     }
 
+    emit SResizeColumnToContents(index.column());
+
     if (fir_changed)
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, value.toDouble() - old_first);
+        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, *trans_shadow->lhs_debit - old_first);
 
     if (sec_changed) {
-        double second_delta { value.toDouble() - old_second };
+        double second_delta { *trans_shadow->lhs_credit - old_second };
         double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
         double discount_delta { *trans_shadow->discount - old_discount };
         double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
@@ -211,7 +244,6 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
             sql_->WriteField(info_.trans, kInsideProduct, value.toInt(), *trans_shadow->id);
     }
 
-    emit SResizeColumnToContents(index.column());
     return true;
 }
 
@@ -285,14 +317,19 @@ bool TransModelO::removeRows(int row, int /*count*/, const QModelIndex& parent)
         return false;
 
     auto* trans_shadow { trans_shadow_list_.at(row) };
-    int lhs_node { *trans_shadow->lhs_node };
+    const int lhs_node { *trans_shadow->lhs_node };
+    const int rhs_node { *trans_shadow->rhs_node };
 
     beginRemoveRows(parent, row, row);
     trans_shadow_list_.removeAt(row);
     endRemoveRows();
 
-    if (lhs_node != 0)
+    emit SUpdateLeafValue(
+        lhs_node, -*trans_shadow->rhs_debit, -*trans_shadow->rhs_credit, -*trans_shadow->lhs_debit, -*trans_shadow->lhs_credit, -*trans_shadow->discount);
+
+    if (lhs_node != 0 && rhs_node != 0) {
         sql_->RemoveTrans(*trans_shadow->id);
+    }
 
     ResourcePool<TransShadow>::Instance().Recycle(trans_shadow);
     return true;
@@ -351,7 +388,7 @@ bool TransModelO::UpdateUnitPrice(TransShadow* trans_shadow, double value)
         return true;
 
     sql_->WriteField(info_.trans, kUnitPrice, value, *trans_shadow->id);
-    sql_->WriteTransValue(trans_shadow);
+    sql_->SyncTransValue(trans_shadow);
     return true;
 }
 
@@ -372,21 +409,21 @@ bool TransModelO::UpdateDiscountPrice(TransShadow* trans_shadow, double value)
         return true;
 
     sql_->WriteField(info_.trans, kDiscountPrice, value, *trans_shadow->id);
-    sql_->WriteTransValue(trans_shadow);
+    sql_->SyncTransValue(trans_shadow);
     return true;
 }
 
-bool TransModelO::UpdateSecond(TransShadow* trans_shadow, double value)
+bool TransModelO::UpdateSecond(TransShadow* trans_shadow, double value, int kCoefficient)
 {
     if (std::abs(*trans_shadow->lhs_credit - value) < kTolerance)
         return false;
 
-    double delta { value - *trans_shadow->lhs_credit };
+    double delta { value * kCoefficient - *trans_shadow->lhs_credit };
     *trans_shadow->rhs_debit += *trans_shadow->lhs_ratio * delta;
     *trans_shadow->discount += *trans_shadow->rhs_ratio * delta;
     *trans_shadow->rhs_credit += (*trans_shadow->lhs_ratio - *trans_shadow->rhs_ratio) * delta;
 
-    *trans_shadow->lhs_credit = value;
+    *trans_shadow->lhs_credit = value * kCoefficient;
 
     emit SResizeColumnToContents(std::to_underlying(TransEnumO::kGrossAmount));
     emit SResizeColumnToContents(std::to_underlying(TransEnumO::kDiscount));
@@ -396,16 +433,24 @@ bool TransModelO::UpdateSecond(TransShadow* trans_shadow, double value)
         // Return without writing data to SQLite
         return true;
 
-    sql_->WriteTransValue(trans_shadow);
+    sql_->SyncTransValue(trans_shadow);
+    return true;
+}
+
+bool TransModelO::UpdateFirst(TransShadow* trans_shadow, double value, int kCoefficient)
+{
+    if (std::abs(*trans_shadow->lhs_debit - value) < kTolerance)
+        return false;
+
+    TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kFirst, value * kCoefficient, &TransShadow::lhs_debit);
     return true;
 }
 
 void TransModelO::PurifyTransShadow(int lhs_node_id)
 {
-    TransShadow* trans_shadow {};
-
     for (auto i { trans_shadow_list_.size() - 1 }; i >= 0; --i) {
-        trans_shadow = trans_shadow_list_.at(i);
+        auto* trans_shadow { trans_shadow_list_.at(i) };
+
         if (*trans_shadow->rhs_node == 0) {
             beginRemoveRows(QModelIndex(), i, i);
             ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));

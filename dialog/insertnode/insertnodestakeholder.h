@@ -23,7 +23,7 @@
 #include <QButtonGroup>
 #include <QDialog>
 
-#include "component/classparams.h"
+#include "component/arg/insertnodeargfpts.h"
 #include "component/using.h"
 
 namespace Ui {
@@ -34,7 +34,7 @@ class InsertNodeStakeholder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeStakeholder(CInsertNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
+    InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
     ~InsertNodeStakeholder();
 
 private slots:

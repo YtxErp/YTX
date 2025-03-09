@@ -13,7 +13,7 @@
 #include "delegate/table/supportid.h"
 #include "ui_search.h"
 
-Search::Search(CTreeModel* tree, CTreeModel* stakeholder_tree, CTreeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent)
+Search::Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Search)
     , sql_ { sql }

@@ -9,7 +9,7 @@
 #include "component/signalblocker.h"
 #include "ui_preferences.h"
 
-Preferences::Preferences(CInfo& info, CTreeModel* model, Interface interface, Settings settings, QWidget* parent)
+Preferences::Preferences(CInfo& info, CNodeModel* model, Interface interface, Settings settings, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Preferences)
     , interface_ { interface }

@@ -35,6 +35,7 @@ using StringHash = QHash<int, QString>;
 using CString = const QString;
 using CVariant = const QVariant;
 using CStringList = const QStringList;
+using CDateTime = const QDateTime;
 
 using CIntSet = const QSet<int>;
 using PDialog = QPointer<QDialog>;

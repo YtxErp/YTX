@@ -52,21 +52,26 @@ protected:
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
     void UpdateStakeholderReferenceO(int old_node_id, int new_node_id) const override;
-    void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
     void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const override;
     void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const override;
+    void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const override;
+    void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const override;
 
-    QString QSWriteLeafValueFPTO() const override;
-    void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
+    QString QSSyncLeafValue() const override;
+    void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
     QString QSReadTrans() const override;
     QString QSWriteTrans() const override;
     QString QSUpdateProductReferenceSO() const override;
     QString QSUpdateStakeholderReferenceO() const override;
     QString QSSearchTrans() const override;
-    QString QSWriteTransValueFPTO() const override;
+    QString QSSyncTransValue() const override;
     QString QSTransToRemove() const override;
-    QString QSReadStatement(UnitO unit) const override;
+    QString QSReadStatement(int unit) const override;
+    QString QSReadStatementPrimary(int unit) const override;
+    QString QSReadStatementSecondary(int unit) const override;
+    QString QSInvertTransValue() const override;
 
 private:
     QString SearchNodeQS(CString& in_list) const;

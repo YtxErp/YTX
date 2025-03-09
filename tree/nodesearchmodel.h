@@ -30,7 +30,7 @@
 class NodeSearchModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    NodeSearchModel(CInfo& info, CTreeModel* tree_model, CTreeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent = nullptr);
+    NodeSearchModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent = nullptr);
     ~NodeSearchModel() = default;
 
 public:
@@ -52,8 +52,8 @@ private:
     Sqlite* sql_ {};
 
     CInfo& info_;
-    CTreeModel* tree_model_ {};
-    CTreeModel* stakeholder_tree_model_ {};
+    CNodeModel* tree_model_ {};
+    CNodeModel* stakeholder_tree_model_ {};
     QList<const Node*> node_list_ {};
 };
 

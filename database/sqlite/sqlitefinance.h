@@ -32,7 +32,7 @@ protected:
 
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
 
     QString QSReadNode() const override;
     QString QSWriteNode() const override;
@@ -47,15 +47,15 @@ protected:
     QString QSTransToRemove() const override;
     QString QSSupportTransToRemove() const override;
 
-    QString QSWriteLeafValueFPTO() const override;
-    void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
+    QString QSSyncLeafValue() const override;
+    void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
     QString QSReadTrans() const override;
     QString QSReadSupportTransFPTS() const override;
     QString QSWriteTrans() const override;
     QString QSReadTransRangeFPTS(CString& in_list) const override;
     QString QSReplaceNodeTransFPTS() const override;
-    QString QSWriteTransValueFPTO() const override;
+    QString QSSyncTransValue() const override;
     QString QSSearchTrans() const override;
 };
 

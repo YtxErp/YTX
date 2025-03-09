@@ -5,20 +5,20 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodeproduct.h"
 
-InsertNodeProduct::InsertNodeProduct(CInsertNodeParamsFPTS& params, int amount_decimal, QWidget* parent)
+InsertNodeProduct::InsertNodeProduct(CInsertNodeArgFPTS& arg, int amount_decimal, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeProduct)
-    , node_ { params.node }
-    , parent_path_ { params.parent_path }
-    , name_list_ { params.name_list }
+    , node_ { arg.node }
+    , parent_path_ { arg.parent_path }
+    , name_list_ { arg.name_list }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog(params.unit_model, amount_decimal);
+    IniDialog(arg.unit_model, amount_decimal);
     IniRuleGroup();
     IniTypeGroup();
-    IniData(params.node);
+    IniData(arg.node);
     IniConnect();
 }
 

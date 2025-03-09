@@ -34,7 +34,7 @@ public:
 
     virtual QPointer<TransModel> Model() const = 0;
     virtual QPointer<QTableView> View() const = 0;
-    virtual bool IsLeafWidget() const = 0;
+    virtual bool IsTransWidget() const = 0;
 
 protected:
     explicit TransWidget(QWidget* parent = nullptr)

@@ -28,7 +28,7 @@ void SqliteStakeholder::RReplaceNode(int old_node_id, int new_node_id, int node_
 
     // begin deal with database
     QSqlQuery query(*db_);
-    CString& string { QSReplaceSupportTransFPTS() };
+    CString string { QSReplaceSupportTransFPTS() };
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
@@ -153,7 +153,7 @@ bool SqliteStakeholder::ReadTrans(int node_id)
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString& string { QSReadTrans() };
+    CString string { QSReadTrans() };
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
 
@@ -169,7 +169,7 @@ bool SqliteStakeholder::ReadTrans(int node_id)
 QString SqliteStakeholder::QSReadNode() const
 {
     return QStringLiteral(R"(
-    SELECT name, id, code, description, note, rule, type, unit, employee, deadline, payment_term, tax_rate, amount
+    SELECT name, id, code, description, note, type, unit, employee, deadline, payment_term, tax_rate, amount
     FROM stakeholder
     WHERE removed = 0
     )");
@@ -178,8 +178,8 @@ QString SqliteStakeholder::QSReadNode() const
 QString SqliteStakeholder::QSWriteNode() const
 {
     return QStringLiteral(R"(
-    INSERT INTO stakeholder (name, code, description, note, rule, type, unit, employee, deadline, payment_term, tax_rate, amount)
-    VALUES (:name, :code, :description, :note, :rule, :type, :unit, :employee, :deadline, :payment_term, :tax_rate, :amount)
+    INSERT INTO stakeholder (name, code, description, note, type, unit, employee, deadline, payment_term, tax_rate, amount)
+    VALUES (:name, :code, :description, :note, :type, :unit, :employee, :deadline, :payment_term, :tax_rate, :amount)
     )");
 }
 
@@ -189,7 +189,6 @@ void SqliteStakeholder::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":code"), node->code);
     query.bindValue(QStringLiteral(":description"), node->description);
     query.bindValue(QStringLiteral(":note"), node->note);
-    query.bindValue(QStringLiteral(":rule"), node->rule);
     query.bindValue(QStringLiteral(":type"), node->type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":employee"), node->employee);
@@ -351,7 +350,6 @@ QString SqliteStakeholder::QSReadTransRef() const
 {
     return QStringLiteral(R"(
     SELECT
-        st.code,
         st.inside_product,
         st.unit_price,
         st.second,
@@ -366,33 +364,32 @@ QString SqliteStakeholder::QSReadTransRef() const
         sn.date_time
     FROM sales_transaction st
     INNER JOIN sales sn ON st.lhs_node = sn.id
-    WHERE sn.party = :node_id AND st.removed = 0;
+    WHERE sn.party = :node_id AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0;
     )");
 }
 
 void SqliteStakeholder::ReadTransStakeholder(QSqlQuery& query)
 {
     Trans* trans {};
-    int id {};
 
     while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
+        const int kID { query.value(QStringLiteral("id")).toInt() };
 
-        if (trans_hash_.contains(id))
+        if (trans_hash_.contains(kID))
             continue;
 
         trans = ResourcePool<Trans>::Instance().Allocate();
-        trans->id = id;
+        trans->id = kID;
 
         ReadTransQuery(trans, query);
-        trans_hash_.insert(id, trans);
+        trans_hash_.insert(kID, trans);
     }
 }
 
 bool SqliteStakeholder::WriteTrans(Trans* trans)
 {
     QSqlQuery query(*db_);
-    CString& string { QSWriteTrans() };
+    CString string { QSWriteTrans() };
 
     query.prepare(string);
     WriteTransBind(trans, query);
@@ -469,7 +466,6 @@ void SqliteStakeholder::ReadTransRefQuery(TransList& trans_list, QSqlQuery& quer
         auto* trans { ResourcePool<Trans>::Instance().Allocate() };
 
         trans->id = query.value(QStringLiteral("inside_product")).toInt();
-        trans->code = query.value(QStringLiteral("code")).toString();
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
@@ -525,7 +521,6 @@ void SqliteStakeholder::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->code = query.value(QStringLiteral("code")).toString();
     node->description = query.value(QStringLiteral("description")).toString();
     node->note = query.value(QStringLiteral("note")).toString();
-    node->rule = query.value(QStringLiteral("rule")).toBool();
     node->type = query.value(QStringLiteral("type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();

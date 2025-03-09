@@ -187,7 +187,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Second"),
         QObject::tr("UnitPrice"),
         QObject::tr("DiscountPrice"),
-        QObject::tr("Code"),
         QObject::tr("Description"),
         QObject::tr("GrossAmount"),
         QObject::tr("Discount"),
@@ -201,7 +200,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Description"),
         QObject::tr("Note"),
         QObject::tr("Type"),
-        QObject::tr("Rule"),
         QObject::tr("Unit"),
         QObject::tr("Deadline"),
         QObject::tr("Employee"),
@@ -230,7 +228,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Description"),
         QObject::tr("Note"),
         QObject::tr("Type"),
-        QObject::tr("Rule"),
+        {},
         QObject::tr("Unit"),
         {},
         QObject::tr("Employee"),
@@ -287,7 +285,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Second"),
         QObject::tr("UnitPrice"),
         QObject::tr("DiscountPrice"),
-        QObject::tr("Code"),
         QObject::tr("Description"),
         QObject::tr("GrossAmount"),
         QObject::tr("Discount"),
@@ -444,12 +441,36 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     sales.statement_header = {
         QObject::tr("Party"),
         QObject::tr("PBalance"),
-        QObject::tr("CGrossAmount"),
         QObject::tr("CFirst"),
         QObject::tr("CSecond"),
-        QObject::tr("CSettlement"),
+        QObject::tr("CGrossAmount"),
         QObject::tr("CBalance"),
-        QObject::tr("PlaceHolder"),
+        QObject::tr("Description"),
+        QObject::tr("CSettlement"),
+    };
+
+    sales.statement_primary_header = {
+        QObject::tr("DateTime"),
+        QObject::tr("First"),
+        QObject::tr("Second"),
+        QObject::tr("GrossAmount"),
+        "S",
+        QObject::tr("Description"),
+        QObject::tr("Employee"),
+        QObject::tr("Settlement"),
+    };
+
+    sales.statement_secondary_header = {
+        QObject::tr("DateTime"),
+        QObject::tr("Inside"),
+        QObject::tr("First"),
+        QObject::tr("Second"),
+        QObject::tr("UnitPrice"),
+        QObject::tr("GrossAmount"),
+        "S",
+        QObject::tr("Description"),
+        QObject::tr("Outside"),
+        QObject::tr("Settlement"),
     };
 
     purchase.node_header = sales.node_header;
@@ -458,4 +479,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     purchase.search_node_header = sales.search_node_header;
     purchase.excel_trans_header = sales.excel_trans_header;
     purchase.statement_header = sales.statement_header;
+    purchase.statement_primary_header = sales.statement_primary_header;
+    purchase.statement_secondary_header = sales.statement_secondary_header;
 }

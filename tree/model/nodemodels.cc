@@ -2,8 +2,8 @@
 
 #include "global/resourcepool.h"
 
-NodeModelS::NodeModelS(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
-    : NodeModel(sql, info, default_unit, leaf_wgt_hash, separator, parent)
+NodeModelS::NodeModelS(CNodeModelArg& arg, QObject* parent)
+    : NodeModel(arg, parent)
 {
     cmodel_ = new QStandardItemModel(this);
     vmodel_ = new QStandardItemModel(this);
@@ -268,9 +268,8 @@ void NodeModelS::ConstructTree()
         }
     }
 
-    QString path {};
     for (auto* node : const_node_hash) {
-        path = NodeModelUtils::ConstructPathFPTS(root_, node, separator_);
+        const auto path { NodeModelUtils::ConstructPathFPTS(root_, node, separator_) };
 
         switch (node->type) {
         case kTypeBranch:
@@ -368,8 +367,6 @@ void NodeModelS::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case NodeEnumS::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
-        case NodeEnumS::kRule:
-            return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
         case NodeEnumS::kType:
             return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
         case NodeEnumS::kUnit:
@@ -466,8 +463,6 @@ QVariant NodeModelS::data(const QModelIndex& index, int role) const
         return node->description;
     case NodeEnumS::kNote:
         return node->note;
-    case NodeEnumS::kRule:
-        return node->rule;
     case NodeEnumS::kType:
         return node->type;
     case NodeEnumS::kUnit:
@@ -507,9 +502,6 @@ bool NodeModelS::setData(const QModelIndex& index, const QVariant& value, int ro
         break;
     case NodeEnumS::kNote:
         NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
-        break;
-    case NodeEnumS::kRule:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toBool(), kRule, &Node::rule, true);
         break;
     case NodeEnumS::kType:
         UpdateTypeFPTS(node, value.toInt());

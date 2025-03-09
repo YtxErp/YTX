@@ -210,7 +210,7 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type)
 
 void Sqlite::RUpdateProduct(int old_node_id, int new_node_id)
 {
-    CString& string { QSUpdateProductReferenceSO() };
+    CString string { QSUpdateProductReferenceSO() };
     if (string.isEmpty())
         return;
 
@@ -229,7 +229,7 @@ void Sqlite::RUpdateProduct(int old_node_id, int new_node_id)
 
 void Sqlite::RUpdateStakeholder(int old_node_id, int new_node_id)
 {
-    CString& string { QSUpdateStakeholderReferenceO() };
+    CString string { QSUpdateStakeholderReferenceO() };
     if (string.isEmpty())
         return;
 
@@ -248,7 +248,7 @@ void Sqlite::RUpdateStakeholder(int old_node_id, int new_node_id)
 
 bool Sqlite::ReadNode(NodeHash& node_hash)
 {
-    CString& string { QSReadNode() };
+    CString string { QSReadNode() };
     if (string.isEmpty())
         return false;
 
@@ -274,7 +274,7 @@ bool Sqlite::ReadNode(NodeHash& node_hash)
 bool Sqlite::WriteNode(int parent_id, Node* node) const
 {
     // root_'s id is -1
-    CString& string { QSWriteNode() };
+    CString string { QSWriteNode() };
     if (string.isEmpty() || !node)
         return false;
 
@@ -320,7 +320,7 @@ void Sqlite::CalculateLeafTotal(Node* node, QSqlQuery& query) const
 
 bool Sqlite::ReadLeafTotal(Node* node) const
 {
-    CString& string { QSLeafTotalFPT() };
+    CString string { QSLeafTotalFPT() };
 
     if (string.isEmpty() || !node || node->id <= 0 || node->type != kTypeLeaf)
         return false;
@@ -502,8 +502,8 @@ bool Sqlite::DragNode(int destination_node_id, int node_id) const
 {
     QSqlQuery query(*db_);
 
-    CString& string_first { QSDragNodeFirst() };
-    CString& string_second { QSDragNodeSecond() };
+    CString string_first { QSDragNodeFirst() };
+    CString string_second { QSDragNodeSecond() };
 
     if (!DBTransaction([&]() {
             // 第一个查询
@@ -537,7 +537,7 @@ bool Sqlite::DragNode(int destination_node_id, int node_id) const
 
 bool Sqlite::InternalReference(int node_id) const
 {
-    CString& string { QSInternalReference() };
+    CString string { QSInternalReference() };
     if (string.isEmpty() || node_id <= 0)
         return false;
 
@@ -558,7 +558,7 @@ bool Sqlite::InternalReference(int node_id) const
 
 bool Sqlite::ExternalReference(int node_id) const
 {
-    CString& string { QSExternalReferencePS() };
+    CString string { QSExternalReferencePS() };
     if (string.isEmpty() || node_id <= 0)
         return false;
 
@@ -579,7 +579,7 @@ bool Sqlite::ExternalReference(int node_id) const
 
 bool Sqlite::SupportReference(int support_id) const
 {
-    CString& string { QSSupportReference() };
+    CString string { QSSupportReference() };
     if (string.isEmpty() || support_id <= 0)
         return false;
 
@@ -603,7 +603,7 @@ bool Sqlite::ReadTrans(TransShadowList& trans_shadow_list, int node_id)
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString& string { QSReadTrans() };
+    CString string { QSReadTrans() };
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
 
@@ -641,7 +641,7 @@ void Sqlite::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) co
 bool Sqlite::WriteTrans(TransShadow* trans_shadow)
 {
     QSqlQuery query(*db_);
-    CString& string { QSWriteTrans() };
+    CString string { QSWriteTrans() };
 
     query.prepare(string);
     WriteTransBind(trans_shadow, query);
@@ -671,7 +671,7 @@ bool Sqlite::WriteTransRange(const QList<TransShadow*>& list) const
         return false;
     }
 
-    CString& string { QSWriteTrans() };
+    CString string { QSWriteTrans() };
 
     // 插入多条记录的 SQL 语句
     query.prepare(string);
@@ -725,41 +725,59 @@ bool Sqlite::RemoveTrans(int trans_id)
     return true;
 }
 
-bool Sqlite::WriteLeafValue(const Node* node) const
+bool Sqlite::SyncLeafValue(const Node* node) const
 {
     if (node->type != kTypeLeaf)
         return false;
 
-    CString& string { QSWriteLeafValueFPTO() };
+    CString string { QSSyncLeafValue() };
     if (string.isEmpty())
         return false;
 
     QSqlQuery query(*db_);
 
     query.prepare(string);
-    WriteLeafValueBindFPTO(node, query);
+    SyncLeafValueBind(node, query);
 
     if (!query.exec()) {
-        qWarning() << "Failed in UpdateNodeValue" << query.lastError().text();
+        qWarning() << "Failed in SyncLeafValue" << query.lastError().text();
         return false;
     }
 
     return true;
 }
 
-bool Sqlite::WriteTransValue(const TransShadow* trans_shadow) const
+bool Sqlite::SyncTransValue(const TransShadow* trans_shadow) const
 {
-    CString& string { QSWriteTransValueFPTO() };
+    CString string { QSSyncTransValue() };
     if (string.isEmpty())
         return false;
 
     QSqlQuery query(*db_);
 
     query.prepare(string);
-    WriteTransValueBindFPTO(trans_shadow, query);
+    SyncTransValueBind(trans_shadow, query);
 
     if (!query.exec()) {
-        qWarning() << "Failed in UpdateTransValue" << query.lastError().text();
+        qWarning() << "Failed in SyncTransValue" << query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
+bool Sqlite::InvertTransValue(int node_id) const
+{
+    CString string { QSInvertTransValue() };
+    if (string.isEmpty())
+        return false;
+
+    QSqlQuery query(*db_);
+    query.prepare(string);
+    query.bindValue(":lhs_node", node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in InvertValue" << query.lastError().text();
         return false;
     }
 
@@ -836,19 +854,18 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
     }
 
     Trans* trans {};
-    int id {};
 
     while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
+        const int kID { query.value(QStringLiteral("id")).toInt() };
 
-        if (auto it = trans_hash_.constFind(id); it != trans_hash_.constEnd()) {
+        if (auto it = trans_hash_.constFind(kID); it != trans_hash_.constEnd()) {
             trans = it.value();
             trans_list.emplaceBack(trans);
             continue;
         }
 
         trans = ResourcePool<Trans>::Instance().Allocate();
-        trans->id = id;
+        trans->id = kID;
 
         ReadTransQuery(trans, query);
         trans_list.emplaceBack(trans);
@@ -857,7 +874,7 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
     return true;
 }
 
-bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
+bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -868,6 +885,8 @@ bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
 
     if (!query.exec()) {
         qWarning() << "Failed in TransRefRecord" << query.lastError().text();
@@ -879,7 +898,7 @@ bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
     return true;
 }
 
-bool Sqlite::ReadStatement(TransList& trans_list, const QDateTime& start, const QDateTime& end, UnitO unit) const
+bool Sqlite::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -893,12 +912,60 @@ bool Sqlite::ReadStatement(TransList& trans_list, const QDateTime& start, const 
     query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
 
     if (!query.exec()) {
-        qWarning() << "Failed in TransRefRecord" << query.lastError().text();
+        qWarning() << "Failed in ReadStatement" << query.lastError().text();
         return false;
     }
 
     ReadStatementQuery(trans_list, query);
 
+    return true;
+}
+
+bool Sqlite::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    const auto string { QSReadStatementSecondary(unit) };
+    if (string.isEmpty())
+        return false;
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party"), party_id);
+    query.bindValue(QStringLiteral(":unit"), unit);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementSecondaryQuery(trans_list, query);
+    return true;
+}
+
+bool Sqlite::ReadStatementPrimary(QList<Node*>& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    const auto string { QSReadStatementPrimary(unit) };
+    if (string.isEmpty())
+        return false;
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party"), party_id);
+    query.bindValue(QStringLiteral(":unit"), unit);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementPrimaryQuery(node_list, query);
     return true;
 }
 
@@ -944,7 +1011,7 @@ bool Sqlite::ReadSupportTrans(TransShadowList& trans_shadow_list, int support_id
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString& string { QSReadSupportTransFPTS() };
+    CString string { QSReadSupportTransFPTS() };
     if (string.isEmpty())
         return false;
 
@@ -998,17 +1065,12 @@ bool Sqlite::ReadRelationship(const NodeHash& node_hash, QSqlQuery& query) const
         return false;
     }
 
-    int ancestor_id {};
-    int descendant_id {};
-    Node* ancestor {};
-    Node* descendant {};
-
     while (query.next()) {
-        ancestor_id = query.value(QStringLiteral("ancestor")).toInt();
-        descendant_id = query.value(QStringLiteral("descendant")).toInt();
+        const int kAncestorID { query.value(QStringLiteral("ancestor")).toInt() };
+        const int kDescendantID { query.value(QStringLiteral("descendant")).toInt() };
 
-        ancestor = node_hash.value(ancestor_id);
-        descendant = node_hash.value(descendant_id);
+        Node* ancestor { node_hash.value(kAncestorID) };
+        Node* descendant { node_hash.value(kDescendantID) };
 
         if (!ancestor || !descendant || descendant->parent)
             continue;
@@ -1047,20 +1109,19 @@ void Sqlite::ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, 
 {
     TransShadow* trans_shadow {};
     Trans* trans {};
-    int id {};
 
     while (query.next()) {
-        id = query.value(QStringLiteral("id")).toInt();
+        const int kID { query.value(QStringLiteral("id")).toInt() };
         trans_shadow = ResourcePool<TransShadow>::Instance().Allocate();
 
-        if (auto it = trans_hash_.constFind(id); it != trans_hash_.constEnd()) {
+        if (auto it = trans_hash_.constFind(kID); it != trans_hash_.constEnd()) {
             trans = it.value();
         } else {
             trans = ResourcePool<Trans>::Instance().Allocate();
-            trans->id = id;
+            trans->id = kID;
 
             ReadTransQuery(trans, query);
-            trans_hash_.insert(id, trans);
+            trans_hash_.insert(kID, trans);
         }
 
         ConvertTrans(trans, trans_shadow, node_id == trans->lhs_node || is_support);

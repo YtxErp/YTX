@@ -36,13 +36,12 @@ public:
     explicit SupportWidgetFPTS(QAbstractItemModel* model, QWidget* parent = nullptr);
     ~SupportWidgetFPTS();
 
-    QPointer<QAbstractItemModel> Model() const override { return model_; }
+    QPointer<QAbstractItemModel> Model() const override;
     QPointer<QTableView> View() const override;
     bool IsSupportWidget() const override { return true; }
 
 private:
     Ui::SupportWidgetFPTS* ui;
-    QAbstractItemModel* model_ {};
 };
 
 #endif // SUPPORTWIDGETFPTS_H

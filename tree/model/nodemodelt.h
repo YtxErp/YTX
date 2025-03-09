@@ -26,7 +26,7 @@ class NodeModelT final : public NodeModel {
     Q_OBJECT
 
 public:
-    NodeModelT(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
+    NodeModelT(CNodeModelArg& arg, QObject* parent = nullptr);
     ~NodeModelT() override;
 
 public slots:

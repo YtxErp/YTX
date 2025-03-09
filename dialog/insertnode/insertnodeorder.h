@@ -22,10 +22,9 @@
 
 #include <QButtonGroup>
 #include <QDialog>
+#include <QShortcut>
 
-#include "component/classparams.h"
-#include "component/settings.h"
-#include "tree/model/nodemodels.h"
+#include "component/arg/insertnodeargo.h"
 
 namespace Ui {
 class InsertNodeOrder;
@@ -35,7 +34,7 @@ class InsertNodeOrder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent = nullptr);
+    InsertNodeOrder(CInsertNodeArgO& arg, QWidget* parent = nullptr);
     ~InsertNodeOrder();
 
 signals:
@@ -43,7 +42,10 @@ signals:
     void SSyncInt(int node_id, int column, int value);
 
     // send to TableModelOrder, TreeModelOrder
-    void SSyncBool(int node_id, int column, bool value);
+    void SSyncBoolNode(int node_id, int column, bool value);
+
+    // send to TableModelOrder
+    void SSyncBoolTrans(int node_id, int column, bool value);
 
     // send to TreeModelOrder
     void SUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
@@ -55,7 +57,7 @@ public slots:
     void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
     // receive from TreeModelOrder
-    void RSyncBool(int node_id, int column, bool value);
+    void RSyncBoolNode(int node_id, int column, bool value);
     void RSyncInt(int node_id, int column, int value);
     void RSyncString(int node_id, int column, const QString& value);
 
@@ -90,6 +92,7 @@ private:
     void IniFinished(bool finished);
     void IniUnitGroup();
     void IniRuleGroup();
+    void IniShotcut(QWidget* parent);
 
     void LockWidgets(bool finished, bool branch);
 
@@ -98,17 +101,21 @@ private:
 
     Node* node_ {};
     Sqlite* sql_ {};
-    NodeModelS* stakeholder_tree_ {};
-    TransModel* order_table_ {};
+    NodeModel* stakeholder_node_ {};
+    TransModel* order_trans_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
+
+    QShortcut* trans_shortcut_ {};
+    QShortcut* node_shortcut_ {};
+    QShortcut* remove_trans_shortcut_ {};
 
     QStandardItemModel* combo_model_employee_ {};
     QStandardItemModel* combo_model_party_ {};
 
-    const QString info_node_ {};
+    const QString party_info_ {};
     const int party_unit_ {};
-    QString party_ {};
+    const QString party_text_ {};
 
     int node_id_ {};
 };

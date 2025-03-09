@@ -6,7 +6,7 @@
 #include "component/signalblocker.h"
 #include "ui_removenode.h"
 
-RemoveNode::RemoveNode(CTreeModel* model, Section section, int node_id, int node_type, int unit, bool exteral_reference, QWidget* parent)
+RemoveNode::RemoveNode(CNodeModel* model, Section section, int node_id, int node_type, int unit, bool exteral_reference, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::RemoveNode)
     , node_id_ { node_id }

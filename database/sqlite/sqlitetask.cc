@@ -201,7 +201,7 @@ QString SqliteTask::QSReplaceNodeTransFPTS() const
     )");
 }
 
-QString SqliteTask::QSWriteTransValueFPTO() const
+QString SqliteTask::QSSyncTransValue() const
 {
     return QStringLiteral(R"(
     UPDATE task_transaction SET
@@ -230,7 +230,7 @@ void SqliteTask::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) con
     query.bindValue(QStringLiteral(":rhs_credit"), *trans_shadow->rhs_credit);
 }
 
-void SqliteTask::WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqliteTask::SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_debit"), *trans_shadow->lhs_debit);
@@ -276,7 +276,7 @@ void SqliteTask::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
 }
 
-QString SqliteTask::QSWriteLeafValueFPTO() const
+QString SqliteTask::QSSyncLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE task SET
@@ -285,7 +285,7 @@ QString SqliteTask::QSWriteLeafValueFPTO() const
     )");
 }
 
-void SqliteTask::WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const
+void SqliteTask::SyncLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":quantity"), node->initial_total);
     query.bindValue(QStringLiteral(":amount"), node->final_total);

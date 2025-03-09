@@ -2,9 +2,9 @@
 
 #include "global/resourcepool.h"
 
-NodeModelO::NodeModelO(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
-    : NodeModel(sql, info, default_unit, leaf_wgt_hash, separator, parent)
-    , sql_ { static_cast<SqliteOrder*>(sql) }
+NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
+    : NodeModel(arg, parent)
+    , sql_ { static_cast<SqliteOrder*>(arg.sql) }
 {
     ConstructTree();
 }
@@ -18,10 +18,10 @@ void NodeModelO::RUpdateLeafValue(int node_id, double initial_delta, double fina
     if (first_delta == 0.0 && second_delta == 0.0 && initial_delta == 0.0 && discount_delta == 0.0 && final_delta == 0.0)
         return;
 
-    sql_->WriteLeafValue(node);
+    sql_->SyncLeafValue(node);
 
     auto index { GetIndex(node->id) };
-    emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kNetAmount)));
+    emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kSettlement)));
 
     if (node->finished) {
         UpdateAncestorValue(node, initial_delta, final_delta, first_delta, second_delta, discount_delta);
@@ -41,7 +41,7 @@ void NodeModelO::RUpdateStakeholder(int old_node_id, int new_node_id)
     }
 }
 
-void NodeModelO::RSyncBool(int node_id, int column, bool value)
+void NodeModelO::RSyncBoolWD(int node_id, int column, bool value)
 {
     if (column != std::to_underlying(NodeEnumO::kFinished))
         return;
@@ -138,9 +138,11 @@ bool NodeModelO::UpdateRuleFPTO(Node* node, bool value)
     node->final_total = -node->final_total;
 
     auto index { GetIndex(node->id) };
-    emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kNetAmount)));
+    emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kSettlement)));
 
-    sql_->WriteLeafValue(node);
+    sql_->SyncLeafValue(node);
+    sql_->InvertTransValue(node->id);
+
     return true;
 }
 
@@ -169,7 +171,7 @@ bool NodeModelO::UpdateUnit(Node* node, int value)
     sql_->WriteField(info_.node, kUnit, value, node->id);
     sql_->WriteField(info_.node, kSettlement, node->final_total, node->id);
 
-    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kNetAmount));
+    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kSettlement));
     return true;
 }
 
@@ -184,7 +186,7 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
         coefficient * node->discount);
 
     node->finished = value;
-    emit SSyncBool(node->id, std::to_underlying(NodeEnumO::kFinished), value);
+    emit SSyncBoolWD(node->id, std::to_underlying(NodeEnumO::kFinished), value);
     if (node->unit == std::to_underlying(UnitO::kMS))
         emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
 
@@ -231,7 +233,7 @@ bool NodeModelO::UpdateAncestorValue(Node* node, double initial_delta, double fi
 
     const int kUnit { node->unit };
     const int kColumnBegin { std::to_underlying(NodeEnumO::kFirst) };
-    int column_end { std::to_underlying(NodeEnumO::kNetAmount) };
+    int column_end { std::to_underlying(NodeEnumO::kSettlement) };
 
     // 确定需要更新的列范围
     if (initial_delta == 0.0 && final_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
@@ -291,7 +293,7 @@ void NodeModelO::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
         case NodeEnumO::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
-        case NodeEnumO::kNetAmount:
+        case NodeEnumO::kSettlement:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         default:
             return false;
@@ -402,7 +404,7 @@ QVariant NodeModelO::data(const QModelIndex& index, int role) const
         return !branch && node->finished ? node->finished : QVariant();
     case NodeEnumO::kGrossAmount:
         return node->initial_total;
-    case NodeEnumO::kNetAmount:
+    case NodeEnumO::kSettlement:
         return node->final_total;
     default:
         return QVariant();
@@ -427,7 +429,7 @@ bool NodeModelO::setData(const QModelIndex& index, const QVariant& value, int ro
         break;
     case NodeEnumO::kRule:
         UpdateRuleFPTO(node, value.toBool());
-        emit SSyncBool(node->id, index.column(), value.toBool());
+        emit SSyncBoolWD(node->id, index.column(), value.toBool());
         break;
     case NodeEnumO::kUnit:
         UpdateUnit(node, value.toInt());

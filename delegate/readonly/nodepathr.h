@@ -27,12 +27,12 @@
 
 class NodePathR : public StyledItemDelegate {
 public:
-    NodePathR(CTreeModel* tree_model, QObject* parent = nullptr);
+    NodePathR(CNodeModel* tree_model, QObject* parent = nullptr);
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
-    CTreeModel* tree_model_ {};
+    CNodeModel* tree_model_ {};
 };
 
 #endif // NODEPATHR_H

@@ -23,7 +23,7 @@
 #include <QButtonGroup>
 #include <QDialog>
 
-#include "component/classparams.h"
+#include "component/arg/insertnodeargfpts.h"
 #include "component/using.h"
 
 namespace Ui {
@@ -34,7 +34,7 @@ class InsertNodeFinance final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeFinance(CInsertNodeParamsFPTS& params, QWidget* parent = nullptr);
+    InsertNodeFinance(CInsertNodeArgFPTS& arg, QWidget* parent = nullptr);
     ~InsertNodeFinance();
 
 private slots:

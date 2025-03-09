@@ -6,53 +6,51 @@
 #include "global/resourcepool.h"
 #include "ui_transwidgeto.h"
 
-TransWidgetO::TransWidgetO(CEditNodeParamsO& params, QWidget* parent)
+TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, QWidget* parent)
     : TransWidget(parent)
     , ui(new Ui::TransWidgetO)
-    , node_ { params.node }
-    , sql_ { params.sql }
-    , order_table_ { params.order_table }
-    , stakeholder_tree_ { static_cast<NodeModelS*>(params.stakeholder_tree) }
-    , settings_ { params.settings }
-    , node_id_ { params.node->id }
-    , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
-    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
+    , node_ { arg.node }
+    , sql_ { arg.sql }
+    , order_trans_ { arg.order_trans }
+    , stakeholder_node_ { arg.stakeholder_node }
+    , settings_ { arg.settings }
+    , node_id_ { arg.node->id }
+    , party_unit_ { arg.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
+    , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
     IniWidget();
-    IniText(params.section);
-    IniUnit(params.node->unit);
+    IniText(arg.section);
+    IniUnit(arg.node->unit);
     IniRuleGroup();
     IniUnitGroup();
-    IniRule(params.node->rule);
+    IniRule(arg.node->rule);
     IniData();
-    IniDataCombo(params.node->party, params.node->employee);
+    IniDataCombo(arg.node->party, arg.node->employee);
     IniConnect();
 
-    const bool finished { params.node->finished };
+    const bool finished { arg.node->finished };
     IniFinished(finished);
     LockWidgets(finished);
 }
 
 TransWidgetO::~TransWidgetO()
 {
-    delete order_table_;
+    delete order_trans_;
     delete ui;
 }
 
 QPointer<QTableView> TransWidgetO::View() const { return ui->tableViewO; }
 
-void TransWidgetO::RSyncBool(int node_id, int column, bool value)
+void TransWidgetO::RSyncBoolNode(int node_id, int column, bool value)
 {
     if (node_id != node_id_)
         return;
 
     const NodeEnumO kColumn { column };
-
-    if (kColumn == NodeEnumO::kFinished)
-        emit SSyncBool(node_id_, 0, value); // just send to TableModelOrder, thereby set column to 0
+    emit SSyncBoolTrans(node_id_, column, value);
 
     SignalBlocker blocker(this);
 
@@ -119,32 +117,25 @@ void TransWidgetO::RUpdateLeafValue(int node_id, double initial_delta, double fi
     if (node_id_ != node_id)
         return;
 
-    // In OrderRule, RO:1, SO and PO:0
-    const int coefficient { node_->rule ? -1 : 1 };
+    const double adjusted_final_delta { node_->unit == std::to_underlying(UnitO::kIS) ? final_delta : 0.0 };
 
-    const double adjusted_initial_delta { initial_delta * coefficient };
-    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitO::kIS) ? final_delta : 0.0) * coefficient };
-    const double adjusted_first_delta { first_delta * coefficient };
-    const double adjusted_second_delta { second_delta * coefficient };
-    const double adjusted_discount_delta { discount_delta * coefficient };
-
-    node_->first += adjusted_first_delta;
-    node_->second += adjusted_second_delta;
-    node_->initial_total += adjusted_initial_delta;
-    node_->discount += adjusted_discount_delta;
+    node_->first += first_delta;
+    node_->second += second_delta;
+    node_->initial_total += initial_delta;
+    node_->discount += discount_delta;
     node_->final_total += adjusted_final_delta;
 
     IniLeafValue();
 
-    emit SUpdateLeafValue(node_id_, adjusted_initial_delta, adjusted_final_delta, adjusted_first_delta, adjusted_second_delta, adjusted_discount_delta);
+    emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
 }
 
 void TransWidgetO::IniWidget()
 {
-    pmodel_ = stakeholder_tree_->UnitModelPS(party_unit_);
+    pmodel_ = stakeholder_node_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(pmodel_);
 
-    emodel_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitS::kEmp));
+    emodel_ = stakeholder_node_->UnitModelPS(std::to_underlying(UnitS::kEmp));
     ui->comboEmployee->setModel(emodel_);
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
@@ -170,13 +161,11 @@ void TransWidgetO::IniData()
 {
     IniLeafValue();
 
-    ui->rBtnRefund->setChecked(node_->rule);
     ui->chkBoxBranch->setChecked(false);
     ui->lineDescription->setText(node_->description);
     ui->dateTimeEdit->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
-    ui->pBtnFinishOrder->setChecked(node_->finished);
 
-    ui->tableViewO->setModel(order_table_);
+    ui->tableViewO->setModel(order_trans_);
 }
 
 void TransWidgetO::IniConnect()
@@ -290,6 +279,7 @@ void TransWidgetO::IniFinished(bool finished)
     ui->pBtnFinishOrder->setChecked(finished);
     ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
     ui->pBtnFinishOrder->setEnabled(node_->unit != std::to_underlying(UnitO::kPEND));
+    emit SEnableAction(finished);
 
     if (finished) {
         ui->pBtnPrint->setFocus();
@@ -320,23 +310,20 @@ void TransWidgetO::on_comboParty_currentIndexChanged(int /*index*/)
         return;
 
     node_->party = party_id;
-    sql_->WriteField(info_node_, kParty, party_id, node_id_);
+    sql_->WriteField(party_info_, kParty, party_id, node_id_);
     emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kParty), party_id);
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
 
-    int employee_index { ui->comboEmployee->findData(stakeholder_tree_->Employee(party_id)) };
+    int employee_index { ui->comboEmployee->findData(stakeholder_node_->Employee(party_id)) };
     ui->comboEmployee->setCurrentIndex(employee_index);
-
-    ui->rBtnIS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
-    ui->rBtnMS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
 }
 
 void TransWidgetO::on_comboEmployee_currentIndexChanged(int /*index*/)
 {
     node_->employee = ui->comboEmployee->currentData().toInt();
-    sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
+    sql_->WriteField(party_info_, kEmployee, node_->employee, node_id_);
 }
 
 void TransWidgetO::on_pBtnInsert_clicked()
@@ -346,13 +333,13 @@ void TransWidgetO::on_pBtnInsert_clicked()
         return;
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
-    node->rule = stakeholder_tree_->Rule(-1);
-    stakeholder_tree_->SetParent(node, -1);
+    node->rule = stakeholder_node_->Rule(-1);
+    stakeholder_node_->SetParent(node, -1);
     node->name = name;
 
     node->unit = party_unit_;
 
-    stakeholder_tree_->InsertNode(0, QModelIndex(), node);
+    stakeholder_node_->InsertNode(0, QModelIndex(), node);
 
     int party_index { ui->comboParty->findData(node->id) };
     ui->comboParty->setCurrentIndex(party_index);
@@ -361,13 +348,13 @@ void TransWidgetO::on_pBtnInsert_clicked()
 void TransWidgetO::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
     node_->date_time = date_time.toString(kDateTimeFST);
-    sql_->WriteField(info_node_, kDateTime, node_->date_time, node_id_);
+    sql_->WriteField(party_info_, kDateTime, node_->date_time, node_id_);
 }
 
 void TransWidgetO::on_lineDescription_editingFinished()
 {
     node_->description = ui->lineDescription->text();
-    sql_->WriteField(info_node_, kDescription, node_->description, node_id_);
+    sql_->WriteField(party_info_, kDescription, node_->description, node_id_);
 }
 
 void TransWidgetO::RRuleGroupClicked(int id)
@@ -382,8 +369,11 @@ void TransWidgetO::RRuleGroupClicked(int id)
 
     IniLeafValue();
 
-    sql_->WriteField(info_node_, kRule, node_->rule, node_id_);
-    sql_->WriteLeafValue(node_);
+    sql_->WriteField(party_info_, kRule, node_->rule, node_id_);
+    sql_->SyncLeafValue(node_);
+    sql_->InvertTransValue(node_id_);
+
+    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->rule);
 }
 
 void TransWidgetO::RUnitGroupClicked(int id)
@@ -408,15 +398,17 @@ void TransWidgetO::RUnitGroupClicked(int id)
     node_->unit = id;
     ui->dSpinSettlement->setValue(node_->final_total);
 
-    sql_->WriteField(info_node_, kUnit, id, node_id_);
-    sql_->WriteField(info_node_, kSettlement, node_->final_total, node_id_);
+    sql_->WriteField(party_info_, kUnit, id, node_id_);
+    sql_->WriteField(party_info_, kSettlement, node_->final_total, node_id_);
 }
 
 void TransWidgetO::on_pBtnFinishOrder_toggled(bool checked)
 {
     node_->finished = checked;
-    sql_->WriteField(info_node_, kFinished, checked, node_id_);
-    emit SSyncBool(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
+    sql_->WriteField(party_info_, kFinished, checked, node_id_);
+
+    emit SSyncBoolNode(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
+    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
 
     IniFinished(checked);
     LockWidgets(checked);

@@ -21,53 +21,52 @@
 #define STATEMENTWIDGET_H
 
 #include <QButtonGroup>
+#include <QDateTime>
 
-#include "supportwidget.h"
-#include "table/statementmodel.h"
+#include "component/using.h"
+#include "reportwidget.h"
 
 namespace Ui {
 class StatementWidget;
 }
 
-class StatementWidget final : public SupportWidget {
+class StatementWidget final : public ReportWidget {
     Q_OBJECT
 
 signals:
-    void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-
-public slots:
-    void on_start_dateChanged(const QDate& date);
-    void on_end_dateChanged(const QDate& date);
+    void SStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void SStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
 
 public:
-    StatementWidget(StatementModel* model, QWidget* parent = nullptr);
+    StatementWidget(QAbstractItemModel* model, int unit, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);
     ~StatementWidget() override;
 
     QPointer<QTableView> View() const override;
-    QPointer<QAbstractItemModel> Model() const override { return model_; };
-    bool IsSupportWidget() const override { return true; }
+    QPointer<QAbstractItemModel> Model() const override;
+    bool IsReportWidget() const override { return true; }
 
 private slots:
     void on_pBtnRefresh_clicked();
-    void on_tableViewStatement_doubleClicked(const QModelIndex& index);
+    void on_tableView_doubleClicked(const QModelIndex& index);
+    void on_start_dateChanged(const QDate& date);
+    void on_end_dateChanged(const QDate& date);
+
     void RUnitGroupClicked(int id);
 
 private:
     void IniUnitGroup();
     void IniConnect();
-    void IniWidget(StatementModel* model);
-    void IniData();
+    void IniUnit(int unit);
+    void IniWidget(QAbstractItemModel* model);
 
 private:
     Ui::StatementWidget* ui;
+    int unit_ {};
     QDateTime start_ {};
     QDateTime end_ {};
-    UnitO unit_ {};
 
     QButtonGroup* unit_group_ {};
-
-    StatementModel* model_ {};
 };
 
 #endif // STATEMENTWIDGET_H

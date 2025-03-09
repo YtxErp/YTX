@@ -2,7 +2,7 @@
 
 #include "widget/combobox.h"
 
-TableCombo::TableCombo(CTreeModel* tree_model, SortFilterProxyModel* filter_model, QObject* parent)
+TableCombo::TableCombo(CNodeModel* tree_model, SortFilterProxyModel* filter_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
     , filter_model_ { filter_model }

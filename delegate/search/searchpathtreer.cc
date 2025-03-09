@@ -1,6 +1,6 @@
 #include "searchpathtreer.h"
 
-SearchPathTreeR::SearchPathTreeR(CTreeModel* model, int column, QObject* parent)
+SearchPathTreeR::SearchPathTreeR(CNodeModel* model, int column, QObject* parent)
     : StyledItemDelegate { parent }
     , model_ { model }
     , column_ { column }

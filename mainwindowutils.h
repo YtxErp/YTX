@@ -26,7 +26,6 @@
 #include <QWidget>
 
 #include "component/constvalue.h"
-#include "widget/support/supportwidget.h"
 #include "widget/trans/transwidget.h"
 #include "worksheet.h"
 
@@ -40,7 +39,7 @@ template <typename T>
 concept MemberFunction = std::is_member_function_pointer_v<T>;
 
 template <typename T>
-concept LeafWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
+concept TransWidgetLike = std::is_base_of_v<QWidget, T> && requires(T t) {
     { t.Model() } -> std::convertible_to<QPointer<TransModel>>;
     { t.View() } -> std::convertible_to<QPointer<QTableView>>;
 };
@@ -56,7 +55,9 @@ public:
     static void ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);
     static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
 
-    static bool IsTreeWidget(const QWidget* widget) { return widget && widget->inherits("TreeWidget"); }
+    static bool IsNodeWidget(const QWidget* widget) { return widget && widget->inherits("NodeWidget"); }
+    static bool IsLeafWidgetFPTS(const QWidget* widget) { return widget && widget->inherits("TransWidgetFPTS"); }
+    static bool IsLeafWidgetO(const QWidget* widget) { return widget && widget->inherits("TransWidgetO"); }
 
     static bool CheckFileName(QString& file_path, CString& suffix);
     static bool CheckFileValid(CString& file_path, CString& suffix = kSuffixYTX);
@@ -71,14 +72,6 @@ public:
         return view && view->selectionModel() && view->selectionModel()->hasSelection();
     }
 
-    template <InheritQWidget T> static void FreeWidget(QPointer<T>& widget)
-    {
-        if (widget) {
-            delete widget;
-            widget = nullptr;
-        }
-    }
-
     template <typename Container> static void SwitchDialog(Container* container, bool enable)
     {
         if (container) {
@@ -90,9 +83,25 @@ public:
         }
     }
 
-    template <LeafWidgetLike T> static void AppendTrans(T* widget, Section start)
+    template <InheritQWidget T> static void FreeWidgetFromHash(int node_id, QHash<int, QPointer<T>>* hash)
     {
-        if (!widget || dynamic_cast<SupportWidget*>(widget))
+        if (!hash)
+            return;
+
+        auto it = hash->constFind(node_id);
+        if (it != hash->constEnd()) {
+            auto widget = it.value();
+
+            if (widget) {
+                hash->erase(it);
+                delete widget;
+            }
+        }
+    }
+
+    template <TransWidgetLike T> static void AppendTrans(T* widget, Section start)
+    {
+        if (!widget)
             return;
 
         auto model { widget->Model() };
@@ -115,6 +124,46 @@ public:
 
         if (target_index.isValid()) {
             widget->View()->setCurrentIndex(target_index);
+        }
+    }
+
+    template <TransWidgetLike T> static void RemoveTrans(T* widget)
+    {
+        if (!widget)
+            return;
+
+        auto view { widget->View() };
+        if (!view || !MainWindowUtils::HasSelection(view))
+            return;
+
+        const QModelIndex current_index { view->currentIndex() };
+        if (!current_index.isValid())
+            return;
+
+        auto model { widget->Model() };
+        if (!model)
+            return;
+
+        const int current_row { current_index.row() };
+        if (!model->removeRows(current_row, 1)) {
+            qDebug() << "Failed to remove row:" << current_row;
+            return;
+        }
+
+        const int new_row_count { model->rowCount() };
+        if (new_row_count == 0)
+            return;
+
+        QModelIndex new_index {};
+        if (current_row < new_row_count) {
+            new_index = model->index(current_row, 0);
+        } else {
+            new_index = model->index(new_row_count - 1, 0);
+        }
+
+        if (new_index.isValid()) {
+            view->setCurrentIndex(new_index);
+            view->closePersistentEditor(new_index);
         }
     }
 

@@ -26,7 +26,7 @@
 
 class TableCombo final : public StyledItemDelegate {
 public:
-    TableCombo(CTreeModel* tree_model, SortFilterProxyModel* filter_model, QObject* parent = nullptr);
+    TableCombo(CNodeModel* tree_model, SortFilterProxyModel* filter_model, QObject* parent = nullptr);
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
@@ -36,7 +36,7 @@ public:
 
 private:
     mutable int last_insert_ {};
-    CTreeModel* tree_model_ {};
+    CNodeModel* tree_model_ {};
     SortFilterProxyModel* filter_model_ {};
 };
 

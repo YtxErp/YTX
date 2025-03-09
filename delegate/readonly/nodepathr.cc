@@ -2,7 +2,7 @@
 
 #include <QPainter>
 
-NodePathR::NodePathR(CTreeModel* tree_model, QObject* parent)
+NodePathR::NodePathR(CNodeModel* tree_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
 {

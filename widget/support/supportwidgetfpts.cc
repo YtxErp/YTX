@@ -5,16 +5,13 @@
 SupportWidgetFPTS::SupportWidgetFPTS(QAbstractItemModel* model, QWidget* parent)
     : SupportWidget(parent)
     , ui(new Ui::SupportWidgetFPTS)
-    , model_ { model }
 {
     ui->setupUi(this);
     ui->tableView->setModel(model);
 }
 
-SupportWidgetFPTS::~SupportWidgetFPTS()
-{
-    delete model_;
-    delete ui;
-}
+SupportWidgetFPTS::~SupportWidgetFPTS() { delete ui; }
+
+QPointer<QAbstractItemModel> SupportWidgetFPTS::Model() const { return ui->tableView->model(); }
 
 QPointer<QTableView> SupportWidgetFPTS::View() const { return ui->tableView; }

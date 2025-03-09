@@ -6,18 +6,18 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodetask.h"
 
-InsertNodeTask::InsertNodeTask(CInsertNodeParamsFPTS& params, int amount_decimal, CString& display_format, QWidget* parent)
+InsertNodeTask::InsertNodeTask(CInsertNodeArgFPTS& arg, int amount_decimal, CString& display_format, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeTask)
-    , node_ { params.node }
-    , parent_path_ { params.parent_path }
-    , name_list_ { params.name_list }
+    , node_ { arg.node }
+    , parent_path_ { arg.parent_path }
+    , name_list_ { arg.name_list }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog(params.unit_model, amount_decimal, display_format);
-    IniData(params.node);
+    IniDialog(arg.unit_model, amount_decimal, display_format);
+    IniData(arg.node);
     IniRuleGroup();
     IniTypeGroup();
     IniConnect();

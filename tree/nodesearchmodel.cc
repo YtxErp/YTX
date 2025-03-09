@@ -4,7 +4,7 @@
 #include "database/sqlite/sqliteorder.h"
 #include "tree/model/nodemodels.h"
 
-NodeSearchModel::NodeSearchModel(CInfo& info, CTreeModel* tree_model, CTreeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent)
+NodeSearchModel::NodeSearchModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }

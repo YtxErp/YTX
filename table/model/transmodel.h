@@ -25,6 +25,7 @@
 #include <QAbstractItemModel>
 #include <QMutex>
 
+#include "component/arg/transmodelarg.h"
 #include "database/sqlite/sqlite.h"
 
 class TransModel : public QAbstractItemModel {
@@ -35,7 +36,7 @@ public:
     TransModel() = delete;
 
 protected:
-    TransModel(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent = nullptr);
+    TransModel(CTransModelArg& arg, QObject* parent = nullptr);
 
 signals:
     // send to TreeModel
@@ -66,7 +67,7 @@ public slots:
     void RRule(int node_id, bool rule);
 
     // receive from TreeModel
-    virtual void RSyncBool(int node_id, int column, bool value)
+    virtual void RSyncBoolWD(int node_id, int column, bool value)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(column);
@@ -110,15 +111,14 @@ protected:
 
 protected:
     Sqlite* sql_ {};
-    bool rule_ {};
-
     CInfo& info_;
+    bool node_rule_ {};
     int node_id_ {};
     QMutex mutex_ {};
 
     QList<TransShadow*> trans_shadow_list_ {};
 };
 
-using PTableModel = QPointer<TransModel>;
+using PTransModel = QPointer<TransModel>;
 
 #endif // TRANSMODEL_H

@@ -26,7 +26,7 @@ class TransModelP final : public TransModel {
     Q_OBJECT
 
 public:
-    TransModelP(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent = nullptr);
+    TransModelP(CTransModelArg& arg, QObject* parent = nullptr);
     ~TransModelP() override = default;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

@@ -4,11 +4,11 @@
 #include "global/resourcepool.h"
 #include "transmodelutils.h"
 
-TransModelP::TransModelP(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent)
-    : TransModel { sql, rule, node_id, info, parent }
+TransModelP::TransModelP(CTransModelArg& arg, QObject* parent)
+    : TransModel { arg, parent }
 {
-    if (node_id >= 1)
-        sql_->ReadTrans(trans_shadow_list_, node_id);
+    if (node_id_ >= 1)
+        sql_->ReadTrans(trans_shadow_list_, node_id_);
 }
 
 QVariant TransModelP::data(const QModelIndex& index, int role) const
@@ -100,7 +100,7 @@ bool TransModelP::setData(const QModelIndex& index, const QVariant& value, int r
 
     if (old_rhs_node == 0 && rhs_changed) {
         sql_->WriteTrans(trans_shadow);
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
+        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, node_rule_);
 
         emit SResizeColumnToContents(std::to_underlying(TransEnumP::kSubtotal));
         emit SAppendOneTrans(info_.section, trans_shadow);
@@ -130,8 +130,8 @@ bool TransModelP::setData(const QModelIndex& index, const QVariant& value, int r
     }
 
     if (deb_changed || cre_changed) {
-        sql_->WriteTransValue(trans_shadow);
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, rule_);
+        sql_->SyncTransValue(trans_shadow);
+        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, node_rule_);
 
         emit SSearch();
         emit SUpdateBalance(info_.section, old_rhs_node, *trans_shadow->id);
@@ -139,7 +139,7 @@ bool TransModelP::setData(const QModelIndex& index, const QVariant& value, int r
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
-        sql_->WriteTransValue(trans_shadow);
+        sql_->SyncTransValue(trans_shadow);
         emit SRemoveOneTrans(info_.section, old_rhs_node, *trans_shadow->id);
         emit SAppendOneTrans(info_.section, trans_shadow);
 
@@ -192,7 +192,7 @@ void TransModelP::sort(int column, Qt::SortOrder order)
     std::sort(trans_shadow_list_.begin(), trans_shadow_list_.end(), Compare);
     emit layoutChanged();
 
-    TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, 0, rule_);
+    TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, 0, node_rule_);
 }
 
 Qt::ItemFlags TransModelP::flags(const QModelIndex& index) const
@@ -242,7 +242,7 @@ bool TransModelP::removeRows(int row, int /*count*/, const QModelIndex& parent)
 
         int trans_id { *trans_shadow->id };
         emit SRemoveOneTrans(info_.section, rhs_node_id, trans_id);
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, rule_);
+        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 
         if (int support_id = *trans_shadow->support_id; support_id != 0)
             emit SRemoveSupportTrans(info_.section, support_id, *trans_shadow->id);

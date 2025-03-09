@@ -124,8 +124,6 @@ bool YtxSqlite::NewFile(CString& file_path)
     );
     )");
 
-    QLatin1String settings_row { "INSERT INTO settings (static_node) VALUES (0);" };
-
     QSqlQuery query {};
     if (db.transaction()) {
         // Execute each table creation query
@@ -136,7 +134,7 @@ bool YtxSqlite::NewFile(CString& file_path)
             // Commit the transaction if all queries are successful
             if (db.commit()) {
                 for (int i = 0; i != 6; ++i) {
-                    query.exec(settings_row);
+                    query.exec(QLatin1String("INSERT INTO settings (static_node) VALUES (0);"));
                 }
             } else {
                 // Handle commit failure
@@ -188,7 +186,6 @@ QString YtxSqlite::NodeStakeholder()
         description       TEXT,
         note              TEXT,
         type              INTEGER,
-        rule              BOOLEAN    DEFAULT 0,
         unit              INTEGER,
         deadline          TEXT,
         employee          INTEGER,

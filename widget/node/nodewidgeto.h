@@ -40,7 +40,7 @@ public:
 
     QPointer<QTreeView> View() const override;
     QPointer<NodeModel> Model() const override { return model_; };
-    bool IsTreeWidget() const override { return true; }
+    bool IsNodeWidget() const override { return true; }
 
 private slots:
     void on_pBtnRefresh_clicked();

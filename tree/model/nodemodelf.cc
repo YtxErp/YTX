@@ -2,8 +2,8 @@
 
 #include "global/resourcepool.h"
 
-NodeModelF::NodeModelF(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
-    : NodeModel(sql, info, default_unit, leaf_wgt_hash, separator, parent)
+NodeModelF::NodeModelF(CNodeModelArg& arg, QObject* parent)
+    : NodeModel(arg, parent)
 {
     leaf_model_ = new QStandardItemModel(this);
     ConstructTree();
@@ -29,7 +29,7 @@ void NodeModelF::RUpdateLeafValue(
     node->initial_total += initial_delta;
     node->final_total += final_delta;
 
-    sql_->WriteLeafValue(node);
+    sql_->SyncLeafValue(node);
     UpdateAncestorValue(node, initial_delta, final_delta);
     emit SUpdateStatusValue();
 }
@@ -52,7 +52,7 @@ void NodeModelF::RUpdateMultiLeafTotal(const QList<int>& node_list)
         old_foreign_total = node->initial_total;
 
         sql_->ReadLeafTotal(node);
-        sql_->WriteLeafValue(node);
+        sql_->SyncLeafValue(node);
 
         local_delta = node->final_total - old_local_total;
         foreign_delta = node->initial_total - old_foreign_total;
@@ -354,9 +354,8 @@ void NodeModelF::ConstructTree()
         }
     }
 
-    QString path {};
     for (auto* node : const_node_hash) {
-        path = NodeModelUtils::ConstructPathFPTS(root_, node, separator_);
+        const auto path { NodeModelUtils::ConstructPathFPTS(root_, node, separator_) };
 
         switch (node->type) {
         case kTypeBranch:

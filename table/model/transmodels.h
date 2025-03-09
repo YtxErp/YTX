@@ -26,7 +26,7 @@ class TransModelS final : public TransModel {
     Q_OBJECT
 
 public:
-    TransModelS(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent = nullptr);
+    TransModelS(CTransModelArg& arg, QObject* parent = nullptr);
     ~TransModelS() override = default;
 
 public slots:

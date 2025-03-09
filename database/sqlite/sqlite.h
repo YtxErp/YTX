@@ -73,8 +73,9 @@ public:
     bool ExternalReference(int node_id) const;
     bool SupportReference(int support_id) const;
     bool ReadLeafTotal(Node* node) const;
-    bool WriteLeafValue(const Node* node) const;
+    bool SyncLeafValue(const Node* node) const;
     QList<int> SearchNodeName(CString& text) const;
+    bool ReadStatementPrimary(QList<Node*>& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // table
     bool ReadTrans(TransShadowList& trans_shadow_list, int node_id);
@@ -82,14 +83,16 @@ public:
     bool ReadTransRange(TransShadowList& trans_shadow_list, int node_id, const QList<int>& trans_id_list);
     bool WriteTrans(TransShadow* trans_shadow);
     bool WriteTransRange(const QList<TransShadow*>& list) const;
-    bool WriteTransValue(const TransShadow* trans_shadow) const;
+    bool SyncTransValue(const TransShadow* trans_shadow) const;
+    bool InvertTransValue(int node_id) const;
     TransShadow* AllocateTransShadow();
 
     bool RemoveTrans(int trans_id);
     bool WriteState(Check state) const;
     bool SearchTrans(TransList& trans_list, CString& text) const;
-    bool ReadTransRef(TransList& trans_list, int node_id) const;
-    bool ReadStatement(TransList& trans_list, const QDateTime& start, const QDateTime& end, UnitO unit = UnitO::kMS) const;
+    bool ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const;
+    bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
+    bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // common
     bool WriteField(CString& table, CString& field, CVariant& value, int id) const;
@@ -107,11 +110,22 @@ protected:
     virtual QString QSSupportReference() const { return {}; }
     virtual QString QSRemoveSupport() const { return {}; }
     virtual QString QSLeafTotalFPT() const { return {}; }
-    virtual QString QSWriteLeafValueFPTO() const { return {}; }
+    virtual QString QSSyncLeafValue() const { return {}; }
     virtual QString QSSupportTransToMove() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
     virtual QString QSReadTransRef() const { return {}; };
-    virtual QString QSReadStatement(UnitO unit) const
+    virtual QString QSReadStatement(int unit) const
+    {
+        Q_UNUSED(unit);
+        return {};
+    }
+    virtual QString QSReadStatementPrimary(int unit) const
+    {
+        Q_UNUSED(unit);
+        return {};
+    }
+
+    virtual QString QSReadStatementSecondary(int unit) const
     {
         Q_UNUSED(unit);
         return {};
@@ -120,7 +134,7 @@ protected:
     virtual void ReadNodeQuery(Node* node, const QSqlQuery& query) const = 0;
     virtual void WriteNodeBind(Node* node, QSqlQuery& query) const = 0;
 
-    virtual void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const
+    virtual void SyncLeafValueBind(const Node* node, QSqlQuery& query) const
     {
         Q_UNUSED(node);
         Q_UNUSED(query);
@@ -153,14 +167,15 @@ protected:
         return {};
     }
 
-    virtual QString QSWriteTransValueFPTO() const { return {}; }
+    virtual QString QSSyncTransValue() const { return {}; }
+    virtual QString QSInvertTransValue() const { return {}; }
     virtual QString QSFreeViewFPT() const { return {}; }
     virtual QString QSUpdateProductReferenceSO() const { return {}; }
     virtual QString QSUpdateStakeholderReferenceO() const { return {}; }
 
     virtual void ReadTransQuery(Trans* trans, const QSqlQuery& query) const = 0;
     virtual void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const = 0;
-    virtual void WriteTransValueBindFPTO(const TransShadow* trans_shadow, QSqlQuery& query) const
+    virtual void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
     {
         Q_UNUSED(trans_shadow);
         Q_UNUSED(query);
@@ -183,6 +198,18 @@ protected:
     };
 
     virtual void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
+    {
+        Q_UNUSED(trans_list);
+        Q_UNUSED(query);
+    };
+
+    virtual void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const
+    {
+        Q_UNUSED(node_list);
+        Q_UNUSED(query);
+    };
+
+    virtual void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const
     {
         Q_UNUSED(trans_list);
         Q_UNUSED(query);

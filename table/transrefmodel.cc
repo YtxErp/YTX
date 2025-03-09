@@ -3,13 +3,11 @@
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
 
-TransRefModel::TransRefModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
+TransRefModel::TransRefModel(Sqlite* sql, CInfo& info, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
-    , node_id_ { node_id }
 {
-    Query(node_id);
 }
 
 TransRefModel::~TransRefModel() { ResourcePool<Trans>::Instance().Recycle(trans_list_); }
@@ -63,8 +61,6 @@ QVariant TransRefModel::data(const QModelIndex& index, int role) const
         return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
     case TransRefEnum::kDescription:
         return trans->description;
-    case TransRefEnum::kCode:
-        return trans->code;
     case TransRefEnum::kGrossAmount:
         return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
     case TransRefEnum::kDiscount:
@@ -97,8 +93,6 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
         case TransRefEnum::kDateTime:
             return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
-        case TransRefEnum::kCode:
-            return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
         case TransRefEnum::kPP:
             return (order == Qt::AscendingOrder) ? (lhs->id < rhs->id) : (lhs->id > rhs->id);
         case TransRefEnum::kUnitPrice:
@@ -127,14 +121,17 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void TransRefModel::Query(int node_id)
+void TransRefModel::RRetrieveData(int node_id, const QDateTime& start, const QDateTime& end)
 {
+    if (node_id <= 0)
+        return;
+
     beginResetModel();
     if (!trans_list_.isEmpty())
         trans_list_.clear();
 
     if (node_id >= 1)
-        sql_->ReadTransRef(trans_list_, node_id);
+        sql_->ReadTransRef(trans_list_, node_id, start, end);
 
     endResetModel();
 }

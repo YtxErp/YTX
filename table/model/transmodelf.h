@@ -26,7 +26,7 @@ class TransModelF final : public TransModel {
     Q_OBJECT
 
 public:
-    TransModelF(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent = nullptr);
+    TransModelF(CTransModelArg& arg, QObject* parent = nullptr);
     ~TransModelF() override = default;
 
     bool insertRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;

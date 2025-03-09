@@ -29,13 +29,13 @@ class NodeModelO final : public NodeModel {
     Q_OBJECT
 
 public:
-    NodeModelO(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
+    NodeModelO(CNodeModelArg& arg, QObject* parent = nullptr);
     ~NodeModelO() override = default;
 
 public slots:
     void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
     void RUpdateStakeholder(int old_node_id, int new_node_id) override;
-    void RSyncBool(int node_id, int column, bool value) override; // kFinished
+    void RSyncBoolWD(int node_id, int column, bool value) override; // kFinished
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -50,7 +50,6 @@ public:
     void UpdateTree(const QDateTime& start, const QDateTime& end);
     QString GetPath(int node_id) const override;
     void RetrieveNode(int node_id) override;
-    int Party(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
 
     Node* GetNodeO(int node_id) const override;
 

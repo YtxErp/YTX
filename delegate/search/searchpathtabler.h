@@ -27,7 +27,7 @@
 
 class SearchPathTableR final : public StyledItemDelegate {
 public:
-    SearchPathTableR(CTreeModel* model, QObject* parent = nullptr);
+    SearchPathTableR(CNodeModel* model, QObject* parent = nullptr);
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
@@ -35,7 +35,7 @@ private:
     QString GetPath(const QModelIndex& index) const;
 
 private:
-    CTreeModel* model_ {};
+    CNodeModel* model_ {};
 };
 
 #endif // SEARCHPATHTABLER_H

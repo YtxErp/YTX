@@ -2,7 +2,7 @@
 
 #include <QPainter>
 
-OrderNameR::OrderNameR(CTreeModel* tree_model, QObject* parent)
+OrderNameR::OrderNameR(CNodeModel* tree_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
 {

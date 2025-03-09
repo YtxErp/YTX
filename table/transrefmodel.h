@@ -31,8 +31,11 @@
 class TransRefModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    TransRefModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent = nullptr);
+    TransRefModel(Sqlite* sql, CInfo& info, QObject* parent = nullptr);
     ~TransRefModel();
+
+public slots:
+    void RRetrieveData(int node_id, const QDateTime& start, const QDateTime& end);
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -47,14 +50,10 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
-    void Query(int node_id);
-
-private:
     Sqlite* sql_ {};
+    CInfo& info_;
 
     TransList trans_list_ {};
-    CInfo& info_;
-    const int node_id_ {};
 };
 
 #endif // TRANSREFMODEL_H

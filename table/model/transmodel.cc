@@ -5,12 +5,12 @@
 #include "global/resourcepool.h"
 #include "transmodelutils.h"
 
-TransModel::TransModel(Sqlite* sql, bool rule, int node_id, CInfo& info, QObject* parent)
+TransModel::TransModel(CTransModelArg& arg, QObject* parent)
     : QAbstractItemModel(parent)
-    , sql_ { sql }
-    , rule_ { rule }
-    , info_ { info }
-    , node_id_ { node_id }
+    , sql_ { arg.sql }
+    , info_ { arg.info }
+    , node_rule_ { arg.rule }
+    , node_id_ { arg.node_id }
 {
 }
 
@@ -35,13 +35,13 @@ void TransModel::RMoveMultiTrans(int old_node_id, int new_node_id, const QList<i
 
 void TransModel::RRule(int node_id, bool rule)
 {
-    if (node_id_ != node_id || rule_ == rule)
+    if (node_id_ != node_id || node_rule_ == rule)
         return;
 
     for (auto* trans_shadow : std::as_const(trans_shadow_list_))
         trans_shadow->subtotal = -trans_shadow->subtotal;
 
-    rule_ = rule;
+    node_rule_ = rule;
 }
 
 void TransModel::RAppendOneTrans(const TransShadow* trans_shadow)
@@ -56,8 +56,6 @@ void TransModel::RAppendOneTrans(const TransShadow* trans_shadow)
     new_trans_shadow->code = trans_shadow->code;
     new_trans_shadow->document = trans_shadow->document;
     new_trans_shadow->state = trans_shadow->state;
-    new_trans_shadow->lhs_ratio = trans_shadow->lhs_ratio;
-    new_trans_shadow->rhs_ratio = trans_shadow->rhs_ratio;
     new_trans_shadow->discount = trans_shadow->discount;
     new_trans_shadow->support_id = trans_shadow->support_id;
 
@@ -78,7 +76,7 @@ void TransModel::RAppendOneTrans(const TransShadow* trans_shadow)
     endInsertRows();
 
     double previous_balance { row >= 1 ? trans_shadow_list_.at(row - 1)->subtotal : 0.0 };
-    new_trans_shadow->subtotal = TransModelUtils::Balance(rule_, *new_trans_shadow->lhs_debit, *new_trans_shadow->lhs_credit) + previous_balance;
+    new_trans_shadow->subtotal = TransModelUtils::Balance(node_rule_, *new_trans_shadow->lhs_debit, *new_trans_shadow->lhs_credit) + previous_balance;
 }
 
 void TransModel::RRemoveOneTrans(int node_id, int trans_id)
@@ -95,7 +93,7 @@ void TransModel::RRemoveOneTrans(int node_id, int trans_id)
     ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(row));
     endRemoveRows();
 
-    TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, rule_);
+    TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 }
 
 void TransModel::RUpdateBalance(int node_id, int trans_id)
@@ -105,7 +103,7 @@ void TransModel::RUpdateBalance(int node_id, int trans_id)
 
     auto index { GetIndex(trans_id) };
     if (index.isValid())
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, index.row(), rule_);
+        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, index.row(), node_rule_);
 }
 
 bool TransModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
@@ -133,7 +131,7 @@ bool TransModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
 
         int trans_id { *trans_shadow->id };
         emit SRemoveOneTrans(info_.section, rhs_node_id, trans_id);
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, rule_);
+        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 
         if (int support_id = *trans_shadow->support_id; support_id != 0)
             emit SRemoveSupportTrans(info_.section, support_id, *trans_shadow->id);
@@ -365,12 +363,11 @@ bool TransModel::RemoveMultiTrans(const QList<int>& trans_id_list)
         return false;
 
     int min_row { -1 };
-    int trans_id {};
 
     for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        trans_id = *trans_shadow_list_.at(i)->id;
+        const int kTransID { *trans_shadow_list_.at(i)->id };
 
-        if (trans_id_list.contains(trans_id)) {
+        if (trans_id_list.contains(kTransID)) {
             if (min_row == -1 || i < min_row)
                 min_row = i;
 
@@ -381,7 +378,7 @@ bool TransModel::RemoveMultiTrans(const QList<int>& trans_id_list)
     }
 
     if (min_row != -1)
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, min_row, rule_);
+        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, min_row, node_rule_);
 
     return true;
 }
@@ -396,7 +393,7 @@ bool TransModel::AppendMultiTrans(int node_id, const QList<int>& trans_id_list)
     trans_shadow_list_.append(trans_shadow_list);
     endInsertRows();
 
-    TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, rule_);
+    TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 
     return true;
 }

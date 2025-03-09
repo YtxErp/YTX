@@ -2,14 +2,14 @@
 
 #include <QQueue>
 
-NodeModel::NodeModel(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent)
+NodeModel::NodeModel(CNodeModelArg& arg, QObject* parent)
     : QAbstractItemModel(parent)
-    , sql_ { sql }
-    , info_ { info }
-    , leaf_wgt_hash_ { leaf_wgt_hash }
-    , separator_ { separator }
+    , sql_ { arg.sql }
+    , info_ { arg.info }
+    , leaf_wgt_hash_ { arg.leaf_wgt_hash }
+    , separator_ { arg.separator }
 {
-    NodeModelUtils::InitializeRoot(root_, default_unit);
+    NodeModelUtils::InitializeRoot(root_, arg.default_unit);
     support_model_ = new QStandardItemModel(this);
 }
 
@@ -234,7 +234,7 @@ bool NodeModel::UpdateRuleFPTO(Node* node, bool value)
     node->first = -node->first;
     if (node->type == kTypeLeaf) {
         emit SRule(info_.section, node->id, value);
-        sql_->WriteLeafValue(node);
+        sql_->SyncLeafValue(node);
     }
 
     emit SUpdateStatusValue();

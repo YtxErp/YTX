@@ -2,7 +2,7 @@
 
 #include <QPainter>
 
-NodeNameR::NodeNameR(CTreeModel* tree_model, QObject* parent)
+NodeNameR::NodeNameR(CNodeModel* tree_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
 {

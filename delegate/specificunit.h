@@ -27,7 +27,7 @@
 
 class SpecificUnit : public StyledItemDelegate {
 public:
-    SpecificUnit(CTreeModel* tree_model, QStandardItemModel* combo_model, QObject* parent = nullptr);
+    SpecificUnit(CNodeModel* tree_model, QStandardItemModel* combo_model, QObject* parent = nullptr);
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
@@ -36,7 +36,7 @@ public:
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
-    CTreeModel* tree_model_ {};
+    CNodeModel* tree_model_ {};
     QStandardItemModel* combo_model_ {};
 };
 

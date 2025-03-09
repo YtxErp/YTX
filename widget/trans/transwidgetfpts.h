@@ -38,7 +38,7 @@ public:
 
     QPointer<TransModel> Model() const override { return model_; }
     QPointer<QTableView> View() const override;
-    bool IsLeafWidget() const override { return true; }
+    bool IsTransWidget() const override { return true; }
 
 private:
     Ui::TransWidgetFPTS* ui;

@@ -37,6 +37,7 @@
 #include "tree/model/nodemodel.h"
 #include "ui_mainwindow.h"
 #include "widget/node/nodewidget.h"
+#include "widget/report/reportwidget.h"
 #include "widget/support/supportwidget.h"
 #include "widget/trans/transwidgeto.h"
 
@@ -58,13 +59,13 @@ public:
 public slots:
     void on_actionInsertNode_triggered();
     void on_actionAppendTrans_triggered();
+    void on_actionRemove_triggered();
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
 
 private slots:
-    void on_actionRemove_triggered();
     void on_actionAppendNode_triggered();
     void on_actionEditNode_triggered();
     void on_actionJump_triggered();
@@ -102,8 +103,10 @@ private slots:
     void RSectionGroup(int id);
     void RTransRefDoubleClicked(const QModelIndex& index);
 
-    void RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+
+    void REnableAction(bool finished);
 
 private:
     void SetTabWidget();
@@ -122,31 +125,34 @@ private:
     void CreateLeafFunction(int type, int node_id);
     void CreateSupportFunction(int type, int node_id);
 
-    void CreateLeafFPTS(PTreeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id);
-    void CreateLeafO(PTreeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id);
-    void DelegateFPTS(PTableView table_view, PTreeModel tree_model, CSettings* settings) const;
-    void DelegateFPT(PTableView table_view, PTreeModel tree_model, CSettings* settings, int node_id) const;
+    void CreateLeafFPTS(PNodeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id);
+    void CreateLeafO(PNodeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id);
+    void DelegateFPTS(PTableView table_view, PNodeModel tree_model, CSettings* settings) const;
+    void DelegateFPT(PTableView table_view, PNodeModel tree_model, CSettings* settings, int node_id) const;
     void DelegateS(PTableView table_view) const;
     void DelegateO(PTableView table_view, CSettings* settings) const;
     void SetTableView(PTableView table_view, int stretch_column) const;
 
-    void CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
-    void DelegateSupport(PTableView table_view, PTreeModel tree_model, CSettings* settings) const;
+    void CreateSupport(PNodeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
+    void DelegateSupport(PTableView table_view, PNodeModel tree_model, CSettings* settings) const;
 
-    void CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id);
+    void CreateTransRef(PNodeModel tree_model, CData* data, int node_id);
     void DelegateTransRef(PTableView table_view, CSettings* settings) const;
 
-    void DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
+    void DelegateSupportS(PTableView table_view, PNodeModel tree_model, PNodeModel product_tree_model) const;
     void SetSupportViewS(PTableView table_view) const;
 
-    void SetStatementView(PTableView table_view) const;
+    void SetStatementView(PTableView table_view, int stretch_column) const;
     void DelegateStatement(PTableView table_view, CSettings* settings) const;
 
-    void TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
-    void TableConnectO(PTableView table_view, TransModelO* table_model, PTreeModel tree_model, TransWidgetO* widget) const;
-    void TableConnectS(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
+    void DelegateStatementPrimary(PTableView table_view, CSettings* settings) const;
+    void DelegateStatementSecondary(PTableView table_view, CSettings* settings) const;
 
-    void CreateSection(NodeWidget* tree_widget, TransWgtHash& trans_wgt_hash, CData& data, CSettings& settings, CString& name);
+    void TableConnectFPT(PTableView table_view, PTransModel table_model, PNodeModel tree_model, CData* data) const;
+    void TableConnectO(PTableView table_view, TransModelO* table_model, PNodeModel tree_model, TransWidgetO* widget) const;
+    void TableConnectS(PTableView table_view, PTransModel table_model, PNodeModel tree_model, CData* data) const;
+
+    void CreateSection(NodeWidget* node_widget, TransWgtHash& trans_wgt_hash, CData& data, CSettings& settings, CString& name);
     void SwitchSection(CTab& last_tab) const;
     void UpdateLastTab() const;
 
@@ -159,7 +165,7 @@ private:
     void DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings) const;
 
     void SetTreeView(PTreeView tree_view, CInfo& info) const;
-    void TreeConnect(NodeWidget* tree_widget, const Sqlite* sql) const;
+    void TreeConnect(NodeWidget* node_widget, const Sqlite* sql) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task
@@ -167,10 +173,9 @@ private:
 
     void EditNodeFPTS(const QModelIndex& index, int node_id); // Finance Product Stakeholder Task
 
-    void RemoveTrans(TransWidget* leaf_widget);
-    void RemoveNode(NodeWidget* tree_widget);
-    void RemoveNonBranch(PTreeModel tree_model, const QModelIndex& index, int node_id, int node_type);
-    void RemoveBranch(PTreeModel tree_model, const QModelIndex& index, int node_id);
+    void RemoveNode(NodeWidget* node_widget);
+    void RemoveNonBranch(PNodeModel tree_model, const QModelIndex& index, int node_id, int node_type);
+    void RemoveBranch(PNodeModel tree_model, const QModelIndex& index, int node_id);
 
     void UpdateInterface(CInterface& interface);
     void UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool branch) const;
@@ -181,7 +186,7 @@ private:
     void AppSettings();
     bool LockFile(const QFileInfo& file_info);
 
-    void RestoreTab(PTreeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSettings& settings);
+    void RestoreTab(PNodeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSettings& settings);
 
     void EnableAction(bool enable) const;
     void RestoreRecentFile();
@@ -196,17 +201,19 @@ private:
 
     void LeafToSupport(TransWidget* widget);
     void SupportToLeaf(SupportWidget* widget);
+
     void SwitchToLeaf(int node_id, int trans_id = 0) const;
     void SwitchToSupport(int node_id, int trans_id = 0) const;
 
     void OrderTransLocation(int node_id);
+    void RegisterRptWgt(ReportWidget* widget);
 
 private:
     Ui::MainWindow* ui {};
 
     QStringList recent_file_ {};
     Section start_ {};
-    int statement_id { -1 };
+    int report_id_ { -1 };
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};
@@ -219,13 +226,14 @@ private:
 
     QButtonGroup* section_group_ {};
 
-    NodeWidget* tree_widget_ {};
+    NodeWidget* node_widget_ {};
     TransWgtHash* trans_wgt_hash_ {};
     QList<PDialog>* dialog_list_ {};
     QHash<int, PDialog>* dialog_hash_ {};
     Settings* settings_ {};
     Data* data_ {};
     SupWgtHash* sup_wgt_hash_ {};
+    RptWgtHash* rpt_wgt_hash_ {};
 
     NodeWidget* finance_tree_ {};
     TransWgtHash finance_trans_wgt_hash_ {};
@@ -242,6 +250,7 @@ private:
     Settings product_settings_ {};
     Data product_data_ {};
     SupWgtHash product_sup_wgt_hash_ {};
+    RptWgtHash product_rpt_wgt_hash_ {};
 
     NodeWidget* task_tree_ {};
     TransWgtHash task_trans_wgt_hash_ {};
@@ -258,6 +267,7 @@ private:
     Settings stakeholder_settings_ {};
     Data stakeholder_data_ {};
     SupWgtHash stakeholder_sup_wgt_hash_ {};
+    RptWgtHash stakeholder_rpt_wgt_hash_ {};
 
     NodeWidget* sales_tree_ {};
     TransWgtHash sales_trans_wgt_hash_ {};
@@ -265,7 +275,7 @@ private:
     QHash<int, PDialog> sales_dialog_hash_ {};
     Settings sales_settings_ {};
     Data sales_data_ {};
-    SupWgtHash sales_sup_wgt_hash_ {};
+    RptWgtHash sales_rpt_wgt_hash_ {};
 
     NodeWidget* purchase_tree_ {};
     TransWgtHash purchase_trans_wgt_hash_ {};
@@ -273,6 +283,6 @@ private:
     QHash<int, PDialog> purchase_dialog_hash_ {};
     Settings purchase_settings_ {};
     Data purchase_data_ {};
-    SupWgtHash purchase_sup_wgt_hash_ {};
+    RptWgtHash purchase_rpt_wgt_hash_ {};
 };
 #endif // MAINWINDOW_H

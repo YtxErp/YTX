@@ -1,6 +1,5 @@
 #include "insertnodeorder.h"
 
-#include <QShortcut>
 #include <QTimer>
 
 #include "component/signalblocker.h"
@@ -8,87 +7,60 @@
 #include "mainwindow.h"
 #include "ui_insertnodeorder.h"
 
-InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
+InsertNodeOrder::InsertNodeOrder(CInsertNodeArgO& arg, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeOrder)
-    , node_ { params.node }
-    , sql_ { params.sql }
-    , stakeholder_tree_ { static_cast<NodeModelS*>(params.stakeholder_tree) }
-    , order_table_ { params.order_table }
-    , info_node_ { params.section == Section::kSales ? kSales : kPurchase }
-    , party_unit_ { params.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
-    , party_ { params.section == Section::kSales ? tr("CUST") : tr("VEND") }
-    , node_id_ { params.node->id }
+    , node_ { arg.node }
+    , sql_ { arg.sql }
+    , stakeholder_node_ { arg.stakeholder_node }
+    , order_trans_ { arg.order_trans }
+    , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }
+    , party_unit_ { arg.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
+    , party_text_ { arg.section == Section::kSales ? tr("CUST") : tr("VEND") }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog(params.settings);
-    IniText(params.section);
+    IniDialog(arg.settings);
+    IniText(arg.section);
     IniRuleGroup();
     IniUnitGroup();
-    IniUnit(params.node->unit);
+    IniUnit(arg.node->unit);
+    IniShotcut(parent);
     IniConnect();
-
-    QShortcut* trans_shortcut { new QShortcut(QKeySequence("Ctrl+N"), this) };
-    trans_shortcut->setContext(Qt::WindowShortcut);
-
-    connect(trans_shortcut, &QShortcut::activated, parent, [parent]() {
-        auto* main_window { qobject_cast<MainWindow*>(parent) };
-        if (main_window) {
-            main_window->on_actionAppendTrans_triggered();
-        }
-    });
-
-    QShortcut* node_shortcut { new QShortcut(QKeySequence("Alt+N"), this) };
-    node_shortcut->setContext(Qt::WindowShortcut);
-
-    connect(node_shortcut, &QShortcut::activated, parent, [parent]() {
-        auto* main_window { qobject_cast<MainWindow*>(parent) };
-        if (main_window) {
-            main_window->on_actionInsertNode_triggered();
-        }
-    });
 }
 
 InsertNodeOrder::~InsertNodeOrder() { delete ui; }
 
-QPointer<TransModel> InsertNodeOrder::Model() { return order_table_; }
+QPointer<TransModel> InsertNodeOrder::Model() { return order_trans_; }
 
 void InsertNodeOrder::RUpdateLeafValue(
     int /*node_id*/, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     // In OrderRule, RO:1, SO and PO:0
-    const int coefficient { node_->rule ? -1 : 1 };
 
-    const double adjusted_initial_delta { initial_delta * coefficient };
-    const double adjusted_final_delta { (node_->unit == std::to_underlying(UnitO::kIS) ? final_delta : 0.0) * coefficient };
-    const double adjusted_first_delta { first_delta * coefficient };
-    const double adjusted_second_delta { second_delta * coefficient };
-    const double adjusted_discount_delta { discount_delta * coefficient };
+    const double adjusted_final_delta { node_->unit == std::to_underlying(UnitO::kIS) ? final_delta : 0.0 };
 
-    node_->first += adjusted_first_delta;
-    node_->second += adjusted_second_delta;
-    node_->initial_total += adjusted_initial_delta;
-    node_->discount += adjusted_discount_delta;
+    node_->first += first_delta;
+    node_->second += second_delta;
+    node_->initial_total += initial_delta;
+    node_->discount += discount_delta;
     node_->final_total += adjusted_final_delta;
 
     IniLeafValue();
 
     if (node_id_ != 0) {
-        emit SUpdateLeafValue(node_id_, adjusted_initial_delta, adjusted_final_delta, adjusted_first_delta, adjusted_second_delta, adjusted_discount_delta);
+        emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
     }
 }
 
-void InsertNodeOrder::RSyncBool(int node_id, int column, bool value)
+void InsertNodeOrder::RSyncBoolNode(int node_id, int column, bool value)
 {
     if (node_id != node_id_)
         return;
 
     const NodeEnumO kColumn { column };
-
-    if (kColumn == NodeEnumO::kFinished)
-        emit SSyncBool(node_id_, 0, value);
+    emit SSyncBoolTrans(node_id_, column, value);
 
     SignalBlocker blocker(this);
 
@@ -155,11 +127,11 @@ QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewO; }
 
 void InsertNodeOrder::IniDialog(CSettings* settings)
 {
-    combo_model_party_ = stakeholder_tree_->UnitModelPS(party_unit_);
+    combo_model_party_ = stakeholder_node_->UnitModelPS(party_unit_);
     ui->comboParty->setModel(combo_model_party_);
     ui->comboParty->setCurrentIndex(-1);
 
-    combo_model_employee_ = stakeholder_tree_->UnitModelPS(std::to_underlying(UnitS::kEmp));
+    combo_model_employee_ = stakeholder_node_->UnitModelPS(std::to_underlying(UnitS::kEmp));
     ui->comboEmployee->setModel(combo_model_employee_);
     ui->comboEmployee->setCurrentIndex(-1);
 
@@ -184,7 +156,7 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->pBtnFinishOrder->setEnabled(false);
     ui->rBtnSP->setChecked(true);
 
-    ui->tableViewO->setModel(order_table_);
+    ui->tableViewO->setModel(order_trans_);
 
     ui->comboParty->setFocus();
 }
@@ -321,19 +293,60 @@ void InsertNodeOrder::IniRuleGroup()
     rule_group_->addButton(ui->rBtnRefund, 1);
 }
 
+void InsertNodeOrder::IniShotcut(QWidget* parent)
+{
+    trans_shortcut_ = new QShortcut(QKeySequence("Ctrl+N"), this);
+    trans_shortcut_->setContext(Qt::WindowShortcut);
+
+    connect(trans_shortcut_, &QShortcut::activated, parent, [parent]() {
+        auto* main_window { qobject_cast<MainWindow*>(parent) };
+        if (main_window) {
+            main_window->on_actionAppendTrans_triggered();
+        }
+    });
+
+    node_shortcut_ = new QShortcut(QKeySequence("Alt+N"), this);
+    node_shortcut_->setContext(Qt::WindowShortcut);
+
+    connect(node_shortcut_, &QShortcut::activated, parent, [parent]() {
+        auto* main_window { qobject_cast<MainWindow*>(parent) };
+        if (main_window) {
+            main_window->on_actionInsertNode_triggered();
+        }
+    });
+
+#ifdef Q_OS_MAC
+    remove_trans_shortcut_ = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+#endif
+
+#ifdef Q_OS_WIN
+    remove_trans_shortcut_ = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+#endif
+
+    remove_trans_shortcut_->setContext(Qt::WindowShortcut);
+    connect(remove_trans_shortcut_, &QShortcut::activated, parent, [parent]() {
+        auto* main_window { qobject_cast<MainWindow*>(parent) };
+        if (main_window) {
+            main_window->on_actionRemove_triggered();
+        }
+    });
+}
+
 void InsertNodeOrder::IniText(Section section)
 {
     const bool is_sales_section { section == Section::kSales };
 
     setWindowTitle(is_sales_section ? tr("Sales") : tr("Purchase"));
     ui->rBtnSP->setText(is_sales_section ? tr("SO") : tr("PO"));
-    ui->labParty->setText(is_sales_section ? tr("CUST") : tr("VEND"));
+    ui->labParty->setText(party_text_);
 }
 
 void InsertNodeOrder::IniFinished(bool finished)
 {
     ui->pBtnFinishOrder->setChecked(finished);
     ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
+    trans_shortcut_->setEnabled(!finished);
+    remove_trans_shortcut_->setEnabled(!finished);
 
     if (finished) {
         ui->pBtnPrint->setFocus();
@@ -361,7 +374,7 @@ void InsertNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
         ui->pBtnSaveOrder->setEnabled(true);
         ui->pBtnFinishOrder->setEnabled(true);
     } else {
-        sql_->WriteField(info_node_, kName, arg1, node_id_);
+        sql_->WriteField(party_info_, kName, arg1, node_id_);
     }
 }
 
@@ -369,6 +382,8 @@ void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
     if (node_->type != kTypeLeaf)
         return;
+
+    static const QString title { windowTitle() };
 
     int party_id { ui->comboParty->currentData().toInt() };
     if (party_id <= 0)
@@ -381,17 +396,16 @@ void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
         ui->pBtnSaveOrder->setEnabled(true);
         ui->pBtnFinishOrder->setEnabled(true);
     } else {
-        sql_->WriteField(info_node_, kParty, party_id, node_id_);
+        sql_->WriteField(party_info_, kParty, party_id, node_id_);
     }
+
+    this->setWindowTitle(title + "-" + stakeholder_node_->Name(party_id));
 
     if (ui->comboEmployee->currentIndex() != -1)
         return;
 
-    int employee_index { ui->comboEmployee->findData(stakeholder_tree_->Employee(party_id)) };
+    int employee_index { ui->comboEmployee->findData(stakeholder_node_->Employee(party_id)) };
     ui->comboEmployee->setCurrentIndex(employee_index);
-
-    ui->rBtnIS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleIS);
-    ui->rBtnMS->setChecked(stakeholder_tree_->Rule(party_id) == kRuleMS);
 }
 
 void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
@@ -399,7 +413,7 @@ void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
     node_->employee = ui->comboEmployee->currentData().toInt();
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, kEmployee, node_->employee, node_id_);
+        sql_->WriteField(party_info_, kEmployee, node_->employee, node_id_);
 }
 
 void InsertNodeOrder::on_pBtnInsert_clicked()
@@ -409,13 +423,13 @@ void InsertNodeOrder::on_pBtnInsert_clicked()
         return;
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
-    node->rule = stakeholder_tree_->Rule(-1);
-    stakeholder_tree_->SetParent(node, -1);
+    node->rule = stakeholder_node_->Rule(-1);
+    stakeholder_node_->SetParent(node, -1);
     node->name = name;
 
     node->unit = party_unit_;
 
-    stakeholder_tree_->InsertNode(0, QModelIndex(), node);
+    stakeholder_node_->InsertNode(0, QModelIndex(), node);
 
     int party_index { ui->comboParty->findData(node->id) };
     ui->comboParty->setCurrentIndex(party_index);
@@ -426,7 +440,7 @@ void InsertNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time
     node_->date_time = date_time.toString(kDateTimeFST);
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, kDateTime, node_->date_time, node_id_);
+        sql_->WriteField(party_info_, kDateTime, node_->date_time, node_id_);
 }
 
 void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
@@ -435,9 +449,11 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     node_->finished = checked;
 
-    sql_->WriteField(info_node_, kFinished, checked, node_id_);
-    if (node_->type == kTypeLeaf)
-        emit SSyncBool(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
+    sql_->WriteField(party_info_, kFinished, checked, node_id_);
+    if (node_->type == kTypeLeaf) {
+        emit SSyncBoolNode(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
+        emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
+    }
 
     IniFinished(checked);
     LockWidgets(checked, node_->type == kTypeBranch);
@@ -464,7 +480,7 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
 
     ui->rBtnRefund->setChecked(false);
     ui->tableViewO->clearSelection();
-    ui->labParty->setText(enable ? tr("Branch") : party_);
+    ui->labParty->setText(enable ? tr("Branch") : party_text_);
 }
 
 void InsertNodeOrder::RRuleGroupClicked(int id)
@@ -480,9 +496,12 @@ void InsertNodeOrder::RRuleGroupClicked(int id)
     IniLeafValue();
 
     if (node_id_ != 0) {
-        sql_->WriteField(info_node_, kRule, node_->rule, node_id_);
-        sql_->WriteLeafValue(node_);
+        sql_->WriteField(party_info_, kRule, node_->rule, node_id_);
+        sql_->SyncLeafValue(node_);
+        sql_->InvertTransValue(node_id_);
     }
+
+    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->rule);
 }
 
 void InsertNodeOrder::RUnitGroupClicked(int id)
@@ -508,8 +527,8 @@ void InsertNodeOrder::RUnitGroupClicked(int id)
     ui->dSpinSettlement->setValue(node_->final_total);
 
     if (node_id_ != 0) {
-        sql_->WriteField(info_node_, kUnit, id, node_id_);
-        sql_->WriteField(info_node_, kSettlement, node_->final_total, node_id_);
+        sql_->WriteField(party_info_, kUnit, id, node_id_);
+        sql_->WriteField(party_info_, kSettlement, node_->final_total, node_id_);
     }
 }
 
@@ -518,5 +537,5 @@ void InsertNodeOrder::on_lineDescription_editingFinished()
     node_->description = ui->lineDescription->text();
 
     if (node_id_ != 0)
-        sql_->WriteField(info_node_, kDescription, node_->description, node_id_);
+        sql_->WriteField(party_info_, kDescription, node_->description, node_id_);
 }

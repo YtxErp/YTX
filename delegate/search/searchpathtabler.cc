@@ -1,6 +1,6 @@
 #include "searchpathtabler.h"
 
-SearchPathTableR::SearchPathTableR(CTreeModel* model, QObject* parent)
+SearchPathTableR::SearchPathTableR(CNodeModel* model, QObject* parent)
     : StyledItemDelegate { parent }
     , model_ { model }
 {

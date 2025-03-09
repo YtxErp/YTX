@@ -42,7 +42,7 @@ public:
     QPointer<QTreeView> View() const override;
     QPointer<NodeModel> Model() const override { return model_; };
     void UpdateStatus() override;
-    bool IsTreeWidget() const override { return true; }
+    bool IsNodeWidget() const override { return true; }
 
 private:
     void UpdateStaticStatus();

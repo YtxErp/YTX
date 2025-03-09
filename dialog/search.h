@@ -36,7 +36,7 @@ class Search final : public QDialog {
     Q_OBJECT
 
 public:
-    Search(CTreeModel* tree, CTreeModel* stakeholder_tree, CTreeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent = nullptr);
+    Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent = nullptr);
     ~Search();
 
 signals:
@@ -74,9 +74,9 @@ private:
     NodeSearchModel* search_tree_ {};
     TransSearchModel* search_table_ {};
     Sqlite* sql_ {};
-    CTreeModel* tree_ {};
-    CTreeModel* stakeholder_tree_ {};
-    CTreeModel* product_tree_ {};
+    CNodeModel* tree_ {};
+    CNodeModel* stakeholder_tree_ {};
+    CNodeModel* product_tree_ {};
     QButtonGroup* content_group_ {};
 
     CSettings* settings_;

@@ -22,11 +22,7 @@
 
 #include <QButtonGroup>
 
-#include "component/classparams.h"
-#include "component/settings.h"
-#include "table/model/transmodel.h"
-#include "tree/model/nodemodels.h"
-#include "widget/trans/transwidget.h"
+#include "component/arg/insertnodeargo.h"
 
 namespace Ui {
 class TransWidgetO;
@@ -36,22 +32,28 @@ class TransWidgetO final : public TransWidget {
     Q_OBJECT
 
 public:
-    TransWidgetO(CEditNodeParamsO& params, QWidget* parent = nullptr);
+    TransWidgetO(CInsertNodeArgO& arg, QWidget* parent = nullptr);
     ~TransWidgetO();
 
 signals:
     // send to TableModelOrder, MainWindow
     void SSyncInt(int node_id, int column, int value);
 
-    // send to TableModelOrder, TreeModelOrder
-    void SSyncBool(int node_id, int column, bool value);
+    // send to TreeModelOrder, finished
+    void SSyncBoolNode(int node_id, int column, bool value);
+
+    // send to TableModelOrder, finished, rule
+    void SSyncBoolTrans(int node_id, int column, bool value);
 
     // send to TreeModelOrder
     void SUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
+    // send to MainWindow
+    void SEnableAction(bool finished);
+
 public slots:
     // receive from TreeModelOrder
-    void RSyncBool(int node_id, int column, bool value);
+    void RSyncBoolNode(int node_id, int column, bool value);
     void RSyncInt(int node_id, int column, int value);
     void RSyncString(int node_id, int column, const QString& value);
 
@@ -59,9 +61,9 @@ public slots:
     void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
 public:
-    QPointer<TransModel> Model() const override { return order_table_; }
+    QPointer<TransModel> Model() const override { return order_trans_; }
     QPointer<QTableView> View() const override;
-    bool IsLeafWidget() const override { return true; }
+    bool IsTransWidget() const override { return true; }
 
 private slots:
 
@@ -95,8 +97,8 @@ private:
     Ui::TransWidgetO* ui;
     Node* node_ {};
     Sqlite* sql_ {};
-    TransModel* order_table_ {};
-    NodeModelS* stakeholder_tree_ {};
+    TransModel* order_trans_ {};
+    NodeModel* stakeholder_node_ {};
     CSettings* settings_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
@@ -105,8 +107,8 @@ private:
     QStandardItemModel* pmodel_ {};
 
     const int node_id_ {};
-    const QString info_node_ {};
-    int party_unit_ {};
+    const int party_unit_ {};
+    const QString party_info_ {};
 };
 
 #endif // TRANSWIDGETO_H

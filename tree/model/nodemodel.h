@@ -23,6 +23,7 @@
 #include <QAbstractItemModel>
 #include <QMimeData>
 
+#include "component/arg/nodemodelarg.h"
 #include "component/constvalue.h"
 #include "component/enumclass.h"
 #include "nodemodelutils.h"
@@ -35,7 +36,7 @@ public:
     NodeModel() = delete;
 
 protected:
-    explicit NodeModel(Sqlite* sql, CInfo& info, int default_unit, CTransWgtHash& leaf_wgt_hash, CString& separator, QObject* parent = nullptr);
+    explicit NodeModel(CNodeModelArg& arg, QObject* parent = nullptr);
 
 signals:
     // send to SignalStation
@@ -54,8 +55,8 @@ signals:
     // send to TreeModelStakeholder
     void SSyncDouble(int node_id, int column, double value);
 
-    // send to TableWidgetOrder and EditNodeOrder
-    void SSyncBool(int node_id, int column, bool value);
+    // send to TableWidgetOrder and InsertNodeOrder
+    void SSyncBoolWD(int node_id, int column, bool value);
     void SSyncInt(int node_id, int column, int value);
     void SSyncString(int node_id, int column, const QString& value);
 
@@ -67,8 +68,8 @@ public slots:
     // receive from  TableModel
     void RSearch() { emit SSearch(); }
 
-    // receive from TableWidgetOrder and EditNodeOrder
-    virtual void RSyncBool(int node_id, int column, bool value)
+    // receive from TableWidgetOrder and InsertNodeOrder
+    virtual void RSyncBoolWD(int node_id, int column, bool value)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(column);
@@ -135,6 +136,10 @@ public:
     int Unit(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::unit); }
     QString Name(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::name); }
     bool Rule(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::rule); }
+    bool Finished(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::finished); }
+    int Party(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
+    int Employee(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::employee); }
+
     QStringList* GetDocumentPointer(int node_id) const;
 
     bool ChildrenEmpty(int node_id) const;
@@ -208,7 +213,7 @@ protected:
     CString& separator_;
 };
 
-using PTreeModel = QPointer<NodeModel>;
-using CTreeModel = const NodeModel;
+using PNodeModel = QPointer<NodeModel>;
+using CNodeModel = const NodeModel;
 
 #endif // NODEMODEL_H

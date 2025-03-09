@@ -4,20 +4,20 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodestakeholder.h"
 
-InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeParamsFPTS& params, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent)
+InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeStakeholder)
-    , node_ { params.node }
-    , parent_path_ { params.parent_path }
-    , name_list_ { params.name_list }
+    , node_ { arg.node }
+    , parent_path_ { arg.parent_path }
+    , name_list_ { arg.name_list }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog(params.unit_model, employee_model, amount_decimal);
+    IniDialog(arg.unit_model, employee_model, amount_decimal);
     IniRuleGroup();
     IniTypeGroup();
-    IniData(params.node);
+    IniData(arg.node);
     IniConnect();
 }
 

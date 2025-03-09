@@ -3,18 +3,18 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodefinance.h"
 
-InsertNodeFinance::InsertNodeFinance(CInsertNodeParamsFPTS& params, QWidget* parent)
+InsertNodeFinance::InsertNodeFinance(CInsertNodeArgFPTS& arg, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeFinance)
-    , node_ { params.node }
-    , parent_path_ { params.parent_path }
-    , name_list_ { params.name_list }
+    , node_ { arg.node }
+    , parent_path_ { arg.parent_path }
+    , name_list_ { arg.name_list }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog(params.unit_model);
-    IniData(params.node);
+    IniDialog(arg.unit_model);
+    IniData(arg.node);
     IniRuleGroup();
     IniTypeGroup();
     IniConnect();

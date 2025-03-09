@@ -4,7 +4,7 @@
 
 #include "widget/combobox.h"
 
-SpecificUnit::SpecificUnit(CTreeModel* tree_model, QStandardItemModel* combo_model, QObject* parent)
+SpecificUnit::SpecificUnit(CNodeModel* tree_model, QStandardItemModel* combo_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
     , combo_model_ { combo_model }

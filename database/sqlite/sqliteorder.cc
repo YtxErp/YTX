@@ -277,22 +277,27 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
     switch (unit) {
     case UnitO::kIS:
         return QString(R"(
+            WITH Statement AS (
+                SELECT
+                    s.id AS party,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS cgross_amount,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS cfirst,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS csecond
+                FROM stakeholder s
+                INNER JOIN %1 o ON s.id = o.party
+                WHERE o.unit = 0 AND o.finished = 1 AND o.removed = 0
+                GROUP BY s.id
+            )
             SELECT
-                s.id AS party,
+                party,
                 0 AS pbalance,
                 0 AS cbalance,
-
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS cgross_amount,
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.settlement   ELSE 0 END) AS csettlement,
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount     ELSE 0 END) AS cdiscount,
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS cfirst,
-                SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS csecond
-
-            FROM stakeholder s
-            INNER JOIN %1 o ON s.id = o.party
-            WHERE o.unit = 0 AND o.finished = 1 AND o.removed = 0
-            GROUP BY s.id
-    )")
+                cgross_amount,
+                cgross_amount AS csettlement,
+                cfirst,
+                csecond
+            FROM Statement
+            )")
             .arg(info_.node);
         break;
     case UnitO::kMS:
@@ -301,12 +306,11 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
                 SELECT
                     s.id AS party,
 
-                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount - o.settlement ELSE 0 END) AS pbalance,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount              ELSE 0 END) AS cgross_amount,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.settlement                ELSE 0 END) AS csettlement,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount                  ELSE 0 END) AS cdiscount,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first                     ELSE 0 END) AS cfirst,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second                    ELSE 0 END) AS csecond
+                    SUM(CASE WHEN o.date_time < :start AND o.payment_id = 0 THEN o.gross_amount                 ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount                       ELSE 0 END) AS cgross_amount,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end AND o.payment_id != 0 THEN o.gross_amount ELSE 0 END) AS csettlement,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first                              ELSE 0 END) AS cfirst,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second                             ELSE 0 END) AS csecond
 
                 FROM stakeholder s
                 INNER JOIN %1 o ON s.id = o.party
@@ -318,8 +322,7 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
                 pbalance,
                 cgross_amount,
                 csettlement,
-                cdiscount,
-                pbalance + cgross_amount - csettlement - cdiscount AS cbalance,
+                pbalance + cgross_amount - csettlement AS cbalance,
                 cfirst,
                 csecond
             FROM Statement;
@@ -331,14 +334,10 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
             WITH Statement AS (
                 SELECT
                     s.id AS party,
-                    0 AS csettlement,
-
-                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount - o.discount   ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount                ELSE 0 END) AS pbalance,
                     SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount ELSE 0 END) AS cgross_amount,
-                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.discount     ELSE 0 END) AS cdiscount,
                     SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.first        ELSE 0 END) AS cfirst,
                     SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.second       ELSE 0 END) AS csecond
-
                 FROM stakeholder s
                 INNER JOIN %1 o ON s.id = o.party
                 WHERE o.unit = 2 AND o.removed = 0
@@ -348,9 +347,8 @@ QString SqliteOrder::QSReadStatement(UnitO unit) const
                 party,
                 pbalance,
                 cgross_amount,
-                csettlement,
-                cdiscount,
-                pbalance + cgross_amount - cdiscount AS cbalance,
+                0 AS csettlement,
+                pbalance + cgross_amount AS cbalance,
                 cfirst,
                 csecond
             FROM Statement;
@@ -372,7 +370,6 @@ void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) co
         trans->lhs_ratio = query.value(QStringLiteral("pbalance")).toDouble();
         trans->rhs_debit = query.value(QStringLiteral("cgross_amount")).toDouble();
         trans->rhs_credit = query.value(QStringLiteral("csettlement")).toInt();
-        trans->discount = query.value(QStringLiteral("cdiscount")).toDouble();
         trans->rhs_ratio = query.value(QStringLiteral("cbalance")).toDouble();
         trans->lhs_debit = query.value(QStringLiteral("cfirst")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("csecond")).toDouble();

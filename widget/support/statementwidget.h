@@ -33,8 +33,8 @@ class StatementWidget final : public SupportWidget {
     Q_OBJECT
 
 signals:
-    void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount);
-    void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount);
+    void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
 
 public slots:
     void on_start_dateChanged(const QDate& date);

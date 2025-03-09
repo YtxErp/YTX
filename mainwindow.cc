@@ -370,9 +370,9 @@ void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
     SalesNodeLocation(kNodeID);
 }
 
-void MainWindow::RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount) { }
+void MainWindow::RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance) { }
 
-void MainWindow::RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance, double cdiscount) { }
+void MainWindow::RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance) { }
 
 void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 {
@@ -1384,7 +1384,6 @@ void MainWindow::DelegateStatement(PTableView table_view, CSettings* settings) c
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCGrossAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCDiscount), amount);
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCSettlement), amount);
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kPBalance), amount);
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kCBalance), amount);

@@ -448,7 +448,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("CFirst"),
         QObject::tr("CSecond"),
         QObject::tr("CSettlement"),
-        QObject::tr("CDiscount"),
         QObject::tr("CBalance"),
         QObject::tr("PlaceHolder"),
     };

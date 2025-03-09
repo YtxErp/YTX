@@ -69,13 +69,12 @@ void StatementWidget::on_tableViewStatement_doubleClicked(const QModelIndex& ind
     const int kParty { index.siblingAtColumn(std::to_underlying(StatementEnum::kParty)).data().toInt() };
     const double pbalance { index.siblingAtColumn(std::to_underlying(StatementEnum::kPBalance)).data().toDouble() };
     const double cbalance { index.siblingAtColumn(std::to_underlying(StatementEnum::kCBalance)).data().toDouble() };
-    const double cdiscount { index.siblingAtColumn(std::to_underlying(StatementEnum::kCDiscount)).data().toDouble() };
 
     if (index.column() == std::to_underlying(StatementEnum::kParty)) {
-        emit SPrimaryStatement(kParty, start_, end_, pbalance, cbalance, cdiscount);
+        emit SPrimaryStatement(kParty, start_, end_, pbalance, cbalance);
     }
 
     if (index.column() == std::to_underlying(StatementEnum::kCBalance)) {
-        emit SSecondaryStatement(kParty, start_, end_, pbalance, cbalance, cdiscount);
+        emit SSecondaryStatement(kParty, start_, end_, pbalance, cbalance);
     }
 }

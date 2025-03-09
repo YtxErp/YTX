@@ -3532,7 +3532,7 @@ Rage, rage against the dying of the light.</source>
     <message>
         <location line="+1"/>
         <source>CGrossAmount</source>
-        <translation>当期总额</translation>
+        <translation>当期交易</translation>
     </message>
     <message>
         <location line="+1"/>

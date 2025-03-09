@@ -55,8 +55,6 @@ QVariant StatementModel::data(const QModelIndex& index, int role) const
         return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
     case StatementEnum::kCSettlement:
         return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
-    case StatementEnum::kCDiscount:
-        return trans->discount == 0 ? QVariant() : trans->discount;
     case StatementEnum::kCBalance:
         return trans->rhs_ratio == 0 ? QVariant() : trans->rhs_ratio;
     case StatementEnum::kCFirst:
@@ -93,8 +91,6 @@ void StatementModel::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
         case StatementEnum::kCSettlement:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
-        case StatementEnum::kCDiscount:
-            return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
         case StatementEnum::kCBalance:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_ratio < rhs->rhs_ratio) : (lhs->rhs_ratio > rhs->rhs_ratio);
         case StatementEnum::kCFirst:

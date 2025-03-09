@@ -266,7 +266,7 @@ QString YtxSqlite::NodeOrder(CString& order)
         discount          NUMERIC,
         settlement        NUMERIC,
         removed           BOOLEAN    DEFAULT 0,
-        payment_id        INTEGER
+        payment_id        INTEGER    DEFAULT 0
     );
     )")
         .arg(order);

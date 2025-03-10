@@ -8,7 +8,7 @@
 #include "ui_statementwidget.h"
 
 StatementWidget::StatementWidget(QAbstractItemModel* model, int unit, CDateTime& start, CDateTime& end, QWidget* parent)
-    : SupportWidget(parent)
+    : ReportWidget(parent)
     , ui(new Ui::StatementWidget)
     , unit_ { unit }
     , start_ { start }

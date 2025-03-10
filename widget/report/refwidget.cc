@@ -7,7 +7,7 @@
 #include "ui_refwidget.h"
 
 RefWidget::RefWidget(QAbstractItemModel* model, int node_id, CDateTime& start, CDateTime& end, QWidget* parent)
-    : SupportWidget(parent)
+    : ReportWidget(parent)
     , ui(new Ui::RefWidget)
     , start_ { start }
     , end_ { end }

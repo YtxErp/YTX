@@ -84,8 +84,8 @@
 #include "widget/node/nodewidgeto.h"
 #include "widget/node/nodewidgetpt.h"
 #include "widget/node/nodewidgets.h"
-#include "widget/support/refwidget.h"
-#include "widget/support/statementwidget.h"
+#include "widget/report/refwidget.h"
+#include "widget/report/statementwidget.h"
 #include "widget/support/supportwidgetfpts.h"
 #include "widget/trans/transwidgetfpts.h"
 
@@ -310,6 +310,7 @@ void MainWindow::RSectionGroup(int id)
         settings_ = &finance_settings_;
         data_ = &finance_data_;
         sup_wgt_hash_ = &finance_sup_wgt_hash_;
+        rpt_wgt_hash_ = nullptr;
         break;
     case Section::kProduct:
         tree_widget_ = product_tree_;
@@ -319,6 +320,7 @@ void MainWindow::RSectionGroup(int id)
         settings_ = &product_settings_;
         data_ = &product_data_;
         sup_wgt_hash_ = &product_sup_wgt_hash_;
+        rpt_wgt_hash_ = &product_rpt_wgt_hash_;
         break;
     case Section::kTask:
         tree_widget_ = task_tree_;
@@ -328,6 +330,7 @@ void MainWindow::RSectionGroup(int id)
         settings_ = &task_settings_;
         data_ = &task_data_;
         sup_wgt_hash_ = &task_sup_wgt_hash_;
+        rpt_wgt_hash_ = nullptr;
         break;
     case Section::kStakeholder:
         tree_widget_ = stakeholder_tree_;
@@ -337,6 +340,7 @@ void MainWindow::RSectionGroup(int id)
         settings_ = &stakeholder_settings_;
         data_ = &stakeholder_data_;
         sup_wgt_hash_ = &stakeholder_sup_wgt_hash_;
+        rpt_wgt_hash_ = &stakeholder_rpt_wgt_hash_;
         break;
     case Section::kSales:
         tree_widget_ = sales_tree_;
@@ -345,7 +349,8 @@ void MainWindow::RSectionGroup(int id)
         dialog_hash_ = &sales_dialog_hash_;
         settings_ = &sales_settings_;
         data_ = &sales_data_;
-        sup_wgt_hash_ = &sales_sup_wgt_hash_;
+        sup_wgt_hash_ = nullptr;
+        rpt_wgt_hash_ = &sales_rpt_wgt_hash_;
         break;
     case Section::kPurchase:
         tree_widget_ = purchase_tree_;
@@ -354,7 +359,8 @@ void MainWindow::RSectionGroup(int id)
         dialog_hash_ = &purchase_dialog_hash_;
         settings_ = &purchase_settings_;
         data_ = &purchase_data_;
-        sup_wgt_hash_ = &purchase_sup_wgt_hash_;
+        sup_wgt_hash_ = nullptr;
+        rpt_wgt_hash_ = &purchase_rpt_wgt_hash_;
         break;
     default:
         break;
@@ -386,7 +392,7 @@ void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& star
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };
 
-    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id_ }));
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, report_id_ }));
     tab_bar->setTabToolTip(tab_index, name);
 
     auto view { widget->View() };
@@ -395,8 +401,7 @@ void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& star
 
     connect(widget, &StatementWidget::SRetrieveData, model, &StatementPrimaryModel::RRetrieveData);
 
-    sup_wgt_hash_->insert(statement_id_, widget);
-    --statement_id_;
+    RegisterRptWgt(widget);
 }
 
 void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance) { }
@@ -570,39 +575,6 @@ void MainWindow::CreateLeafO(PTreeModel tree_model, TransWgtHash* trans_wgt_hash
     DelegateO(view, settings);
 
     trans_wgt_hash->insert(node_id, widget);
-}
-
-void MainWindow::on_actionStatement_triggered()
-{
-    if (start_ != Section::kSales && start_ != Section::kPurchase)
-        return;
-
-    auto* sql { data_->sql };
-    const auto& info { data_->info };
-
-    auto* model { new StatementModel(sql, info, this) };
-
-    const int unit { std::to_underlying(UnitO::kMS) };
-    const auto start { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1), kStartTime) };
-    const auto end { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), QDate::currentDate().daysInMonth()), kEndTime) };
-
-    auto* widget { new StatementWidget(model, unit, start, end, this) };
-
-    const int tab_index { ui->tabWidget->addTab(widget, tr("Statement")) };
-    auto* tab_bar { ui->tabWidget->tabBar() };
-
-    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id_ }));
-
-    auto view { widget->View() };
-    SetStatementView(view, std::to_underlying(StatementEnum::kPlaceholder));
-    DelegateStatement(view, settings_);
-
-    connect(widget, &StatementWidget::SStatementPrimary, this, &MainWindow::RStatementPrimary);
-    connect(widget, &StatementWidget::SStatementSecondary, this, &MainWindow::RStatementSecondary);
-    connect(widget, &StatementWidget::SRetrieveData, model, &StatementModel::RRetrieveData);
-
-    sup_wgt_hash_->insert(statement_id_, widget);
-    --statement_id_;
 }
 
 void MainWindow::TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const
@@ -1196,16 +1168,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
     const int node_id { ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id };
 
-    // RefFetcher's widget is SupportWidget, its ID is Leaf Node's
-    // Only Product and Stakeholder have RefFetcher
-    auto widget = QPointer { dynamic_cast<SupportWidget*>(ui->tabWidget->currentWidget()) };
-
-    if ((start_ == Section::kProduct || start_ == Section::kStakeholder || start_ == Section::kSales || start_ == Section::kPurchase) && widget) {
-        sup_wgt_hash_->remove(node_id);
-        MainWindowUtils::FreeWidget(widget);
-        return;
-    }
-
+    FreeRptWgt(node_id);
     RFreeWidget(node_id);
 }
 
@@ -1229,6 +1192,14 @@ void MainWindow::RFreeWidget(int node_id)
     }
 
     MainWindowUtils::FreeWidget(widget);
+}
+
+void MainWindow::FreeRptWgt(int node_id)
+{
+    if (auto widget = QPointer { rpt_wgt_hash_->value(node_id, nullptr) }) {
+        rpt_wgt_hash_->remove(node_id);
+        MainWindowUtils::FreeWidget(widget);
+    }
 }
 
 void MainWindow::SetTabWidget()
@@ -1315,12 +1286,44 @@ void MainWindow::DelegateSupport(PTableView table_view, PTreeModel tree_model, C
     table_view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), node_name);
 }
 
-void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id)
+void MainWindow::on_actionStatement_triggered()
+{
+    if (start_ != Section::kSales && start_ != Section::kPurchase)
+        return;
+
+    auto* sql { data_->sql };
+    const auto& info { data_->info };
+
+    auto* model { new StatementModel(sql, info, this) };
+
+    const int unit { std::to_underlying(UnitO::kMS) };
+    const auto start { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1), kStartTime) };
+    const auto end { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), QDate::currentDate().daysInMonth()), kEndTime) };
+
+    auto* widget { new StatementWidget(model, unit, start, end, this) };
+
+    const int tab_index { ui->tabWidget->addTab(widget, tr("Statement")) };
+    auto* tab_bar { ui->tabWidget->tabBar() };
+
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, report_id_ }));
+
+    auto view { widget->View() };
+    SetStatementView(view, std::to_underlying(StatementEnum::kPlaceholder));
+    DelegateStatement(view, settings_);
+
+    connect(widget, &StatementWidget::SStatementPrimary, this, &MainWindow::RStatementPrimary);
+    connect(widget, &StatementWidget::SStatementSecondary, this, &MainWindow::RStatementSecondary);
+    connect(widget, &StatementWidget::SRetrieveData, model, &StatementModel::RRetrieveData);
+
+    RegisterRptWgt(widget);
+}
+
+void MainWindow::CreateTransRef(PTreeModel tree_model, CData* data, int node_id)
 {
     if (!tree_model || !tree_model->Contains(node_id))
         return;
 
-    CString name { tree_model->Name(node_id) };
+    CString name { tr("Record-") + tree_model->Name(node_id) };
     auto* sql { data->sql };
     const Info& info { data->info };
     const Section section { info.section };
@@ -1334,8 +1337,7 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };
 
-    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { section, node_id }));
-    tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { section, report_id_ }));
 
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TransRefEnum::kDescription));
@@ -1344,7 +1346,17 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
     connect(view, &QTableView::doubleClicked, this, &MainWindow::RTransRefDoubleClicked);
     connect(widget, &RefWidget::SRetrieveData, model, &TransRefModel::RRetrieveData);
 
-    sup_wgt_hash->insert(node_id, widget);
+    RegisterRptWgt(widget);
+}
+
+void MainWindow::RegisterRptWgt(ReportWidget* widget)
+{
+    rpt_wgt_hash_->insert(report_id_, widget);
+
+    ui->tabWidget->setCurrentWidget(widget);
+    widget->activateWindow();
+
+    --report_id_;
 }
 
 void MainWindow::DelegateTransRef(PTableView table_view, CSettings* settings) const
@@ -1444,9 +1456,6 @@ void MainWindow::DelegateStatementPrimary(PTableView table_view, CSettings* sett
 
     auto* rule { new StringMapR(data_->info.rule_map, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kRule), rule);
-
-    auto* type { new StringMapR(data_->info.type_map, table_view) };
-    table_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kType), type);
 
     auto* state { new CheckBox(QEvent::MouseButtonDblClick, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kState), state);
@@ -2115,16 +2124,7 @@ void MainWindow::TransRefP(int node_id, int unit)
     if (unit == std::to_underlying(UnitP::kPos) || start_ != Section::kProduct)
         return;
 
-    if (!sup_wgt_hash_->contains(node_id)) {
-        CreateTransRef(tree_widget_->Model(), sup_wgt_hash_, data_, node_id);
-    }
-
-    auto widget { sup_wgt_hash_->value(node_id, nullptr) };
-    if (!widget)
-        return;
-
-    ui->tabWidget->setCurrentWidget(widget);
-    widget->activateWindow();
+    CreateTransRef(tree_widget_->Model(), data_, node_id);
 }
 
 void MainWindow::TransRefS(int node_id, int unit)
@@ -2132,16 +2132,7 @@ void MainWindow::TransRefS(int node_id, int unit)
     if (unit != std::to_underlying(UnitS::kCust) || start_ != Section::kStakeholder)
         return;
 
-    if (!sup_wgt_hash_->contains(node_id)) {
-        CreateTransRef(tree_widget_->Model(), sup_wgt_hash_, data_, node_id);
-    }
-
-    auto widget { sup_wgt_hash_->value(node_id, nullptr) };
-    if (!widget)
-        return;
-
-    ui->tabWidget->setCurrentWidget(widget);
-    widget->activateWindow();
+    CreateTransRef(tree_widget_->Model(), data_, node_id);
 }
 
 void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)

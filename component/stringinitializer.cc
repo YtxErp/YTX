@@ -459,7 +459,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Employee"),
         QObject::tr("First"),
         QObject::tr("Second"),
-        QObject::tr("State"),
+        "S",
         QObject::tr("GrossAmount"),
         QObject::tr("Settlement"),
         QObject::tr("PlaceHolder"),

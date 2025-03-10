@@ -37,6 +37,7 @@
 #include "tree/model/nodemodel.h"
 #include "ui_mainwindow.h"
 #include "widget/node/nodewidget.h"
+#include "widget/report/reportwidget.h"
 #include "widget/support/supportwidget.h"
 #include "widget/trans/transwidgeto.h"
 
@@ -133,7 +134,7 @@ private:
     void CreateSupport(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PTableView table_view, PTreeModel tree_model, CSettings* settings) const;
 
-    void CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, int node_id);
+    void CreateTransRef(PTreeModel tree_model, CData* data, int node_id);
     void DelegateTransRef(PTableView table_view, CSettings* settings) const;
 
     void DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
@@ -198,17 +199,20 @@ private:
 
     void LeafToSupport(TransWidget* widget);
     void SupportToLeaf(SupportWidget* widget);
+
     void SwitchToLeaf(int node_id, int trans_id = 0) const;
     void SwitchToSupport(int node_id, int trans_id = 0) const;
 
     void OrderTransLocation(int node_id);
+    void FreeRptWgt(int node_id);
+    void RegisterRptWgt(ReportWidget* widget);
 
 private:
     Ui::MainWindow* ui {};
 
     QStringList recent_file_ {};
     Section start_ {};
-    int statement_id_ { -1 };
+    int report_id_ { -1 };
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};
@@ -228,6 +232,7 @@ private:
     Settings* settings_ {};
     Data* data_ {};
     SupWgtHash* sup_wgt_hash_ {};
+    RptWgtHash* rpt_wgt_hash_ {};
 
     NodeWidget* finance_tree_ {};
     TransWgtHash finance_trans_wgt_hash_ {};
@@ -244,6 +249,7 @@ private:
     Settings product_settings_ {};
     Data product_data_ {};
     SupWgtHash product_sup_wgt_hash_ {};
+    RptWgtHash product_rpt_wgt_hash_ {};
 
     NodeWidget* task_tree_ {};
     TransWgtHash task_trans_wgt_hash_ {};
@@ -260,6 +266,7 @@ private:
     Settings stakeholder_settings_ {};
     Data stakeholder_data_ {};
     SupWgtHash stakeholder_sup_wgt_hash_ {};
+    RptWgtHash stakeholder_rpt_wgt_hash_ {};
 
     NodeWidget* sales_tree_ {};
     TransWgtHash sales_trans_wgt_hash_ {};
@@ -267,7 +274,7 @@ private:
     QHash<int, PDialog> sales_dialog_hash_ {};
     Settings sales_settings_ {};
     Data sales_data_ {};
-    SupWgtHash sales_sup_wgt_hash_ {};
+    RptWgtHash sales_rpt_wgt_hash_ {};
 
     NodeWidget* purchase_tree_ {};
     TransWgtHash purchase_trans_wgt_hash_ {};
@@ -275,6 +282,6 @@ private:
     QHash<int, PDialog> purchase_dialog_hash_ {};
     Settings purchase_settings_ {};
     Data purchase_data_ {};
-    SupWgtHash purchase_sup_wgt_hash_ {};
+    RptWgtHash purchase_rpt_wgt_hash_ {};
 };
 #endif // MAINWINDOW_H

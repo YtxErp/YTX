@@ -33,7 +33,7 @@ class RefWidget final : public SupportWidget {
     Q_OBJECT
 
 signals:
-    void SRetrieveData(int node_id, CDateTime& start, CDateTime& end);
+    void SRetrieveData(int node_id, const QDateTime& start, const QDateTime& end);
 
 public:
     RefWidget(QAbstractItemModel* model, int node_id, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);

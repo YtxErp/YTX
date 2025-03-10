@@ -75,6 +75,7 @@ public:
     bool ReadLeafTotal(Node* node) const;
     bool WriteLeafValue(const Node* node) const;
     QList<int> SearchNodeName(CString& text) const;
+    bool ReadStatementPrimary(QList<Node*>& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // table
     bool ReadTrans(TransShadowList& trans_shadow_list, int node_id);
@@ -112,6 +113,11 @@ protected:
     virtual QString QSRemoveNodeFirst() const;
     virtual QString QSReadTransRef() const { return {}; };
     virtual QString QSReadStatement(int unit) const
+    {
+        Q_UNUSED(unit);
+        return {};
+    }
+    virtual QString QSReadStatementPrimary(int unit) const
     {
         Q_UNUSED(unit);
         return {};
@@ -185,6 +191,12 @@ protected:
     virtual void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
     {
         Q_UNUSED(trans_list);
+        Q_UNUSED(query);
+    };
+
+    virtual void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const
+    {
+        Q_UNUSED(node_list);
         Q_UNUSED(query);
     };
 

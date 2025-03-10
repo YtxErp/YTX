@@ -34,12 +34,12 @@ class StatementWidget final : public SupportWidget {
     Q_OBJECT
 
 signals:
-    void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void SRetrieveData(int unit, CDateTime& start, CDateTime& end);
+    void SStatementPrimary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void SStatementSecondary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
 
 public:
-    StatementWidget(QAbstractItemModel* model, QWidget* parent = nullptr);
+    StatementWidget(QAbstractItemModel* model, int unit, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);
     ~StatementWidget() override;
 
     QPointer<QTableView> View() const override;
@@ -57,13 +57,14 @@ private slots:
 private:
     void IniUnitGroup();
     void IniConnect();
+    void IniUnit(int unit);
     void IniWidget(QAbstractItemModel* model);
 
 private:
     Ui::StatementWidget* ui;
+    int unit_ {};
     QDateTime start_ {};
     QDateTime end_ {};
-    int unit_ { 1 };
 
     QButtonGroup* unit_group_ {};
 };

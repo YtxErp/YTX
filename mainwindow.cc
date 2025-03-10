@@ -25,6 +25,7 @@
 #include "delegate/document.h"
 #include "delegate/doublespin.h"
 #include "delegate/line.h"
+#include "delegate/readonly/checkboxr.h"
 #include "delegate/readonly/colorr.h"
 #include "delegate/readonly/datetimer.h"
 #include "delegate/readonly/doublespinr.h"
@@ -34,6 +35,7 @@
 #include "delegate/readonly/doublespinunitrps.h"
 #include "delegate/readonly/nodenamer.h"
 #include "delegate/readonly/nodepathr.h"
+#include "delegate/readonly/stringmapr.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/specificunit.h"
 #include "delegate/spin.h"
@@ -76,6 +78,7 @@
 #include "tree/model/nodemodelp.h"
 #include "tree/model/nodemodels.h"
 #include "tree/model/nodemodelt.h"
+#include "tree/statementprimarymodel.h"
 #include "ui_mainwindow.h"
 #include "widget/node/nodewidgetf.h"
 #include "widget/node/nodewidgeto.h"
@@ -371,9 +374,32 @@ void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
     SalesNodeLocation(kNodeID);
 }
 
-void MainWindow::RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance) { }
+void MainWindow::RStatementPrimary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance)
+{
+    auto* sql { data_->sql };
+    const auto& info { data_->info };
 
-void MainWindow::RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance) { }
+    auto* model { new StatementPrimaryModel(sql, info, party_id, this) };
+    auto* widget { new StatementWidget(model, unit, start, end, this) };
+
+    const QString name { stakeholder_tree_->Model()->Name(party_id) };
+    const int tab_index { ui->tabWidget->addTab(widget, name) };
+    auto* tab_bar { ui->tabWidget->tabBar() };
+
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id }));
+    tab_bar->setTabToolTip(tab_index, name);
+
+    auto view { widget->View() };
+    SetStatementView(view, std::to_underlying(StatementPrimaryEnum::kPlaceholder));
+    DelegateStatementPrimary(view, settings_);
+
+    connect(widget, &StatementWidget::SRetrieveData, model, &StatementPrimaryModel::RRetrieveData);
+
+    sup_wgt_hash_->insert(statement_id, widget);
+    --statement_id;
+}
+
+void MainWindow::RStatementSecondary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance) { }
 
 void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 {
@@ -555,7 +581,12 @@ void MainWindow::on_actionStatement_triggered()
     const auto& info { data_->info };
 
     auto* model { new StatementModel(sql, info, this) };
-    auto* widget { new StatementWidget(model, this) };
+
+    const int unit { std::to_underlying(UnitO::kMS) };
+    const auto start { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1), kStartTime) };
+    const auto end { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), QDate::currentDate().daysInMonth()), kEndTime) };
+
+    auto* widget { new StatementWidget(model, unit, start, end, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, tr("Statement")) };
     auto* tab_bar { ui->tabWidget->tabBar() };
@@ -564,11 +595,11 @@ void MainWindow::on_actionStatement_triggered()
     tab_bar->setTabToolTip(tab_index, tr("Statement"));
 
     auto view { widget->View() };
-    SetStatementView(view);
+    SetStatementView(view, std::to_underlying(StatementEnum::kPlaceholder));
     DelegateStatement(view, settings_);
 
-    connect(widget, &StatementWidget::SPrimaryStatement, this, &MainWindow::RPrimaryStatement);
-    connect(widget, &StatementWidget::SSecondaryStatement, this, &MainWindow::RSecondaryStatement);
+    connect(widget, &StatementWidget::SStatementPrimary, this, &MainWindow::RStatementPrimary);
+    connect(widget, &StatementWidget::SStatementSecondary, this, &MainWindow::RStatementSecondary);
     connect(widget, &StatementWidget::SRetrieveData, model, &StatementModel::RRetrieveData);
 
     sup_wgt_hash_->insert(statement_id, widget);
@@ -854,7 +885,7 @@ void MainWindow::DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings
 
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kGrossAmount), amount);
-    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kNetAmount), amount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kSettlement), amount);
 
     auto* discount { new DoubleSpinUnitRNoneZero(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDiscount), discount);
@@ -1170,7 +1201,7 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
     // Only Product and Stakeholder have RefFetcher
     auto widget = QPointer { dynamic_cast<SupportWidget*>(ui->tabWidget->currentWidget()) };
 
-    if ((start_ == Section::kProduct || start_ == Section::kStakeholder) && widget) {
+    if ((start_ == Section::kProduct || start_ == Section::kStakeholder || start_ == Section::kSales || start_ == Section::kPurchase) && widget) {
         sup_wgt_hash_->remove(node_id);
         MainWindowUtils::FreeWidget(widget);
         return;
@@ -1367,7 +1398,7 @@ void MainWindow::SetSupportViewS(PTableView table_view) const
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsCredit), true);
 }
 
-void MainWindow::SetStatementView(PTableView view) const
+void MainWindow::SetStatementView(PTableView view, int stretch_column) const
 {
     view->setSortingEnabled(true);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -1375,7 +1406,7 @@ void MainWindow::SetStatementView(PTableView view) const
     view->setAlternatingRowColors(true);
 
     auto* h_header { view->horizontalHeader() };
-    ResizeColumn(h_header, std::to_underlying(StatementEnum::kPlaceholder));
+    ResizeColumn(h_header, stretch_column);
 
     auto* v_header { view->verticalHeader() };
     v_header->setDefaultSectionSize(kRowHeight);
@@ -1397,6 +1428,32 @@ void MainWindow::DelegateStatement(PTableView table_view, CSettings* settings) c
 
     auto* inside_product { new NodeNameR(product_tree_->Model(), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kParty), inside_product);
+}
+
+void MainWindow::DelegateStatementPrimary(PTableView table_view, CSettings* settings) const
+{
+    auto* quantity { new DoubleSpinR(settings->common_decimal, kCoefficient8, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kSecond), quantity);
+
+    auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kSettlement), amount);
+
+    auto* employee { new NodeNameR(stakeholder_tree_->Model(), table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kEmployee), employee);
+
+    auto* rule { new StringMapR(data_->info.rule_map, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kRule), rule);
+
+    auto* type { new StringMapR(data_->info.type_map, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(NodeEnum::kType), type);
+
+    auto* state { new CheckBox(QEvent::MouseButtonDblClick, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kState), state);
+
+    auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kDateTime), date_time);
 }
 
 void MainWindow::SetConnect() const

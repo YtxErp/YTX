@@ -298,7 +298,6 @@ QString SqliteOrder::QSReadStatement(int unit) const
             FROM Statement
             )")
             .arg(info_.node);
-        break;
     case UnitO::kMS:
         return QString(R"(
             WITH Statement AS (
@@ -327,7 +326,6 @@ QString SqliteOrder::QSReadStatement(int unit) const
             FROM Statement;
             )")
             .arg(info_.node);
-        break;
     case UnitO::kPEND:
         return QString(R"(
             WITH Statement AS (
@@ -353,7 +351,35 @@ QString SqliteOrder::QSReadStatement(int unit) const
             FROM Statement;
             )")
             .arg(info_.node);
-        break;
+    default:
+        return {};
+    }
+}
+
+QString SqliteOrder::QSReadStatementPrimary(int unit) const
+{
+    switch (UnitO(unit)) {
+    case UnitO::kIS:
+        return QString(R"(
+            SELECT description, rule, employee, date_time, first, second, gross_amount, gross_amount AS settlement
+            FROM %1
+            WHERE party = :party AND unit = 0 AND (date_time BETWEEN :start AND :end) AND finished = 1 AND removed = 0
+            )")
+            .arg(info_.node);
+    case UnitO::kMS:
+        return QString(R"(
+            SELECT description, rule, employee, date_time, first, second, gross_amount, 0 AS settlement
+            FROM %1
+            WHERE party = :party AND unit = 1 AND (date_time BETWEEN :start AND :end) AND finished = 1 AND removed = 0
+            )")
+            .arg(info_.node);
+    case UnitO::kPEND:
+        return QString(R"(
+            SELECT description, rule, employee, date_time, first, second, gross_amount, 0 AS settlement
+            FROM %1
+            WHERE party = :party AND unit = 2 AND (date_time BETWEEN :start AND :end) AND removed = 0
+            )")
+            .arg(info_.node);
     default:
         return {};
     }
@@ -374,6 +400,25 @@ void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) co
         trans->lhs_credit = query.value(QStringLiteral("csecond")).toDouble();
 
         trans_list.emplaceBack(trans);
+    }
+}
+
+void SqliteOrder::ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const
+{
+    // remind to recycle these trans
+    while (query.next()) {
+        auto* node { ResourcePool<Node>::Instance().Allocate() };
+
+        node->description = query.value(QStringLiteral("description")).toString();
+        node->rule = query.value(QStringLiteral("rule")).toBool();
+        node->employee = query.value(QStringLiteral("employee")).toInt();
+        node->date_time = query.value(QStringLiteral("date_time")).toString();
+        node->first = query.value(QStringLiteral("first")).toDouble();
+        node->second = query.value(QStringLiteral("second")).toDouble();
+        node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
+        node->final_total = query.value(QStringLiteral("settlement")).toDouble();
+
+        node_list.emplaceBack(node);
     }
 }
 

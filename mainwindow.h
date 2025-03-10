@@ -102,8 +102,8 @@ private slots:
     void RSectionGroup(int id);
     void RTransRefDoubleClicked(const QModelIndex& index);
 
-    void RPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void RSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void RStatementPrimary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void RStatementSecondary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
 
 private:
     void SetTabWidget();
@@ -139,8 +139,10 @@ private:
     void DelegateSupportS(PTableView table_view, PTreeModel tree_model, PTreeModel product_tree_model) const;
     void SetSupportViewS(PTableView table_view) const;
 
-    void SetStatementView(PTableView table_view) const;
+    void SetStatementView(PTableView table_view, int stretch_column) const;
     void DelegateStatement(PTableView table_view, CSettings* settings) const;
+
+    void DelegateStatementPrimary(PTableView table_view, CSettings* settings) const;
 
     void TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
     void TableConnectO(PTableView table_view, TransModelO* table_model, PTreeModel tree_model, TransWidgetO* widget) const;

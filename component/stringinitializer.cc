@@ -452,6 +452,19 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("PlaceHolder"),
     };
 
+    sales.statement_primary_header = {
+        QObject::tr("DateTime"),
+        QObject::tr("Description"),
+        QObject::tr("Rule"),
+        QObject::tr("Employee"),
+        QObject::tr("First"),
+        QObject::tr("Second"),
+        QObject::tr("State"),
+        QObject::tr("GrossAmount"),
+        QObject::tr("Settlement"),
+        QObject::tr("PlaceHolder"),
+    };
+
     purchase.node_header = sales.node_header;
     purchase.trans_header = sales.trans_header;
     purchase.search_trans_header = sales.search_trans_header;

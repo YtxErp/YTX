@@ -7,16 +7,18 @@
 #include "component/signalblocker.h"
 #include "ui_statementwidget.h"
 
-StatementWidget::StatementWidget(QAbstractItemModel* model, QWidget* parent)
+StatementWidget::StatementWidget(QAbstractItemModel* model, int unit, CDateTime& start, CDateTime& end, QWidget* parent)
     : SupportWidget(parent)
     , ui(new Ui::StatementWidget)
-    , start_ { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1), kStartTime) }
-    , end_ { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), QDate::currentDate().daysInMonth()), kEndTime) }
+    , unit_ { unit }
+    , start_ { start }
+    , end_ { end }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
     IniUnitGroup();
     IniWidget(model);
+    IniUnit(unit);
     IniConnect();
 
     QTimer::singleShot(0, this, [this]() { emit SRetrieveData(unit_, start_, end_); });
@@ -54,12 +56,30 @@ void StatementWidget::IniUnitGroup()
 
 void StatementWidget::IniConnect() { connect(unit_group_, &QButtonGroup::idClicked, this, &StatementWidget::RUnitGroupClicked); }
 
+void StatementWidget::IniUnit(int unit)
+{
+    const UnitO kUnit { unit };
+
+    switch (kUnit) {
+    case UnitO::kIS:
+        ui->rBtnIS->setChecked(true);
+        break;
+    case UnitO::kMS:
+        ui->rBtnMS->setChecked(true);
+        break;
+    case UnitO::kPEND:
+        ui->rBtnPEND->setChecked(true);
+        break;
+    default:
+        break;
+    }
+}
+
 void StatementWidget::IniWidget(QAbstractItemModel* model)
 {
     ui->start->setDisplayFormat(kDateFST);
     ui->end->setDisplayFormat(kDateFST);
 
-    ui->rBtnMS->setChecked(true);
     ui->tableView->setModel(model);
     ui->pBtnRefresh->setFocus();
 
@@ -74,10 +94,10 @@ void StatementWidget::on_tableView_doubleClicked(const QModelIndex& index)
     const double cbalance { index.siblingAtColumn(std::to_underlying(StatementEnum::kCBalance)).data().toDouble() };
 
     if (index.column() == std::to_underlying(StatementEnum::kParty)) {
-        emit SPrimaryStatement(kParty, start_, end_, pbalance, cbalance);
+        emit SStatementPrimary(kParty, unit_, start_, end_, pbalance, cbalance);
     }
 
     if (index.column() == std::to_underlying(StatementEnum::kCBalance)) {
-        emit SSecondaryStatement(kParty, start_, end_, pbalance, cbalance);
+        emit SStatementSecondary(kParty, unit_, start_, end_, pbalance, cbalance);
     }
 }

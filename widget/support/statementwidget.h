@@ -23,6 +23,7 @@
 #include <QButtonGroup>
 #include <QDateTime>
 
+#include "component/using.h"
 #include "supportwidget.h"
 
 namespace Ui {
@@ -35,7 +36,7 @@ class StatementWidget final : public SupportWidget {
 signals:
     void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
     void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void SRetrieveData(int unit, CDateTime& start, CDateTime& end);
 
 public:
     StatementWidget(QAbstractItemModel* model, QWidget* parent = nullptr);

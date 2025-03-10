@@ -1296,7 +1296,10 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
     const Section section { info.section };
 
     auto* model { new TransRefModel(sql, info, this) };
-    auto* widget { new RefWidget(model, node_id, this) };
+
+    const auto start { QDateTime(QDate(QDate::currentDate().year() - 1, 1, 1), kStartTime) };
+    const auto end { QDateTime(QDate(QDate::currentDate().year(), 12, 31), kEndTime) };
+    auto* widget { new RefWidget(model, node_id, start, end, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };

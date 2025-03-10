@@ -5,7 +5,6 @@
 #include "component/constvalue.h"
 #include "component/enumclass.h"
 #include "component/signalblocker.h"
-#include "component/using.h"
 #include "ui_statementwidget.h"
 
 StatementWidget::StatementWidget(QAbstractItemModel* model, QWidget* parent)

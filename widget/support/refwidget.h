@@ -22,6 +22,7 @@
 
 #include <QDateTime>
 
+#include "component/using.h"
 #include "supportwidget.h"
 
 namespace Ui {
@@ -32,10 +33,10 @@ class RefWidget final : public SupportWidget {
     Q_OBJECT
 
 signals:
-    void SRetrieveData(int node_id, const QDateTime& start, const QDateTime& end);
+    void SRetrieveData(int node_id, CDateTime& start, CDateTime& end);
 
 public:
-    RefWidget(QAbstractItemModel* model, int node_id, QWidget* parent = nullptr);
+    RefWidget(QAbstractItemModel* model, int node_id, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);
     ~RefWidget() override;
 
     QPointer<QTableView> View() const override;

@@ -4,14 +4,13 @@
 
 #include "component/constvalue.h"
 #include "component/signalblocker.h"
-#include "component/using.h"
 #include "ui_refwidget.h"
 
-RefWidget::RefWidget(QAbstractItemModel* model, int node_id, QWidget* parent)
+RefWidget::RefWidget(QAbstractItemModel* model, int node_id, CDateTime& start, CDateTime& end, QWidget* parent)
     : SupportWidget(parent)
     , ui(new Ui::RefWidget)
-    , start_ { QDateTime(QDate(QDate::currentDate().year() - 1, 1, 1), kStartTime) }
-    , end_ { QDateTime(QDate(QDate::currentDate().year(), 12, 31), kEndTime) }
+    , start_ { start }
+    , end_ { end }
     , node_id_ { node_id }
 {
     ui->setupUi(this);

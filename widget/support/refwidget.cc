@@ -1,26 +1,31 @@
 #include "refwidget.h"
 
+#include <QTimer>
+
 #include "component/constvalue.h"
 #include "component/signalblocker.h"
+#include "component/using.h"
 #include "ui_refwidget.h"
 
-RefWidget::RefWidget(TransRefModel* model, int node_id, QWidget* parent)
+RefWidget::RefWidget(QAbstractItemModel* model, int node_id, QWidget* parent)
     : SupportWidget(parent)
     , ui(new Ui::RefWidget)
     , start_ { QDateTime(QDate(QDate::currentDate().year() - 1, 1, 1), kStartTime) }
     , end_ { QDateTime(QDate(QDate::currentDate().year(), 12, 31), kEndTime) }
-    , model_ { model }
     , node_id_ { node_id }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
     IniWidget(model);
-    IniData();
+
+    QTimer::singleShot(0, this, [this]() { emit SRetrieveData(node_id_, start_, end_); });
 }
 
 RefWidget::~RefWidget() { delete ui; }
 
 QPointer<QTableView> RefWidget::View() const { return ui->tableView; }
+
+QPointer<QAbstractItemModel> RefWidget::Model() const { return ui->tableView->model(); }
 
 void RefWidget::on_start_dateChanged(const QDate& date)
 {
@@ -34,9 +39,9 @@ void RefWidget::on_end_dateChanged(const QDate& date)
     end_.setDate(date);
 }
 
-void RefWidget::on_pBtnRefresh_clicked() { model_->Query(node_id_, start_, end_); }
+void RefWidget::on_pBtnRefresh_clicked() { emit SRetrieveData(node_id_, start_, end_); }
 
-void RefWidget::IniWidget(TransRefModel* model)
+void RefWidget::IniWidget(QAbstractItemModel* model)
 {
     ui->start->setDisplayFormat(kDateFST);
     ui->end->setDisplayFormat(kDateFST);
@@ -46,5 +51,3 @@ void RefWidget::IniWidget(TransRefModel* model)
 
     ui->pBtnRefresh->setFocus();
 }
-
-void RefWidget::IniData() { model_->Query(node_id_, start_, end_); }

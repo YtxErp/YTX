@@ -1306,7 +1306,9 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TransRefEnum::kDescription));
     DelegateTransRef(view, &sales_settings_);
+
     connect(view, &QTableView::doubleClicked, this, &MainWindow::RTransRefDoubleClicked);
+    connect(widget, &RefWidget::SRetrieveData, model, &TransRefModel::RRetrieveData);
 
     sup_wgt_hash->insert(node_id, widget);
 }

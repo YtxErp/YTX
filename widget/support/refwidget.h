@@ -20,8 +20,9 @@
 #ifndef REFWIDGET_H
 #define REFWIDGET_H
 
+#include <QDateTime>
+
 #include "supportwidget.h"
-#include "table/transrefmodel.h"
 
 namespace Ui {
 class RefWidget;
@@ -30,31 +31,30 @@ class RefWidget;
 class RefWidget final : public SupportWidget {
     Q_OBJECT
 
-public slots:
-    void on_start_dateChanged(const QDate& date);
-    void on_end_dateChanged(const QDate& date);
+signals:
+    void SRetrieveData(int node_id, const QDateTime& start, const QDateTime& end);
 
 public:
-    RefWidget(TransRefModel* model, int node_id, QWidget* parent = nullptr);
+    RefWidget(QAbstractItemModel* model, int node_id, QWidget* parent = nullptr);
     ~RefWidget() override;
 
     QPointer<QTableView> View() const override;
-    QPointer<QAbstractItemModel> Model() const override { return model_; };
+    QPointer<QAbstractItemModel> Model() const override;
     bool IsSupportWidget() const override { return true; }
 
 private slots:
     void on_pBtnRefresh_clicked();
+    void on_start_dateChanged(const QDate& date);
+    void on_end_dateChanged(const QDate& date);
 
 private:
-    void IniWidget(TransRefModel* model);
-    void IniData();
+    void IniWidget(QAbstractItemModel* model);
 
 private:
     Ui::RefWidget* ui;
     QDateTime start_ {};
     QDateTime end_ {};
 
-    TransRefModel* model_ {};
     const int node_id_ {};
 };
 

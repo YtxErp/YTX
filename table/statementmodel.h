@@ -31,6 +31,9 @@ public:
     StatementModel(Sqlite* sql, CInfo& info, QObject* parent = nullptr);
     ~StatementModel();
 
+public slots:
+    void RRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex& index) const override;
@@ -42,9 +45,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     void sort(int column, Qt::SortOrder order) override;
-
-public:
-    void Query(const QDateTime& start, const QDateTime& end, UnitO unit = UnitO::kMS);
 
 private:
     Sqlite* sql_ {};

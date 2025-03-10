@@ -880,7 +880,7 @@ bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, const QDateTime& s
     return true;
 }
 
-bool Sqlite::ReadStatement(TransList& trans_list, const QDateTime& start, const QDateTime& end, UnitO unit) const
+bool Sqlite::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);

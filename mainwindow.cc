@@ -569,6 +569,7 @@ void MainWindow::on_actionStatement_triggered()
 
     connect(widget, &StatementWidget::SPrimaryStatement, this, &MainWindow::RPrimaryStatement);
     connect(widget, &StatementWidget::SSecondaryStatement, this, &MainWindow::RSecondaryStatement);
+    connect(widget, &StatementWidget::SRetrieveData, model, &StatementModel::RRetrieveData);
 
     sup_wgt_hash_->insert(statement_id, widget);
     --statement_id;

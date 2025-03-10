@@ -271,9 +271,9 @@ QString SqliteOrder::QSTransToRemove() const
         .arg(info_.trans);
 }
 
-QString SqliteOrder::QSReadStatement(UnitO unit) const
+QString SqliteOrder::QSReadStatement(int unit) const
 {
-    switch (unit) {
+    switch (UnitO(unit)) {
     case UnitO::kIS:
         return QString(R"(
             WITH Statement AS (

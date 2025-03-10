@@ -89,7 +89,7 @@ public:
     bool WriteState(Check state) const;
     bool SearchTrans(TransList& trans_list, CString& text) const;
     bool ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const;
-    bool ReadStatement(TransList& trans_list, const QDateTime& start, const QDateTime& end, UnitO unit = UnitO::kMS) const;
+    bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // common
     bool WriteField(CString& table, CString& field, CVariant& value, int id) const;
@@ -111,7 +111,7 @@ protected:
     virtual QString QSSupportTransToMove() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
     virtual QString QSReadTransRef() const { return {}; };
-    virtual QString QSReadStatement(UnitO unit) const
+    virtual QString QSReadStatement(int unit) const
     {
         Q_UNUSED(unit);
         return {};

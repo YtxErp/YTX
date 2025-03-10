@@ -21,9 +21,9 @@
 #define STATEMENTWIDGET_H
 
 #include <QButtonGroup>
+#include <QDateTime>
 
 #include "supportwidget.h"
-#include "table/statementmodel.h"
 
 namespace Ui {
 class StatementWidget;
@@ -35,39 +35,36 @@ class StatementWidget final : public SupportWidget {
 signals:
     void SPrimaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
     void SSecondaryStatement(int party_id, QDateTime start, QDateTime end, double pbalance, double cbalance);
-
-public slots:
-    void on_start_dateChanged(const QDate& date);
-    void on_end_dateChanged(const QDate& date);
+    void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
 
 public:
-    StatementWidget(StatementModel* model, QWidget* parent = nullptr);
+    StatementWidget(QAbstractItemModel* model, QWidget* parent = nullptr);
     ~StatementWidget() override;
 
     QPointer<QTableView> View() const override;
-    QPointer<QAbstractItemModel> Model() const override { return model_; };
+    QPointer<QAbstractItemModel> Model() const override;
     bool IsSupportWidget() const override { return true; }
 
 private slots:
     void on_pBtnRefresh_clicked();
-    void on_tableViewStatement_doubleClicked(const QModelIndex& index);
+    void on_tableView_doubleClicked(const QModelIndex& index);
+    void on_start_dateChanged(const QDate& date);
+    void on_end_dateChanged(const QDate& date);
+
     void RUnitGroupClicked(int id);
 
 private:
     void IniUnitGroup();
     void IniConnect();
-    void IniWidget(StatementModel* model);
-    void IniData();
+    void IniWidget(QAbstractItemModel* model);
 
 private:
     Ui::StatementWidget* ui;
     QDateTime start_ {};
     QDateTime end_ {};
-    UnitO unit_ {};
+    int unit_ { 1 };
 
     QButtonGroup* unit_group_ {};
-
-    StatementModel* model_ {};
 };
 
 #endif // STATEMENTWIDGET_H

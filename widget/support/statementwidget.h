@@ -34,8 +34,8 @@ class StatementWidget final : public SupportWidget {
     Q_OBJECT
 
 signals:
-    void SStatementPrimary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void SStatementSecondary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void SStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void SStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
     void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
 
 public:

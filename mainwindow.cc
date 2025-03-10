@@ -374,7 +374,7 @@ void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
     SalesNodeLocation(kNodeID);
 }
 
-void MainWindow::RStatementPrimary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance)
+void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double /*pbalance*/, double /*cbalance*/)
 {
     auto* sql { data_->sql };
     const auto& info { data_->info };
@@ -382,11 +382,11 @@ void MainWindow::RStatementPrimary(int party_id, int unit, QDateTime start, QDat
     auto* model { new StatementPrimaryModel(sql, info, party_id, this) };
     auto* widget { new StatementWidget(model, unit, start, end, this) };
 
-    const QString name { stakeholder_tree_->Model()->Name(party_id) };
+    const QString name { tr("StatementPrimary-") + stakeholder_tree_->Model()->Name(party_id) };
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };
 
-    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id }));
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id_ }));
     tab_bar->setTabToolTip(tab_index, name);
 
     auto view { widget->View() };
@@ -395,11 +395,11 @@ void MainWindow::RStatementPrimary(int party_id, int unit, QDateTime start, QDat
 
     connect(widget, &StatementWidget::SRetrieveData, model, &StatementPrimaryModel::RRetrieveData);
 
-    sup_wgt_hash_->insert(statement_id, widget);
-    --statement_id;
+    sup_wgt_hash_->insert(statement_id_, widget);
+    --statement_id_;
 }
 
-void MainWindow::RStatementSecondary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance) { }
+void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance) { }
 
 void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 {
@@ -591,8 +591,7 @@ void MainWindow::on_actionStatement_triggered()
     const int tab_index { ui->tabWidget->addTab(widget, tr("Statement")) };
     auto* tab_bar { ui->tabWidget->tabBar() };
 
-    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id }));
-    tab_bar->setTabToolTip(tab_index, tr("Statement"));
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, statement_id_ }));
 
     auto view { widget->View() };
     SetStatementView(view, std::to_underlying(StatementEnum::kPlaceholder));
@@ -602,8 +601,8 @@ void MainWindow::on_actionStatement_triggered()
     connect(widget, &StatementWidget::SStatementSecondary, this, &MainWindow::RStatementSecondary);
     connect(widget, &StatementWidget::SRetrieveData, model, &StatementModel::RRetrieveData);
 
-    sup_wgt_hash_->insert(statement_id, widget);
-    --statement_id;
+    sup_wgt_hash_->insert(statement_id_, widget);
+    --statement_id_;
 }
 
 void MainWindow::TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, const Data* data) const

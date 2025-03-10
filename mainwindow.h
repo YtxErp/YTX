@@ -102,8 +102,8 @@ private slots:
     void RSectionGroup(int id);
     void RTransRefDoubleClicked(const QModelIndex& index);
 
-    void RStatementPrimary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
-    void RStatementSecondary(int party_id, int unit, QDateTime start, QDateTime end, double pbalance, double cbalance);
+    void RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
 
 private:
     void SetTabWidget();
@@ -208,7 +208,7 @@ private:
 
     QStringList recent_file_ {};
     Section start_ {};
-    int statement_id { -1 };
+    int statement_id_ { -1 };
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};

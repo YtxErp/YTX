@@ -856,7 +856,7 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text) const
     return true;
 }
 
-bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
+bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -867,6 +867,8 @@ bool Sqlite::ReadTransRef(TransList& trans_list, int node_id) const
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
 
     if (!query.exec()) {
         qWarning() << "Failed in TransRefRecord" << query.lastError().text();

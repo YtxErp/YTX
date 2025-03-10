@@ -22,7 +22,7 @@ StatementWidget::StatementWidget(StatementModel* model, QWidget* parent)
 
 StatementWidget::~StatementWidget() { delete ui; }
 
-QPointer<QTableView> StatementWidget::View() const { return ui->tableViewStatement; }
+QPointer<QTableView> StatementWidget::View() const { return ui->tableView; }
 
 void StatementWidget::on_start_dateChanged(const QDate& date)
 {
@@ -55,7 +55,7 @@ void StatementWidget::IniWidget(StatementModel* model)
     ui->start->setDisplayFormat(kDateFST);
     ui->end->setDisplayFormat(kDateFST);
     ui->rBtnMS->setChecked(true);
-    ui->tableViewStatement->setModel(model);
+    ui->tableView->setModel(model);
     ui->start->setDateTime(start_);
     ui->end->setDateTime(end_);
 

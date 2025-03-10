@@ -81,6 +81,7 @@
 #include "widget/node/nodewidgeto.h"
 #include "widget/node/nodewidgetpt.h"
 #include "widget/node/nodewidgets.h"
+#include "widget/support/refwidget.h"
 #include "widget/support/statementwidget.h"
 #include "widget/support/supportwidgetfpts.h"
 #include "widget/trans/transwidgetfpts.h"
@@ -1293,8 +1294,8 @@ void MainWindow::CreateTransRef(PTreeModel tree_model, SupWgtHash* sup_wgt_hash,
     const Info& info { data->info };
     const Section section { info.section };
 
-    auto* model { new TransRefModel(node_id, info, sql, this) };
-    auto* widget { new SupportWidgetFPTS(model, this) };
+    auto* model { new TransRefModel(sql, info, this) };
+    auto* widget { new RefWidget(model, node_id, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, name) };
     auto* tab_bar { ui->tabWidget->tabBar() };

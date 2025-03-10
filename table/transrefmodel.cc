@@ -3,13 +3,11 @@
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
 
-TransRefModel::TransRefModel(int node_id, CInfo& info, Sqlite* sql, QObject* parent)
+TransRefModel::TransRefModel(Sqlite* sql, CInfo& info, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
-    , node_id_ { node_id }
 {
-    Query(node_id);
 }
 
 TransRefModel::~TransRefModel() { ResourcePool<Trans>::Instance().Recycle(trans_list_); }
@@ -127,14 +125,17 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void TransRefModel::Query(int node_id)
+void TransRefModel::Query(int node_id, const QDateTime& start, const QDateTime& end)
 {
+    if (node_id <= 0)
+        return;
+
     beginResetModel();
     if (!trans_list_.isEmpty())
         trans_list_.clear();
 
     if (node_id >= 1)
-        sql_->ReadTransRef(trans_list_, node_id);
+        sql_->ReadTransRef(trans_list_, node_id, start, end);
 
     endResetModel();
 }

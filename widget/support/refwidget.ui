@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StatementWidget</class>
- <widget class="QWidget" name="StatementWidget">
+ <class>RefWidget</class>
+ <widget class="QWidget" name="RefWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -73,27 +73,6 @@
         </property>
         <property name="calendarPopup">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rBtnIS">
-        <property name="text">
-         <string>IS</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rBtnMS">
-        <property name="text">
-         <string>MS</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="rBtnPEND">
-        <property name="text">
-         <string>PEND</string>
         </property>
        </widget>
       </item>

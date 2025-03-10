@@ -88,7 +88,7 @@ public:
     bool RemoveTrans(int trans_id);
     bool WriteState(Check state) const;
     bool SearchTrans(TransList& trans_list, CString& text) const;
-    bool ReadTransRef(TransList& trans_list, int node_id) const;
+    bool ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatement(TransList& trans_list, const QDateTime& start, const QDateTime& end, UnitO unit = UnitO::kMS) const;
 
     // common

@@ -1,6 +1,5 @@
 #include "insertnodeorder.h"
 
-#include <QShortcut>
 #include <QTimer>
 
 #include "component/signalblocker.h"
@@ -30,20 +29,20 @@ InsertNodeOrder::InsertNodeOrder(CEditNodeParamsO& params, QWidget* parent)
     IniUnit(params.node->unit);
     IniConnect();
 
-    QShortcut* trans_shortcut { new QShortcut(QKeySequence("Ctrl+N"), this) };
-    trans_shortcut->setContext(Qt::WindowShortcut);
+    trans_shortcut_ = new QShortcut(QKeySequence("Ctrl+N"), this);
+    trans_shortcut_->setContext(Qt::WindowShortcut);
 
-    connect(trans_shortcut, &QShortcut::activated, parent, [parent]() {
+    connect(trans_shortcut_, &QShortcut::activated, parent, [parent]() {
         auto* main_window { qobject_cast<MainWindow*>(parent) };
         if (main_window) {
             main_window->on_actionAppendTrans_triggered();
         }
     });
 
-    QShortcut* node_shortcut { new QShortcut(QKeySequence("Alt+N"), this) };
-    node_shortcut->setContext(Qt::WindowShortcut);
+    node_shortcut_ = new QShortcut(QKeySequence("Alt+N"), this);
+    node_shortcut_->setContext(Qt::WindowShortcut);
 
-    connect(node_shortcut, &QShortcut::activated, parent, [parent]() {
+    connect(node_shortcut_, &QShortcut::activated, parent, [parent]() {
         auto* main_window { qobject_cast<MainWindow*>(parent) };
         if (main_window) {
             main_window->on_actionInsertNode_triggered();
@@ -334,6 +333,7 @@ void InsertNodeOrder::IniFinished(bool finished)
 {
     ui->pBtnFinishOrder->setChecked(finished);
     ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
+    trans_shortcut_->setEnabled(!finished);
 
     if (finished) {
         ui->pBtnPrint->setFocus();

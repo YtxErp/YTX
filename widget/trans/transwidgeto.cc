@@ -290,6 +290,7 @@ void TransWidgetO::IniFinished(bool finished)
     ui->pBtnFinishOrder->setChecked(finished);
     ui->pBtnFinishOrder->setText(finished ? tr("Edit") : tr("Finish"));
     ui->pBtnFinishOrder->setEnabled(node_->unit != std::to_underlying(UnitO::kPEND));
+    emit SEnableAction(finished);
 
     if (finished) {
         ui->pBtnPrint->setFocus();

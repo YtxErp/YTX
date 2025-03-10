@@ -22,6 +22,7 @@
 
 #include <QButtonGroup>
 #include <QDialog>
+#include <QShortcut>
 
 #include "component/classparams.h"
 #include "component/settings.h"
@@ -102,6 +103,9 @@ private:
     TransModel* order_table_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
+
+    QShortcut* trans_shortcut_ {};
+    QShortcut* node_shortcut_ {};
 
     QStandardItemModel* combo_model_employee_ {};
     QStandardItemModel* combo_model_party_ {};

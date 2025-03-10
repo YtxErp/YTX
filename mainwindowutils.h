@@ -56,7 +56,9 @@ public:
     static void ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);
     static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
 
-    static bool IsTreeWidget(const QWidget* widget) { return widget && widget->inherits("TreeWidget"); }
+    static bool IsNodeWidget(const QWidget* widget) { return widget && widget->inherits("NodeWidget"); }
+    static bool IsLeafWidgetFPTS(const QWidget* widget) { return widget && widget->inherits("TransWidgetFPTS"); }
+    static bool IsLeafWidgetO(const QWidget* widget) { return widget && widget->inherits("TransWidgetO"); }
 
     static bool CheckFileName(QString& file_path, CString& suffix);
     static bool CheckFileValid(CString& file_path, CString& suffix = kSuffixYTX);

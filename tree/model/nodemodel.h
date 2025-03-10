@@ -135,6 +135,9 @@ public:
     int Unit(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::unit); }
     QString Name(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::name); }
     bool Rule(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::rule); }
+    bool Finished(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::finished); }
+    int Party(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
+
     QStringList* GetDocumentPointer(int node_id) const;
 
     bool ChildrenEmpty(int node_id) const;

@@ -50,7 +50,6 @@ public:
     void UpdateTree(const QDateTime& start, const QDateTime& end);
     QString GetPath(int node_id) const override;
     void RetrieveNode(int node_id) override;
-    int Party(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
 
     Node* GetNodeO(int node_id) const override;
 

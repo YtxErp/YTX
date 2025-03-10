@@ -49,6 +49,9 @@ signals:
     // send to TreeModelOrder
     void SUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
+    // send to MainWindow
+    void SEnableAction(bool finished);
+
 public slots:
     // receive from TreeModelOrder
     void RSyncBool(int node_id, int column, bool value);

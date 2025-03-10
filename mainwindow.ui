@@ -427,9 +427,6 @@
    <property name="text">
     <string>Statement</string>
    </property>
-   <property name="toolTip">
-    <string>Statement...</string>
-   </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
    </property>

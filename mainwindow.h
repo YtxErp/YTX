@@ -106,6 +106,8 @@ private slots:
     void RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
     void RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
 
+    void REnableAction(bool finished);
+
 private:
     void SetTabWidget();
     void SetClearMenuAction();

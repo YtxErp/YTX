@@ -25,7 +25,6 @@
 #include "delegate/document.h"
 #include "delegate/doublespin.h"
 #include "delegate/line.h"
-#include "delegate/readonly/checkboxr.h"
 #include "delegate/readonly/colorr.h"
 #include "delegate/readonly/datetimer.h"
 #include "delegate/readonly/doublespinr.h"
@@ -406,6 +405,12 @@ void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& star
 
 void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance) { }
 
+void MainWindow::REnableAction(bool finished)
+{
+    ui->actionAppendTrans->setEnabled(!finished);
+    ui->actionRemove->setEnabled(!finished);
+}
+
 void MainWindow::SwitchToLeaf(int node_id, int trans_id) const
 {
     auto widget { trans_wgt_hash_->value(node_id, nullptr) };
@@ -607,6 +612,7 @@ void MainWindow::TableConnectO(PTableView table_view, TransModelO* table_model, 
     connect(widget, &TransWidgetO::SSyncBool, table_model, &TransModel::RSyncBool);
 
     connect(widget, &TransWidgetO::SSyncInt, this, &MainWindow::RSyncInt);
+    connect(widget, &TransWidgetO::SEnableAction, this, &MainWindow::REnableAction);
 
     connect(widget, &TransWidgetO::SSyncBool, tree_model, &NodeModel::RSyncBool);
     connect(tree_model, &NodeModel::SSyncBool, widget, &TransWidgetO::RSyncBool);
@@ -2258,9 +2264,9 @@ void MainWindow::UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool br
 {
     auto* widget { ui->tabWidget };
     auto stakeholder_model { tree_widget_->Model() };
-    auto* order_model { static_cast<NodeModelO*>(sales_tree_->Model().data()) };
+    auto order_model { sales_tree_->Model() };
     auto* tab_bar { widget->tabBar() };
-    int count { widget->count() };
+    const int count { widget->count() };
 
     // 使用 QtConcurrent::run 启动后台线程
     auto future = QtConcurrent::run([=]() -> QVector<std::tuple<int, QString, QString>> {
@@ -2566,28 +2572,37 @@ void MainWindow::UpdateLastTab() const
     }
 }
 
-void MainWindow::on_tabWidget_currentChanged(int /*index*/)
+void MainWindow::on_tabWidget_currentChanged(int index)
 {
     auto* widget { ui->tabWidget->currentWidget() };
     if (!widget)
         return;
 
-    ui->actionStatement->setEnabled(start_ == Section::kSales || start_ == Section::kPurchase);
+    const bool is_node { MainWindowUtils::IsNodeWidget(widget) };
+    const bool is_leaf_fpts { MainWindowUtils::IsLeafWidgetFPTS(widget) };
+    const bool is_leaf_order { MainWindowUtils::IsLeafWidgetO(widget) };
+    const bool is_node_order { start_ == Section::kSales || start_ == Section::kPurchase };
 
-    bool is_tree { MainWindowUtils::IsTreeWidget(widget) };
-    bool is_order { start_ == Section::kSales || start_ == Section::kPurchase };
-    bool is_not_order_table { !is_tree && !is_order };
+    bool finished {};
 
-    ui->actionAppendNode->setEnabled(is_tree);
-    ui->actionEditNode->setEnabled(is_tree && !is_order);
+    if (is_leaf_order) {
+        const int node_id { ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id };
+        finished = tree_widget_->Model()->Finished(node_id);
+    }
 
-    ui->actionCheckAll->setEnabled(is_not_order_table);
-    ui->actionCheckNone->setEnabled(is_not_order_table);
-    ui->actionCheckReverse->setEnabled(is_not_order_table);
-    ui->actionJump->setEnabled(is_not_order_table);
-    ui->actionSupportJump->setEnabled(is_not_order_table);
+    ui->actionAppendNode->setEnabled(is_node);
+    ui->actionEditNode->setEnabled(is_node && !is_node_order);
 
-    ui->actionAppendTrans->setEnabled(!is_tree);
+    ui->actionCheckAll->setEnabled(is_leaf_fpts);
+    ui->actionCheckNone->setEnabled(is_leaf_fpts);
+    ui->actionCheckReverse->setEnabled(is_leaf_fpts);
+    ui->actionJump->setEnabled(is_leaf_fpts);
+    ui->actionSupportJump->setEnabled(is_leaf_fpts);
+
+    ui->actionStatement->setEnabled(is_node_order);
+
+    ui->actionAppendTrans->setEnabled(is_leaf_fpts || (is_leaf_order && !finished));
+    ui->actionRemove->setEnabled(is_node || is_leaf_fpts || (is_leaf_order && !finished));
 }
 
 void MainWindow::on_actionAppendTrans_triggered()

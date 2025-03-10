@@ -108,6 +108,21 @@ enum class StatementEnum { kParty, kPBalance, kCGrossAmount, kCFirst, kCSecond, 
 
 enum class StatementPrimaryEnum { kDateTime, kDescription, kRule, kEmployee, kFirst, kSecond, kState, kGrossAmount, kSettlement, kPlaceholder };
 
+enum class StatementSecondaryEnum {
+    kDateTime,
+    kInsideProduct,
+    kOutsideProduct,
+    kFirst,
+    kSecond,
+    kUnitPrice,
+    kGrossAmount,
+    kState,
+    kCode,
+    kDescription,
+    kSettlement,
+    kPlaceholder
+};
+
 // defining node column
 enum class NodeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };
 

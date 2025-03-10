@@ -465,10 +465,27 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("PlaceHolder"),
     };
 
+    sales.statement_secondary_header = {
+        QObject::tr("DateTime"),
+        QObject::tr("Inside"),
+        QObject::tr("Outside"),
+        QObject::tr("First"),
+        QObject::tr("Second"),
+        QObject::tr("UnitPrice"),
+        QObject::tr("GrossAmount"),
+        "S",
+        QObject::tr("Code"),
+        QObject::tr("Description"),
+        QObject::tr("Settlement"),
+        QObject::tr("PlaceHolder"),
+    };
+
     purchase.node_header = sales.node_header;
     purchase.trans_header = sales.trans_header;
     purchase.search_trans_header = sales.search_trans_header;
     purchase.search_node_header = sales.search_node_header;
     purchase.excel_trans_header = sales.excel_trans_header;
     purchase.statement_header = sales.statement_header;
+    purchase.statement_primary_header = sales.statement_primary_header;
+    purchase.statement_secondary_header = sales.statement_secondary_header;
 }

@@ -903,6 +903,29 @@ bool Sqlite::ReadStatement(TransList& trans_list, int unit, const QDateTime& sta
     return true;
 }
 
+bool Sqlite::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    const auto string { QSReadStatementSecondary(unit) };
+    if (string.isEmpty())
+        return false;
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party"), party_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementSecondaryQuery(trans_list, query);
+    return true;
+}
+
 bool Sqlite::ReadStatementPrimary(QList<Node*>& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(*db_);

@@ -71,6 +71,7 @@
 #include "table/model/transmodels.h"
 #include "table/model/transmodelt.h"
 #include "table/statementmodel.h"
+#include "table/statementsecondarymodel.h"
 #include "table/transrefmodel.h"
 #include "tree/model/nodemodelf.h"
 #include "tree/model/nodemodelo.h"
@@ -403,7 +404,29 @@ void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& star
     RegisterRptWgt(widget);
 }
 
-void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance) { }
+void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance)
+{
+    auto* sql { data_->sql };
+    const auto& info { data_->info };
+
+    auto* model { new StatementSecondaryModel(sql, info, party_id, this) };
+    auto* widget { new StatementWidget(model, unit, start, end, this) };
+
+    const QString name { tr("StatementSecondary-") + stakeholder_tree_->Model()->Name(party_id) };
+    const int tab_index { ui->tabWidget->addTab(widget, name) };
+    auto* tab_bar { ui->tabWidget->tabBar() };
+
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, report_id_ }));
+    tab_bar->setTabToolTip(tab_index, name);
+
+    auto view { widget->View() };
+    SetStatementView(view, std::to_underlying(StatementSecondaryEnum::kPlaceholder));
+    DelegateStatementSecondary(view, settings_);
+
+    connect(widget, &StatementWidget::SRetrieveData, model, &StatementSecondaryModel::RRetrieveData);
+
+    RegisterRptWgt(widget);
+}
 
 void MainWindow::REnableAction(bool finished)
 {
@@ -1468,6 +1491,34 @@ void MainWindow::DelegateStatementPrimary(PTableView table_view, CSettings* sett
 
     auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementPrimaryEnum::kDateTime), date_time);
+}
+
+void MainWindow::DelegateStatementSecondary(PTableView table_view, CSettings* settings) const
+{
+    auto* quantity { new DoubleSpinR(settings->common_decimal, kCoefficient8, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kFirst), quantity);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kSecond), quantity);
+
+    auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kGrossAmount), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kSettlement), amount);
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kUnitPrice), amount);
+
+    // auto* rule { new StringMapR(data_->info.rule_map, table_view) };
+    // table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kRule), rule);
+
+    auto* state { new CheckBox(QEvent::MouseButtonDblClick, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kState), state);
+
+    auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kDateTime), date_time);
+
+    auto* outside_product { new NodePathR(stakeholder_tree_->Model(), table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kOutsideProduct), outside_product);
+
+    auto product_tree_model { product_tree_->Model() };
+    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kInsideProduct), inside_product);
 }
 
 void MainWindow::SetConnect() const

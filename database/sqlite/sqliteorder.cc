@@ -385,6 +385,68 @@ QString SqliteOrder::QSReadStatementPrimary(int unit) const
     }
 }
 
+QString SqliteOrder::QSReadStatementSecondary(int unit) const
+{
+    switch (UnitO(unit)) {
+    case UnitO::kIS:
+        return QString(R"(
+            SELECT
+                trans.code,
+                trans.inside_product,
+                trans.unit_price,
+                trans.second,
+                trans.description,
+                trans.first,
+                trans.gross_amount,
+                trans.gross_amount AS settlement,
+                trans.outside_product,
+                node.date_time
+            FROM %2 trans
+            INNER JOIN %1 node ON trans.lhs_node = node.id
+            WHERE node.party = :party AND node.finished = 1 AND node.unit = 0 AND (node.date_time BETWEEN :start AND :end) AND trans.removed = 0;
+            )")
+            .arg(info_.node, info_.trans);
+    case UnitO::kMS:
+        return QString(R"(
+            SELECT
+                trans.code,
+                trans.inside_product,
+                trans.unit_price,
+                trans.second,
+                trans.description,
+                trans.first,
+                trans.gross_amount,
+                0 AS settlement,
+                trans.outside_product,
+                node.date_time
+            FROM %2 trans
+            INNER JOIN %1 node ON trans.lhs_node = node.id
+            WHERE node.party = :party AND node.finished = 1 AND node.unit = 1 AND (node.date_time BETWEEN :start AND :end) AND trans.removed = 0;
+            )")
+            .arg(info_.node, info_.trans);
+    case UnitO::kPEND:
+        return QString(R"(
+            SELECT
+                trans.code,
+                trans.inside_product,
+                trans.unit_price,
+                trans.second,
+                trans.description,
+                trans.first,
+                trans.gross_amount,
+                0 AS settlement,
+                trans.outside_product,
+                node.date_time
+            FROM %2 trans
+            INNER JOIN %1 node ON trans.lhs_node = node.id
+            WHERE node.party = :party AND node.unit = 2 AND (node.date_time BETWEEN :start AND :end) AND trans.removed = 0;
+            )")
+            .arg(info_.node, info_.trans);
+    default:
+        return {};
+    }
+}
+
 void SqliteOrder::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
@@ -419,6 +481,27 @@ void SqliteOrder::ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& 
         node->final_total = query.value(QStringLiteral("settlement")).toDouble();
 
         node_list.emplaceBack(node);
+    }
+}
+
+void SqliteOrder::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const
+{
+    // remind to recycle these trans
+    while (query.next()) {
+        auto* trans { ResourcePool<Trans>::Instance().Allocate() };
+
+        trans->code = query.value(QStringLiteral("code")).toString();
+        trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
+        trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
+        trans->description = query.value(QStringLiteral("description")).toString();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+        trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
+        trans->rhs_credit = query.value(QStringLiteral("settlement")).toDouble();
+        trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
+        trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
+        trans->date_time = query.value(QStringLiteral("date_time")).toString();
+
+        trans_list.emplaceBack(trans);
     }
 }
 

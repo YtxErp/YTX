@@ -146,6 +146,7 @@ private:
     void DelegateStatement(PTableView table_view, CSettings* settings) const;
 
     void DelegateStatementPrimary(PTableView table_view, CSettings* settings) const;
+    void DelegateStatementSecondary(PTableView table_view, CSettings* settings) const;
 
     void TableConnectFPT(PTableView table_view, PTableModel table_model, PTreeModel tree_model, CData* data) const;
     void TableConnectO(PTableView table_view, TransModelO* table_model, PTreeModel tree_model, TransWidgetO* widget) const;

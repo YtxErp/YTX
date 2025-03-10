@@ -91,6 +91,7 @@ public:
     bool SearchTrans(TransList& trans_list, CString& text) const;
     bool ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
+    bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // common
     bool WriteField(CString& table, CString& field, CVariant& value, int id) const;
@@ -118,6 +119,12 @@ protected:
         return {};
     }
     virtual QString QSReadStatementPrimary(int unit) const
+    {
+        Q_UNUSED(unit);
+        return {};
+    }
+
+    virtual QString QSReadStatementSecondary(int unit) const
     {
         Q_UNUSED(unit);
         return {};
@@ -197,6 +204,12 @@ protected:
     virtual void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const
     {
         Q_UNUSED(node_list);
+        Q_UNUSED(query);
+    };
+
+    virtual void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const
+    {
+        Q_UNUSED(trans_list);
         Q_UNUSED(query);
     };
 

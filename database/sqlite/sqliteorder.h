@@ -56,6 +56,7 @@ protected:
     void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const override;
     void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const override;
     void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const override;
+    void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const override;
 
     QString QSWriteLeafValueFPTO() const override;
     void WriteLeafValueBindFPTO(const Node* node, QSqlQuery& query) const override;
@@ -69,6 +70,7 @@ protected:
     QString QSTransToRemove() const override;
     QString QSReadStatement(int unit) const override;
     QString QSReadStatementPrimary(int unit) const override;
+    QString QSReadStatementSecondary(int unit) const override;
 
 private:
     QString SearchNodeQS(CString& in_list) const;

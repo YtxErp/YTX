@@ -1741,7 +1741,7 @@ void MainWindow::SetAction() const
 {
     ui->actionInsertNode->setIcon(QIcon(":/solarized_dark/solarized_dark/insert.png"));
     ui->actionEditNode->setIcon(QIcon(":/solarized_dark/solarized_dark/edit.png"));
-    ui->actionRemove->setIcon(QIcon(":/solarized_dark/solarized_dark/remove2.png"));
+    ui->actionRemove->setIcon(QIcon(":/solarized_dark/solarized_dark/remove.png"));
     ui->actionAbout->setIcon(QIcon(":/solarized_dark/solarized_dark/about.png"));
     ui->actionAppendNode->setIcon(QIcon(":/solarized_dark/solarized_dark/append.png"));
     ui->actionJump->setIcon(QIcon(":/solarized_dark/solarized_dark/jump.png"));
@@ -1754,6 +1754,7 @@ void MainWindow::SetAction() const
     ui->actionCheckNone->setIcon(QIcon(":/solarized_dark/solarized_dark/check-none.png"));
     ui->actionCheckReverse->setIcon(QIcon(":/solarized_dark/solarized_dark/check-reverse.png"));
     ui->actionAppendTrans->setIcon(QIcon(":/solarized_dark/solarized_dark/append_trans.png"));
+    ui->actionStatement->setIcon(QIcon(":/solarized_dark/solarized_dark/statement.png"));
 
     ui->actionCheckAll->setProperty(kCheck, std::to_underlying(Check::kAll));
     ui->actionCheckNone->setProperty(kCheck, std::to_underlying(Check::kNone));

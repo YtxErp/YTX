@@ -351,6 +351,6 @@ QString SqliteProduct::QSReadTransRef() const
         sn.date_time
     FROM sales_transaction st
     INNER JOIN sales sn ON st.lhs_node = sn.id
-    WHERE st.inside_product = :node_id AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0;
+    WHERE st.inside_product = :node_id AND sn.finished = 1 AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0;
     )");
 }

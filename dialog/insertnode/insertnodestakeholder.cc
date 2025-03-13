@@ -15,9 +15,8 @@ InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QStandardI
     SignalBlocker blocker(this);
 
     IniDialog(arg.unit_model, employee_model, amount_decimal);
-    IniRuleGroup();
     IniTypeGroup();
-    IniData(arg.node);
+    IniData();
     IniConnect();
 }
 
@@ -47,18 +46,15 @@ void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QStandardI
 void InsertNodeStakeholder::IniConnect()
 {
     connect(ui->lineEditName, &QLineEdit::textEdited, this, &InsertNodeStakeholder::RNameEdited);
-    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeStakeholder::RRuleGroupClicked);
     connect(type_group_, &QButtonGroup::idClicked, this, &InsertNodeStakeholder::RTypeGroupClicked);
 }
 
-void InsertNodeStakeholder::IniData(Node* node)
+void InsertNodeStakeholder::IniData()
 {
     int unit_index { ui->comboUnit->findData(node_->unit) };
     ui->comboUnit->setCurrentIndex(unit_index);
 
-    IniRule(node->rule);
     ui->rBtnLeaf->setChecked(true);
-
     ui->pBtnOk->setEnabled(false);
 }
 
@@ -68,29 +64,6 @@ void InsertNodeStakeholder::IniTypeGroup()
     type_group_->addButton(ui->rBtnLeaf, 0);
     type_group_->addButton(ui->rBtnBranch, 1);
     type_group_->addButton(ui->rBtnSupport, 2);
-}
-
-void InsertNodeStakeholder::IniRuleGroup()
-{
-    rule_group_ = new QButtonGroup(this);
-    rule_group_->addButton(ui->rBtnIS, 0);
-    rule_group_->addButton(ui->rBtnMS, 1);
-}
-
-void InsertNodeStakeholder::IniRule(bool rule)
-{
-    const int kRule { static_cast<int>(rule) };
-
-    switch (kRule) {
-    case 0:
-        ui->rBtnIS->setChecked(true);
-        break;
-    case 1:
-        ui->rBtnMS->setChecked(true);
-        break;
-    default:
-        break;
-    }
 }
 
 void InsertNodeStakeholder::RNameEdited(const QString& arg1)

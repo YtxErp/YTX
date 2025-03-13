@@ -148,6 +148,7 @@ bool NodeModelT::setData(const QModelIndex& index, const QVariant& value, int ro
         break;
     case NodeEnumT::kRule:
         UpdateRuleFPTO(node, value.toBool());
+        emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumT::kQuantity)), index.siblingAtColumn(std::to_underlying(NodeEnumT::kAmount)));
         break;
     case NodeEnumT::kType:
         UpdateTypeFPTS(node, value.toInt());

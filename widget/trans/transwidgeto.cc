@@ -152,6 +152,11 @@ void TransWidgetO::IniWidget()
     ui->dSpinSecond->setDecimals(settings_->common_decimal);
     ui->dSpinFirst->setDecimals(settings_->common_decimal);
 
+    ui->dSpinDiscount->setAlignment(Qt::AlignRight | Qt::AlignBottom);
+    ui->dSpinSettlement->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    ui->dSpinFirst->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->dSpinSecond->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
     ui->tableViewO->setFocus();
 
     ui->chkBoxBranch->setEnabled(false);

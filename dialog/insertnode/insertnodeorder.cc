@@ -152,6 +152,11 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->dSpinSecond->setDecimals(settings->common_decimal);
     ui->dSpinFirst->setDecimals(settings->common_decimal);
 
+    ui->dSpinDiscount->setAlignment(Qt::AlignRight | Qt::AlignBottom);
+    ui->dSpinSettlement->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    ui->dSpinFirst->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->dSpinSecond->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
     ui->pBtnSaveOrder->setEnabled(false);
     ui->pBtnFinishOrder->setEnabled(false);
     ui->rBtnSP->setChecked(true);

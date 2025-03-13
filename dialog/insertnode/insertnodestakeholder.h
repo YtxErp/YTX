@@ -57,15 +57,12 @@ private slots:
 private:
     void IniDialog(QStandardItemModel* unit_model, QStandardItemModel* employee_model, int common_decimal);
     void IniConnect();
-    void IniData(Node* node);
+    void IniData();
     void IniTypeGroup();
-    void IniRuleGroup();
-    void IniRule(bool rule);
 
 private:
     Ui::InsertNodeStakeholder* ui;
     Node* node_ {};
-    QButtonGroup* rule_group_ {};
     QButtonGroup* type_group_ {};
 
     CString& parent_path_ {};

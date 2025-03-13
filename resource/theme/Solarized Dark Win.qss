@@ -6,10 +6,9 @@
     color: #93A1A1;
     background-color: #002B36;
     alternate-background-color: #073642;
-    selection-background-color: #586E75;
-    selection-color: #EEE8D5;
-    gridline-color: #93A1A1;
-    placeholder-text-color: #586E75;
+    selection-color: #FDF6E3;
+    gridline-color: #657B83;
+    placeholder-text-color: #657B83;
     font-size: 12pt;
 }
 
@@ -39,7 +38,7 @@ QPlainTextEdit, QLineEdit,
 QTreeView, QTableView, QListView,
 QHeaderView::section, QTabBar::tab, QWidget#widgetProperty,
 QToolBar, QToolTip {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
 }
 
 /*-------------------------------------disabled border-----------------------------------------------*/
@@ -90,7 +89,7 @@ QPushButton#pBtnSaveOrder {
 /*-------------------------------------border add-----------------------------------------------*/
 
 QDialog QComboBox, QDialog QLineEdit, QSpinBox#spinAmountDecimal, QSpinBox#spinCommonDecimal {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
 }
 
 QTableView QComboBox, QTableView QLineEdit
@@ -148,25 +147,29 @@ QToolTip, QHeaderView::section, QDialog QCheckBox::indicator, QMenuBar::item:sel
 }
 
 QToolBar::separator {
-    background-color: #93A1A1;
+    background-color: #657B83;
 }
 
 QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background-color: transparent;
 }
 
-QTreeView::item:selected, QListView::item:selected, QTreeView QCheckBox, QTableView QCheckBox, QTreeView::branch:selected {
+QTreeView::item:selected, QTableView::item:selected, QListView::item:selected, QTreeView QCheckBox, QTableView QCheckBox, QTreeView::branch:selected {
     background-color: #586E75;
+}
+
+QLineEdit, QDateTimeEdit, QDoubleSpinBox, QSpinBox {
+    selection-background-color: transparent;
 }
 
 /*-------------------------------------color---------------------------------------------------*/
 
-QToolTip, QTabBar::tab:selected, QMenuBar::item:selected, QPushButton#pBtnFinishOrder:checked {
-    color: #2BB3EB;
+QToolTip, QPushButton#pBtnFinishOrder:checked {
+    color: #93A1A1;
 }
 
-QTableView::item:selected {
-    color: #EEE8D5;
+QTabBar::tab:selected, QMenuBar::item:selected {
+    color: #2BB3EB;
 }
 
 /*-------------------------------------------arrow--------------------------------------------------*/
@@ -232,12 +235,15 @@ QMenuBar::item {
     image: url(:/solarized_dark/solarized_dark/check.png);
 }
 
-QRadioButton::indicator:unchecked:disabled, QCheckBox::indicator:unchecked:disabled {
-    image: url(:/solarized_dark/solarized_dark/uncheck-disabled.png);
+/*-------------------------------------------------------------QRadioButton-----------------------------------------------------------*/
+
+QRadioButton::indicator {
+    width: 0px;
+    height: 0px;
 }
 
-QRadioButton::indicator:checked:disabled, QCheckBox::indicator:checked:disabled {
-    image: url(:/solarized_dark/solarized_dark/check-disabled.png);
+QDialog QRadioButton {
+    min-width: 2em;
 }
 
 /*--------------------------------------branch--------------------------------------------------*/
@@ -324,7 +330,7 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle:horizontal {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
     min-width: 24px;
 }
 
@@ -333,7 +339,7 @@ QScrollBar:handle:horizontal:disabled {
 }
 
 QScrollBar::add-line:horizontal {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
     border-right: none;
     width: 24px;
     subcontrol-position: right;
@@ -346,7 +352,7 @@ QScrollBar::add-line:horizontal:disabled {
 }
 
 QScrollBar::sub-line:horizontal {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
     border-left: none;
     width: 24px;
     subcontrol-position: left;
@@ -376,9 +382,17 @@ QTableView#searchViewTrans QScrollBar::add-line:horizontal,
 QTableView#searchViewTrans QScrollBar::sub-line:horizontal,
 QTableView#searchViewNode QScrollBar::handle:horizontal,
 QTableView#searchViewNode QScrollBar::add-line:horizontal,
-QTableView#searchViewNode QScrollBar::sub-line:horizontal
+QTableView#searchViewNode QScrollBar::sub-line:horizontal,
+QTableView#tableView QScrollBar::handle:horizontal,
+QTableView#tableView QScrollBar::add-line:horizontal,
+QTableView#tableView QScrollBar::sub-line:horizontal
 {
     border-bottom: none;
+}
+
+QAbstractScrollArea::corner {
+    border-left: 1px solid #657B83;
+    border-top: 1px solid #657B83;
 }
 
 /*-----------------------------------------QScrollBar Vertical-----------------------------------------------*/
@@ -395,7 +409,7 @@ QScrollBar:vertical {
 }
 
 QScrollBar::handle:vertical {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
     border-right: none;
     min-height: 24px;
 }
@@ -406,7 +420,7 @@ QScrollBar:handle:vertical:disabled {
 }
 
 QScrollBar::sub-line:vertical {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
     border-right: none;
     border-top: none;
     height: 24px;
@@ -421,7 +435,7 @@ QScrollBar::sub-line:vertical:disabled {
 }
 
 QScrollBar::add-line:vertical {
-    border: 1px solid #93A1A1;
+    border: 1px solid #657B83;
     border-right: none;
     border-bottom: none;
     height: 24px;
@@ -429,7 +443,7 @@ QScrollBar::add-line:vertical {
     subcontrol-origin: margin;
 }
 
-QScrollBar::add-line:vertical {
+QScrollBar::add-line:vertical:disabled {
     border: 1px solid #586E75;
     border-right: none;
     border-bottom: none;

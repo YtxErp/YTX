@@ -44,20 +44,19 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
-    bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
-
     void UpdateTree(const QDateTime& start, const QDateTime& end);
-    QString GetPath(int node_id) const override;
+    QString Path(int node_id) const override;
     void RetrieveNode(int node_id) override;
 
-    Node* GetNodeO(int node_id) const override;
+    Node* GetNode(int node_id) const override;
 
 protected:
-    bool UpdateRuleFPTO(Node* node, bool value) override; // charge = 0, refund = 1
+    bool UpdateRule(Node* node, bool value) override; // charge = 0, refund = 1
     bool UpdateUnit(Node* node, int value) override; // Cash = 0, Monthly = 1, Pending = 2
     bool UpdateNameFunction(Node* node, CString& value) override;
     void ConstructTree() override;
+    void InsertPath(Node* /*node*/) override { };
+    void RemovePath(Node* node, Node* parent_node) override;
     bool UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
 
 private:

@@ -69,8 +69,8 @@ void NodeWidgetPT::UpdateDynamicValue(int lhs_node_id, int rhs_node_id)
     if (lhs_node_id == 0 && rhs_node_id == 0)
         return;
 
-    const double lhs_total { model_->InitialTotalFPT(lhs_node_id) };
-    const double rhs_total { model_->InitialTotalFPT(rhs_node_id) };
+    const double lhs_total { model_->InitialTotal(lhs_node_id) };
+    const double rhs_total { model_->InitialTotal(rhs_node_id) };
 
     const auto& operation { settings_.operation.isEmpty() ? kPlus : settings_.operation };
     const double total { Operate(lhs_total, rhs_total, operation) };
@@ -83,7 +83,7 @@ void NodeWidgetPT::UpdateStaticValue(int node_id)
     if (node_id == 0)
         return;
 
-    ui->dspin_box_static_->setValue(model_->InitialTotalFPT(node_id));
+    ui->dspin_box_static_->setValue(model_->InitialTotal(node_id));
 }
 
 double NodeWidgetPT::Operate(double lhs, double rhs, const QString& operation)

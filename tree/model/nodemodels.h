@@ -40,24 +40,21 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
-    bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
-
     QList<int> PartyList(CString& text, int unit) const;
-    QStandardItemModel* UnitModelPS(int unit) const override;
-    void UpdateSeparatorFPTS(CString& old_separator, CString& new_separator) override;
+    QStandardItemModel* UnitModel(int unit) const override;
+    void UpdateSeparator(CString& old_separator, CString& new_separator) override;
 
 protected:
-    void ConstructTree() override;
-    bool UpdateTypeFPTS(Node* node, int value) override;
+    void RemovePathLeaf(int node_id, int unit) override;
+    void InsertPathLeaf(int node_id, CString& path, int unit) override;
+
+    void SortModel() override;
+    void IniModel() override;
+
     bool UpdateUnit(Node* node, int value) override;
     bool UpdateNameFunction(Node* node, CString& value) override;
     bool UpdateAncestorValue(
         Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0) override;
-
-private:
-    void RemoveItem(int node_id, int unit);
-    void AddItem(int node_id, CString& path, int unit);
 
 private:
     QStandardItemModel* cmodel_ {};

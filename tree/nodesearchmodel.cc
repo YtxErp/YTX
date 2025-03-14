@@ -171,7 +171,7 @@ void NodeSearchModel::Query(const QString& text)
     case Section::kProduct:
     case Section::kTask:
     case Section::kStakeholder:
-        tree_model_->SearchNodeFPTS(node_list_, sql_->SearchNodeName(text));
+        tree_model_->SearchNode(node_list_, sql_->SearchNodeName(text));
         break;
     default:
         break;

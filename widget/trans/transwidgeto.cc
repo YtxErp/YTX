@@ -132,10 +132,10 @@ void TransWidgetO::RUpdateLeafValue(int node_id, double initial_delta, double fi
 
 void TransWidgetO::IniWidget()
 {
-    pmodel_ = stakeholder_node_->UnitModelPS(party_unit_);
+    pmodel_ = stakeholder_node_->UnitModel(party_unit_);
     ui->comboParty->setModel(pmodel_);
 
-    emodel_ = stakeholder_node_->UnitModelPS(std::to_underlying(UnitS::kEmp));
+    emodel_ = stakeholder_node_->UnitModel(std::to_underlying(UnitS::kEmp));
     ui->comboEmployee->setModel(emodel_);
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);

@@ -504,7 +504,7 @@ void MainWindow::CreateLeafFPTS(PNodeModel tree_model, TransWgtHash* trans_wgt_h
     auto* tab_bar { ui->tabWidget->tabBar() };
 
     tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { section, node_id }));
-    tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
+    tab_bar->setTabToolTip(tab_index, tree_model->Path(node_id));
 
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TransEnum::kDescription));
@@ -547,7 +547,7 @@ void MainWindow::CreateSupport(PNodeModel tree_model, SupWgtHash* sup_wgt_hash, 
     auto* tab_bar { ui->tabWidget->tabBar() };
 
     tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { section, node_id }));
-    tab_bar->setTabToolTip(tab_index, tree_model->GetPath(node_id));
+    tab_bar->setTabToolTip(tab_index, tree_model->Path(node_id));
 
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TransSearchEnum::kDescription));
@@ -579,7 +579,7 @@ void MainWindow::CreateLeafO(PNodeModel tree_model, TransWgtHash* trans_wgt_hash
     if (section != Section::kSales && section != Section::kPurchase)
         return;
 
-    Node* node { tree_model->GetNodeO(node_id) };
+    Node* node { tree_model->GetNode(node_id) };
     const int party_id { node->party };
 
     if (party_id <= 0)
@@ -597,7 +597,7 @@ void MainWindow::CreateLeafO(PNodeModel tree_model, TransWgtHash* trans_wgt_hash
     auto* tab_bar { ui->tabWidget->tabBar() };
 
     tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { section, node_id }));
-    tab_bar->setTabToolTip(tab_index, stakeholder_tree_->Model()->GetPath(party_id));
+    tab_bar->setTabToolTip(tab_index, stakeholder_tree_->Model()->Path(party_id));
 
     auto view { widget->View() };
     SetTableView(view, std::to_underlying(TransEnumO::kDescription));
@@ -701,14 +701,14 @@ void MainWindow::DelegateFPT(PTableView table_view, PNodeModel tree_model, CSett
 void MainWindow::DelegateS(PTableView table_view) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
-    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
+    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModel(), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TransEnumS::kInsideProduct), inside_product);
 }
 
 void MainWindow::DelegateO(PTableView table_view, CSettings* settings) const
 {
     auto* product_tree_model { product_tree_->Model().data() };
-    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
+    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModel(), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TransEnumO::kInsideProduct), inside_product);
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
@@ -877,7 +877,7 @@ void MainWindow::DelegateS(PTreeView tree_view, CSettings& settings) const
     auto* deadline { new TreeDateTime(kDD, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kDeadline), deadline);
 
-    auto* employee { new SpecificUnit(stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModelPS(std::to_underlying(UnitS::kEmp)), tree_view) };
+    auto* employee { new SpecificUnit(stakeholder_tree_->Model(), stakeholder_tree_->Model()->UnitModel(std::to_underlying(UnitS::kEmp)), tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumS::kEmployee), employee);
 
     auto* unit { new TreeCombo(stakeholder_data_.info.unit_map, stakeholder_data_.info.unit_model, tree_view) };
@@ -902,7 +902,7 @@ void MainWindow::DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings
 
     auto stakeholder_tree_model { stakeholder_tree_->Model() };
 
-    auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModelPS(std::to_underlying(UnitS::kEmp)), tree_view) };
+    auto* employee { new SpecificUnit(stakeholder_tree_model, stakeholder_tree_model->UnitModel(std::to_underlying(UnitS::kEmp)), tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kEmployee), employee);
 
     auto* name { new OrderNameR(stakeholder_tree_model, tree_view) };
@@ -1056,6 +1056,7 @@ void MainWindow::EnableAction(bool enable) const
     ui->actionExportExcel->setEnabled(enable);
     ui->actionExportYTX->setEnabled(enable);
     ui->actionStatement->setEnabled(enable);
+    ui->actionSettle->setEnabled(enable);
 }
 
 QStandardItemModel* MainWindow::CreateModelFromList(QStringList& list, QObject* parent)
@@ -1153,7 +1154,7 @@ void MainWindow::RemoveBranch(PNodeModel tree_model, const QModelIndex& index, i
 {
     QMessageBox msg {};
     msg.setIcon(QMessageBox::Question);
-    msg.setText(tr("Remove %1").arg(tree_model->GetPath(node_id)));
+    msg.setText(tr("Remove %1").arg(tree_model->Path(node_id)));
     msg.setInformativeText(tr("The branch will be removed, and its direct children will be promoted to the same level."));
     msg.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
 
@@ -1473,7 +1474,7 @@ void MainWindow::DelegateStatementSecondary(PTableView table_view, CSettings* se
     table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kOutsideProduct), outside_product);
 
     auto product_tree_model { product_tree_->Model() };
-    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModelPS(), table_view) };
+    auto* inside_product { new SpecificUnit(product_tree_model, product_tree_model->UnitModel(), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementSecondaryEnum::kInsideProduct), inside_product);
 }
 
@@ -1755,6 +1756,7 @@ void MainWindow::SetAction() const
     ui->actionCheckReverse->setIcon(QIcon(":/solarized_dark/solarized_dark/check-reverse.png"));
     ui->actionAppendTrans->setIcon(QIcon(":/solarized_dark/solarized_dark/append_trans.png"));
     ui->actionStatement->setIcon(QIcon(":/solarized_dark/solarized_dark/statement.png"));
+    ui->actionSettle->setIcon(QIcon(":/solarized_dark/solarized_dark/settle.png"));
 
     ui->actionCheckAll->setProperty(kCheck, std::to_underlying(Check::kAll));
     ui->actionCheckNone->setProperty(kCheck, std::to_underlying(Check::kNone));
@@ -1971,13 +1973,13 @@ void MainWindow::EditNodeFPTS(const QModelIndex& index, int node_id)
 
     const auto& parent { index.parent() };
     const int parent_id { parent.isValid() ? parent.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() : -1 };
-    auto parent_path { model->GetPath(parent_id) };
+    auto parent_path { model->Path(parent_id) };
 
     if (!parent_path.isEmpty())
         parent_path += interface_.separator;
 
     CString name { model->Name(node_id) };
-    const auto children_name { model->ChildrenNameFPTS(parent_id) };
+    const auto children_name { model->ChildrenName(parent_id) };
 
     auto* edit_name { new EditNodeName(name, parent_path, children_name, this) };
     connect(edit_name, &QDialog::accepted, this, [=]() { model->UpdateName(node_id, edit_name->GetName()); });
@@ -1989,11 +1991,11 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
     auto tree_model { node_widget_->Model() };
     auto* unit_model { data_->info.unit_model };
 
-    auto parent_path { tree_model->GetPath(parent_id) };
+    auto parent_path { tree_model->Path(parent_id) };
     if (!parent_path.isEmpty())
         parent_path += interface_.separator;
 
-    const auto name_list { tree_model->ChildrenNameFPTS(parent_id) };
+    const auto name_list { tree_model->ChildrenName(parent_id) };
 
     QDialog* dialog {};
     const auto arg { InsertNodeArgFPTS { node, unit_model, parent_path, name_list } };
@@ -2008,7 +2010,7 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
         break;
     case Section::kStakeholder:
         node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
-        dialog = new InsertNodeStakeholder(arg, tree_model->UnitModelPS(std::to_underlying(UnitS::kEmp)), settings_->amount_decimal, this);
+        dialog = new InsertNodeStakeholder(arg, tree_model->UnitModel(std::to_underlying(UnitS::kEmp)), settings_->amount_decimal, this);
         break;
     case Section::kProduct:
         dialog = new InsertNodeProduct(arg, settings_->common_decimal, this);
@@ -2107,7 +2109,7 @@ void MainWindow::REditNodeDocument(const QModelIndex& index)
     const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
     const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
 
-    auto* document_pointer { node_widget_->Model()->GetDocumentPointer(node_id) };
+    auto* document_pointer { node_widget_->Model()->DocumentPointer(node_id) };
     if (!document_pointer)
         return;
 
@@ -2172,7 +2174,7 @@ void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
             return;
 
     } else {
-        nodes = model->ChildrenIDFPTS(node_id);
+        nodes = model->ChildrenID(node_id);
     }
 
     QString path {};
@@ -2181,7 +2183,7 @@ void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
         const int kNodeID { tab_bar->tabData(index).value<Tab>().node_id };
 
         if (widget->isTabVisible(index) && nodes.contains(kNodeID)) {
-            path = model->GetPath(kNodeID);
+            path = model->Path(kNodeID);
 
             if (!branch) {
                 tab_bar->setTabText(index, name);
@@ -2247,10 +2249,10 @@ void MainWindow::UpdateInterface(CInterface& interface)
     auto old_separator { interface_.separator };
 
     if (old_separator != new_separator) {
-        finance_tree_->Model()->UpdateSeparatorFPTS(old_separator, new_separator);
-        stakeholder_tree_->Model()->UpdateSeparatorFPTS(old_separator, new_separator);
-        product_tree_->Model()->UpdateSeparatorFPTS(old_separator, new_separator);
-        task_tree_->Model()->UpdateSeparatorFPTS(old_separator, new_separator);
+        finance_tree_->Model()->UpdateSeparator(old_separator, new_separator);
+        stakeholder_tree_->Model()->UpdateSeparator(old_separator, new_separator);
+        product_tree_->Model()->UpdateSeparator(old_separator, new_separator);
+        task_tree_->Model()->UpdateSeparator(old_separator, new_separator);
 
         auto* widget { ui->tabWidget };
         int count { ui->tabWidget->count() };
@@ -2299,7 +2301,7 @@ void MainWindow::UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool br
                     continue;
 
                 QString name = stakeholder_model->Name(order_party);
-                QString path = stakeholder_model->GetPath(order_party);
+                QString path = stakeholder_model->Path(order_party);
 
                 // 收集需要更新的信息
                 updates.append(std::make_tuple(index, name, path));
@@ -2482,7 +2484,7 @@ void MainWindow::RSyncInt(int node_id, int column, const QVariant& value)
     for (int index = 0; index != count; ++index) {
         if (widget->isTabVisible(index) && tab_bar->tabData(index).value<Tab>().node_id == node_id) {
             tab_bar->setTabText(index, model->Name(party_id));
-            tab_bar->setTabToolTip(index, model->GetPath(party_id));
+            tab_bar->setTabToolTip(index, model->Path(party_id));
         }
     }
 }
@@ -2593,7 +2595,8 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     const bool is_node { MainWindowUtils::IsNodeWidget(widget) };
     const bool is_leaf_fpts { MainWindowUtils::IsLeafWidgetFPTS(widget) };
     const bool is_leaf_order { MainWindowUtils::IsLeafWidgetO(widget) };
-    const bool is_node_order { start_ == Section::kSales || start_ == Section::kPurchase };
+    const bool is_support { MainWindowUtils::IsSupportWidget(widget) };
+    const bool is_order_section { start_ == Section::kSales || start_ == Section::kPurchase };
 
     bool finished {};
 
@@ -2603,15 +2606,16 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     }
 
     ui->actionAppendNode->setEnabled(is_node);
-    ui->actionEditNode->setEnabled(is_node && !is_node_order);
+    ui->actionEditNode->setEnabled(is_node && !is_order_section);
 
     ui->actionCheckAll->setEnabled(is_leaf_fpts);
     ui->actionCheckNone->setEnabled(is_leaf_fpts);
     ui->actionCheckReverse->setEnabled(is_leaf_fpts);
     ui->actionJump->setEnabled(is_leaf_fpts);
-    ui->actionSupportJump->setEnabled(is_leaf_fpts);
+    ui->actionSupportJump->setEnabled(is_leaf_fpts || is_support);
 
-    ui->actionStatement->setEnabled(is_node_order);
+    ui->actionStatement->setEnabled(is_order_section);
+    ui->actionSettle->setEnabled(is_order_section);
 
     ui->actionAppendTrans->setEnabled(is_leaf_fpts || (is_leaf_order && !finished));
     ui->actionRemove->setEnabled(is_node || is_leaf_fpts || (is_leaf_order && !finished));
@@ -2752,3 +2756,5 @@ void MainWindow::on_actionExportExcel_triggered()
 
     watcher->setFuture(future);
 }
+
+void MainWindow::on_actionSettle_triggered() { }

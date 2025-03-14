@@ -38,7 +38,7 @@ void SupportID::setModelData(QWidget* editor, QAbstractItemModel* model, const Q
 
 void SupportID::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    const QString& text { tree_model_->GetPath(index.data().toInt()) };
+    const QString& text { tree_model_->Path(index.data().toInt()) };
     if (text.isEmpty())
         return QStyledItemDelegate::paint(painter, option, index);
 
@@ -52,13 +52,13 @@ void SupportID::paint(QPainter* painter, const QStyleOptionViewItem& option, con
 
 QSize SupportID::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    const QString& text = tree_model_->GetPath(index.data().toInt());
+    const QString& text = tree_model_->Path(index.data().toInt());
     return CalculateTextSize(text, option);
 }
 
 void SupportID::updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    const QSize text_size { CalculateTextSize(tree_model_->GetPath(index.data().toInt()), option) };
+    const QSize text_size { CalculateTextSize(tree_model_->Path(index.data().toInt()), option) };
     const int width { std::max(option.rect.width(), text_size.width()) };
     const int height { std::max(option.rect.height(), text_size.height()) };
 

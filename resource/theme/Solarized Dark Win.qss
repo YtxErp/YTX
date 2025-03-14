@@ -7,6 +7,7 @@
     background-color: #002B36;
     alternate-background-color: #073642;
     selection-color: #FDF6E3;
+    selection-background-color: #586E75;
     gridline-color: #657B83;
     placeholder-text-color: #657B83;
     font-size: 12pt;
@@ -158,7 +159,7 @@ QTreeView::item:selected, QTableView::item:selected, QListView::item:selected, Q
     background-color: #586E75;
 }
 
-QLineEdit, QDateTimeEdit, QDoubleSpinBox, QSpinBox {
+QLineEdit, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QComboBox:editable {
     selection-background-color: transparent;
 }
 

@@ -243,6 +243,8 @@
    <addaction name="actionCheckNone"/>
    <addaction name="separator"/>
    <addaction name="actionStatement"/>
+   <addaction name="actionSettle"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionInsertNode">
    <property name="text">
@@ -426,6 +428,14 @@
   <action name="actionStatement">
    <property name="text">
     <string>Statement</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSettle">
+   <property name="text">
+    <string>Settle</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

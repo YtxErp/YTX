@@ -44,7 +44,7 @@
         <file>solarized_dark/edit.png</file>
         <file>solarized_dark/remove.png</file>
         <file>solarized_dark/append_trans.png</file>
-        <file>solarized_dark/payment.png</file>
+        <file>solarized_dark/settle.png</file>
         <file>solarized_dark/statement.png</file>
     </qresource>
 </RCC>

@@ -1,6 +1,9 @@
 #include "nodemodel.h"
 
 #include <QQueue>
+#include <QtConcurrent>
+
+#include "global/resourcepool.h"
 
 NodeModel::NodeModel(CNodeModelArg& arg, QObject* parent)
     : QAbstractItemModel(parent)
@@ -10,7 +13,6 @@ NodeModel::NodeModel(CNodeModelArg& arg, QObject* parent)
     , separator_ { arg.separator }
 {
     NodeModelUtils::InitializeRoot(root_, arg.default_unit);
-    support_model_ = new QStandardItemModel(this);
 }
 
 NodeModel::~NodeModel() { delete root_; }
@@ -69,7 +71,7 @@ QMimeData* NodeModel::mimeData(const QModelIndexList& indexes) const
     return mime_data;
 }
 
-QStringList* NodeModel::GetDocumentPointer(int node_id) const
+QStringList* NodeModel::DocumentPointer(int node_id) const
 {
     auto it { node_hash_.constFind(node_id) };
     if (it == node_hash_.constEnd())
@@ -78,7 +80,7 @@ QStringList* NodeModel::GetDocumentPointer(int node_id) const
     return &it.value()->document;
 }
 
-QStringList NodeModel::ChildrenNameFPTS(int node_id) const
+QStringList NodeModel::ChildrenName(int node_id) const
 {
     auto it { node_hash_.constFind(node_id) };
 
@@ -94,44 +96,22 @@ QStringList NodeModel::ChildrenNameFPTS(int node_id) const
     return list;
 }
 
-void NodeModel::CopyNodeFPTS(Node* tmp_node, int node_id) const
-{
-    if (!tmp_node)
-        return;
+void NodeModel::LeafPathBranchPathModel(QStandardItemModel* model) const { NodeModelUtils::LeafPathBranchPathModel(leaf_path_, branch_path_, model); }
 
-    auto it = node_hash_.constFind(node_id);
-    if (it == node_hash_.constEnd() || !it.value())
-        return;
-
-    *tmp_node = *(it.value());
-}
-
-void NodeModel::LeafPathBranchPathModelFPT(QStandardItemModel* model) const { NodeModelUtils::LeafPathBranchPathModelFPT(leaf_path_, branch_path_, model); }
-
-void NodeModel::LeafPathFilterModelFPTS(QStandardItemModel* model, int specific_unit, int exclude_node) const
-{
-    NodeModelUtils::LeafPathFilterModelFPTS(node_hash_, leaf_path_, model, specific_unit, exclude_node);
-}
-
-void NodeModel::SupportPathFilterModelFPTS(QStandardItemModel* model, int specific_node, Filter filter) const
-{
-    NodeModelUtils::SupportPathFilterModelFPTS(support_path_, model, specific_node, filter);
-}
-
-void NodeModel::UpdateSeparatorFPTS(CString& old_separator, CString& new_separator)
+void NodeModel::UpdateSeparator(CString& old_separator, CString& new_separator)
 {
     if (old_separator == new_separator || new_separator.isEmpty())
         return;
 
-    NodeModelUtils::UpdatePathSeparatorFPTS(old_separator, new_separator, leaf_path_);
-    NodeModelUtils::UpdatePathSeparatorFPTS(old_separator, new_separator, branch_path_);
-    NodeModelUtils::UpdatePathSeparatorFPTS(old_separator, new_separator, support_path_);
+    NodeModelUtils::UpdatePathSeparator(old_separator, new_separator, leaf_path_);
+    NodeModelUtils::UpdatePathSeparator(old_separator, new_separator, branch_path_);
+    NodeModelUtils::UpdatePathSeparator(old_separator, new_separator, support_path_);
 
-    NodeModelUtils::UpdateModelSeparatorFPTS(leaf_model_, leaf_path_);
-    NodeModelUtils::UpdateModelSeparatorFPTS(support_model_, support_path_);
+    NodeModelUtils::UpdateModelSeparator(leaf_model_, leaf_path_);
+    NodeModelUtils::UpdateModelSeparator(support_model_, support_path_);
 }
 
-void NodeModel::SearchNodeFPTS(QList<const Node*>& node_list, const QList<int>& node_id_list) const
+void NodeModel::SearchNode(QList<const Node*>& node_list, const QList<int>& node_id_list) const
 {
     node_list.reserve(node_id_list.size());
 
@@ -186,7 +166,7 @@ void NodeModel::UpdateName(int node_id, CString& new_name)
     emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
 }
 
-QString NodeModel::GetPath(int node_id) const
+QString NodeModel::Path(int node_id) const
 {
     if (auto it = leaf_path_.constFind(node_id); it != leaf_path_.constEnd())
         return it.value();
@@ -198,6 +178,85 @@ QString NodeModel::GetPath(int node_id) const
         return it.value();
 
     return {};
+}
+
+bool NodeModel::InsertNode(int row, const QModelIndex& parent, Node* node)
+{
+    if (row <= -1)
+        return false;
+
+    auto* parent_node { GetNodeByIndex(parent) };
+
+    beginInsertRows(parent, row, row);
+    parent_node->children.insert(row, node);
+    endInsertRows();
+
+    sql_->WriteNode(parent_node->id, node);
+    node_hash_.insert(node->id, node);
+
+    InsertPath(node);
+    SortModel(node->type);
+
+    emit SSearch();
+    return true;
+}
+
+bool NodeModel::RemoveNode(int row, const QModelIndex& parent)
+{
+    if (row <= -1 || row >= rowCount(parent))
+        return false;
+
+    auto* parent_node { GetNodeByIndex(parent) };
+    auto* node { parent_node->children.at(row) };
+
+    const int node_id { node->id };
+
+    beginRemoveRows(parent, row, row);
+    parent_node->children.removeOne(node);
+    endRemoveRows();
+
+    RemovePath(node, parent_node);
+
+    ResourcePool<Node>::Instance().Recycle(node);
+    node_hash_.remove(node_id);
+
+    emit SSearch();
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
+    emit SUpdateStatusValue();
+
+    return true;
+}
+
+void NodeModel::RemovePath(Node* node, Node* parent_node)
+{
+    const int node_id { node->id };
+
+    switch (node->type) {
+    case kTypeBranch: {
+        for (auto* child : std::as_const(node->children)) {
+            child->parent = parent_node;
+            parent_node->children.emplace_back(child);
+        }
+
+        NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
+        NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
+
+        branch_path_.remove(node_id);
+        emit SUpdateName(node_id, node->name, true);
+
+    } break;
+    case kTypeLeaf: {
+        leaf_path_.remove(node_id);
+        UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
+        RemovePathLeaf(node_id, node->unit);
+    } break;
+    case kTypeSupport: {
+        support_path_.remove(node_id);
+        NodeModelUtils::RemoveItem(support_model_, node_id);
+    } break;
+    default:
+        break;
+    }
 }
 
 Node* NodeModel::GetNodeByIndex(const QModelIndex& index) const
@@ -213,7 +272,7 @@ bool NodeModel::UpdateNameFunction(Node* node, CString& value)
     node->name = value;
     sql_->WriteField(info_.node, kName, value, node->id);
 
-    NodeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
+    NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
 
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
@@ -221,7 +280,52 @@ bool NodeModel::UpdateNameFunction(Node* node, CString& value)
     return true;
 }
 
-bool NodeModel::UpdateRuleFPTO(Node* node, bool value)
+void NodeModel::ConstructTree()
+{
+    sql_->ReadNode(node_hash_);
+    const auto& const_node_hash { std::as_const(node_hash_) };
+
+    for (auto* node : const_node_hash) {
+        if (!node->parent) {
+            node->parent = root_;
+            root_->children.emplace_back(node);
+        }
+    }
+
+    auto* watcher { new QFutureWatcher<void>(this) };
+
+    QFuture<void> future = QtConcurrent::run([this, &const_node_hash]() {
+        for (auto* node : const_node_hash) {
+            InsertPath(node);
+
+            if (node->type == kTypeLeaf)
+                UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
+        }
+    });
+
+    connect(watcher, &QFutureWatcher<void>::finished, this, [this, watcher]() {
+        SortModel();
+        watcher->deleteLater();
+    });
+
+    watcher->setFuture(future);
+}
+
+void NodeModel::SortModel()
+{
+    support_model_->sort(0);
+    leaf_model_->sort(0);
+}
+
+void NodeModel::IniModel()
+{
+    leaf_model_ = new QStandardItemModel(this);
+    support_model_ = new QStandardItemModel(this);
+
+    NodeModelUtils::AppendItem(support_model_, 0, {});
+}
+
+bool NodeModel::UpdateRule(Node* node, bool value)
 {
     if (node->rule == value)
         return false;
@@ -241,39 +345,37 @@ bool NodeModel::UpdateRuleFPTO(Node* node, bool value)
     return true;
 }
 
-bool NodeModel::UpdateTypeFPTS(Node* node, int value)
+bool NodeModel::UpdateType(Node* node, int value)
 {
     if (node->type == value)
         return false;
 
     const int node_id { node->id };
-    QString message { tr("Cannot change %1 type,").arg(GetPath(node_id)) };
+    QString message { tr("Cannot change %1 type,").arg(Path(node_id)) };
 
-    if (NodeModelUtils::HasChildrenFPTS(node, message))
+    if (NodeModelUtils::HasChildren(node, message))
         return false;
 
-    if (NodeModelUtils::IsOpenedFPTS(leaf_wgt_hash_, node_id, message))
+    if (NodeModelUtils::IsOpened(leaf_wgt_hash_, node_id, message))
         return false;
 
-    if (NodeModelUtils::IsInternalReferencedFPTS(sql_, node_id, message))
+    if (NodeModelUtils::IsInternalReferenced(sql_, node_id, message))
         return false;
 
-    if (NodeModelUtils::IsExternalReferencedPS(sql_, node_id, message))
+    if (NodeModelUtils::IsExternalReferenced(sql_, node_id, message))
         return false;
-
-    QString path {};
 
     switch (node->type) {
     case kTypeBranch:
-        path = branch_path_.take(node_id);
+        branch_path_.remove(node_id);
         break;
     case kTypeLeaf:
-        NodeModelUtils::RemoveItemFromModel(leaf_model_, node_id);
-        path = leaf_path_.take(node_id);
+        leaf_path_.remove(node_id);
+        RemovePathLeaf(node_id, node->unit);
         break;
     case kTypeSupport:
-        NodeModelUtils::RemoveItemFromModel(support_model_, node_id);
-        path = support_path_.take(node_id);
+        support_path_.remove(node_id);
+        NodeModelUtils::RemoveItem(support_model_, node_id);
         break;
     default:
         break;
@@ -282,24 +384,53 @@ bool NodeModel::UpdateTypeFPTS(Node* node, int value)
     node->type = value;
     sql_->WriteField(info_.node, kType, value, node_id);
 
-    switch (value) {
-    case kTypeBranch:
-        branch_path_.insert(node_id, path);
-        break;
+    InsertPath(node);
+    SortModel(node->type);
+    return true;
+}
+
+void NodeModel::SortModel(int type)
+{
+    switch (type) {
     case kTypeLeaf:
-        NodeModelUtils::AddItemToModel(leaf_model_, path, node_id);
-        leaf_path_.insert(node_id, path);
+        if (leaf_model_ != nullptr) {
+            leaf_model_->sort(0);
+        }
         break;
     case kTypeSupport:
-        NodeModelUtils::AddItemToModel(support_model_, path, node_id);
-        support_path_.insert(node_id, path);
+        if (support_model_ != nullptr) {
+            support_model_->sort(0);
+        }
         break;
     default:
         break;
     }
-
-    return true;
 }
+
+void NodeModel::RemovePathLeaf(int node_id, int /*unit*/) { NodeModelUtils::RemoveItem(leaf_model_, node_id); }
+
+void NodeModel::InsertPath(Node* node)
+{
+    CString path { NodeModelUtils::ConstructPath(root_, node, separator_) };
+
+    switch (node->type) {
+    case kTypeBranch:
+        branch_path_.insert(node->id, path);
+        break;
+    case kTypeLeaf:
+        leaf_path_.insert(node->id, path);
+        InsertPathLeaf(node->id, path, node->unit);
+        break;
+    case kTypeSupport:
+        support_path_.insert(node->id, path);
+        NodeModelUtils::AppendItem(support_model_, node->id, path);
+        break;
+    default:
+        break;
+    }
+}
+
+void NodeModel::InsertPathLeaf(int node_id, CString& path, int /*unit*/) { NodeModelUtils::AppendItem(leaf_model_, node_id, path); }
 
 bool NodeModel::ChildrenEmpty(int node_id) const
 {
@@ -307,7 +438,7 @@ bool NodeModel::ChildrenEmpty(int node_id) const
     return (it == node_hash_.constEnd()) ? true : it.value()->children.isEmpty();
 }
 
-QSet<int> NodeModel::ChildrenIDFPTS(int node_id) const
+QSet<int> NodeModel::ChildrenID(int node_id) const
 {
     if (node_id <= 0)
         return {};

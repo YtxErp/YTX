@@ -74,11 +74,15 @@ private slots:
     void on_actionPreferences_triggered();
     void on_actionSearch_triggered();
     void on_actionClearMenu_triggered();
+
     void on_actionNewFile_triggered();
     void on_actionOpenFile_triggered();
+
     void on_actionExportYTX_triggered();
     void on_actionExportExcel_triggered();
+
     void on_actionStatement_triggered();
+    void on_actionSettle_triggered();
 
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);

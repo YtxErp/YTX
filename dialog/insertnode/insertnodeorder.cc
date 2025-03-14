@@ -127,11 +127,11 @@ QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewO; }
 
 void InsertNodeOrder::IniDialog(CSettings* settings)
 {
-    combo_model_party_ = stakeholder_node_->UnitModelPS(party_unit_);
+    combo_model_party_ = stakeholder_node_->UnitModel(party_unit_);
     ui->comboParty->setModel(combo_model_party_);
     ui->comboParty->setCurrentIndex(-1);
 
-    combo_model_employee_ = stakeholder_node_->UnitModelPS(std::to_underlying(UnitS::kEmp));
+    combo_model_employee_ = stakeholder_node_->UnitModel(std::to_underlying(UnitS::kEmp));
     ui->comboEmployee->setModel(combo_model_employee_);
     ui->comboEmployee->setCurrentIndex(-1);
 

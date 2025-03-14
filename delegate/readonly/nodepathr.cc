@@ -10,7 +10,7 @@ NodePathR::NodePathR(CNodeModel* tree_model, QObject* parent)
 
 void NodePathR::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    const QString& text { tree_model_->GetPath(index.data().toInt()) };
+    const QString& text { tree_model_->Path(index.data().toInt()) };
     if (text.isEmpty())
         return QStyledItemDelegate::paint(painter, option, index);
 
@@ -19,6 +19,6 @@ void NodePathR::paint(QPainter* painter, const QStyleOptionViewItem& option, con
 
 QSize NodePathR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    const QString& text = tree_model_->GetPath(index.data().toInt());
+    const QString& text = tree_model_->Path(index.data().toInt());
     return CalculateTextSize(text, option);
 }

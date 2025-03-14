@@ -42,11 +42,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
-    bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
-
 protected:
-    void ConstructTree() override;
     bool UpdateUnit(Node* node, int value) override;
     bool UpdateAncestorValue(
         Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0) override;

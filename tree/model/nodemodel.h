@@ -130,69 +130,75 @@ public:
 
     // Ytx's
     // Default implementations
-    double InitialTotalFPT(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::initial_total); }
-    double FinalTotalFPT(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::final_total); }
-    int Type(int node_id) { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::type); }
-    int Unit(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::unit); }
-    QString Name(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::name); }
-    bool Rule(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::rule); }
-    bool Finished(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::finished); }
-    int Party(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::party); };
-    int Employee(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::employee); }
+    double InitialTotal(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::initial_total); }
+    double FinalTotal(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::final_total); }
+    int Type(int node_id) { return NodeModelUtils::Value(node_hash_, node_id, &Node::type); }
+    int Unit(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::unit); }
+    bool Rule(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::rule); }
+    bool Finished(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::finished); }
+    int Party(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::party); };
+    int Employee(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::employee); }
+    QString Name(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::name); }
 
-    QStringList* GetDocumentPointer(int node_id) const;
+    QStringList* DocumentPointer(int node_id) const;
+    QStringList ChildrenName(int node_id) const;
+    QSet<int> ChildrenID(int node_id) const;
 
-    bool ChildrenEmpty(int node_id) const;
-    bool Contains(int node_id) const { return node_hash_.contains(node_id); }
     QStandardItemModel* SupportModel() const { return support_model_; }
     QStandardItemModel* LeafModel() const { return leaf_model_; }
 
-    void CopyNodeFPTS(Node* tmp_node, int node_id) const;
-    QStringList ChildrenNameFPTS(int node_id) const;
-    QSet<int> ChildrenIDFPTS(int node_id) const;
+    void LeafPathBranchPathModel(QStandardItemModel* model) const;
 
-    void LeafPathBranchPathModelFPT(QStandardItemModel* model) const;
-    void LeafPathFilterModelFPTS(QStandardItemModel* model, int specific_unit, int exclude_node) const;
-    void SupportPathFilterModelFPTS(QStandardItemModel* model, int specific_node, Filter filter) const;
-
-    void SearchNodeFPTS(QList<const Node*>& node_list, const QList<int>& node_id_list) const;
-
+    void SearchNode(QList<const Node*>& node_list, const QList<int>& node_id_list) const;
     void SetParent(Node* node, int parent_id) const;
-    QModelIndex GetIndex(int node_id) const;
 
     void UpdateName(int node_id, CString& new_name);
+
+    bool InsertNode(int row, const QModelIndex& parent, Node* node);
+    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex());
+
+    bool ChildrenEmpty(int node_id) const;
+    bool Contains(int node_id) const { return node_hash_.contains(node_id); }
+
+    QModelIndex GetIndex(int node_id) const;
 
     // virtual functions
     virtual void RetrieveNode(int node_id) { Q_UNUSED(node_id); }
 
-    virtual void UpdateSeparatorFPTS(CString& old_separator, CString& new_separator);
-    virtual QStandardItemModel* UnitModelPS(int unit = 0) const
-    {
-        Q_UNUSED(unit);
-        return nullptr;
-    }
+    virtual void UpdateSeparator(CString& old_separator, CString& new_separator);
+    virtual void UpdateDefaultUnit(int default_unit) { root_->unit = default_unit; }
 
-    virtual Node* GetNodeO(int node_id) const
+    virtual QString Path(int node_id) const;
+    virtual Node* GetNode(int node_id) const
     {
         Q_UNUSED(node_id);
         return nullptr;
     }
 
-    virtual void UpdateDefaultUnit(int default_unit) { root_->unit = default_unit; }
-    virtual QString GetPath(int node_id) const;
-
-    // Core pure virtual functions
-    virtual bool InsertNode(int row, const QModelIndex& parent, Node* node) = 0;
-    virtual bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) = 0;
+    virtual QStandardItemModel* UnitModel(int unit = 0) const
+    {
+        Q_UNUSED(unit);
+        return nullptr;
+    }
 
 protected:
     Node* GetNodeByIndex(const QModelIndex& index) const;
+    bool UpdateType(Node* node, int value);
+    void SortModel(int type);
 
-    virtual bool UpdateTypeFPTS(Node* node, int value);
+    virtual void IniModel();
+    virtual void ConstructTree();
+    virtual void SortModel();
+
+    virtual void InsertPath(Node* node);
+    virtual void RemovePath(Node* node, Node* parent_node);
+
+    virtual void RemovePathLeaf(int node_id, int unit);
+    virtual void InsertPathLeaf(int node_id, CString& path, int unit);
+
+    virtual bool UpdateRule(Node* node, bool value);
     virtual bool UpdateNameFunction(Node* node, CString& value);
-    virtual bool UpdateRuleFPTO(Node* node, bool value);
 
-    virtual void ConstructTree() = 0;
     virtual bool UpdateUnit(Node* node, int value) = 0;
     virtual bool UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) = 0;
 

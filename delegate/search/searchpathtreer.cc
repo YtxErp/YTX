@@ -14,4 +14,4 @@ void SearchPathTreeR::paint(QPainter* painter, const QStyleOptionViewItem& optio
 
 QSize SearchPathTreeR::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const { return CalculateTextSize(GetPath(index), option); }
 
-QString SearchPathTreeR::GetPath(const QModelIndex& index) const { return model_->GetPath(index.siblingAtColumn(column_).data().toInt()); }
+QString SearchPathTreeR::GetPath(const QModelIndex& index) const { return model_->Path(index.siblingAtColumn(column_).data().toInt()); }

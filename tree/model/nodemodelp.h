@@ -41,21 +41,23 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
-    bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
+    const QString& Color(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::color); }
+    double First(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::first); }
 
-    const QString& Color(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::color); }
-    double First(int node_id) const { return NodeModelUtils::GetValue(node_hash_, node_id, &Node::first); }
-
-    void UpdateSeparatorFPTS(CString& old_separator, CString& new_separator) override;
-    QStandardItemModel* UnitModelPS(int unit = 0) const override
+    void UpdateSeparator(CString& old_separator, CString& new_separator) override;
+    QStandardItemModel* UnitModel(int unit = 0) const override
     {
         Q_UNUSED(unit);
         return product_model_;
     }
 
 protected:
-    void ConstructTree() override;
+    void RemovePathLeaf(int node_id, int unit) override;
+    void InsertPathLeaf(int node_id, CString& path, int unit) override;
+
+    void SortModel() override;
+    void IniModel() override;
+
     bool UpdateUnit(Node* node, int value) override;
     bool UpdateNameFunction(Node* node, CString& value) override;
     bool UpdateAncestorValue(

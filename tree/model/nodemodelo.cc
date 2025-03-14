@@ -1,7 +1,5 @@
 #include "nodemodelo.h"
 
-#include "global/resourcepool.h"
-
 NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
     : NodeModel(arg, parent)
     , sql_ { static_cast<SqliteOrder*>(arg.sql) }
@@ -90,7 +88,7 @@ void NodeModelO::UpdateTree(const QDateTime& start, const QDateTime& end)
     endResetModel();
 }
 
-QString NodeModelO::GetPath(int node_id) const
+QString NodeModelO::Path(int node_id) const
 {
     if (auto it = node_hash_.constFind(node_id); it != node_hash_.constEnd())
         return it.value()->name;
@@ -114,16 +112,9 @@ void NodeModelO::RetrieveNode(int node_id)
     endInsertRows();
 }
 
-Node* NodeModelO::GetNodeO(int node_id) const
-{
-    auto it = node_hash_.constFind(node_id);
-    if (it != node_hash_.constEnd())
-        return it.value();
+Node* NodeModelO::GetNode(int node_id) const { return NodeModelUtils::GetNode(node_hash_, node_id); }
 
-    return nullptr;
-}
-
-bool NodeModelO::UpdateRuleFPTO(Node* node, bool value)
+bool NodeModelO::UpdateRule(Node* node, bool value)
 {
     if (node->rule == value || node->type != kTypeLeaf)
         return false;
@@ -223,6 +214,28 @@ void NodeModelO::ConstructTree()
             UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
 }
 
+void NodeModelO::RemovePath(Node* node, Node* parent_node)
+{
+    switch (node->type) {
+    case kTypeBranch:
+        for (auto* child : std::as_const(node->children)) {
+            child->parent = parent_node;
+            parent_node->children.emplace_back(child);
+        }
+        break;
+    case kTypeLeaf:
+        if (node->finished) {
+            UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
+
+            if (node->unit == std::to_underlying(UnitO::kMS))
+                emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), node->discount - node->initial_total);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 bool NodeModelO::UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     if (!node || node == root_ || !node->parent || node->parent == root_)
@@ -305,64 +318,6 @@ void NodeModelO::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-bool NodeModelO::InsertNode(int row, const QModelIndex& parent, Node* node)
-{
-    if (row <= -1)
-        return false;
-
-    auto* parent_node { GetNodeByIndex(parent) };
-
-    beginInsertRows(parent, row, row);
-    parent_node->children.insert(row, node);
-    endInsertRows();
-
-    sql_->WriteNode(parent_node->id, node);
-    node_hash_.insert(node->id, node);
-
-    emit SSearch();
-    return true;
-}
-
-bool NodeModelO::RemoveNode(int row, const QModelIndex& parent)
-{
-    if (row <= -1 || row >= rowCount(parent))
-        return false;
-
-    auto* parent_node { GetNodeByIndex(parent) };
-    auto* node { parent_node->children.at(row) };
-
-    beginRemoveRows(parent, row, row);
-    parent_node->children.removeOne(node);
-    endRemoveRows();
-
-    switch (node->type) {
-    case kTypeBranch:
-        for (auto* child : std::as_const(node->children)) {
-            child->parent = parent_node;
-            parent_node->children.emplace_back(child);
-        }
-        break;
-    case kTypeLeaf:
-        if (node->finished) {
-            UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
-
-            if (node->unit == std::to_underlying(UnitO::kMS))
-                emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), node->discount - node->initial_total);
-        }
-        break;
-    default:
-        break;
-    }
-
-    emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kName));
-
-    ResourcePool<Node>::Instance().Recycle(node);
-    node_hash_.remove(node->id);
-
-    return true;
-}
-
 QVariant NodeModelO::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)
@@ -428,7 +383,7 @@ bool NodeModelO::setData(const QModelIndex& index, const QVariant& value, int ro
         emit SSyncString(node->id, index.column(), value.toString());
         break;
     case NodeEnumO::kRule:
-        UpdateRuleFPTO(node, value.toBool());
+        UpdateRule(node, value.toBool());
         emit SSyncBoolWD(node->id, index.column(), value.toBool());
         break;
     case NodeEnumO::kUnit:
@@ -503,7 +458,7 @@ bool NodeModelO::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
     if (auto mime { data->data(kNodeID) }; !mime.isEmpty())
         node_id = QVariant(mime).toInt();
 
-    auto* node { NodeModelUtils::GetNodeByID(node_hash_, node_id) };
+    auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
     if (!node || node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
         return false;
 

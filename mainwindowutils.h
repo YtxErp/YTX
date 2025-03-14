@@ -58,6 +58,7 @@ public:
     static bool IsNodeWidget(const QWidget* widget) { return widget && widget->inherits("NodeWidget"); }
     static bool IsLeafWidgetFPTS(const QWidget* widget) { return widget && widget->inherits("TransWidgetFPTS"); }
     static bool IsLeafWidgetO(const QWidget* widget) { return widget && widget->inherits("TransWidgetO"); }
+    static bool IsSupportWidget(const QWidget* widget) { return widget && widget->inherits("SupportWidget"); }
 
     static bool CheckFileName(QString& file_path, CString& suffix);
     static bool CheckFileValid(CString& file_path, CString& suffix = kSuffixYTX);

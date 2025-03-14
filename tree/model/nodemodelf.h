@@ -35,8 +35,6 @@ public slots:
     void RUpdateMultiLeafTotal(const QList<int>& node_list) override;
 
 public:
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex()) override;
-    bool InsertNode(int row, const QModelIndex& parent, Node* node) override;
     void UpdateDefaultUnit(int default_unit) override;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -46,7 +44,6 @@ public:
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
 protected:
-    void ConstructTree() override;
     bool UpdateUnit(Node* node, int value) override;
     bool UpdateAncestorValue(
         Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0) override;

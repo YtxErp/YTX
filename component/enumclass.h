@@ -38,7 +38,7 @@ enum class UnitP { kPos = 1 };
 enum class UnitT { kProd = 1 };
 
 // data filter
-enum class Filter { kIncludeSpecific, kExcludeSpecific, kIncludeSpecificWithNone, kIncludeAllWithNone };
+enum class Filter { kIncludeSpecific, kExcludeSpecific };
 
 // defining trans column
 enum class TransEnum { kDateTime, kID, kLhsRatio, kCode, kDescription, kSupportID, kDocument, kState, kRhsNode };

@@ -4,6 +4,7 @@
 #include <QMessageBox>
 
 #include "component/signalblocker.h"
+#include "table/model/sortfilterproxymodel.h"
 #include "ui_removenode.h"
 
 RemoveNode::RemoveNode(CNodeModel* model, Section section, int node_id, int node_type, int unit, bool exteral_reference, QWidget* parent)
@@ -30,7 +31,7 @@ void RemoveNode::on_pBtnOk_clicked()
     msg.setIcon(QMessageBox::Question);
     msg.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 
-    const auto& path { model_->GetPath(node_id_) };
+    const auto& path { model_->Path(node_id_) };
     QString text {};
     QString informative_text {};
 
@@ -65,7 +66,7 @@ void RemoveNode::IniData(Section section, bool exteral_reference, int node_type)
 {
     ui->label->setWordWrap(true);
     ui->pBtnCancel->setDefault(true);
-    this->setWindowTitle(tr("Remove %1").arg(model_->GetPath(node_id_)));
+    this->setWindowTitle(tr("Remove %1").arg(model_->Path(node_id_)));
 
     if (section == Section::kSales || section == Section::kPurchase) {
         ui->comboBox->setEnabled(false);
@@ -81,13 +82,13 @@ void RemoveNode::IniData(Section section, bool exteral_reference, int node_type)
         ui->label->setText(tr("The node has external references, so it can’t be removed directly. Should it be replaced instead?"));
     }
 
-    auto* combo_model_ { new QStandardItemModel(this) };
+    auto* filter_model { new SortFilterProxyModel(node_id_, this) };
 
     if (node_type == kTypeSupport) {
-        model_->SupportPathFilterModelFPTS(combo_model_, node_id_, Filter::kExcludeSpecific);
+        filter_model->setSourceModel(model_->SupportModel());
     } else {
-        model_->LeafPathFilterModelFPTS(combo_model_, unit_, node_id_);
+        filter_model->setSourceModel(model_->LeafModel());
     }
 
-    ui->comboBox->setModel(combo_model_);
+    ui->comboBox->setModel(filter_model);
 }

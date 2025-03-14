@@ -1,11 +1,9 @@
 #include "nodemodelt.h"
 
-#include "global/resourcepool.h"
-
 NodeModelT::NodeModelT(CNodeModelArg& arg, QObject* parent)
     : NodeModel(arg, parent)
 {
-    leaf_model_ = new QStandardItemModel(this);
+    IniModel();
     ConstructTree();
 }
 
@@ -14,7 +12,7 @@ NodeModelT::~NodeModelT() { qDeleteAll(node_hash_); }
 void NodeModelT::RUpdateLeafValue(
     int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled_delta*/)
 {
-    auto* node { NodeModelUtils::GetNodeByID(node_hash_, node_id) };
+    auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
     if (!node || node == root_ || node->type != kTypeLeaf)
         return;
 
@@ -44,7 +42,7 @@ void NodeModelT::RUpdateMultiLeafTotal(const QList<int>& node_list)
     Node* node {};
 
     for (int node_id : node_list) {
-        node = NodeModelUtils::GetNodeByID(node_hash_, node_id);
+        node = NodeModelUtils::GetNode(node_hash_, node_id);
 
         if (!node || node->type != kTypeLeaf)
             continue;
@@ -147,11 +145,11 @@ bool NodeModelT::setData(const QModelIndex& index, const QVariant& value, int ro
         NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
         break;
     case NodeEnumT::kRule:
-        UpdateRuleFPTO(node, value.toBool());
+        UpdateRule(node, value.toBool());
         emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumT::kQuantity)), index.siblingAtColumn(std::to_underlying(NodeEnumT::kAmount)));
         break;
     case NodeEnumT::kType:
-        UpdateTypeFPTS(node, value.toInt());
+        UpdateType(node, value.toInt());
         break;
     case NodeEnumT::kColor:
         NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color, true);
@@ -265,7 +263,7 @@ bool NodeModelT::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
     if (auto mime { data->data(kNodeID) }; !mime.isEmpty())
         node_id = QVariant(mime).toInt();
 
-    auto* node { NodeModelUtils::GetNodeByID(node_hash_, node_id) };
+    auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
     if (!node || node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
         return false;
 
@@ -285,99 +283,12 @@ bool NodeModelT::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
     }
 
     sql_->DragNode(destination_parent->id, node_id);
-    NodeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
+    NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
 
     emit SUpdateName(node_id, node->name, node->type == kTypeBranch);
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
-    return true;
-}
-
-bool NodeModelT::RemoveNode(int row, const QModelIndex& parent)
-{
-    if (row <= -1 || row >= rowCount(parent))
-        return false;
-
-    auto* parent_node { GetNodeByIndex(parent) };
-    auto* node { parent_node->children.at(row) };
-
-    int node_id { node->id };
-
-    beginRemoveRows(parent, row, row);
-    parent_node->children.removeOne(node);
-    endRemoveRows();
-
-    switch (node->type) {
-    case kTypeBranch: {
-        for (auto* child : std::as_const(node->children)) {
-            child->parent = parent_node;
-            parent_node->children.emplace_back(child);
-        }
-
-        NodeModelUtils::UpdatePathFPTS(leaf_path_, branch_path_, support_path_, root_, node, separator_);
-        NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-
-        branch_path_.remove(node_id);
-        emit SUpdateName(node_id, node->name, true);
-
-    } break;
-    case kTypeLeaf: {
-        UpdateAncestorValue(node, -node->initial_total, -node->final_total);
-        NodeModelUtils::RemoveItemFromModel(leaf_model_, node_id);
-        leaf_path_.remove(node_id);
-    } break;
-    case kTypeSupport: {
-        NodeModelUtils::RemoveItemFromModel(support_model_, node_id);
-        support_path_.remove(node_id);
-    } break;
-    default:
-        break;
-    }
-
-    ResourcePool<Node>::Instance().Recycle(node);
-    node_hash_.remove(node_id);
-
-    emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
-    emit SUpdateStatusValue();
-
-    return true;
-}
-
-bool NodeModelT::InsertNode(int row, const QModelIndex& parent, Node* node)
-{
-    if (row <= -1)
-        return false;
-
-    auto* parent_node { GetNodeByIndex(parent) };
-
-    beginInsertRows(parent, row, row);
-    parent_node->children.insert(row, node);
-    endInsertRows();
-
-    sql_->WriteNode(parent_node->id, node);
-    node_hash_.insert(node->id, node);
-
-    QString path { NodeModelUtils::ConstructPathFPTS(root_, node, separator_) };
-
-    switch (node->type) {
-    case kTypeBranch:
-        branch_path_.insert(node->id, path);
-        break;
-    case kTypeLeaf:
-        NodeModelUtils::AddItemToModel(leaf_model_, path, node->id);
-        leaf_path_.insert(node->id, path);
-        break;
-    case kTypeSupport:
-        NodeModelUtils::AddItemToModel(support_model_, path, node->id);
-        support_path_.insert(node->id, path);
-        break;
-    default:
-        break;
-    }
-
-    emit SSearch();
     return true;
 }
 
@@ -387,15 +298,15 @@ bool NodeModelT::UpdateUnit(Node* node, int value)
         return false;
 
     const int node_id { node->id };
-    QString message { tr("Cannot change %1 unit,").arg(GetPath(node_id)) };
+    QString message { tr("Cannot change %1 unit,").arg(Path(node_id)) };
 
-    if (NodeModelUtils::HasChildrenFPTS(node, message))
+    if (NodeModelUtils::HasChildren(node, message))
         return false;
 
-    if (NodeModelUtils::IsInternalReferencedFPTS(sql_, node_id, message))
+    if (NodeModelUtils::IsInternalReferenced(sql_, node_id, message))
         return false;
 
-    if (NodeModelUtils::IsSupportReferencedFPTS(sql_, node_id, message))
+    if (NodeModelUtils::IsSupportReferenced(sql_, node_id, message))
         return false;
 
     node->unit = value;
@@ -423,39 +334,4 @@ bool NodeModelT::UpdateAncestorValue(
     }
 
     return true;
-}
-
-void NodeModelT::ConstructTree()
-{
-    sql_->ReadNode(node_hash_);
-    const auto& const_node_hash { std::as_const(node_hash_) };
-
-    for (auto* node : const_node_hash) {
-        if (!node->parent) {
-            node->parent = root_;
-            root_->children.emplace_back(node);
-        }
-    }
-
-    for (auto* node : const_node_hash) {
-        const auto path { NodeModelUtils::ConstructPathFPTS(root_, node, separator_) };
-
-        switch (node->type) {
-        case kTypeBranch:
-            branch_path_.insert(node->id, path);
-            break;
-        case kTypeLeaf:
-            UpdateAncestorValue(node, node->initial_total, node->final_total);
-            leaf_path_.insert(node->id, path);
-            break;
-        case kTypeSupport:
-            support_path_.insert(node->id, path);
-            break;
-        default:
-            break;
-        }
-    }
-
-    NodeModelUtils::SupportPathFilterModelFPTS(support_path_, support_model_, 0, Filter::kIncludeAllWithNone);
-    NodeModelUtils::LeafPathModelFPT(leaf_path_, leaf_model_);
 }

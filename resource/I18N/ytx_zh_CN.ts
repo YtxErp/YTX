@@ -1803,7 +1803,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+22"/>
-        <location line="+83"/>
+        <location line="+85"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
@@ -1812,7 +1812,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">报表</translation>
     </message>
     <message>
-        <location line="-157"/>
+        <location line="-159"/>
         <location filename="../../mainwindow.cc" line="-4"/>
         <source>Stakeholder</source>
         <translation>人脉</translation>
@@ -1828,7 +1828,7 @@ Rage, rage against the dying of the light.</source>
         <translation>工具栏</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+26"/>
         <source>Insert</source>
         <translation>插入</translation>
     </message>
@@ -1940,7 +1940,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2333"/>
+        <location filename="../../mainwindow.cc" line="+2335"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -1969,9 +1969,14 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="../../mainwindow.cc" line="-1229"/>
+        <location filename="../../mainwindow.cc" line="-1230"/>
         <source>Statement</source>
         <translation>对帐单</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Settle</source>
+        <translation>结算</translation>
     </message>
     <message>
         <source>Statement...</source>
@@ -1982,7 +1987,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">导出 Xlsx...</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="+1347"/>
+        <location filename="../../mainwindow.cc" line="+1350"/>
         <source>Export Structure</source>
         <translation>导出 Ytx</translation>
     </message>
@@ -2051,7 +2056,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">新建...</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.ui" line="-94"/>
+        <location filename="../../mainwindow.ui" line="-102"/>
         <source>Ctrl+Alt+N</source>
         <translation></translation>
     </message>
@@ -2118,8 +2123,8 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">备注</translation>
     </message>
     <message>
-        <location line="-278"/>
-        <location filename="../../mainwindow.cc" line="-2450"/>
+        <location line="-280"/>
+        <location filename="../../mainwindow.cc" line="-2454"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2176,8 +2181,8 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余数</translation>
     </message>
     <message>
-        <location line="+227"/>
-        <location filename="../../mainwindow.cc" line="+2322"/>
+        <location line="+229"/>
+        <location filename="../../mainwindow.cc" line="+2324"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2266,7 +2271,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1359"/>
+        <location filename="../../mainwindow.cc" line="-1360"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -2356,7 +2361,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">无效的文件: %1</translation>
     </message>
     <message>
-        <location line="-994"/>
+        <location line="-995"/>
         <source>Invalid File</source>
         <translation>无效的文件</translation>
     </message>
@@ -2366,7 +2371,7 @@ Rage, rage against the dying of the light.</source>
         <translation>文件 %1 是无效的，请检查后再重新试试。</translation>
     </message>
     <message>
-        <location line="+977"/>
+        <location line="+978"/>
         <source>Lock Failed</source>
         <translation>锁定失败</translation>
     </message>
@@ -2430,7 +2435,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">现结</translation>
     </message>
     <message>
-        <location line="+555"/>
+        <location line="+556"/>
         <source>Language Changed</source>
         <translation>语言已更改</translation>
     </message>
@@ -2440,7 +2445,7 @@ Rage, rage against the dying of the light.</source>
         <translation>语言已更改，请重启应用程序以使更改生效。</translation>
     </message>
     <message>
-        <location line="-1967"/>
+        <location line="-1969"/>
         <source>Please open the file first.</source>
         <translation>请先打开文件。</translation>
     </message>
@@ -2460,12 +2465,12 @@ Rage, rage against the dying of the light.</source>
         <translation>二级明细-</translation>
     </message>
     <message>
-        <location line="+901"/>
+        <location line="+902"/>
         <source>Record-</source>
         <translation>记录-</translation>
     </message>
     <message>
-        <location line="+1370"/>
+        <location line="+1373"/>
         <location line="+59"/>
         <source>Export Completed</source>
         <translation>成功</translation>
@@ -2513,7 +2518,7 @@ Rage, rage against the dying of the light.</source>
         <translation>距离</translation>
     </message>
     <message>
-        <location line="-1049"/>
+        <location line="-1052"/>
         <location line="+44"/>
         <source>MS</source>
         <translation>月结</translation>
@@ -2856,6 +2861,11 @@ Rage, rage against the dying of the light.</source>
         <location filename="../../tree/model/nodemodelp.cc" line="+183"/>
         <source>Cannot change %1 unit,</source>
         <translation>无法改变 %1 的单位，</translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Cannot change %1 type,</source>
+        <translation type="unfinished">无法改变 %1 的类型，</translation>
     </message>
 </context>
 <context>

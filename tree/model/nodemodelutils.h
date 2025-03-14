@@ -54,7 +54,7 @@ public:
         return true;
     }
 
-    template <typename T> static const T& GetValue(CNodeHash& hash, int node_id, T Node::* member)
+    template <typename T> static const T& Value(CNodeHash& hash, int node_id, T Node::* member)
     {
         if (auto it = hash.constFind(node_id); it != hash.constEnd())
             return std::invoke(member, *(it.value()));
@@ -71,42 +71,36 @@ public:
 
     static void InitializeRoot(Node*& root, int default_unit);
 
-    static Node* GetNodeByID(CNodeHash& hash, int node_id);
+    static Node* GetNode(CNodeHash& hash, int node_id);
     static bool IsDescendant(const Node* lhs, const Node* rhs);
 
     static void SortIterative(Node* node, std::function<bool(const Node*, const Node*)> Compare);
-    static void UpdateComboModel(QStandardItemModel* model, const QVector<std::pair<QString, int>>& items);
 
-    static QString ConstructPathFPTS(const Node* root, const Node* node, CString& separator);
-    static void UpdatePathFPTS(StringHash& leaf, StringHash& branch, StringHash& support, const Node* root, const Node* node, CString& separator);
+    static QString ConstructPath(const Node* root, const Node* node, CString& separator);
+    static void UpdatePath(StringHash& leaf, StringHash& branch, StringHash& support, const Node* root, const Node* node, CString& separator);
 
-    static void LeafPathBranchPathModelFPT(CStringHash& leaf, CStringHash& branch, QStandardItemModel* model);
-    static void LeafPathModelFPT(CStringHash& leaf, QStandardItemModel* model);
-    static void LeafPathRangeModelP(CStringHash& leaf, CIntSet& range, QStandardItemModel* model);
-    static void LeafPathRangeModelS(CStringHash& leaf, CIntSet& crange, QStandardItemModel* cmodel, CIntSet& vrange, QStandardItemModel* vmodel,
-        CIntSet& erange, QStandardItemModel* emodel);
-    static void LeafPathFilterModelFPTS(CNodeHash& hash, CStringHash& leaf, QStandardItemModel* model, int specific_unit, int exclude_node);
-    static void SupportPathFilterModelFPTS(CStringHash& support, QStandardItemModel* model, int specific_node, Filter filter);
+    static void LeafPathBranchPathModel(CStringHash& leaf, CStringHash& branch, QStandardItemModel* model);
 
-    static void AddItemToModel(QStandardItemModel* model, CString& path, int node_id, bool should_sort = true);
-    static void RemoveItemFromModel(QStandardItemModel* model, int node_id);
+    static void AppendItem(QStandardItemModel* model, int node_id, CString& path);
+    static void RemoveItem(QStandardItemModel* model, int node_id);
 
     static void UpdateModel(CStringHash& leaf, QStandardItemModel* leaf_model, CStringHash& support, QStandardItemModel* support_model, const Node* node);
     static void UpdateUnitModel(CStringHash& leaf, QStandardItemModel* unit_model, const Node* node, int specific_unit, Filter filter);
-    static void UpdatePathSeparatorFPTS(CString& old_separator, CString& new_separator, StringHash& source_path);
-    static void UpdateModelSeparatorFPTS(QStandardItemModel* model, CStringHash& source_path);
+    static void UpdatePathSeparator(CString& old_separator, CString& new_separator, StringHash& source_path);
+    static void UpdateModelSeparator(QStandardItemModel* model, CStringHash& source_path);
 
-    static bool HasChildrenFPTS(Node* node, CString& message);
-    static bool IsOpenedFPTS(CTransWgtHash& hash, int node_id, CString& message);
+    static bool HasChildren(Node* node, CString& message);
+    static bool IsOpened(CTransWgtHash& hash, int node_id, CString& message);
 
-    static void UpdateBranchUnitF(const Node* root, Node* node);
+    static void UpdateBranchUnit(const Node* root, Node* node);
 
-    static bool IsInternalReferencedFPTS(Sqlite* sql, int node_id, CString& message);
-    static bool IsSupportReferencedFPTS(Sqlite* sql, int node_id, CString& message);
-    static bool IsExternalReferencedPS(Sqlite* sql, int node_id, CString& message);
+    static bool IsInternalReferenced(Sqlite* sql, int node_id, CString& message);
+    static bool IsSupportReferenced(Sqlite* sql, int node_id, CString& message);
+    static bool IsExternalReferenced(Sqlite* sql, int node_id, CString& message);
 
 private:
     static void UpdateModelFunction(QStandardItemModel* model, CIntSet& update_range, CStringHash& source_path);
+    static void UpdateComboModel(QStandardItemModel* model, const QVector<std::pair<int, QString>>& items);
 };
 
 #endif // NODEMODELUTILS_H

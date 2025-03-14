@@ -130,7 +130,7 @@ bool YtxSqlite::NewFile(CString& file_path)
         if (query.exec(finance) && query.exec(finance_path) && query.exec(finance_trans) && query.exec(product) && query.exec(product_path)
             && query.exec(product_trans) && query.exec(stakeholder) && query.exec(stakeholder_path) && query.exec(stakeholder_trans) && query.exec(task)
             && query.exec(task_path) && query.exec(task_trans) && query.exec(purchase) && query.exec(purchase_path) && query.exec(purchase_trans)
-            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(settings)) {
+            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(settings) && NodeIndex(query) && TransIndex(query)) {
             // Commit the transaction if all queries are successful
             if (db.commit()) {
                 for (int i = 0; i != 6; ++i) {
@@ -391,4 +391,86 @@ QString YtxSqlite::TransProduct()
         removed        BOOLEAN    DEFAULT 0
     );
     )");
+}
+
+bool YtxSqlite::NodeIndex(QSqlQuery& query)
+{
+    // Create an index on (party, date_time)
+    QString sql1 = QStringLiteral("CREATE INDEX IF NOT EXISTS idx_sales_party_datetime ON sales (party, date_time);");
+    if (!query.exec(sql1)) {
+        qDebug() << QString("Failed to create idx_sales_party_datetime index: %1").arg(query.lastError().text());
+        return false;
+    }
+
+    sql1 = QStringLiteral("CREATE INDEX IF NOT EXISTS idx_purchase_party_datetime ON purchase (party, date_time);");
+    if (!query.exec(sql1)) {
+        qDebug() << QString("Failed to create idx_purchase_party_datetime index: %1").arg(query.lastError().text());
+        return false;
+    }
+
+    // Create an index on (unit, party, date_time)
+    QString sql2 = QStringLiteral("CREATE INDEX IF NOT EXISTS idx_sales_unit_party_datetime ON sales (unit, party, date_time);");
+    if (!query.exec(sql2)) {
+        qDebug() << QString("Failed to create idx_sales_unit_party_datetime index: %1").arg(query.lastError().text());
+        return false;
+    }
+
+    sql2 = QStringLiteral("CREATE INDEX IF NOT EXISTS idx_purchase_unit_party_datetime ON purchase (unit, party, date_time);");
+    if (!query.exec(sql2)) {
+        qDebug() << QString("Failed to create idx_purchase_unit_party_datetime index: %1").arg(query.lastError().text());
+        return false;
+    }
+
+    return true;
+}
+
+bool YtxSqlite::TransIndex(QSqlQuery& query)
+{
+    bool success = true;
+
+    // Create an index on (lhs_node)
+    QStringList lhs_tables = {
+        kTaskTrans,
+        kProductTrans,
+        kFinanceTrans,
+        kStakeholderTrans,
+        kSalesTrans,
+        kPurchaseTrans,
+    };
+    for (const auto& table : lhs_tables) {
+        QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_lhs_node ON %1 (lhs_node);").arg(table);
+        if (!query.exec(sql)) {
+            qDebug() << "Failed to create idx_" << table << "_lhs_node index: " << query.lastError().text();
+            success = false;
+        }
+    }
+
+    // Create an index on (inside_product)
+    QStringList inside_product_tables = {
+        kSalesTrans,
+        kPurchaseTrans,
+    };
+    for (const auto& table : inside_product_tables) {
+        QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_inside_product ON %1 (inside_product);").arg(table);
+        if (!query.exec(sql)) {
+            qDebug() << "Failed to create idx_" << table << "_inside_product index: " << query.lastError().text();
+            success = false;
+        }
+    }
+
+    // Create an index on (rhs_node)
+    QStringList rhs_tables = {
+        kTaskTrans,
+        kProductTrans,
+        kFinanceTrans,
+    };
+    for (const auto& table : rhs_tables) {
+        QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_rhs_node ON %1 (rhs_node);").arg(table);
+        if (!query.exec(sql)) {
+            qDebug() << "Failed to create idx_" << table << "_rhs_node index: " << query.lastError().text();
+            success = false;
+        }
+    }
+
+    return success;
 }

@@ -50,6 +50,9 @@ private:
     QString TransStakeholder();
     QString TransOrder(CString& order);
 
+    bool NodeIndex(QSqlQuery& query);
+    bool TransIndex(QSqlQuery& query);
+
 private:
     QSqlDatabase* db_ {};
 };

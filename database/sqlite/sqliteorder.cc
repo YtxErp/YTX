@@ -361,7 +361,7 @@ QString SqliteOrder::QSReadStatementPrimary(int unit) const
     static const QString kBaseQuery = R"(
         SELECT description, employee, date_time, first, second, gross_amount, %1 AS settlement
         FROM %2
-        WHERE party = :party AND unit = :unit AND (date_time BETWEEN :start AND :end) %3 AND removed = 0
+        WHERE unit = :unit AND party = :party AND (date_time BETWEEN :start AND :end) %3 AND removed = 0
     )";
 
     QString settlement_expr {};
@@ -402,7 +402,7 @@ QString SqliteOrder::QSReadStatementSecondary(int unit) const
             node.date_time
         FROM %3 trans
         INNER JOIN %2 node ON trans.lhs_node = node.id
-        WHERE node.party = :party AND node.unit = :unit AND (node.date_time BETWEEN :start AND :end) %4 AND trans.removed = 0
+        WHERE node.unit = :unit AND node.party = :party AND (node.date_time BETWEEN :start AND :end) %4 AND trans.removed = 0
     )";
 
     QString settlement_expr {};

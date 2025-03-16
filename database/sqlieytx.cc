@@ -1,17 +1,17 @@
-#include "ytxsqlite.h"
+#include "sqlieytx.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
 
 #include "component/constvalue.h"
-#include "global/sqlconnection.h"
+#include "global/databasemanager.h"
 
-YtxSqlite::YtxSqlite(Section section)
-    : db_ { SqlConnection::Instance().Allocate(section) }
+SqlieYtx::SqlieYtx()
+    : db_ { DatabaseManager::Instance().GetDatabase() }
 {
 }
 
-void YtxSqlite::QuerySettings(Settings& settings, Section section)
+void SqlieYtx::QuerySettings(Settings& settings, Section section)
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -44,7 +44,7 @@ void YtxSqlite::QuerySettings(Settings& settings, Section section)
     }
 }
 
-void YtxSqlite::UpdateSettings(CSettings& settings, Section section)
+void SqlieYtx::UpdateSettings(CSettings& settings, Section section)
 {
     auto part = QStringLiteral(R"(
     UPDATE settings SET
@@ -76,7 +76,7 @@ void YtxSqlite::UpdateSettings(CSettings& settings, Section section)
     }
 }
 
-bool YtxSqlite::NewFile(CString& file_path)
+bool SqlieYtx::NewFile(CString& file_path)
 {
     QSqlDatabase db { QSqlDatabase::addDatabase(kQSQLITE) };
     db.setDatabaseName(file_path);
@@ -157,7 +157,7 @@ bool YtxSqlite::NewFile(CString& file_path)
     return true;
 }
 
-QString YtxSqlite::NodeFinance()
+QString SqlieYtx::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
@@ -176,7 +176,7 @@ QString YtxSqlite::NodeFinance()
     )");
 }
 
-QString YtxSqlite::NodeStakeholder()
+QString SqlieYtx::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
@@ -197,7 +197,7 @@ QString YtxSqlite::NodeStakeholder()
     )");
 }
 
-QString YtxSqlite::NodeProduct()
+QString SqlieYtx::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
@@ -219,7 +219,7 @@ QString YtxSqlite::NodeProduct()
 )");
 }
 
-QString YtxSqlite::NodeTask()
+QString SqlieYtx::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
@@ -243,7 +243,7 @@ QString YtxSqlite::NodeTask()
     )");
 }
 
-QString YtxSqlite::NodeOrder(CString& order)
+QString SqlieYtx::NodeOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -263,13 +263,13 @@ QString YtxSqlite::NodeOrder(CString& order)
         discount          NUMERIC,
         settlement        NUMERIC,
         removed           BOOLEAN    DEFAULT 0,
-        payment_id        INTEGER    DEFAULT 0
+        settlement_id     INTEGER    DEFAULT 0
     );
     )")
         .arg(order);
 }
 
-QString YtxSqlite::Path(CString& table_name)
+QString SqlieYtx::Path(CString& table_name)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -281,7 +281,7 @@ QString YtxSqlite::Path(CString& table_name)
         .arg(table_name);
 }
 
-QString YtxSqlite::TransFinance()
+QString SqlieYtx::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
@@ -305,7 +305,7 @@ QString YtxSqlite::TransFinance()
     )");
 }
 
-QString YtxSqlite::TransOrder(CString& order)
+QString SqlieYtx::TransOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -328,7 +328,7 @@ QString YtxSqlite::TransOrder(CString& order)
         .arg(order);
 }
 
-QString YtxSqlite::TransStakeholder()
+QString SqlieYtx::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
@@ -342,12 +342,12 @@ QString YtxSqlite::TransStakeholder()
         document           TEXT,
         state              BOOLEAN    DEFAULT 0,
         inside_product     INTEGER,
-        removed            BOOLEAN    DEFAULT 0
+        UNIQUE(lhs_node, inside_product)
     );
     )");
 }
 
-QString YtxSqlite::TransTask()
+QString SqlieYtx::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
@@ -370,7 +370,7 @@ QString YtxSqlite::TransTask()
     )");
 }
 
-QString YtxSqlite::TransProduct()
+QString SqlieYtx::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
@@ -393,7 +393,7 @@ QString YtxSqlite::TransProduct()
     )");
 }
 
-bool YtxSqlite::NodeIndex(QSqlQuery& query)
+bool SqlieYtx::NodeIndex(QSqlQuery& query)
 {
     // Create an index on (party, date_time)
     QString sql1 = QStringLiteral("CREATE INDEX IF NOT EXISTS idx_sales_party_datetime ON sales (party, date_time);");
@@ -424,53 +424,96 @@ bool YtxSqlite::NodeIndex(QSqlQuery& query)
     return true;
 }
 
-bool YtxSqlite::TransIndex(QSqlQuery& query)
+bool SqlieYtx::TransIndex(QSqlQuery& /*query*/)
 {
-    bool success = true;
+    // bool success = true;
 
-    // Create an index on (lhs_node)
-    QStringList lhs_tables = {
-        kTaskTrans,
-        kProductTrans,
-        kFinanceTrans,
-        kStakeholderTrans,
-        kSalesTrans,
-        kPurchaseTrans,
-    };
-    for (const auto& table : lhs_tables) {
-        QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_lhs_node ON %1 (lhs_node);").arg(table);
-        if (!query.exec(sql)) {
-            qDebug() << "Failed to create idx_" << table << "_lhs_node index: " << query.lastError().text();
-            success = false;
-        }
-    }
+    // // Create an index on (lhs_node)
+    // QStringList lhs_tables {
+    //     kTaskTrans,
+    //     kProductTrans,
+    //     kFinanceTrans,
+    //     kStakeholderTrans,
+    //     kSalesTrans,
+    //     kPurchaseTrans,
+    // };
+    // for (const auto& table : lhs_tables) {
+    //     QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_lhs_node ON %1 (lhs_node);").arg(table);
+    //     if (!query.exec(sql)) {
+    //         qDebug() << "Failed to create idx_" << table << "_lhs_node index: " << query.lastError().text();
+    //         success = false;
+    //     }
+    // }
 
-    // Create an index on (inside_product)
-    QStringList inside_product_tables = {
-        kSalesTrans,
-        kPurchaseTrans,
-    };
-    for (const auto& table : inside_product_tables) {
-        QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_inside_product ON %1 (inside_product);").arg(table);
-        if (!query.exec(sql)) {
-            qDebug() << "Failed to create idx_" << table << "_inside_product index: " << query.lastError().text();
-            success = false;
-        }
-    }
+    // // Create an index on (inside_product)
+    // QStringList inside_product_tables {
+    //     kSalesTrans,
+    //     kPurchaseTrans,
+    // };
+    // for (const auto& table : inside_product_tables) {
+    //     QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_inside_product ON %1 (inside_product);").arg(table);
+    //     if (!query.exec(sql)) {
+    //         qDebug() << "Failed to create idx_" << table << "_inside_product index: " << query.lastError().text();
+    //         success = false;
+    //     }
+    // }
 
-    // Create an index on (rhs_node)
-    QStringList rhs_tables = {
-        kTaskTrans,
-        kProductTrans,
-        kFinanceTrans,
-    };
-    for (const auto& table : rhs_tables) {
-        QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_rhs_node ON %1 (rhs_node);").arg(table);
-        if (!query.exec(sql)) {
-            qDebug() << "Failed to create idx_" << table << "_rhs_node index: " << query.lastError().text();
-            success = false;
-        }
-    }
+    // // Create an index on (rhs_node)
+    // QStringList rhs_tables {
+    //     kTaskTrans,
+    //     kProductTrans,
+    //     kFinanceTrans,
+    // };
+    // for (const auto& table : rhs_tables) {
+    //     QString sql = QString("CREATE INDEX IF NOT EXISTS idx_%1_rhs_node ON %1 (rhs_node);").arg(table);
+    //     if (!query.exec(sql)) {
+    //         qDebug() << "Failed to create idx_" << table << "_rhs_node index: " << query.lastError().text();
+    //         success = false;
+    //     }
+    // }
 
-    return success;
+    // QStringList value_tables {
+    //     kTaskTrans,
+    //     kProductTrans,
+    //     kFinanceTrans,
+    // };
+
+    // for (const auto& table : value_tables) {
+    //     QStringList index_columns { "lhs_debit", "lhs_credit", "rhs_debit", "rhs_credit" };
+
+    //     for (const auto& column : index_columns) {
+    //         CString sql { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(table, column) };
+
+    //         if (!query.exec(sql)) {
+    //             qDebug() << "Failed to create index " << table << ": " << query.lastError().text();
+    //             success = false;
+    //         }
+    //     }
+    // }
+
+    // CString idx_stakeholder { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(kStakeholderTrans, kUnitPrice) };
+    // if (!query.exec(idx_stakeholder)) {
+    //     qDebug() << "Failed to create index " << kStakeholderTrans << ": " << query.lastError().text();
+    //     success = false;
+    // }
+
+    // QStringList order_tables {
+    //     kSalesTrans,
+    //     kPurchaseTrans,
+    // };
+
+    // for (const auto& table : order_tables) {
+    //     QStringList index_columns { kFirst, kSecond };
+
+    //     for (const auto& column : index_columns) {
+    //         CString sql { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(table, column) };
+
+    //         if (!query.exec(sql)) {
+    //             qDebug() << "Failed to create index " << table << ": " << query.lastError().text();
+    //             success = false;
+    //         }
+    //     }
+    // }
+
+    return true;
 }

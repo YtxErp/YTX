@@ -17,24 +17,26 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITEORDER_H
-#define SQLITEORDER_H
+#ifndef SQLITEO_H
+#define SQLITEO_H
 
 #include "sqlite.h"
 
-class SqliteOrder final : public Sqlite {
+class SqliteO final : public Sqlite {
     Q_OBJECT
 
 public:
-    SqliteOrder(CInfo& info, QObject* parent = nullptr);
-    ~SqliteOrder();
+    SqliteO(CInfo& info, QObject* parent = nullptr);
+    ~SqliteO();
 
     bool ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end);
     bool SearchNode(QList<const Node*>& node_list, const QList<int>& party_id_list);
-    bool RetrieveNode(NodeHash& node_hash, int node_id);
+    Node* ReadNode(int node_id);
 
 public slots:
     void RRemoveNode(int node_id, int node_type) override;
+    void RUpdateStakeholder(int old_node_id, int new_node_id) const override;
+    void RUpdateProduct(int old_node_id, int new_node_id) override;
 
 protected:
     // tree
@@ -48,10 +50,8 @@ protected:
 
     // table
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query, bool is_support = false) override;
+    void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query) override;
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
-    void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
-    void UpdateStakeholderReferenceO(int old_node_id, int new_node_id) const override;
     void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
     void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const override;
     void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const override;
@@ -63,22 +63,25 @@ protected:
 
     QString QSReadTrans() const override;
     QString QSWriteTrans() const override;
-    QString QSUpdateProductReferenceSO() const override;
-    QString QSUpdateStakeholderReferenceO() const override;
-    QString QSSearchTrans() const override;
+    QString QSSearchTransValue() const override;
+    QString QSSearchTransText() const override;
     QString QSSyncTransValue() const override;
     QString QSTransToRemove() const override;
     QString QSReadStatement(int unit) const override;
     QString QSReadStatementPrimary(int unit) const override;
     QString QSReadStatementSecondary(int unit) const override;
     QString QSInvertTransValue() const override;
+    QString QSSyncPriceSFirst() const override;
+    QString QSSyncPriceSSecond() const override;
 
 private:
     QString SearchNodeQS(CString& in_list) const;
-    Node* ReadNode(int node_id);
+
+    void ReadNodeFunction(NodeHash& node_hash, QSqlQuery& query);
+    void SearchNodeFunction(QList<const Node*>& node_list, QSqlQuery& query);
 
 private:
-    NodeHash node_hash_buffer_ {};
+    NodeHash node_hash_ {};
 };
 
-#endif // SQLITEORDER_H
+#endif // SQLITEO_H

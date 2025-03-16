@@ -77,7 +77,7 @@ void NodeModelUtils::InitializeRoot(Node*& root, int default_unit)
         root->unit = default_unit;
     }
 
-    assert(root != nullptr && "Root node should not be null after initialization");
+    assert(root && "Root node should not be null after initialization");
 }
 
 Node* NodeModelUtils::GetNode(CNodeHash& hash, int node_id)
@@ -293,48 +293,6 @@ void NodeModelUtils::UpdateModel(CStringHash& leaf, QStandardItemModel* leaf_mod
 
     UpdateModelFunction(support_model, support_range, support);
     UpdateModelFunction(leaf_model, leaf_range, leaf);
-}
-
-void NodeModelUtils::UpdateUnitModel(CStringHash& leaf, QStandardItemModel* unit_model, const Node* node, int specific_unit, Filter filter)
-{
-    if (!node)
-        return;
-
-    QQueue<const Node*> queue {};
-    QSet<int> range {};
-
-    queue.enqueue(node);
-
-    auto should_add = [filter, specific_unit](const Node* node) {
-        switch (filter) {
-        case Filter::kIncludeSpecific:
-            return node->unit == specific_unit;
-        case Filter::kExcludeSpecific:
-            return node->unit != specific_unit;
-        default:
-            return false;
-        }
-    };
-
-    while (!queue.isEmpty()) {
-        const Node* current { queue.dequeue() };
-
-        switch (current->type) {
-        case kTypeBranch:
-            for (const auto* child : current->children)
-                queue.enqueue(child);
-
-            break;
-        case kTypeLeaf:
-            if (should_add(current))
-                range.insert(current->id);
-            break;
-        default:
-            break;
-        }
-    }
-
-    UpdateModelFunction(unit_model, range, leaf);
 }
 
 void NodeModelUtils::UpdatePathSeparator(CString& old_separator, CString& new_separator, StringHash& source_path)

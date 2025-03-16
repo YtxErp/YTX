@@ -1,10 +1,10 @@
-#include "nodesearchmodel.h"
+#include "searchnodemodel.h"
 
 #include "component/enumclass.h"
-#include "database/sqlite/sqliteorder.h"
+#include "database/sqlite/sqliteo.h"
 #include "tree/model/nodemodels.h"
 
-NodeSearchModel::NodeSearchModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent)
+SearchNodeModel::SearchNodeModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
@@ -13,7 +13,7 @@ NodeSearchModel::NodeSearchModel(CInfo& info, CNodeModel* tree_model, CNodeModel
 {
 }
 
-QModelIndex NodeSearchModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex SearchNodeModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -21,25 +21,25 @@ QModelIndex NodeSearchModel::index(int row, int column, const QModelIndex& paren
     return createIndex(row, column);
 }
 
-QModelIndex NodeSearchModel::parent(const QModelIndex& index) const
+QModelIndex SearchNodeModel::parent(const QModelIndex& index) const
 {
     Q_UNUSED(index);
     return QModelIndex();
 }
 
-int NodeSearchModel::rowCount(const QModelIndex& parent) const
+int SearchNodeModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return node_list_.size();
 }
 
-int NodeSearchModel::columnCount(const QModelIndex& parent) const
+int SearchNodeModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return info_.search_node_header.size();
 }
 
-QVariant NodeSearchModel::data(const QModelIndex& index, int role) const
+QVariant SearchNodeModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)
         return QVariant();
@@ -91,7 +91,7 @@ QVariant NodeSearchModel::data(const QModelIndex& index, int role) const
     }
 }
 
-QVariant NodeSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SearchNodeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return info_.search_node_header.at(section);
@@ -99,7 +99,7 @@ QVariant NodeSearchModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-void NodeSearchModel::sort(int column, Qt::SortOrder order)
+void SearchNodeModel::sort(int column, Qt::SortOrder order)
 {
     if (column <= -1 || column >= info_.search_node_header.size())
         return;
@@ -154,7 +154,7 @@ void NodeSearchModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void NodeSearchModel::Query(const QString& text)
+void SearchNodeModel::Query(const QString& text)
 {
     node_list_.clear();
     auto* stakeholder_tree { static_cast<const NodeModelS*>(stakeholder_tree_model_) };
@@ -162,17 +162,19 @@ void NodeSearchModel::Query(const QString& text)
     beginResetModel();
     switch (info_.section) {
     case Section::kSales:
-        static_cast<SqliteOrder*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kCust)));
+        static_cast<SqliteO*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kCust)));
         break;
     case Section::kPurchase:
-        static_cast<SqliteOrder*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kVend)));
+        static_cast<SqliteO*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kVend)));
         break;
     case Section::kFinance:
     case Section::kProduct:
     case Section::kTask:
-    case Section::kStakeholder:
-        tree_model_->SearchNode(node_list_, sql_->SearchNodeName(text));
-        break;
+    case Section::kStakeholder: {
+        QSet<int> node_id_set {};
+        sql_->SearchNodeName(node_id_set, text);
+        tree_model_->SearchNode(node_list_, node_id_set);
+    } break;
     default:
         break;
     }

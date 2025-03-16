@@ -17,46 +17,55 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITEFINANCE_H
-#define SQLITEFINANCE_H
+#ifndef SQLITEP_H
+#define SQLITEP_H
 
 #include "sqlite.h"
 
-class SqliteFinance final : public Sqlite {
+class SqliteP final : public Sqlite {
 public:
-    SqliteFinance(CInfo& info, QObject* parent = nullptr);
+    SqliteP(CInfo& info, QObject* parent = nullptr);
 
 protected:
+    // tree
+    QString QSReadNode() const override;
+    QString QSWriteNode() const override;
+    QString QSRemoveNodeSecond() const override;
+    QString QSInternalReference() const override;
+    QString QSExternalReferencePS() const override;
+    QString QSSupportReference() const override;
+    QString QSReplaceSupport() const override;
+    QString QSRemoveSupport() const override;
+
+    QString QSTransToRemove() const override;
+
+    QString QSLeafTotal(int unit) const override;
+
     void WriteNodeBind(Node* node, QSqlQuery& query) const override;
     void ReadNodeQuery(Node* node, const QSqlQuery& query) const override;
 
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
-
-    QString QSReadNode() const override;
-    QString QSWriteNode() const override;
-    QString QSRemoveNodeSecond() const override;
-    QString QSInternalReference() const override;
-    QString QSSupportReference() const override;
-    QString QSReplaceSupportTransFPTS() const override;
-    QString QSRemoveSupport() const override;
-    QString QSFreeViewFPT() const override;
-    QString QSLeafTotalFPT() const override;
-    QString QSSupportTransToMove() const override;
-    QString QSTransToRemove() const override;
-    QString QSSupportTransToRemove() const override;
+    void ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const override;
+    bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const override;
 
     QString QSSyncLeafValue() const override;
     void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
     QString QSReadTrans() const override;
-    QString QSReadSupportTransFPTS() const override;
     QString QSWriteTrans() const override;
-    QString QSReadTransRangeFPTS(CString& in_list) const override;
-    QString QSReplaceNodeTransFPTS() const override;
+    QString QSReadSupportTrans() const override;
+    QString QSReplaceLeaf() const override;
     QString QSSyncTransValue() const override;
-    QString QSSearchTrans() const override;
+    QString QSSearchTransValue() const override;
+    QString QSSearchTransText() const override;
+    QString QSReadTransRef() const override;
+
+private:
+    QString QSReplaceLeafSP() const; // stakeholder product
+    QString QSReplaceLeafOSP() const; // order sales product
+    QString QSReplaceLeafOPP() const; // order purchase product
 };
 
-#endif // SQLITEFINANCE_H
+#endif // SQLITEP_H

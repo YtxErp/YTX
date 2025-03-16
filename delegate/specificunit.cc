@@ -4,10 +4,10 @@
 
 #include "widget/combobox.h"
 
-SpecificUnit::SpecificUnit(CNodeModel* tree_model, QStandardItemModel* combo_model, QObject* parent)
+SpecificUnit::SpecificUnit(CNodeModel* tree_model, QSortFilterProxyModel* filter_model, QObject* parent)
     : StyledItemDelegate { parent }
     , tree_model_ { tree_model }
-    , combo_model_ { combo_model }
+    , filter_model_ { filter_model }
 {
 }
 
@@ -16,7 +16,7 @@ QWidget* SpecificUnit::createEditor(QWidget* parent, const QStyleOptionViewItem&
     Q_UNUSED(option);
 
     auto* editor { new ComboBox(parent) };
-    editor->setModel(combo_model_);
+    editor->setModel(filter_model_);
 
     return editor;
 }

@@ -20,14 +20,14 @@
 #ifndef SPECIFICUNIT_H
 #define SPECIFICUNIT_H
 
-#include <QStandardItemModel>
+#include <QAbstractItemModel>
 
 #include "delegate/styleditemdelegate.h"
 #include "tree/model/nodemodel.h"
 
 class SpecificUnit : public StyledItemDelegate {
 public:
-    SpecificUnit(CNodeModel* tree_model, QStandardItemModel* combo_model, QObject* parent = nullptr);
+    SpecificUnit(CNodeModel* tree_model, QSortFilterProxyModel* filter_model, QObject* parent = nullptr);
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
@@ -37,7 +37,7 @@ public:
 
 private:
     CNodeModel* tree_model_ {};
-    QStandardItemModel* combo_model_ {};
+    QSortFilterProxyModel* filter_model_ {};
 };
 
 #endif // SPECIFICUNIT_H

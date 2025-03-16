@@ -17,40 +17,34 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLCONNECTION_H
-#define SQLCONNECTION_H
+#ifndef DATABASEMANAGER_H
+#define DATABASEMANAGER_H
 
-#include <QHash>
-#include <QMutex>
 #include <QSqlDatabase>
+#include <QString>
 
-#include "component/enumclass.h"
-
-class SqlConnection {
+class DatabaseManager {
 public:
-    static SqlConnection& Instance();
+    static DatabaseManager& Instance();
     bool SetDatabaseName(const QString& file_path);
-    QString DatabaseName() { return file_path_; }
-    QSqlDatabase* Allocate(Section section);
-    // bool IsInitialized() { return is_initialized_; }
+    QString DatabaseName() const { return file_path_; }
+    QSqlDatabase* GetDatabase();
 
 private:
-    SqlConnection() = default;
-    ~SqlConnection();
+    DatabaseManager();
+    ~DatabaseManager();
 
-    SqlConnection(const SqlConnection&) = delete;
-    SqlConnection& operator=(const SqlConnection&) = delete;
-    SqlConnection(SqlConnection&&) = delete;
-    SqlConnection& operator=(SqlConnection&&) = delete;
+    DatabaseManager(const DatabaseManager&) = delete;
+    DatabaseManager& operator=(const DatabaseManager&) = delete;
+    DatabaseManager(DatabaseManager&&) = delete;
+    DatabaseManager& operator=(DatabaseManager&&) = delete;
 
     void LogError(const QString& message) const;
-    QSqlDatabase OpenDatabase(const QString& file_path, Section section);
 
 private:
-    QMutex mutex_;
-    QHash<Section, QSqlDatabase> hash_;
+    QSqlDatabase db_;
     QString file_path_ {};
     bool is_initialized_ { false };
 };
 
-#endif // SQLCONNECTION_H
+#endif // DATABASEMANAGER_H

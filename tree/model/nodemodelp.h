@@ -32,7 +32,6 @@ public:
 public slots:
     void RUpdateLeafValue(int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta,
         double delta5 = 0.0) override;
-    void RUpdateMultiLeafTotal(const QList<int>& node_list) override;
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -44,27 +43,23 @@ public:
     const QString& Color(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::color); }
     double First(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::first); }
 
-    void UpdateSeparator(CString& old_separator, CString& new_separator) override;
-    QStandardItemModel* UnitModel(int unit = 0) const override
-    {
-        Q_UNUSED(unit);
-        return product_model_;
-    }
+    QSortFilterProxyModel* ExcludeUnitModel(int unit) override;
 
 protected:
-    void RemovePathLeaf(int node_id, int unit) override;
-    void InsertPathLeaf(int node_id, CString& path, int unit) override;
+    void RemoveUnitSet(int node_id, int unit) override;
+    void InsertUnitSet(int node_id, int unit) override;
 
-    void SortModel() override;
-    void IniModel() override;
-
-    bool UpdateUnit(Node* node, int value) override;
-    bool UpdateNameFunction(Node* node, CString& value) override;
     bool UpdateAncestorValue(
         Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0) override;
 
+    const QSet<int>* UnitSet(int unit) const override
+    {
+        Q_UNUSED(unit);
+        return &pset_;
+    }
+
 private:
-    QStandardItemModel* product_model_ {};
+    QSet<int> pset_ {}; // Set of all nodes that are position-type units
 };
 
 #endif // NODEMODELP_H

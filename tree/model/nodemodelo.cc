@@ -2,7 +2,7 @@
 
 NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
     : NodeModel(arg, parent)
-    , sql_ { static_cast<SqliteOrder*>(arg.sql) }
+    , sql_ { static_cast<SqliteO*>(arg.sql) }
 {
     ConstructTree();
 }
@@ -10,8 +10,7 @@ NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
 void NodeModelO::RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf)
-        return;
+    assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
     if (first_delta == 0.0 && second_delta == 0.0 && initial_delta == 0.0 && discount_delta == 0.0 && final_delta == 0.0)
         return;
@@ -26,29 +25,13 @@ void NodeModelO::RUpdateLeafValue(int node_id, double initial_delta, double fina
     }
 }
 
-void NodeModelO::RUpdateStakeholder(int old_node_id, int new_node_id)
-{
-    const auto& const_node_hash { std::as_const(node_hash_) };
-
-    for (auto* node : const_node_hash) {
-        if (node->party == old_node_id)
-            node->party = new_node_id;
-
-        if (node->employee == old_node_id)
-            node->employee = new_node_id;
-    }
-}
-
 void NodeModelO::RSyncBoolWD(int node_id, int column, bool value)
 {
     if (column != std::to_underlying(NodeEnumO::kFinished))
         return;
 
-    auto it { node_hash_.constFind(node_id) };
-    if (it == node_hash_.constEnd())
-        return;
-
-    auto* node { it.value() };
+    auto* node { node_hash_.value(node_id) };
+    assert(node && "Node must be non-null");
 
     int coefficient = value ? 1 : -1;
     UpdateAncestorValue(node, coefficient * node->initial_total, coefficient * node->final_total, coefficient * node->first, coefficient * node->second,
@@ -64,9 +47,7 @@ void NodeModelO::UpdateTree(const QDateTime& start, const QDateTime& end)
     root_->children.clear();
     sql_->ReadNode(node_hash_, start, end);
 
-    const auto& const_node_hash { std::as_const(node_hash_) };
-
-    for (auto* node : const_node_hash) {
+    for (auto* node : std::as_const(node_hash_)) {
         if (!node->parent) {
             node->parent = root_;
             root_->children.emplace_back(node);
@@ -81,7 +62,7 @@ void NodeModelO::UpdateTree(const QDateTime& start, const QDateTime& end)
         }
     }
 
-    for (auto* node : const_node_hash) {
+    for (auto* node : std::as_const(node_hash_)) {
         if (node->type == kTypeLeaf && node->finished)
             UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
     }
@@ -96,14 +77,18 @@ QString NodeModelO::Path(int node_id) const
     return {};
 }
 
-void NodeModelO::RetrieveNode(int node_id)
+void NodeModelO::ReadNode(int node_id)
 {
-    if (node_hash_.contains(node_id) || node_id <= 0)
+    assert(node_id >= 1 && "node_id must be positive");
+
+    if (node_hash_.contains(node_id))
         return;
 
-    sql_->RetrieveNode(node_hash_, node_id);
-    auto* node { node_hash_.value(node_id) };
+    auto* node { sql_->ReadNode(node_id) };
+    assert(node && "Error: node must not be nullptr!");
+
     node->parent = root_;
+    node_hash_.insert(node_id, node);
 
     auto row { root_->children.size() };
 
@@ -182,6 +167,8 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
         emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
 
     sql_->WriteField(info_.node, kFinished, value, node->id);
+    if (value)
+        sql_->SyncPriceS(node->id);
     return true;
 }
 
@@ -200,16 +187,14 @@ void NodeModelO::ConstructTree()
     const QDate kCurrentDate { QDate::currentDate() };
     sql_->ReadNode(node_hash_, QDateTime(kCurrentDate, kStartTime), QDateTime(kCurrentDate, kEndTime));
 
-    const auto& const_node_hash { std::as_const(node_hash_) };
-
-    for (auto* node : const_node_hash) {
+    for (auto* node : std::as_const(node_hash_)) {
         if (!node->parent) {
             node->parent = root_;
             root_->children.emplace_back(node);
         }
     }
 
-    for (auto* node : const_node_hash)
+    for (auto* node : std::as_const(node_hash_))
         if (node->type == kTypeLeaf && node->finished)
             UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
 }
@@ -238,7 +223,9 @@ void NodeModelO::RemovePath(Node* node, Node* parent_node)
 
 bool NodeModelO::UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
-    if (!node || node == root_ || !node->parent || node->parent == root_)
+    assert(node && node != root_ && node->parent && "Invalid node: node must be non-null, not the root, and must have a valid parent");
+
+    if (node->parent == root_)
         return false;
 
     if (initial_delta == 0.0 && final_delta == 0.0 && first_delta == 0.0 && second_delta == 0.0 && discount_delta == 0.0)
@@ -274,8 +261,7 @@ bool NodeModelO::UpdateAncestorValue(Node* node, double initial_delta, double fi
 
 void NodeModelO::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.node_header.size())
-        return;
+    assert(column >= 0 && column < info_.node_header.size() && "Column index out of range");
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
         const NodeEnumO kColumn { column };
@@ -459,7 +445,9 @@ bool NodeModelO::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
         node_id = QVariant(mime).toInt();
 
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    if (!node || node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
+    assert(node && "Node must be non-null");
+
+    if (node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
         return false;
 
     auto begin_row { row == -1 ? destination_parent->children.size() : row };

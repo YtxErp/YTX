@@ -36,23 +36,29 @@ public:
 
 signals:
     // send to TableModel
-    void SAppendOneTrans(const TransShadow* trans_shadow);
-    void SRemoveOneTrans(int node_id, int trans_id);
+    void SAppendOneTransL(const TransShadow* trans_shadow);
+    void SRemoveOneTransL(int node_id, int trans_id);
     void SUpdateBalance(int node_id, int trans_id);
     void SRule(int node_id, bool rule);
-    void SAppendPrice(TransShadow* trans_shadow);
+    void SAppendMultiTrans(int node_id, const TransShadowList& trans_shadow_list);
+    void SRemoveMultiTransL(int node_id, const QSet<int>& trans_id_set);
+    void SAppendMultiTransL(int node_id, const QSet<int>& trans_id_set);
 
 public slots:
     // receive from TableModel
-    void RAppendOneTrans(Section section, const TransShadow* trans_shadow);
-    void RRemoveOneTrans(Section section, int node_id, int trans_id);
+    void RAppendOneTransL(Section section, const TransShadow* trans_shadow);
+    void RRemoveOneTransL(Section section, int node_id, int trans_id);
     void RUpdateBalance(Section section, int node_id, int trans_id);
 
     // receive from SqliteStakeholder
-    void RAppendPrice(Section section, TransShadow* trans_shadow);
 
     // receive from TreeModel
     void RRule(Section section, int node_id, bool rule);
+
+    // receive from Sqlite
+    void RRemoveMultiTransL(Section section, const QMultiHash<int, int>& leaf_trans);
+    void RMoveMultiTransL(Section section, int old_node_id, int new_node_id, const QSet<int>& trans_id_set);
+    void RAppendMultiTrans(Section section, int node_id, const TransShadowList& trans_shadow);
 
 private:
     LeafSStation() = default;

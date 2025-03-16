@@ -128,7 +128,7 @@ void TransRefModel::RRetrieveData(int node_id, const QDateTime& start, const QDa
 
     beginResetModel();
     if (!trans_list_.isEmpty())
-        trans_list_.clear();
+        ResourcePool<Trans>::Instance().Recycle(trans_list_);
 
     if (node_id >= 1)
         sql_->ReadTransRef(trans_list_, node_id, start, end);

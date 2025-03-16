@@ -110,8 +110,8 @@ private:
     QShortcut* node_shortcut_ {};
     QShortcut* remove_trans_shortcut_ {};
 
-    QStandardItemModel* combo_model_employee_ {};
-    QStandardItemModel* combo_model_party_ {};
+    QSortFilterProxyModel* emodel_ {};
+    QSortFilterProxyModel* pmodel_ {};
 
     const QString party_info_ {};
     const int party_unit_ {};

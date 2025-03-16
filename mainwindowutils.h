@@ -60,9 +60,8 @@ public:
     static bool IsLeafWidgetO(const QWidget* widget) { return widget && widget->inherits("TransWidgetO"); }
     static bool IsSupportWidget(const QWidget* widget) { return widget && widget->inherits("SupportWidget"); }
 
-    static bool CheckFileName(QString& file_path, CString& suffix);
+    static bool PrepareNewFile(QString& file_path, CString& suffix);
     static bool CheckFileValid(CString& file_path, CString& suffix = kSuffixYTX);
-    static bool CheckFileSQLite(CString& file_path);
 
     static bool AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name);
     static QSqlDatabase GetDatabase(CString& connection_name);
@@ -86,8 +85,7 @@ public:
 
     template <InheritQWidget T> static void FreeWidgetFromHash(int node_id, QHash<int, QPointer<T>>* hash)
     {
-        if (!hash)
-            return;
+        assert(hash && "hash must be non-null");
 
         auto it = hash->constFind(node_id);
         if (it != hash->constEnd()) {
@@ -102,12 +100,10 @@ public:
 
     template <TransWidgetLike T> static void AppendTrans(T* widget, Section start)
     {
-        if (!widget)
-            return;
+        assert(widget && "widget must be non-null");
 
         auto model { widget->Model() };
-        if (!model)
-            return;
+        assert(model && "model must be non-null");
 
         constexpr int ID_ZERO = 0;
         const int empty_row = model->GetNodeRow(ID_ZERO);
@@ -130,11 +126,12 @@ public:
 
     template <TransWidgetLike T> static void RemoveTrans(T* widget)
     {
-        if (!widget)
-            return;
+        assert(widget && "widget must be non-null");
 
         auto view { widget->View() };
-        if (!view || !MainWindowUtils::HasSelection(view))
+        assert(view && "view must be non-null");
+
+        if (!MainWindowUtils::HasSelection(view))
             return;
 
         const QModelIndex current_index { view->currentIndex() };
@@ -142,8 +139,7 @@ public:
             return;
 
         auto model { widget->Model() };
-        if (!model)
-            return;
+        assert(model && "model must be non-null");
 
         const int current_row { current_index.row() };
         if (!model->removeRows(current_row, 1)) {
@@ -173,10 +169,8 @@ public:
     {
         static_assert(std::is_same_v<decltype((std::declval<Widget>().*function)(std::forward<Args>(args)...)), QByteArray>, "Function must return QByteArray");
 
-        if (!widget || !settings) {
-            qWarning() << "SaveSettings: Invalid parameters (widget or settings is null)";
-            return;
-        }
+        assert(widget && "SaveSettings: widget must be non-null");
+        assert(settings && "SaveSettings: settings must be non-null");
 
         auto value { std::invoke(function, widget, std::forward<Args>(args)...) };
         settings->setValue(QString("%1/%2").arg(section, property), value);
@@ -188,10 +182,8 @@ public:
         static_assert(std::is_same_v<decltype((std::declval<Widget>().*function)(std::declval<QByteArray>(), std::declval<Args>()...)), bool>,
             "Function must accept QByteArray and additional arguments, and return bool");
 
-        if (!widget || !settings) {
-            qWarning() << "RestoreSettings: Invalid parameters (widget or settings is null)";
-            return;
-        }
+        assert(widget && "SaveSettings: widget must be non-null");
+        assert(settings && "SaveSettings: settings must be non-null");
 
         auto value { settings->value(QString("%1/%2").arg(section, property)).toByteArray() };
         if (!value.isEmpty()) {
@@ -202,6 +194,7 @@ public:
 private:
     static QString GeneratePlaceholder(const QVariantList& values);
     static bool CopyFile(CString& source, QString& destination);
+    static bool CheckFileSQLite(CString& file_path);
 };
 
 #endif // MAINWINDOWUTILS_H

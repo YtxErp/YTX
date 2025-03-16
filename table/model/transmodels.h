@@ -29,9 +29,6 @@ public:
     TransModelS(CTransModelArg& arg, QObject* parent = nullptr);
     ~TransModelS() override = default;
 
-public slots:
-    void RAppendPrice(TransShadow* trans_shadow);
-
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
@@ -41,12 +38,14 @@ public:
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
 protected:
-    bool AppendMultiTrans(int node_id, const QList<int>& trans_id_list) override;
-    bool RemoveMultiTrans(const QList<int>& trans_id_list) override;
     bool UpdateRatio(TransShadow* trans_shadow, double value) override;
 
 private:
-    bool UpdateInsideProduct(TransShadow* trans_shadow, int value) const;
+    bool UpdateInsideProduct(TransShadow* trans_shadow, int value);
+    void IniInsideSet();
+
+private:
+    QSet<int> inside_set_ {};
 };
 
 #endif // TRANSMODELS_H

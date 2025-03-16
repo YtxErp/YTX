@@ -17,19 +17,19 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSSEARCHMODEL_H
-#define TRANSSEARCHMODEL_H
+#ifndef SEARCHTRANSMODEL_H
+#define SEARCHTRANSMODEL_H
 
 #include <QAbstractItemModel>
 
 #include "component/info.h"
 #include "database/sqlite/sqlite.h"
 
-class TransSearchModel final : public QAbstractItemModel {
+class SearchTransModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    TransSearchModel(CInfo& info, Sqlite* sql, QObject* parent = nullptr);
-    ~TransSearchModel() = default;
+    SearchTransModel(CInfo& info, Sqlite* sql, QObject* parent = nullptr);
+    ~SearchTransModel() = default;
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -53,4 +53,4 @@ private:
     CInfo& info_;
 };
 
-#endif // TRANSSEARCHMODEL_H
+#endif // SEARCHTRANSMODEL_H

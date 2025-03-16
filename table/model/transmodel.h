@@ -44,25 +44,26 @@ signals:
     void SUpdateLeafValue(int node_id, double delta1 = 0.0, double delta2 = 0.0, double delta3 = 0.0, double delta4 = 0.0, double delta5 = 0.0);
     void SSearch();
 
-    // send to SignalStation
-    void SAppendOneTrans(Section section, const TransShadow* trans_shadow);
-    void SRemoveOneTrans(Section section, int node_id, int trans_id);
+    // send to LeafSStation
+    void SAppendOneTransL(Section section, const TransShadow* trans_shadow);
+    void SRemoveOneTransL(Section section, int node_id, int trans_id);
     void SUpdateBalance(Section section, int node_id, int trans_id);
 
-    void SAppendSupportTrans(Section section, const TransShadow* trans_shadow);
-    void SRemoveSupportTrans(Section section, int node_id, int trans_id);
+    // send to SupportSStation
+    void SAppendOneTransS(Section section, int support_id, int trans_id);
+    void SRemoveOneTransS(Section section, int support_id, int trans_id);
 
     // send to its table view
     void SResizeColumnToContents(int column);
 
 public slots:
-    // receive from Sqlite
-    void RRemoveMultiTrans(const QMultiHash<int, int>& node_trans);
-    void RMoveMultiTrans(int old_node_id, int new_node_id, const QList<int>& trans_id_list);
+    // receive from LeafSStation
+    void RRemoveMultiTransL(int node_id, const QSet<int>& trans_id_set);
+    void RAppendMultiTransL(int node_id, const QSet<int>& trans_id_set);
+    void RAppendMultiTrans(int node_id, const TransShadowList& trans_shadow_list);
 
-    // receive from SignalStation
-    void RAppendOneTrans(const TransShadow* trans_shadow);
-    void RRemoveOneTrans(int node_id, int trans_id);
+    void RAppendOneTransL(const TransShadow* trans_shadow);
+    void RRemoveOneTransL(int node_id, int trans_id);
     void RUpdateBalance(int node_id, int trans_id);
     void RRule(int node_id, bool rule);
 
@@ -106,15 +107,13 @@ protected:
     virtual bool UpdateCredit(TransShadow* trans_shadow, double value);
     virtual bool UpdateRatio(TransShadow* trans_shadow, double value);
 
-    virtual bool RemoveMultiTrans(const QList<int>& trans_id_list); // just remove trnas_shadow, keep trans
-    virtual bool AppendMultiTrans(int node_id, const QList<int>& trans_id_list);
-
 protected:
     Sqlite* sql_ {};
     CInfo& info_;
     bool node_rule_ {};
     int node_id_ {};
     QMutex mutex_ {};
+    const Section section_ {};
 
     QList<TransShadow*> trans_shadow_list_ {};
 };

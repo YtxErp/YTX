@@ -200,10 +200,10 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Description"),
         QObject::tr("Note"),
         QObject::tr("Type"),
+        QObject::tr("PaymentPeriod"),
         QObject::tr("Unit"),
         QObject::tr("Deadline"),
         QObject::tr("Employee"),
-        QObject::tr("PaymentPeriod"),
         QObject::tr("TaxRate"),
         QObject::tr("Amount"),
     };

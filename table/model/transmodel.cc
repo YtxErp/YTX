@@ -11,32 +11,15 @@ TransModel::TransModel(CTransModelArg& arg, QObject* parent)
     , info_ { arg.info }
     , node_rule_ { arg.rule }
     , node_id_ { arg.node_id }
+    , section_ { arg.info.section }
 {
 }
 
 TransModel::~TransModel() { ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_); }
 
-void TransModel::RRemoveMultiTrans(const QMultiHash<int, int>& node_trans)
-{
-    if (!node_trans.contains(node_id_))
-        return;
-
-    RemoveMultiTrans(node_trans.values(node_id_));
-}
-
-void TransModel::RMoveMultiTrans(int old_node_id, int new_node_id, const QList<int>& trans_id_list)
-{
-    if (node_id_ == old_node_id)
-        RemoveMultiTrans(trans_id_list);
-
-    if (node_id_ == new_node_id)
-        AppendMultiTrans(node_id_, trans_id_list);
-}
-
 void TransModel::RRule(int node_id, bool rule)
 {
-    if (node_id_ != node_id || node_rule_ == rule)
-        return;
+    assert(node_id_ == node_id && node_rule_ != rule && "node_id must match and node_rule must be different from rule");
 
     for (auto* trans_shadow : std::as_const(trans_shadow_list_))
         trans_shadow->subtotal = -trans_shadow->subtotal;
@@ -44,10 +27,9 @@ void TransModel::RRule(int node_id, bool rule)
     node_rule_ = rule;
 }
 
-void TransModel::RAppendOneTrans(const TransShadow* trans_shadow)
+void TransModel::RAppendOneTransL(const TransShadow* trans_shadow)
 {
-    if (node_id_ != *trans_shadow->rhs_node)
-        return;
+    assert(node_id_ == *trans_shadow->rhs_node && "node_id_ must match *trans_shadow->rhs_node");
 
     auto* new_trans_shadow { ResourcePool<TransShadow>::Instance().Allocate() };
     new_trans_shadow->date_time = trans_shadow->date_time;
@@ -79,10 +61,9 @@ void TransModel::RAppendOneTrans(const TransShadow* trans_shadow)
     new_trans_shadow->subtotal = TransModelUtils::Balance(node_rule_, *new_trans_shadow->lhs_debit, *new_trans_shadow->lhs_credit) + previous_balance;
 }
 
-void TransModel::RRemoveOneTrans(int node_id, int trans_id)
+void TransModel::RRemoveOneTransL(int node_id, int trans_id)
 {
-    if (node_id_ != node_id)
-        return;
+    assert(node_id_ == node_id && "node_id must match");
 
     auto idx { GetIndex(trans_id) };
     if (!idx.isValid())
@@ -98,8 +79,7 @@ void TransModel::RRemoveOneTrans(int node_id, int trans_id)
 
 void TransModel::RUpdateBalance(int node_id, int trans_id)
 {
-    if (node_id_ != node_id)
-        return;
+    assert(node_id_ == node_id && "node_id must match");
 
     auto index { GetIndex(trans_id) };
     if (index.isValid())
@@ -108,8 +88,7 @@ void TransModel::RUpdateBalance(int node_id, int trans_id)
 
 bool TransModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
 {
-    if (row <= -1)
-        return false;
+    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
 
     auto* trans_shadow { trans_shadow_list_.at(row) };
     int rhs_node_id { *trans_shadow->rhs_node };
@@ -130,11 +109,11 @@ bool TransModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
         emit SUpdateLeafValue(*trans_shadow->rhs_node, -debit, -credit, -ratio * debit, -ratio * credit);
 
         int trans_id { *trans_shadow->id };
-        emit SRemoveOneTrans(info_.section, rhs_node_id, trans_id);
+        emit SRemoveOneTransL(section_, rhs_node_id, trans_id);
         TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 
         if (int support_id = *trans_shadow->support_id; support_id != 0)
-            emit SRemoveSupportTrans(info_.section, support_id, *trans_shadow->id);
+            emit SRemoveOneTransS(section_, support_id, *trans_shadow->id);
 
         sql_->RemoveTrans(trans_id);
     }
@@ -344,6 +323,8 @@ QStringList* TransModel::GetDocumentPointer(const QModelIndex& index) const
 
 bool TransModel::insertRows(int row, int /*count*/, const QModelIndex& parent)
 {
+    assert(row >= 0 && row <= rowCount(parent) && "Row must be in the valid range [0, rowCount(parent)]");
+
     // just register trans_shadow in this function
     // while set rhs node in setData function, register trans to sql_'s trans_hash_
     auto* trans_shadow { sql_->AllocateTransShadow() };
@@ -357,19 +338,17 @@ bool TransModel::insertRows(int row, int /*count*/, const QModelIndex& parent)
     return true;
 }
 
-bool TransModel::RemoveMultiTrans(const QList<int>& trans_id_list)
+void TransModel::RRemoveMultiTransL(int node_id, const QSet<int>& trans_id_set)
 {
-    if (trans_id_list.isEmpty())
-        return false;
+    assert(node_id_ == node_id && "Node ID mismatch detected!");
 
-    int min_row { -1 };
+    int min_row { std::numeric_limits<int>::max() };
 
     for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        const int kTransID { *trans_shadow_list_.at(i)->id };
+        const int kTransID { *trans_shadow_list_[i]->id };
 
-        if (trans_id_list.contains(kTransID)) {
-            if (min_row == -1 || i < min_row)
-                min_row = i;
+        if (trans_id_set.contains(kTransID)) {
+            min_row = i;
 
             beginRemoveRows(QModelIndex(), i, i);
             ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
@@ -377,23 +356,31 @@ bool TransModel::RemoveMultiTrans(const QList<int>& trans_id_list)
         }
     }
 
-    if (min_row != -1)
+    if (min_row != std::numeric_limits<int>::max())
         TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, min_row, node_rule_);
-
-    return true;
 }
 
-bool TransModel::AppendMultiTrans(int node_id, const QList<int>& trans_id_list)
+void TransModel::RAppendMultiTransL(int node_id, const QSet<int>& trans_id_set)
 {
+    assert(node_id_ == node_id && "Node ID mismatch detected!");
+
     auto row { trans_shadow_list_.size() };
     TransShadowList trans_shadow_list {};
 
-    sql_->ReadTransRange(trans_shadow_list, node_id, trans_id_list);
+    sql_->RetrieveTransRange(trans_shadow_list, node_id, trans_id_set);
     beginInsertRows(QModelIndex(), row, row + trans_shadow_list.size() - 1);
     trans_shadow_list_.append(trans_shadow_list);
     endInsertRows();
 
     TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
+}
 
-    return true;
+void TransModel::RAppendMultiTrans(int node_id, const TransShadowList& trans_shadow_list)
+{
+    assert(node_id_ == node_id && "Node ID mismatch detected!");
+
+    auto row { trans_shadow_list_.size() };
+    beginInsertRows(QModelIndex(), row, row + trans_shadow_list.size() - 1);
+    trans_shadow_list_.append(trans_shadow_list);
+    endInsertRows();
 }

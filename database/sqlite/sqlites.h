@@ -17,28 +17,25 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITESTAKEHOLDER_H
-#define SQLITESTAKEHOLDER_H
+#ifndef SQLITES_H
+#define SQLITES_H
 
 #include "sqlite.h"
 
-class SqliteStakeholder final : public Sqlite {
+class SqliteS final : public Sqlite {
     Q_OBJECT
 
 public:
-    SqliteStakeholder(CInfo& info, QObject* parent = nullptr);
-
-signals:
-    // send to signal station
-    void SAppendPrice(Section section, TransShadow* trans_shadow);
+    SqliteS(CInfo& info, QObject* parent = nullptr);
 
 public slots:
-    void RReplaceNode(int old_node_id, int new_node_id, int node_type) override;
+    void RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit) override;
     void RRemoveNode(int node_id, int node_type) override;
+    void RPriceSList(QList<PriceS>& list) override;
+    void RUpdateProduct(int old_node_id, int new_node_id) override;
 
 public:
     bool CrossSearch(TransShadow* order_trans_shadow, int party_id, int product_id, bool is_inside) const;
-    bool UpdatePrice(int party_id, int inside_product_id, CString& date_time, double value);
     bool ReadTrans(int node_id);
 
 protected:
@@ -52,37 +49,44 @@ protected:
     QString QSInternalReference() const override;
     QString QSExternalReferencePS() const override;
     QString QSSupportReference() const override;
-    QString QSReplaceSupportTransFPTS() const override;
     QString QSRemoveSupport() const override;
-    QString QSSupportTransToMove() const override;
-    QString QSSupportTransToRemove() const override;
 
     // table
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void UpdateProductReferenceSO(int old_node_id, int new_node_id) const override;
-    QMultiHash<int, int> ReplaceNodeFunction(int old_node_id, int new_node_id) const override;
     void ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const override;
+    void CalculateLeafTotal(Node* node, QSqlQuery& query) const override;
+    bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const override;
 
-    QString QSReadTransRangeFPTS(CString& in_list) const override;
+    void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
+
     QString QSReadTrans() const override;
-    QString QSReadSupportTransFPTS() const override;
+    QString QSReadSupportTrans() const override;
     QString QSWriteTrans() const override;
-    QString QSReplaceNodeTransFPTS() const override;
-    QString QSUpdateProductReferenceSO() const override;
-    QString QSSearchTrans() const override;
+    QString QSSearchTransValue() const override;
+    QString QSSearchTransText() const override;
     QString QSRemoveNodeFirst() const override;
     QString QSTransToRemove() const override;
     QString QSReadTransRef() const override;
+    QString QSRemoveTrans() const override;
+    QString QSLeafTotal(int unit) const override;
+    QString QSReplaceSupport() const override;
+    QString QSSyncLeafValue() const override;
 
 private:
-    void ReadTransStakeholder(QSqlQuery& query);
-    void WriteTransBind(Trans* trans, QSqlQuery& query) const;
+    void ReadTransS(QSqlQuery& query);
+    bool ReadTransRange(const QSet<int>& set);
 
-    bool WriteTrans(Trans* trans);
-    bool UpdateDateTimePrice(CString& date_time, double unit_price, int trans_id);
+    bool ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id) const;
+    bool ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id) const;
+    bool ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id) const;
 
-private:
+    QString QSReplaceLeafSE() const; // stakeholder employee
+    QString QSReplaceLeafOSE() const; // order sales employee
+    QString QSReplaceLeafOPE() const; // order purchase employee
+
+    QString QSReplaceLeafOSP() const; // order sales party
+    QString QSReplaceLeafOPP() const; // order purchase party
 };
 
-#endif // SQLITESTAKEHOLDER_H
+#endif // SQLITES_H

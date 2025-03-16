@@ -32,6 +32,7 @@ public:
 public slots:
     void RUpdateStakeholder(int old_node_id, int new_node_id) override;
     void RSyncDouble(int node_id, int column, double value) override; // amount
+    void RUpdateMultiLeafTotal(const QList<int>& node_list) override;
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -41,25 +42,21 @@ public:
     bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
     QList<int> PartyList(CString& text, int unit) const;
-    QStandardItemModel* UnitModel(int unit) const override;
-    void UpdateSeparator(CString& old_separator, CString& new_separator) override;
+
+    QSortFilterProxyModel* IncludeUnitModel(int unit) override;
 
 protected:
-    void RemovePathLeaf(int node_id, int unit) override;
-    void InsertPathLeaf(int node_id, CString& path, int unit) override;
+    const QSet<int>* UnitSet(int unit) const override;
+    void RemoveUnitSet(int node_id, int unit) override;
+    void InsertUnitSet(int node_id, int unit) override;
 
-    void SortModel() override;
-    void IniModel() override;
-
-    bool UpdateUnit(Node* node, int value) override;
-    bool UpdateNameFunction(Node* node, CString& value) override;
     bool UpdateAncestorValue(
         Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0) override;
 
 private:
-    QStandardItemModel* cmodel_ {};
-    QStandardItemModel* vmodel_ {};
-    QStandardItemModel* emodel_ {};
+    QSet<int> cset_ {}; // Set of all nodes that are customer-type units
+    QSet<int> vset_ {}; // Set of all nodes that are vendor-type units
+    QSet<int> eset_ { 0 }; // Set of all nodes that are employee-type units
 };
 
 #endif // NODEMODELS_H

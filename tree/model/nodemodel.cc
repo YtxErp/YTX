@@ -4,6 +4,7 @@
 #include <QtConcurrent>
 
 #include "global/resourcepool.h"
+#include "tree/excludeintfiltermodel.h"
 
 NodeModel::NodeModel(CNodeModelArg& arg, QObject* parent)
     : QAbstractItemModel(parent)
@@ -23,6 +24,28 @@ void NodeModel::RRemoveNode(int node_id)
     int row { index.row() };
     auto parent_index { index.parent() };
     RemoveNode(row, parent_index);
+}
+
+void NodeModel::RUpdateMultiLeafTotal(const QList<int>& node_list)
+{
+    for (int node_id : node_list) {
+        auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
+
+        assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
+
+        const double old_final_total { node->final_total };
+        const double old_initial_total { node->initial_total };
+
+        sql_->ReadLeafTotal(node);
+        sql_->SyncLeafValue(node);
+
+        const double final_delta { node->final_total - old_final_total };
+        const double initial_delta { node->initial_total - old_initial_total };
+
+        UpdateAncestorValue(node, initial_delta, final_delta);
+    }
+
+    emit SUpdateStatusValue();
 }
 
 QModelIndex NodeModel::parent(const QModelIndex& index) const
@@ -111,26 +134,16 @@ void NodeModel::UpdateSeparator(CString& old_separator, CString& new_separator)
     NodeModelUtils::UpdateModelSeparator(support_model_, support_path_);
 }
 
-void NodeModel::SearchNode(QList<const Node*>& node_list, const QList<int>& node_id_list) const
+void NodeModel::SearchNode(QList<const Node*>& node_list, const QSet<int>& node_id_set) const
 {
-    node_list.reserve(node_id_list.size());
+    node_list.reserve(node_id_set.size());
 
-    for (int node_id : node_id_list) {
+    for (int node_id : node_id_set) {
         auto it { node_hash_.constFind(node_id) };
         if (it != node_hash_.constEnd() && it.value()) {
             node_list.emplaceBack(it.value());
         }
     }
-}
-
-void NodeModel::SetParent(Node* node, int parent_id) const
-{
-    if (!node)
-        return;
-
-    auto it { node_hash_.constFind(parent_id) };
-
-    node->parent = it == node_hash_.constEnd() ? root_ : it.value();
 }
 
 QModelIndex NodeModel::GetIndex(int node_id) const
@@ -156,11 +169,8 @@ QModelIndex NodeModel::GetIndex(int node_id) const
 
 void NodeModel::UpdateName(int node_id, CString& new_name)
 {
-    auto it { node_hash_.constFind(node_id) };
-    if (it == node_hash_.constEnd())
-        return;
-
-    auto* node { it.value() };
+    auto* node { node_hash_.value(node_id) };
+    assert(node && "Node must be non-null");
 
     UpdateNameFunction(node, new_name);
     emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
@@ -180,10 +190,16 @@ QString NodeModel::Path(int node_id) const
     return {};
 }
 
+QSortFilterProxyModel* NodeModel::ExcludeLeafModel(int leaf_id)
+{
+    auto* model { new ExcludeIntFilterModel(leaf_id, this) };
+    model->setSourceModel(leaf_model_);
+    return model;
+}
+
 bool NodeModel::InsertNode(int row, const QModelIndex& parent, Node* node)
 {
-    if (row <= -1)
-        return false;
+    assert(row >= 0 && row <= rowCount(parent) && "Row must be in the valid range [0, rowCount(parent)]");
 
     auto* parent_node { GetNodeByIndex(parent) };
 
@@ -203,8 +219,7 @@ bool NodeModel::InsertNode(int row, const QModelIndex& parent, Node* node)
 
 bool NodeModel::RemoveNode(int row, const QModelIndex& parent)
 {
-    if (row <= -1 || row >= rowCount(parent))
-        return false;
+    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
 
     auto* parent_node { GetNodeByIndex(parent) };
     auto* node { parent_node->children.at(row) };
@@ -221,8 +236,8 @@ bool NodeModel::RemoveNode(int row, const QModelIndex& parent)
     node_hash_.remove(node_id);
 
     emit SSearch();
-    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
     emit SUpdateStatusValue();
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
 }
@@ -247,8 +262,9 @@ void NodeModel::RemovePath(Node* node, Node* parent_node)
     } break;
     case kTypeLeaf: {
         leaf_path_.remove(node_id);
+        NodeModelUtils::RemoveItem(leaf_model_, node_id);
         UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
-        RemovePathLeaf(node_id, node->unit);
+        RemoveUnitSet(node_id, node->unit);
     } break;
     case kTypeSupport: {
         support_path_.remove(node_id);
@@ -280,12 +296,43 @@ bool NodeModel::UpdateNameFunction(Node* node, CString& value)
     return true;
 }
 
+bool NodeModel::UpdateUnit(Node* node, int value)
+{
+    if (node->unit == value)
+        return false;
+
+    const int node_id { node->id };
+    QString message { tr("Cannot change %1 unit,").arg(Path(node_id)) };
+
+    if (NodeModelUtils::HasChildren(node, message))
+        return false;
+
+    if (NodeModelUtils::IsInternalReferenced(sql_, node_id, message))
+        return false;
+
+    if (NodeModelUtils::IsExternalReferenced(sql_, node_id, message))
+        return false;
+
+    if (NodeModelUtils::IsSupportReferenced(sql_, node_id, message))
+        return false;
+
+    if (node->type == kTypeLeaf) {
+        RemoveUnitSet(node_id, node->unit);
+        InsertUnitSet(node_id, value);
+        emit SSyncFilterModel();
+    }
+
+    node->unit = value;
+    sql_->WriteField(info_.node, kUnit, value, node_id);
+
+    return true;
+}
+
 void NodeModel::ConstructTree()
 {
     sql_->ReadNode(node_hash_);
-    const auto& const_node_hash { std::as_const(node_hash_) };
 
-    for (auto* node : const_node_hash) {
+    for (auto* node : std::as_const(node_hash_)) {
         if (!node->parent) {
             node->parent = root_;
             root_->children.emplace_back(node);
@@ -294,8 +341,8 @@ void NodeModel::ConstructTree()
 
     auto* watcher { new QFutureWatcher<void>(this) };
 
-    QFuture<void> future = QtConcurrent::run([this, &const_node_hash]() {
-        for (auto* node : const_node_hash) {
+    QFuture<void> future = QtConcurrent::run([&, this]() {
+        for (auto* node : std::as_const(node_hash_)) {
             InsertPath(node);
 
             if (node->type == kTypeLeaf)
@@ -371,7 +418,8 @@ bool NodeModel::UpdateType(Node* node, int value)
         break;
     case kTypeLeaf:
         leaf_path_.remove(node_id);
-        RemovePathLeaf(node_id, node->unit);
+        NodeModelUtils::RemoveItem(leaf_model_, node_id);
+        RemoveUnitSet(node_id, node->unit);
         break;
     case kTypeSupport:
         support_path_.remove(node_id);
@@ -386,6 +434,7 @@ bool NodeModel::UpdateType(Node* node, int value)
 
     InsertPath(node);
     SortModel(node->type);
+
     return true;
 }
 
@@ -407,8 +456,6 @@ void NodeModel::SortModel(int type)
     }
 }
 
-void NodeModel::RemovePathLeaf(int node_id, int /*unit*/) { NodeModelUtils::RemoveItem(leaf_model_, node_id); }
-
 void NodeModel::InsertPath(Node* node)
 {
     CString path { NodeModelUtils::ConstructPath(root_, node, separator_) };
@@ -419,7 +466,8 @@ void NodeModel::InsertPath(Node* node)
         break;
     case kTypeLeaf:
         leaf_path_.insert(node->id, path);
-        InsertPathLeaf(node->id, path, node->unit);
+        NodeModelUtils::AppendItem(leaf_model_, node->id, path);
+        InsertUnitSet(node->id, node->unit);
         break;
     case kTypeSupport:
         support_path_.insert(node->id, path);
@@ -430,18 +478,9 @@ void NodeModel::InsertPath(Node* node)
     }
 }
 
-void NodeModel::InsertPathLeaf(int node_id, CString& path, int /*unit*/) { NodeModelUtils::AppendItem(leaf_model_, node_id, path); }
-
-bool NodeModel::ChildrenEmpty(int node_id) const
-{
-    auto it { node_hash_.constFind(node_id) };
-    return (it == node_hash_.constEnd()) ? true : it.value()->children.isEmpty();
-}
-
 QSet<int> NodeModel::ChildrenID(int node_id) const
 {
-    if (node_id <= 0)
-        return {};
+    assert(node_id >= 1 && "node_id must be positive");
 
     auto it { node_hash_.constFind(node_id) };
     if (it == node_hash_.constEnd() || !it.value())

@@ -407,11 +407,6 @@ QScrollBar::handle:vertical {
     min-height: 24px;
 }
 
-QAbstractScrollArea::corner {
-    border-left: 1px solid #657B83;
-    border-top: 1px solid #657B83;
-}
-
 QScrollBar:handle:vertical:disabled {
     border: 1px solid #586E75;
     border-right: none;
@@ -435,16 +430,29 @@ QScrollBar::sub-line:vertical:disabled {
 QScrollBar::add-line:vertical {
     border: 1px solid #657B83;
     border-right: none;
-    border-bottom: none;
     height: 24px;
     subcontrol-position: bottom;
     subcontrol-origin: margin;
+}
+
+QTableView QScrollBar::add-line:vertical {
+    border-bottom: none;
+    subcontrol-position: bottom;
 }
 
 QScrollBar::add-line:vertical:disabled {
     border: 1px solid #586E75;
     border-right: none;
     border-bottom: none;
+}
+
+QTreeView::corner {
+    border-left: 1px solid #657B83;
+}
+
+QTableView::corner {
+    border-left: 1px solid #657B83;
+    border-top: 1px solid #657B83;
 }
 
 /*-------------------------------------QMenuBar------------------------------------------------------------*/

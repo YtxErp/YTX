@@ -103,8 +103,8 @@ private:
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
 
-    QStandardItemModel* emodel_ {};
-    QStandardItemModel* pmodel_ {};
+    QSortFilterProxyModel* emodel_ {};
+    QSortFilterProxyModel* pmodel_ {};
 
     const int node_id_ {};
     const int party_unit_ {};

@@ -20,6 +20,7 @@
 #ifndef REMOVENODE_H
 #define REMOVENODE_H
 
+#include <QButtonGroup>
 #include <QDialog>
 
 #include "tree/model/nodemodel.h"
@@ -38,20 +39,25 @@ public:
 signals:
     // send to sqlite
     void SRemoveNode(int node_id, int node_type);
-    void SReplaceNode(int old_node_id, int new_node_id, int node_type);
+    void SReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit);
 
 private slots:
     void on_pBtnOk_clicked();
+    void RcomboBoxCurrentIndexChanged(int index);
+    void RButtonGroup(int id);
 
 private:
     void IniData(Section section, bool exteral_reference, int node_type);
     void DisableRemove();
+    void IniConnect();
+    void IniOptionGroup();
 
 private:
     Ui::RemoveNode* ui;
+    QButtonGroup* option_group_ {};
 
     int node_id_ {};
-    int unit_ {};
+    int node_unit_ {};
     int node_type_ {};
 
     CNodeModel* model_ {};

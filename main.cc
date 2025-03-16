@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     if (application.arguments().size() >= 2) {
         const QString file_path { application.arguments().at(1) };
 
-        if (!file_path.isEmpty() && !mainwindow.ROpenFile(file_path)) {
+        if (!mainwindow.ROpenFile(file_path)) {
             return EXIT_FAILURE;
         }
     }
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     if (application.arguments().size() >= 2) {
         const QString file_path { application.arguments().at(1) };
 
-        if (!file_path.isEmpty() && !mainwindow.ROpenFile(file_path)) {
+        if (!mainwindow.ROpenFile(file_path)) {
             return EXIT_FAILURE;
         }
     }

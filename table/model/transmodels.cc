@@ -9,22 +9,14 @@
 TransModelS::TransModelS(CTransModelArg& arg, QObject* parent)
     : TransModel { arg, parent }
 {
-    if (node_id_ >= 1)
-        sql_->ReadTrans(trans_shadow_list_, node_id_);
-}
-
-void TransModelS::RAppendPrice(TransShadow* trans_shadow)
-{
-    auto row { trans_shadow_list_.size() };
-    beginInsertRows(QModelIndex(), row, row);
-    trans_shadow_list_.append(trans_shadow);
-    endInsertRows();
+    assert(node_id_ >= 1 && "Assertion failed: node_id_ must be positive (>= 1)");
+    sql_->ReadTrans(trans_shadow_list_, node_id_);
+    IniInsideSet();
 }
 
 bool TransModelS::removeRows(int row, int /*count*/, const QModelIndex& parent)
 {
-    if (row <= -1)
-        return false;
+    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
 
     auto* trans_shadow { trans_shadow_list_.at(row) };
     int rhs_node_id { *trans_shadow->rhs_node };
@@ -35,43 +27,13 @@ bool TransModelS::removeRows(int row, int /*count*/, const QModelIndex& parent)
 
     if (rhs_node_id != 0) {
         if (int support_id = *trans_shadow->support_id; support_id != 0)
-            emit SRemoveSupportTrans(info_.section, support_id, *trans_shadow->id);
+            emit SRemoveOneTransS(section_, support_id, *trans_shadow->id);
 
         sql_->RemoveTrans(*trans_shadow->id);
     }
 
+    inside_set_.remove(rhs_node_id);
     ResourcePool<TransShadow>::Instance().Recycle(trans_shadow);
-    return true;
-}
-
-bool TransModelS::AppendMultiTrans(int node_id, const QList<int>& trans_id_list)
-{
-    auto row { trans_shadow_list_.size() };
-    TransShadowList trans_shadow_list {};
-
-    sql_->ReadTransRange(trans_shadow_list, node_id, trans_id_list);
-    beginInsertRows(QModelIndex(), row, row + trans_shadow_list.size() - 1);
-    trans_shadow_list_.append(trans_shadow_list);
-    endInsertRows();
-
-    return true;
-}
-
-bool TransModelS::RemoveMultiTrans(const QList<int>& trans_id_list)
-{
-    if (trans_id_list.isEmpty())
-        return false;
-
-    for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        const int kTransID { *trans_shadow_list_.at(i)->id };
-
-        if (trans_id_list.contains(kTransID)) {
-            beginRemoveRows(QModelIndex(), i, i);
-            ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_.takeAt(i));
-            endRemoveRows();
-        }
-    }
-
     return true;
 }
 
@@ -91,14 +53,24 @@ bool TransModelS::UpdateRatio(TransShadow* trans_shadow, double value)
     return true;
 }
 
-bool TransModelS::UpdateInsideProduct(TransShadow* trans_shadow, int value) const
+bool TransModelS::UpdateInsideProduct(TransShadow* trans_shadow, int value)
 {
-    if (*trans_shadow->rhs_node == value)
+    if (*trans_shadow->rhs_node == value || inside_set_.contains(value))
         return false;
 
+    inside_set_.remove(*trans_shadow->rhs_node);
     *trans_shadow->rhs_node = value;
-
+    inside_set_.insert(value);
     return true;
+}
+
+void TransModelS::IniInsideSet()
+{
+    std::ranges::for_each(trans_shadow_list_, [this](const auto* shadow) {
+        if (shadow->rhs_node) {
+            inside_set_.insert(*shadow->rhs_node);
+        }
+    });
 }
 
 QVariant TransModelS::data(const QModelIndex& index, int role) const
@@ -143,10 +115,10 @@ bool TransModelS::setData(const QModelIndex& index, const QVariant& value, int r
 
     auto* trans_shadow { trans_shadow_list_.at(kRow) };
     int old_rhs_node { *trans_shadow->rhs_node };
-    int old_hel_node { *trans_shadow->support_id };
+    int old_sup_node { *trans_shadow->support_id };
 
     bool rhs_changed { false };
-    bool hel_changed { false };
+    bool sup_changed { false };
 
     switch (kColumn) {
     case TransEnumS::kDateTime:
@@ -168,7 +140,7 @@ bool TransModelS::setData(const QModelIndex& index, const QVariant& value, int r
         TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
         break;
     case TransEnumS::kOutsideProduct:
-        hel_changed = TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kOutsideProduct, value.toInt(), &TransShadow::support_id);
+        sup_changed = TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kOutsideProduct, value.toInt(), &TransShadow::support_id);
         break;
     default:
         return false;
@@ -179,18 +151,18 @@ bool TransModelS::setData(const QModelIndex& index, const QVariant& value, int r
             sql_->WriteTrans(trans_shadow);
 
             if (*trans_shadow->support_id != 0) {
-                emit SAppendSupportTrans(info_.section, trans_shadow);
+                emit SAppendOneTransS(section_, *trans_shadow->support_id, *trans_shadow->id);
             }
         } else
             sql_->WriteField(info_.trans, kInsideProduct, value.toInt(), *trans_shadow->id);
     }
 
-    if (hel_changed) {
-        if (old_hel_node != 0)
-            emit SRemoveSupportTrans(info_.section, old_hel_node, *trans_shadow->id);
+    if (sup_changed) {
+        if (old_sup_node != 0)
+            emit SRemoveOneTransS(section_, old_sup_node, *trans_shadow->id);
 
-        if (*trans_shadow->support_id != 0) {
-            emit SAppendSupportTrans(info_.section, trans_shadow);
+        if (*trans_shadow->support_id != 0 && *trans_shadow->id != 0) {
+            emit SAppendOneTransS(section_, *trans_shadow->support_id, *trans_shadow->id);
         }
     }
 
@@ -200,8 +172,8 @@ bool TransModelS::setData(const QModelIndex& index, const QVariant& value, int r
 
 void TransModelS::sort(int column, Qt::SortOrder order)
 {
-    // ignore subtotal column
-    if (column <= -1 || column >= info_.trans_header.size() - 1)
+    assert(column >= 0 && "Column index out of range");
+    if (column >= info_.trans_header.size() - 1)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {

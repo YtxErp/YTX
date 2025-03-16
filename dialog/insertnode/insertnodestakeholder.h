@@ -34,7 +34,7 @@ class InsertNodeStakeholder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
+    InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QAbstractItemModel* employee_model, int amount_decimal, QWidget* parent = nullptr);
     ~InsertNodeStakeholder();
 
 private slots:
@@ -55,7 +55,7 @@ private slots:
     void on_deadline_editingFinished();
 
 private:
-    void IniDialog(QStandardItemModel* unit_model, QStandardItemModel* employee_model, int common_decimal);
+    void IniDialog(QStandardItemModel* unit_model, QAbstractItemModel* employee_model, int common_decimal);
     void IniConnect();
     void IniData();
     void IniTypeGroup();

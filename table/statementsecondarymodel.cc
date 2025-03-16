@@ -142,7 +142,7 @@ void StatementSecondaryModel::RRetrieveData(int unit, const QDateTime& start, co
 
     beginResetModel();
     if (!trans_list_.isEmpty())
-        trans_list_.clear();
+        ResourcePool<Trans>::Instance().Recycle(trans_list_);
 
     sql_->ReadStatementSecondary(trans_list_, party_id_, unit, start, end);
     endResetModel();

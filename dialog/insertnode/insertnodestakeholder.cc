@@ -4,7 +4,7 @@
 #include "component/signalblocker.h"
 #include "ui_insertnodestakeholder.h"
 
-InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QStandardItemModel* employee_model, int amount_decimal, QWidget* parent)
+InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QAbstractItemModel* employee_model, int amount_decimal, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeStakeholder)
     , node_ { arg.node }
@@ -22,7 +22,7 @@ InsertNodeStakeholder::InsertNodeStakeholder(CInsertNodeArgFPTS& arg, QStandardI
 
 InsertNodeStakeholder::~InsertNodeStakeholder() { delete ui; }
 
-void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QStandardItemModel* employee_model, int amount_decimal)
+void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QAbstractItemModel* employee_model, int amount_decimal)
 {
     ui->lineEditName->setFocus();
     ui->lineEditName->setValidator(&LineEdit::kInputValidator);

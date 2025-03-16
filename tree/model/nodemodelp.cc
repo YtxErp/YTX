@@ -1,5 +1,7 @@
 #include "nodemodelp.h"
 
+#include "tree/excludesetfiltermodel.h"
+
 NodeModelP::NodeModelP(CNodeModelArg& arg, QObject* parent)
     : NodeModel(arg, parent)
 {
@@ -13,8 +15,7 @@ void NodeModelP::RUpdateLeafValue(
     int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled_delta*/)
 {
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf)
-        return;
+    assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
     if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
@@ -32,133 +33,24 @@ void NodeModelP::RUpdateLeafValue(
     emit SUpdateStatusValue();
 }
 
-void NodeModelP::RUpdateMultiLeafTotal(const QList<int>& node_list)
+void NodeModelP::RemoveUnitSet(int node_id, int unit)
 {
-    double old_final_total {};
-    double old_initial_total {};
-    double final_delta {};
-    double initial_delta {};
-    Node* node {};
-
-    for (int node_id : node_list) {
-        node = NodeModelUtils::GetNode(node_hash_, node_id);
-
-        if (!node || node->type != kTypeLeaf)
-            continue;
-
-        old_final_total = node->final_total;
-        old_initial_total = node->initial_total;
-
-        sql_->ReadLeafTotal(node);
-        sql_->SyncLeafValue(node);
-
-        final_delta = node->final_total - old_final_total;
-        initial_delta = node->initial_total - old_initial_total;
-
-        UpdateAncestorValue(node, initial_delta, final_delta);
-    }
-
-    emit SUpdateStatusValue();
+    if (unit == std::to_underlying(UnitP::kPos))
+        pset_.remove(node_id);
 }
 
-void NodeModelP::UpdateSeparator(CString& old_separator, CString& new_separator)
+void NodeModelP::InsertUnitSet(int node_id, int unit)
 {
-    if (old_separator == new_separator || new_separator.isEmpty())
-        return;
-
-    NodeModelUtils::UpdatePathSeparator(old_separator, new_separator, leaf_path_);
-    NodeModelUtils::UpdatePathSeparator(old_separator, new_separator, branch_path_);
-    NodeModelUtils::UpdatePathSeparator(old_separator, new_separator, support_path_);
-
-    NodeModelUtils::UpdateModelSeparator(leaf_model_, leaf_path_);
-    NodeModelUtils::UpdateModelSeparator(support_model_, support_path_);
-    NodeModelUtils::UpdateModelSeparator(product_model_, leaf_path_);
-}
-
-bool NodeModelP::UpdateUnit(Node* node, int value)
-{
-    if (node->unit == value)
-        return false;
-
-    const int node_id { node->id };
-    QString message { tr("Cannot change %1 unit,").arg(Path(node_id)) };
-
-    if (NodeModelUtils::HasChildren(node, message))
-        return false;
-
-    if (NodeModelUtils::IsInternalReferenced(sql_, node_id, message))
-        return false;
-
-    if (NodeModelUtils::IsExternalReferenced(sql_, node_id, message))
-        return false;
-
-    if (NodeModelUtils::IsSupportReferenced(sql_, node_id, message))
-        return false;
-
-    if (node->type == kTypeLeaf) {
-        if (value == std::to_underlying(UnitP::kPos))
-            NodeModelUtils::RemoveItem(product_model_, node_id);
-        else
-            NodeModelUtils::AppendItem(product_model_, node_id, leaf_path_.value(node_id));
-    }
-
-    node->unit = value;
-    sql_->WriteField(info_.node, kUnit, value, node_id);
-
-    return true;
-}
-
-void NodeModelP::RemovePathLeaf(int node_id, int unit)
-{
-    NodeModelUtils::RemoveItem(leaf_model_, node_id);
-
-    if (unit != std::to_underlying(UnitP::kPos))
-        NodeModelUtils::RemoveItem(product_model_, node_id);
-}
-
-void NodeModelP::InsertPathLeaf(int node_id, CString& path, int unit)
-{
-    NodeModelUtils::AppendItem(leaf_model_, node_id, path);
-
-    if (unit != std::to_underlying(UnitP::kPos)) {
-        NodeModelUtils::AppendItem(product_model_, node_id, path);
+    if (unit == std::to_underlying(UnitP::kPos)) {
+        pset_.insert(node_id);
     }
 }
 
-void NodeModelP::SortModel()
+bool NodeModelP::UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double /*first*/, double /*second*/, double /*discount*/)
 {
-    product_model_->sort(0);
-    support_model_->sort(0);
-    leaf_model_->sort(0);
-}
+    assert(node && node != root_ && node->parent && "Invalid node: node must be non-null, not the root, and must have a valid parent");
 
-void NodeModelP::IniModel()
-{
-    leaf_model_ = new QStandardItemModel(this);
-    support_model_ = new QStandardItemModel(this);
-    product_model_ = new QStandardItemModel(this);
-
-    NodeModelUtils::AppendItem(support_model_, 0, {});
-}
-
-bool NodeModelP::UpdateNameFunction(Node* node, CString& value)
-{
-    node->name = value;
-    sql_->WriteField(info_.node, kName, value, node->id);
-
-    NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
-    NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-    NodeModelUtils::UpdateUnitModel(leaf_path_, product_model_, node, std::to_underlying(UnitP::kPos), Filter::kExcludeSpecific);
-
-    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
-    emit SSearch();
-    return true;
-}
-
-bool NodeModelP::UpdateAncestorValue(
-    Node* node, double initial_delta, double final_delta, double /*first_delta*/, double /*second_delta*/, double /*discount_delta*/)
-{
-    if (!node || node == root_ || !node->parent || node->parent == root_)
+    if (node->parent == root_)
         return false;
 
     if (initial_delta == 0.0 && final_delta == 0.0)
@@ -178,8 +70,7 @@ bool NodeModelP::UpdateAncestorValue(
 
 void NodeModelP::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.node_header.size())
-        return;
+    assert(column >= 0 && column < info_.node_header.size() && "Column index out of range");
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
         const NodeEnumP kColumn { column };
@@ -351,7 +242,9 @@ bool NodeModelP::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
         node_id = QVariant(mime).toInt();
 
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    if (!node || node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
+    assert(node && "Node must be non-null");
+
+    if (node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
         return false;
 
     auto begin_row { row == -1 ? destination_parent->children.size() : row };
@@ -372,10 +265,17 @@ bool NodeModelP::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
     sql_->DragNode(destination_parent->id, node_id);
     NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
-    NodeModelUtils::UpdateUnitModel(leaf_path_, product_model_, node, std::to_underlying(UnitP::kPos), Filter::kExcludeSpecific);
 
     emit SUpdateName(node_id, node->name, node->type == kTypeBranch);
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
+}
+
+QSortFilterProxyModel* NodeModelP::ExcludeUnitModel(int /*unit*/)
+{
+    auto* model { new ExcludeSetFilterModel(&pset_, this) };
+    model->setSourceModel(leaf_model_);
+    QObject::connect(this, &NodeModel::SSyncFilterModel, model, &ExcludeSetFilterModel::RSyncFilterModel);
+    return model;
 }

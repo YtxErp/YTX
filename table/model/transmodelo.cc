@@ -6,7 +6,7 @@
 TransModelO::TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent)
     : TransModel { arg, parent }
     , product_tree_ { static_cast<const NodeModelP*>(product_tree) }
-    , sqlite_stakeholder_ { static_cast<SqliteStakeholder*>(sqlite_stakeholder) }
+    , sqlite_stakeholder_ { static_cast<SqliteS*>(sqlite_stakeholder) }
     , node_ { node }
     , party_id_ { node->party }
 {
@@ -17,17 +17,10 @@ TransModelO::TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* prod
         sqlite_stakeholder_->ReadTrans(party_id_);
 }
 
-TransModelO::~TransModelO()
-{
-    if (node_id_ != 0) {
-        RSyncBoolWD(node_id_, 0, true);
-    }
-}
-
 void TransModelO::UpdateLhsNode(int node_id)
 {
-    if (node_id_ != 0 || node_id <= 0)
-        return;
+    assert(node_id >= 1 && "Assertion failed: node_id must be positive (>= 1)");
+    assert(node_id_ == 0 && "Assertion failed: node_id_ must be 0");
 
     node_id_ = node_id;
     if (trans_shadow_list_.isEmpty())
@@ -41,26 +34,18 @@ void TransModelO::UpdateLhsNode(int node_id)
 
 void TransModelO::UpdateParty(int node_id, int party_id)
 {
-    if (node_id_ != node_id || party_id_ == party_id)
+    assert(node_id_ == node_id && "Assertion failed: node_id_ must be equal to node_id");
+    if (party_id_ == party_id)
         return;
 
     party_id_ = party_id;
     sqlite_stakeholder_->ReadTrans(party_id);
 }
 
-void TransModelO::UpdatePrice()
-{
-    // 遍历trans_shadow_list，对比exclusive_price_，检测是否存在inside_product_id, 不存在添加，存在更新
-    for (auto it = sync_price_.cbegin(); it != sync_price_.cend(); ++it) {
-        sqlite_stakeholder_->UpdatePrice(party_id_, it.key(), node_->date_time, it.value());
-    }
-
-    sync_price_.clear();
-}
-
 void TransModelO::SyncRule(int node_id, bool value)
 {
-    if (node_id != node_id_ || node_rule_ == value)
+    assert(node_id_ == node_id && "Assertion failed: node_id_ must be equal to node_id");
+    if (node_rule_ == value)
         return;
 
     node_rule_ = value;
@@ -81,15 +66,13 @@ void TransModelO::SyncRule(int node_id, bool value)
 
 void TransModelO::RSyncBoolWD(int node_id, int column, bool value)
 {
-    if (node_id != node_id_)
-        return;
+    assert(node_id_ == node_id && "Assertion failed: node_id_ must be equal to node_id");
 
     if (NodeEnumO(column) == NodeEnumO::kFinished) {
-        if (!value || sync_price_.isEmpty())
+        if (!value)
             return;
 
         PurifyTransShadow();
-        UpdatePrice();
     }
 
     if (NodeEnumO(column) == NodeEnumO::kRule) {
@@ -249,9 +232,7 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
 
 void TransModelO::sort(int column, Qt::SortOrder order)
 {
-    // ignore subtotal column
-    if (column <= -1 || column >= info_.trans_header.size() - 1)
-        return;
+    assert(column >= 0 && column < info_.node_header.size() && "Column index out of range");
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {
         const TransEnumO kColumn { column };
@@ -313,8 +294,7 @@ Qt::ItemFlags TransModelO::flags(const QModelIndex& index) const
 
 bool TransModelO::removeRows(int row, int /*count*/, const QModelIndex& parent)
 {
-    if (row <= -1)
-        return false;
+    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
 
     auto* trans_shadow { trans_shadow_list_.at(row) };
     const int lhs_node { *trans_shadow->lhs_node };
@@ -382,7 +362,6 @@ bool TransModelO::UpdateUnitPrice(TransShadow* trans_shadow, double value)
 
     emit SResizeColumnToContents(std::to_underlying(TransEnumO::kGrossAmount));
     emit SResizeColumnToContents(std::to_underlying(TransEnumO::kNetAmount));
-    sync_price_.insert(*trans_shadow->rhs_node, value);
 
     if (*trans_shadow->lhs_node == 0 || *trans_shadow->rhs_node == 0)
         return true;
@@ -448,8 +427,8 @@ bool TransModelO::UpdateFirst(TransShadow* trans_shadow, double value, int kCoef
 
 void TransModelO::PurifyTransShadow(int lhs_node_id)
 {
-    for (auto i { trans_shadow_list_.size() - 1 }; i >= 0; --i) {
-        auto* trans_shadow { trans_shadow_list_.at(i) };
+    for (auto i = trans_shadow_list_.size() - 1; i >= 0; --i) {
+        auto* trans_shadow { trans_shadow_list_[i] };
 
         if (*trans_shadow->rhs_node == 0) {
             beginRemoveRows(QModelIndex(), i, i);

@@ -10,7 +10,6 @@
 #include "delegate/readonly/stringmapr.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/search/searchpathtreer.h"
-#include "delegate/table/supportid.h"
 #include "ui_search.h"
 
 Search::Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent)
@@ -22,12 +21,13 @@ Search::Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* produ
     , product_tree_ { product_tree }
     , settings_ { settings }
     , info_ { info }
+    , section_ { info.section }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    search_tree_ = new NodeSearchModel(info, tree_, stakeholder_tree, sql, this);
-    search_table_ = new TransSearchModel(info, sql, this);
+    search_tree_ = new SearchNodeModel(info, tree_, stakeholder_tree, sql, this);
+    search_table_ = new SearchTransModel(info, sql, this);
 
     TreeViewDelegate(ui->searchViewNode, search_tree_);
     TableViewDelegate(ui->searchViewTrans, search_table_);
@@ -139,6 +139,7 @@ void Search::HideTableColumn(QTableView* view, Section section)
         view->setColumnHidden(std::to_underlying(TransSearchEnum::kDateTime), true);
         view->setColumnHidden(std::to_underlying(TransSearchEnum::kDocument), true);
         view->setColumnHidden(std::to_underlying(TransSearchEnum::kState), true);
+        view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsNode), true);
     default:
         break;
     }
@@ -151,7 +152,7 @@ void Search::IniContentGroup()
     content_group_->addButton(ui->rBtnTrans, 1);
 }
 
-void Search::TreeViewDelegate(QTableView* view, NodeSearchModel* model)
+void Search::TreeViewDelegate(QTableView* view, SearchNodeModel* model)
 {
     view->setModel(model);
 
@@ -175,7 +176,7 @@ void Search::TreeViewDelegate(QTableView* view, NodeSearchModel* model)
     auto* name { new SearchPathTreeR(tree_, std::to_underlying(NodeSearchEnum::kID), view) };
     view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kName), name);
 
-    if (info_.section == Section::kProduct || info_.section == Section::kTask) {
+    if (section_ == Section::kProduct || section_ == Section::kTask) {
         auto* color { new ColorR(view) };
         view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kColor), color);
     }
@@ -189,7 +190,7 @@ void Search::TreeViewDelegate(QTableView* view, NodeSearchModel* model)
     view->setItemDelegateForColumn(std::to_underlying(NodeSearchEnum::kSecond), value);
 }
 
-void Search::TableViewDelegate(QTableView* view, TransSearchModel* model)
+void Search::TableViewDelegate(QTableView* view, SearchTransModel* model)
 {
     view->setModel(model);
 
@@ -204,13 +205,13 @@ void Search::TableViewDelegate(QTableView* view, TransSearchModel* model)
     view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsRatio), ratio);
     view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsRatio), ratio);
 
-    if (info_.section == Section::kFinance || info_.section == Section::kTask || info_.section == Section::kProduct) {
+    if (section_ == Section::kFinance || section_ == Section::kTask || section_ == Section::kProduct) {
         auto* node_name { new SearchPathTableR(tree_, view) };
         view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsNode), node_name);
         view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), node_name);
     }
 
-    if (info_.section == Section::kStakeholder) {
+    if (section_ == Section::kStakeholder) {
         auto* lhs_node_name { new SearchPathTableR(tree_, view) };
         view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kLhsNode), lhs_node_name);
         view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kSupportID), lhs_node_name);
@@ -219,7 +220,7 @@ void Search::TableViewDelegate(QTableView* view, TransSearchModel* model)
         view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), rhs_node_name);
     }
 
-    if (info_.section == Section::kSales || info_.section == Section::kPurchase) {
+    if (section_ == Section::kSales || section_ == Section::kPurchase) {
         auto* rhs_node_name { new SearchPathTableR(stakeholder_tree_, view) };
         view->setItemDelegateForColumn(std::to_underlying(TransSearchEnum::kRhsNode), rhs_node_name);
 
@@ -283,7 +284,7 @@ void Search::RTransDoubleClicked(const QModelIndex& index)
     int rhs_node_id { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kRhsNode)).data().toInt() };
     int trans_id { index.siblingAtColumn(std::to_underlying(TransSearchEnum::kID)).data().toInt() };
 
-    switch (info_.section) {
+    switch (section_) {
     case Section::kStakeholder:
     case Section::kSales:
     case Section::kPurchase:

@@ -12,28 +12,28 @@ void LeafSStation::RegisterModel(Section section, int node_id, const TransModel*
 
 void LeafSStation::DeregisterModel(Section section, int node_id) { model_hash_.remove({ section, node_id }); }
 
-void LeafSStation::RAppendOneTrans(Section section, const TransShadow* trans_shadow)
+void LeafSStation::RAppendOneTransL(Section section, const TransShadow* trans_shadow)
 {
-    if (!trans_shadow)
-        return;
+    assert(trans_shadow && "trans_shadow must be non-null");
 
     int rhs_node_id { *trans_shadow->rhs_node };
     const auto* model { FindModel(section, rhs_node_id) };
+
     if (!model)
         return;
 
-    connect(this, &LeafSStation::SAppendOneTrans, model, &TransModel::RAppendOneTrans, Qt::SingleShotConnection);
-    emit SAppendOneTrans(trans_shadow);
+    connect(this, &LeafSStation::SAppendOneTransL, model, &TransModel::RAppendOneTransL, Qt::SingleShotConnection);
+    emit SAppendOneTransL(trans_shadow);
 }
 
-void LeafSStation::RRemoveOneTrans(Section section, int node_id, int trans_id)
+void LeafSStation::RRemoveOneTransL(Section section, int node_id, int trans_id)
 {
     const auto* model { FindModel(section, node_id) };
     if (!model)
         return;
 
-    connect(this, &LeafSStation::SRemoveOneTrans, model, &TransModel::RRemoveOneTrans, Qt::SingleShotConnection);
-    emit SRemoveOneTrans(node_id, trans_id);
+    connect(this, &LeafSStation::SRemoveOneTransL, model, &TransModel::RRemoveOneTransL, Qt::SingleShotConnection);
+    emit SRemoveOneTransL(node_id, trans_id);
 }
 
 void LeafSStation::RUpdateBalance(Section section, int node_id, int trans_id)
@@ -46,19 +46,17 @@ void LeafSStation::RUpdateBalance(Section section, int node_id, int trans_id)
     emit SUpdateBalance(node_id, trans_id);
 }
 
-void LeafSStation::RAppendPrice(Section section, TransShadow* trans_shadow)
+void LeafSStation::RAppendMultiTrans(Section section, int node_id, const TransShadowList& trans_shadow_list)
 {
-    if (!trans_shadow)
+    if (trans_shadow_list.isEmpty())
         return;
 
-    int lhs_node { *trans_shadow->lhs_node };
-    const auto* model { FindModel(section, lhs_node) };
+    const auto* model { FindModel(section, node_id) };
     if (!model)
         return;
 
-    const auto* cast_model { static_cast<const TransModelS*>(model) };
-    connect(this, &LeafSStation::SAppendPrice, cast_model, &TransModelS::RAppendPrice, Qt::SingleShotConnection);
-    emit SAppendPrice(trans_shadow);
+    connect(this, &LeafSStation::SAppendMultiTrans, model, &TransModel::RAppendMultiTrans, Qt::SingleShotConnection);
+    emit SAppendMultiTrans(node_id, trans_shadow_list);
 }
 
 void LeafSStation::RRule(Section section, int node_id, bool rule)
@@ -69,4 +67,36 @@ void LeafSStation::RRule(Section section, int node_id, bool rule)
 
     connect(this, &LeafSStation::SRule, model, &TransModel::RRule, Qt::SingleShotConnection);
     emit SRule(node_id, rule);
+}
+
+void LeafSStation::RRemoveMultiTransL(Section section, const QMultiHash<int, int>& leaf_trans)
+{
+    const auto keys { leaf_trans.uniqueKeys() };
+
+    for (int node_id : keys) {
+        const auto* model { FindModel(section, node_id) };
+        if (!model)
+            continue;
+
+        const auto trans_id_list { leaf_trans.values(node_id) };
+        const QSet<int> trans_id_set { trans_id_list.cbegin(), trans_id_list.cend() };
+
+        connect(this, &LeafSStation::SRemoveMultiTransL, model, &TransModel::RRemoveMultiTransL, Qt::SingleShotConnection);
+        emit SRemoveMultiTransL(node_id, trans_id_set);
+    }
+}
+
+void LeafSStation::RMoveMultiTransL(Section section, int old_node_id, int new_node_id, const QSet<int>& trans_id_set)
+{
+    const auto* old_model { FindModel(section, old_node_id) };
+    if (old_model) {
+        connect(this, &LeafSStation::SRemoveMultiTransL, old_model, &TransModel::RRemoveMultiTransL, Qt::SingleShotConnection);
+        emit SRemoveMultiTransL(old_node_id, trans_id_set);
+    }
+
+    const auto* new_model { FindModel(section, new_node_id) };
+    if (new_model) {
+        connect(this, &LeafSStation::SAppendMultiTransL, new_model, &TransModel::RAppendMultiTransL, Qt::SingleShotConnection);
+        emit SAppendMultiTransL(new_node_id, trans_id_set);
+    }
 }

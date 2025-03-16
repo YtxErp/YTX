@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef NODESEARCHMODEL_H
-#define NODESEARCHMODEL_H
+#ifndef SEARCHNODEMODEL_H
+#define SEARCHNODEMODEL_H
 
 #include <QAbstractItemModel>
 
@@ -27,11 +27,11 @@
 #include "database/sqlite/sqlite.h"
 #include "tree/model/nodemodel.h"
 
-class NodeSearchModel final : public QAbstractItemModel {
+class SearchNodeModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    NodeSearchModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent = nullptr);
-    ~NodeSearchModel() = default;
+    SearchNodeModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent = nullptr);
+    ~SearchNodeModel() = default;
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -57,4 +57,4 @@ private:
     QList<const Node*> node_list_ {};
 };
 
-#endif // NODESEARCHMODEL_H
+#endif // SEARCHNODEMODEL_H

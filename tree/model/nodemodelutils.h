@@ -85,7 +85,6 @@ public:
     static void RemoveItem(QStandardItemModel* model, int node_id);
 
     static void UpdateModel(CStringHash& leaf, QStandardItemModel* leaf_model, CStringHash& support, QStandardItemModel* support_model, const Node* node);
-    static void UpdateUnitModel(CStringHash& leaf, QStandardItemModel* unit_model, const Node* node, int specific_unit, Filter filter);
     static void UpdatePathSeparator(CString& old_separator, CString& new_separator, StringHash& source_path);
     static void UpdateModelSeparator(QStandardItemModel* model, CStringHash& source_path);
 

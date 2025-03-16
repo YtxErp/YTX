@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef YTXSQLITE_H
-#define YTXSQLITE_H
+#ifndef SQLIEYTX_H
+#define SQLIEYTX_H
 
 #include <QSqlDatabase>
 
@@ -26,10 +26,9 @@
 #include "component/settings.h"
 #include "component/using.h"
 
-class YtxSqlite {
+class SqlieYtx {
 public:
-    YtxSqlite() = default;
-    explicit YtxSqlite(Section section);
+    SqlieYtx();
 
     void QuerySettings(Settings& settings, Section section);
     void UpdateSettings(CSettings& settings, Section section);
@@ -57,4 +56,4 @@ private:
     QSqlDatabase* db_ {};
 };
 
-#endif // YTXSQLITE_H
+#endif // SQLIEYTX_H

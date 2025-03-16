@@ -141,7 +141,7 @@ void StatementPrimaryModel::RRetrieveData(int unit, const QDateTime& start, cons
     beginResetModel();
 
     if (!node_list_.isEmpty())
-        node_list_.clear();
+        ResourcePool<Node>::Instance().Recycle(node_list_);
 
     sql_->ReadStatementPrimary(node_list_, party_id_, unit, start, end);
     endResetModel();

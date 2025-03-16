@@ -31,7 +31,7 @@
 #include "component/data.h"
 #include "component/settings.h"
 #include "component/using.h"
-#include "database/ytxsqlite.h"
+#include "database/sqlieytx.h"
 #include "table/model/transmodel.h"
 #include "table/model/transmodelo.h"
 #include "tree/model/nodemodel.h"
@@ -96,7 +96,7 @@ private slots:
     void RUpdateName(int node_id, const QString& name, bool branch);
     void RUpdateState();
 
-    void RFreeWidget(int node_id);
+    void RFreeWidget(int node_id, int node_type);
     void REditTransDocument(const QModelIndex& index);
     void REditNodeDocument(const QModelIndex& index);
     void RTransRef(const QModelIndex& index);
@@ -152,9 +152,9 @@ private:
     void DelegateStatementPrimary(PTableView table_view, CSettings* settings) const;
     void DelegateStatementSecondary(PTableView table_view, CSettings* settings) const;
 
-    void TableConnectFPT(PTableView table_view, PTransModel table_model, PNodeModel tree_model, CData* data) const;
+    void TableConnectFPT(PTableView table_view, PTransModel table_model, PNodeModel tree_model) const;
     void TableConnectO(PTableView table_view, TransModelO* table_model, PNodeModel tree_model, TransWidgetO* widget) const;
-    void TableConnectS(PTableView table_view, PTransModel table_model, PNodeModel tree_model, CData* data) const;
+    void TableConnectS(PTableView table_view, PTransModel table_model, PNodeModel tree_model) const;
 
     void CreateSection(NodeWidget* node_widget, TransWgtHash& trans_wgt_hash, CData& data, CSettings& settings, CString& name);
     void SwitchSection(CTab& last_tab) const;
@@ -170,6 +170,8 @@ private:
 
     void SetTreeView(PTreeView tree_view, CInfo& info) const;
     void TreeConnect(NodeWidget* node_widget, const Sqlite* sql) const;
+    void TreeConnectFPT(const Sqlite* sql) const;
+    void TreeConnectS(PNodeModel tree_model, const Sqlite* sql) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task
@@ -224,7 +226,7 @@ private:
     Interface interface_ {};
 
     std::unique_ptr<QLockFile> lock_file_;
-    std::unique_ptr<YtxSqlite> ytx_sql_ {};
+    std::unique_ptr<SqlieYtx> ytx_sql_ {};
     std::shared_ptr<QSettings> app_settings_ {};
     std::shared_ptr<QSettings> file_settings_ {};
 
@@ -233,7 +235,6 @@ private:
     NodeWidget* node_widget_ {};
     TransWgtHash* trans_wgt_hash_ {};
     QList<PDialog>* dialog_list_ {};
-    QHash<int, PDialog>* dialog_hash_ {};
     Settings* settings_ {};
     Data* data_ {};
     SupWgtHash* sup_wgt_hash_ {};
@@ -242,7 +243,6 @@ private:
     NodeWidget* finance_tree_ {};
     TransWgtHash finance_trans_wgt_hash_ {};
     QList<PDialog> finance_dialog_list_ {};
-    QHash<int, PDialog> finance_dialog_hash_ {};
     Settings finance_settings_ {};
     Data finance_data_ {};
     SupWgtHash finance_sup_wgt_hash_ {};
@@ -250,7 +250,6 @@ private:
     NodeWidget* product_tree_ {};
     TransWgtHash product_trans_wgt_hash_ {};
     QList<PDialog> product_dialog_list_ {};
-    QHash<int, PDialog> product_dialog_hash_ {};
     Settings product_settings_ {};
     Data product_data_ {};
     SupWgtHash product_sup_wgt_hash_ {};
@@ -259,7 +258,6 @@ private:
     NodeWidget* task_tree_ {};
     TransWgtHash task_trans_wgt_hash_ {};
     QList<PDialog> task_dialog_list_ {};
-    QHash<int, PDialog> task_dialog_hash_ {};
     Settings task_settings_ {};
     Data task_data_ {};
     SupWgtHash task_sup_wgt_hash_ {};
@@ -267,7 +265,6 @@ private:
     NodeWidget* stakeholder_tree_ {};
     TransWgtHash stakeholder_trans_wgt_hash_ {};
     QList<PDialog> stakeholder_dialog_list_ {};
-    QHash<int, PDialog> stakeholder_dialog_hash_ {};
     Settings stakeholder_settings_ {};
     Data stakeholder_data_ {};
     SupWgtHash stakeholder_sup_wgt_hash_ {};
@@ -276,7 +273,6 @@ private:
     NodeWidget* sales_tree_ {};
     TransWgtHash sales_trans_wgt_hash_ {};
     QList<PDialog> sales_dialog_list_ {};
-    QHash<int, PDialog> sales_dialog_hash_ {};
     Settings sales_settings_ {};
     Data sales_data_ {};
     RptWgtHash sales_rpt_wgt_hash_ {};
@@ -284,7 +280,6 @@ private:
     NodeWidget* purchase_tree_ {};
     TransWgtHash purchase_trans_wgt_hash_ {};
     QList<PDialog> purchase_dialog_list_ {};
-    QHash<int, PDialog> purchase_dialog_hash_ {};
     Settings purchase_settings_ {};
     Data purchase_data_ {};
     RptWgtHash purchase_rpt_wgt_hash_ {};

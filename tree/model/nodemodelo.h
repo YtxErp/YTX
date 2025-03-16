@@ -22,7 +22,7 @@
 
 #include <QDate>
 
-#include "database/sqlite/sqliteorder.h"
+#include "database/sqlite/sqliteo.h"
 #include "tree/model/nodemodel.h"
 
 class NodeModelO final : public NodeModel {
@@ -34,7 +34,6 @@ public:
 
 public slots:
     void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
-    void RUpdateStakeholder(int old_node_id, int new_node_id) override;
     void RSyncBoolWD(int node_id, int column, bool value) override; // kFinished
 
 public:
@@ -46,7 +45,7 @@ public:
 
     void UpdateTree(const QDateTime& start, const QDateTime& end);
     QString Path(int node_id) const override;
-    void RetrieveNode(int node_id) override;
+    void ReadNode(int node_id) override;
 
     Node* GetNode(int node_id) const override;
 
@@ -63,7 +62,7 @@ private:
     bool UpdateFinished(Node* node, bool value);
 
 private:
-    SqliteOrder* sql_ {};
+    SqliteO* sql_ {};
 };
 
 #endif // NODEMODELO_H

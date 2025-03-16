@@ -17,52 +17,44 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITEPRODUCT_H
-#define SQLITEPRODUCT_H
+#ifndef SQLITET_H
+#define SQLITET_H
 
 #include "sqlite.h"
 
-class SqliteProduct final : public Sqlite {
+class SqliteT final : public Sqlite {
 public:
-    SqliteProduct(CInfo& info, QObject* parent = nullptr);
+    SqliteT(CInfo& info, QObject* parent = nullptr);
 
 protected:
-    // tree
     QString QSReadNode() const override;
     QString QSWriteNode() const override;
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
-    QString QSExternalReferencePS() const override;
     QString QSSupportReference() const override;
-    QString QSReplaceSupportTransFPTS() const override;
+    QString QSReplaceSupport() const override;
     QString QSRemoveSupport() const override;
-    QString QSFreeViewFPT() const override;
-    QString QSSupportTransToMove() const override;
+    QString QSLeafTotal(int unit) const override;
 
     QString QSTransToRemove() const override;
-    QString QSSupportTransToRemove() const override;
 
-    QString QSLeafTotalFPT() const override;
-
-    void WriteNodeBind(Node* node, QSqlQuery& query) const override;
-    void ReadNodeQuery(Node* node, const QSqlQuery& query) const override;
+    QString QSReadTrans() const override;
+    QString QSReadSupportTrans() const override;
+    QString QSWriteTrans() const override;
+    QString QSReplaceLeaf() const override;
+    QString QSSyncTransValue() const override;
+    QString QSSearchTransValue() const override;
+    QString QSSearchTransText() const override;
 
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const override;
 
     QString QSSyncLeafValue() const override;
     void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
-    QString QSReadTrans() const override;
-    QString QSWriteTrans() const override;
-    QString QSReadTransRangeFPTS(CString& in_list) const override;
-    QString QSReadSupportTransFPTS() const override;
-    QString QSReplaceNodeTransFPTS() const override;
-    QString QSSyncTransValue() const override;
-    QString QSSearchTrans() const override;
-    QString QSReadTransRef() const override;
+    void WriteNodeBind(Node* node, QSqlQuery& query) const override;
+    void ReadNodeQuery(Node* node, const QSqlQuery& query) const override;
 };
 
-#endif // SQLITEPRODUCT_H
+#endif // SQLITET_H

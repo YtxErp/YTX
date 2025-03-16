@@ -10,11 +10,10 @@ NodeModelT::NodeModelT(CNodeModelArg& arg, QObject* parent)
 NodeModelT::~NodeModelT() { qDeleteAll(node_hash_); }
 
 void NodeModelT::RUpdateLeafValue(
-    int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled_delta*/)
+    int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled*/)
 {
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf)
-        return;
+    assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
     if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
@@ -33,38 +32,11 @@ void NodeModelT::RUpdateLeafValue(
     emit SUpdateStatusValue();
 }
 
-void NodeModelT::RUpdateMultiLeafTotal(const QList<int>& node_list)
-{
-    double old_final_total {};
-    double old_initial_total {};
-    double final_delta {};
-    double initial_delta {};
-    Node* node {};
-
-    for (int node_id : node_list) {
-        node = NodeModelUtils::GetNode(node_hash_, node_id);
-
-        if (!node || node->type != kTypeLeaf)
-            continue;
-
-        old_final_total = node->final_total;
-        old_initial_total = node->initial_total;
-
-        sql_->ReadLeafTotal(node);
-        sql_->SyncLeafValue(node);
-
-        final_delta = node->final_total - old_final_total;
-        initial_delta = node->initial_total - old_initial_total;
-
-        UpdateAncestorValue(node, initial_delta, final_delta);
-    }
-
-    emit SUpdateStatusValue();
-}
-
 void NodeModelT::RSyncDouble(int node_id, int column, double value)
 {
-    if (column != std::to_underlying(NodeEnumT::kUnitCost) || node_id <= 0 || value == 0.0)
+    assert(node_id >= 1 && "node_id must be positive");
+
+    if (column != std::to_underlying(NodeEnumT::kUnitCost) || value == 0.0)
         return;
 
     auto* node { node_hash_.value(node_id) };
@@ -173,8 +145,7 @@ bool NodeModelT::setData(const QModelIndex& index, const QVariant& value, int ro
 
 void NodeModelT::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.node_header.size())
-        return;
+    assert(column >= 0 && column < info_.node_header.size() && "Column index out of range");
 
     auto Compare = [column, order](const Node* lhs, const Node* rhs) -> bool {
         const NodeEnumT kColumn { column };
@@ -264,7 +235,9 @@ bool NodeModelT::dropMimeData(const QMimeData* data, Qt::DropAction action, int 
         node_id = QVariant(mime).toInt();
 
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    if (!node || node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
+    assert(node && "Node must be non-null");
+
+    if (node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
         return false;
 
     auto begin_row { row == -1 ? destination_parent->children.size() : row };
@@ -315,10 +288,11 @@ bool NodeModelT::UpdateUnit(Node* node, int value)
     return true;
 }
 
-bool NodeModelT::UpdateAncestorValue(
-    Node* node, double initial_delta, double final_delta, double /*first_delta*/, double /*second_delta*/, double /*discount_delta*/)
+bool NodeModelT::UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double /*first*/, double /*second*/, double /*discount*/)
 {
-    if (!node || node == root_ || !node->parent || node->parent == root_)
+    assert(node && node != root_ && node->parent && "Invalid node: node must be non-null, not the root, and must have a valid parent");
+
+    if (node->parent == root_)
         return false;
 
     if (initial_delta == 0.0 && final_delta == 0.0)

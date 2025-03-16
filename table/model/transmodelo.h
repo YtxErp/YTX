@@ -20,7 +20,7 @@
 #ifndef TRANSMODELO_H
 #define TRANSMODELO_H
 
-#include "database/sqlite/sqlitestakeholder.h"
+#include "database/sqlite/sqlites.h"
 #include "transmodel.h"
 #include "tree/model/nodemodel.h"
 #include "tree/model/nodemodelp.h"
@@ -30,7 +30,7 @@ class TransModelO final : public TransModel {
 
 public:
     TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent = nullptr);
-    ~TransModelO() override;
+    ~TransModelO() override = default;
 
 public slots:
     void RSyncBoolWD(int node_id, int column, bool value) override; // kFinished, kRule
@@ -58,13 +58,11 @@ private:
 
     void UpdateLhsNode(int node_id);
     void UpdateParty(int node_id, int party_id);
-    void UpdatePrice();
     void SyncRule(int node_id, bool value);
 
 private:
     const NodeModelP* product_tree_ {};
-    SqliteStakeholder* sqlite_stakeholder_ {};
-    QHash<int, double> sync_price_ {}; // inside_product_id, exclusive_price
+    SqliteS* sqlite_stakeholder_ {};
     const Node* node_ {};
     int party_id_ {};
 };

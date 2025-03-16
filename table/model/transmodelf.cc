@@ -6,12 +6,13 @@
 TransModelF::TransModelF(CTransModelArg& arg, QObject* parent)
     : TransModel { arg, parent }
 {
-    if (node_id_ >= 1)
-        sql_->ReadTrans(trans_shadow_list_, node_id_);
+    assert(node_id_ >= 1 && "Assertion failed: node_id_ must be positive (>= 1)");
+    sql_->ReadTrans(trans_shadow_list_, node_id_);
 }
 
 bool TransModelF::insertRows(int row, int /*count*/, const QModelIndex& parent)
 {
+    assert(row >= 0 && row <= rowCount(parent) && "Row must be in the valid range [0, rowCount(parent)]");
     // just register trans_shadow in this function
     // while set rhs node in setData function, register trans to sql_'s trans_hash_
     auto* trans_shadow { sql_->AllocateTransShadow() };
@@ -120,7 +121,7 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
         TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, node_rule_);
 
         emit SResizeColumnToContents(std::to_underlying(TransEnumF::kSubtotal));
-        emit SAppendOneTrans(info_.section, trans_shadow);
+        emit SAppendOneTransL(section_, trans_shadow);
 
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
@@ -133,22 +134,22 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
         emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
 
         if (*trans_shadow->support_id != 0) {
-            emit SAppendSupportTrans(info_.section, trans_shadow);
+            emit SAppendOneTransS(section_, *trans_shadow->support_id, *trans_shadow->id);
         }
     }
 
     if (deb_changed || cre_changed || rat_changed) {
         sql_->SyncTransValue(trans_shadow);
         emit SSearch();
-        emit SUpdateBalance(info_.section, old_rhs_node, *trans_shadow->id);
+        emit SUpdateBalance(section_, old_rhs_node, *trans_shadow->id);
     }
 
     if (sup_changed) {
         if (old_sup_node != 0)
-            emit SRemoveSupportTrans(info_.section, old_sup_node, *trans_shadow->id);
+            emit SRemoveOneTransS(section_, old_sup_node, *trans_shadow->id);
 
-        if (*trans_shadow->support_id != 0) {
-            emit SAppendSupportTrans(info_.section, trans_shadow);
+        if (*trans_shadow->support_id != 0 && *trans_shadow->id != 0) {
+            emit SAppendOneTransS(section_, *trans_shadow->support_id, *trans_shadow->id);
         }
     }
 
@@ -159,8 +160,8 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
 
     if (old_rhs_node != 0 && rhs_changed) {
         sql_->SyncTransValue(trans_shadow);
-        emit SRemoveOneTrans(info_.section, old_rhs_node, *trans_shadow->id);
-        emit SAppendOneTrans(info_.section, trans_shadow);
+        emit SRemoveOneTransL(section_, old_rhs_node, *trans_shadow->id);
+        emit SAppendOneTransL(section_, trans_shadow);
 
         double ratio { *trans_shadow->rhs_ratio };
         double debit { *trans_shadow->rhs_debit };
@@ -175,7 +176,8 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
 
 void TransModelF::sort(int column, Qt::SortOrder order)
 {
-    if (column <= -1 || column >= info_.trans_header.size() - 1)
+    assert(column >= 0 && "Column index out of range");
+    if (column >= info_.trans_header.size() - 1)
         return;
 
     auto Compare = [column, order](TransShadow* lhs, TransShadow* rhs) -> bool {

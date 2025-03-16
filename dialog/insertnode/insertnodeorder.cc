@@ -127,12 +127,12 @@ QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewO; }
 
 void InsertNodeOrder::IniDialog(CSettings* settings)
 {
-    combo_model_party_ = stakeholder_node_->UnitModel(party_unit_);
-    ui->comboParty->setModel(combo_model_party_);
+    pmodel_ = stakeholder_node_->IncludeUnitModel(party_unit_);
+    ui->comboParty->setModel(pmodel_);
     ui->comboParty->setCurrentIndex(-1);
 
-    combo_model_employee_ = stakeholder_node_->UnitModel(std::to_underlying(UnitS::kEmp));
-    ui->comboEmployee->setModel(combo_model_employee_);
+    emodel_ = stakeholder_node_->IncludeUnitModel(std::to_underlying(UnitS::kEmp));
+    ui->comboEmployee->setModel(emodel_);
     ui->comboEmployee->setCurrentIndex(-1);
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
@@ -168,22 +168,17 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
 
 void InsertNodeOrder::accept()
 {
-    if (auto* focus_widget { this->focusWidget() })
-        focus_widget->clearFocus();
-
     if (node_id_ == 0) {
         emit QDialog::accepted();
         node_id_ = node_->id;
 
-        if (node_->type == kTypeLeaf)
+        if (node_->type == kTypeLeaf) {
             emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kID), node_id_);
-
-        ui->chkBoxBranch->setEnabled(false);
-        ui->pBtnSaveOrder->setEnabled(false);
-        ui->tableViewO->clearSelection();
-
-        emit SUpdateLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
+            emit SUpdateLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
+        }
     }
+
+    close();
 }
 
 void InsertNodeOrder::IniConnect()
@@ -462,6 +457,9 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 
     IniFinished(checked);
     LockWidgets(checked, node_->type == kTypeBranch);
+
+    if (checked)
+        sql_->SyncPriceS(node_id_);
 }
 
 void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)

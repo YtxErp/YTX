@@ -70,8 +70,7 @@ QVariantList MainWindowUtils::SaveTab(CTransWgtHash& trans_wgt_hash)
 
 QSet<int> MainWindowUtils::ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property)
 {
-    if (!settings)
-        return {};
+    assert(settings && "settings must be non-null");
 
     auto variant { settings->value(QString("%1/%2").arg(section, property)) };
 
@@ -89,22 +88,17 @@ QSet<int> MainWindowUtils::ReadSettings(std::shared_ptr<QSettings> settings, CSt
 
 void MainWindowUtils::WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property)
 {
-    if (!settings) {
-        qWarning() << "WriteTabID: Invalid parameters (settings is null)";
-        return;
-    }
-
+    assert(settings && "settings must be non-null");
     settings->setValue(QString("%1/%2").arg(section, property), value);
 }
 
 bool MainWindowUtils::CopyFile(CString& source, QString& destination)
 {
     if (!CheckFileValid(source, kSuffixYTX)) {
-        qDebug() << "Invalid source file, must be an existing .ytx file:" << source;
         return false;
     }
 
-    if (!CheckFileName(destination, kDotSuffixYTX)) {
+    if (!PrepareNewFile(destination, kDotSuffixYTX)) {
         return false;
     }
 
@@ -183,32 +177,33 @@ void MainWindowUtils::RemoveDatabase(CString& connection_name)
 
 bool MainWindowUtils::CheckFileValid(CString& file_path, CString& suffix)
 {
+    if (file_path.isEmpty())
+        return false;
+
     const QFileInfo file_info(file_path);
 
-    if (!file_info.exists()) {
-        qDebug() << "File does not exist:" << file_path;
+    if (!file_info.exists() || !file_info.isFile()) {
+        Message(QMessageBox::Critical, QObject::tr("Invalid File"), QObject::tr("The specified file does not exist or is not a valid file:\n%1").arg(file_path),
+            kThreeThousand);
         return false;
     }
 
-    if (!file_info.isFile()) {
-        qDebug() << "Not a valid file:" << file_path;
-        return false;
-    }
-
-    if (!suffix.isEmpty() && file_info.suffix().toLower() != suffix.toLower()) {
-        qDebug() << "File extension does not match expected suffix:" << suffix;
+    if (file_info.suffix().compare(suffix, Qt::CaseInsensitive) != 0) {
+        Message(QMessageBox::Critical, QObject::tr("Extension Mismatch"),
+            QObject::tr("The file extension does not match the expected type:\n%1").arg(file_path), kThreeThousand);
         return false;
     }
 
     if (!CheckFileSQLite(file_path)) {
-        qDebug() << "File is not a valid SQLite3 database:" << file_path;
+        Message(
+            QMessageBox::Critical, QObject::tr("Invalid Database"), QObject::tr("The file is not a valid SQLite database:\n%1").arg(file_path), kThreeThousand);
         return false;
     }
 
     return true;
 }
 
-bool MainWindowUtils::CheckFileName(QString& file_path, CString& suffix)
+bool MainWindowUtils::PrepareNewFile(QString& file_path, CString& suffix)
 {
     if (file_path.isEmpty())
         return false;
@@ -226,6 +221,9 @@ bool MainWindowUtils::CheckFileName(QString& file_path, CString& suffix)
 
 bool MainWindowUtils::CheckFileSQLite(CString& file_path)
 {
+    if (file_path.isEmpty())
+        return false;
+
     QFile file(file_path);
 
     if (!file.open(QIODevice::ReadOnly)) {

@@ -22,6 +22,7 @@
 
 #include <QAbstractItemModel>
 #include <QMimeData>
+#include <QSortFilterProxyModel>
 
 #include "component/arg/nodemodelarg.h"
 #include "component/constvalue.h"
@@ -60,10 +61,14 @@ signals:
     void SSyncInt(int node_id, int column, int value);
     void SSyncString(int node_id, int column, const QString& value);
 
+    // send to FilterModel
+    // Inserting or removing a node will trigger it automatically; manually trigger it only when changing the unit.
+    void SSyncFilterModel();
+
 public slots:
     // receive from Sqlite
     void RRemoveNode(int node_id);
-    virtual void RUpdateMultiLeafTotal(const QList<int>& /*node_list*/) { }
+    virtual void RUpdateMultiLeafTotal(const QList<int>& node_list);
 
     // receive from  TableModel
     void RSearch() { emit SSearch(); }
@@ -107,19 +112,22 @@ public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QMimeData* mimeData(const QModelIndexList& indexes) const override;
-    Qt::DropActions supportedDropActions() const override { return Qt::CopyAction | Qt::MoveAction; }
-    QStringList mimeTypes() const override { return QStringList { kNodeID }; }
 
-    bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int /*row*/, int /*column*/, const QModelIndex& /*parent*/) const override
+    inline Qt::DropActions supportedDropActions() const override { return Qt::CopyAction | Qt::MoveAction; }
+    inline QStringList mimeTypes() const override { return QStringList { kNodeID }; }
+
+    inline bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int /*row*/, int /*column*/, const QModelIndex& /*parent*/) const override
     {
         return data && data->hasFormat(kNodeID) && action != Qt::IgnoreAction;
     }
-    int columnCount(const QModelIndex& parent = QModelIndex()) const override
+
+    inline int columnCount(const QModelIndex& parent = QModelIndex()) const override
     {
         Q_UNUSED(parent);
         return info_.node_header.size();
     }
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override
+
+    inline QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override
     {
         if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
             return info_.node_header.at(section);
@@ -144,40 +152,56 @@ public:
     QStringList ChildrenName(int node_id) const;
     QSet<int> ChildrenID(int node_id) const;
 
-    QStandardItemModel* SupportModel() const { return support_model_; }
-    QStandardItemModel* LeafModel() const { return leaf_model_; }
+    inline QStandardItemModel* SupportModel() const { return support_model_; }
+    inline QStandardItemModel* LeafModel() const { return leaf_model_; }
 
     void LeafPathBranchPathModel(QStandardItemModel* model) const;
 
-    void SearchNode(QList<const Node*>& node_list, const QList<int>& node_id_list) const;
-    void SetParent(Node* node, int parent_id) const;
+    void SearchNode(QList<const Node*>& node_list, const QSet<int>& node_id_set) const;
 
     void UpdateName(int node_id, CString& new_name);
+    void UpdateSeparator(CString& old_separator, CString& new_separator);
 
     bool InsertNode(int row, const QModelIndex& parent, Node* node);
     bool RemoveNode(int row, const QModelIndex& parent = QModelIndex());
 
-    bool ChildrenEmpty(int node_id) const;
-    bool Contains(int node_id) const { return node_hash_.contains(node_id); }
+    inline bool Contains(int node_id) const { return node_hash_.contains(node_id); }
+    inline bool ChildrenEmpty(int node_id) const
+    {
+        auto it { node_hash_.constFind(node_id) };
+        return it == node_hash_.constEnd() || it.value()->children.isEmpty();
+    }
+    inline void SetParent(Node* node, int parent_id) const
+    {
+        assert(node && "Node must be non-null");
+        auto it { node_hash_.constFind(parent_id) };
+        node->parent = it == node_hash_.constEnd() ? root_ : it.value();
+    }
 
     QModelIndex GetIndex(int node_id) const;
 
     // virtual functions
-    virtual void RetrieveNode(int node_id) { Q_UNUSED(node_id); }
-
-    virtual void UpdateSeparator(CString& old_separator, CString& new_separator);
+    virtual void ReadNode(int node_id) { Q_UNUSED(node_id); }
     virtual void UpdateDefaultUnit(int default_unit) { root_->unit = default_unit; }
 
     virtual QString Path(int node_id) const;
     virtual Node* GetNode(int node_id) const
     {
-        Q_UNUSED(node_id);
+        Q_UNUSED(node_id)
         return nullptr;
     }
 
-    virtual QStandardItemModel* UnitModel(int unit = 0) const
+    virtual QSortFilterProxyModel* ExcludeLeafModel(int node_id);
+
+    virtual QSortFilterProxyModel* IncludeUnitModel(int unit)
     {
-        Q_UNUSED(unit);
+        Q_UNUSED(unit)
+        return nullptr;
+    }
+
+    virtual QSortFilterProxyModel* ExcludeUnitModel(int unit)
+    {
+        Q_UNUSED(unit)
         return nullptr;
     }
 
@@ -185,22 +209,37 @@ protected:
     Node* GetNodeByIndex(const QModelIndex& index) const;
     bool UpdateType(Node* node, int value);
     void SortModel(int type);
+    void SortModel();
+    void IniModel();
 
-    virtual void IniModel();
     virtual void ConstructTree();
-    virtual void SortModel();
-
     virtual void InsertPath(Node* node);
     virtual void RemovePath(Node* node, Node* parent_node);
 
-    virtual void RemovePathLeaf(int node_id, int unit);
-    virtual void InsertPathLeaf(int node_id, CString& path, int unit);
+    virtual const QSet<int>* UnitSet(int unit) const
+    {
+        Q_UNUSED(unit)
+        return nullptr;
+    }
+
+    virtual void RemoveUnitSet(int node_id, int unit)
+    {
+        Q_UNUSED(node_id)
+        Q_UNUSED(unit)
+    }
+
+    virtual void InsertUnitSet(int node_id, int unit)
+    {
+        Q_UNUSED(node_id)
+        Q_UNUSED(unit)
+    }
 
     virtual bool UpdateRule(Node* node, bool value);
+    virtual bool UpdateUnit(Node* node, int value);
     virtual bool UpdateNameFunction(Node* node, CString& value);
-
-    virtual bool UpdateUnit(Node* node, int value) = 0;
-    virtual bool UpdateAncestorValue(Node* node, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) = 0;
+    virtual bool UpdateAncestorValue(
+        Node* node, double initial_delta, double final_delta, double first_delta = 0.0, double second_delta = 0.0, double discount_delta = 0.0)
+        = 0;
 
 protected:
     Node* root_ {};

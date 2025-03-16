@@ -114,7 +114,7 @@ void StatementModel::RRetrieveData(int unit, const QDateTime& start, const QDate
 
     beginResetModel();
     if (!trans_list_.isEmpty())
-        trans_list_.clear();
+        ResourcePool<Trans>::Instance().Recycle(trans_list_);
 
     sql_->ReadStatement(trans_list_, unit, start, end);
     endResetModel();

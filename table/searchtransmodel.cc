@@ -1,15 +1,15 @@
-#include "transsearchmodel.h"
+#include "searchtransmodel.h"
 
 #include "component/enumclass.h"
 
-TransSearchModel::TransSearchModel(CInfo& info, Sqlite* sql, QObject* parent)
+SearchTransModel::SearchTransModel(CInfo& info, Sqlite* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
 {
 }
 
-QModelIndex TransSearchModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex SearchTransModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -17,21 +17,21 @@ QModelIndex TransSearchModel::index(int row, int column, const QModelIndex& pare
     return createIndex(row, column);
 }
 
-QModelIndex TransSearchModel::parent(const QModelIndex& index) const
+QModelIndex SearchTransModel::parent(const QModelIndex& index) const
 {
     Q_UNUSED(index);
     return QModelIndex();
 }
 
-int TransSearchModel::rowCount(const QModelIndex& parent) const
+int SearchTransModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return trans_list_.size();
 }
 
-int TransSearchModel::columnCount(const QModelIndex& /*parent*/) const { return info_.search_trans_header.size(); }
+int SearchTransModel::columnCount(const QModelIndex& /*parent*/) const { return info_.search_trans_header.size(); }
 
-QVariant TransSearchModel::data(const QModelIndex& index, int role) const
+QVariant SearchTransModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)
         return QVariant();
@@ -77,7 +77,7 @@ QVariant TransSearchModel::data(const QModelIndex& index, int role) const
     }
 }
 
-QVariant TransSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SearchTransModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return info_.search_trans_header.at(section);
@@ -85,7 +85,7 @@ QVariant TransSearchModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
-void TransSearchModel::sort(int column, Qt::SortOrder order)
+void SearchTransModel::sort(int column, Qt::SortOrder order)
 {
     if (column <= -1 || column >= info_.search_trans_header.size() - 1)
         return;
@@ -134,7 +134,7 @@ void TransSearchModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void TransSearchModel::Query(const QString& text)
+void SearchTransModel::Query(const QString& text)
 {
     beginResetModel();
     if (!trans_list_.isEmpty())

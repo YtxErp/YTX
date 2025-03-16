@@ -22,7 +22,6 @@
 
 #include "component/enumclass.h"
 #include "table/supportmodel.h"
-#include "table/trans.h"
 
 // support node signal station
 
@@ -31,22 +30,24 @@ class SupportSStation final : public QObject {
 
 public:
     static SupportSStation& Instance();
-    void RegisterModel(Section section, int node_id, const SupportModel* model);
-    void DeregisterModel(Section section, int node_id);
+    void RegisterModel(Section section, int support_id, const SupportModel* model);
+    void DeregisterModel(Section section, int support_id);
 
 signals:
     // send to SupportModel
-    void SAppendSupportTrans(const TransShadow* trans_shadow);
-    void SRemoveSupportTrans(int support_id, int trans_id);
-    void SAppendMultiSupportTransFPTS(int new_support_id, const QList<int>& trans_id_list);
+    void SAppendOneTransS(int support_id, int trans_id);
+    void SRemoveOneTransS(int support_id, int trans_id);
+    void SRemoveMultiTransS(int node_id, const QSet<int>& trans_id_set);
+    void SAppendMultiTransS(int node_id, const QSet<int>& trans_id_set);
 
 public slots:
     // receive from TableModel
-    void RAppendSupportTrans(Section section, const TransShadow* trans_shadow);
-    void RRemoveSupportTrans(Section section, int support_id, int trans_id);
+    void RAppendOneTransS(Section section, int support_id, int trans_id);
+    void RRemoveOneTransS(Section section, int support_id, int trans_id);
 
-    // receive from sqlite
-    void RMoveMultiSupportTransFPTS(Section section, int new_support_id, const QList<int>& trans_id_list);
+    // receive from Sqlite
+    void RRemoveMultiTransS(Section section, const QMultiHash<int, int>& support_trans);
+    void RMoveMultiTransS(Section section, int old_node_id, int new_node_id, const QSet<int>& trans_id_set);
 
 private:
     SupportSStation() = default;

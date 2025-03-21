@@ -233,6 +233,14 @@ QMenuBar::item {
     image: url(:/solarized_dark/solarized_dark/check.png);
 }
 
+*::indicator:unchecked:disabled {
+    image: url(:/solarized_dark/solarized_dark/uncheck-disabled.png);
+}
+
+*::indicator:checked:disabled {
+    image: url(:/solarized_dark/solarized_dark/check-disabled.png);
+}
+
 /*-------------------------------------------------------------QRadioButton-----------------------------------------------------------*/
 
 QRadioButton::indicator {

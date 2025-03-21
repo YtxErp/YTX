@@ -64,7 +64,7 @@
         <string notr="true"/>
        </property>
        <property name="text">
-        <string notr="true">YTX 0.1.9</string>
+        <string notr="true">YTX 0.2.0</string>
        </property>
       </widget>
      </item>

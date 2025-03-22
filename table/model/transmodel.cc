@@ -330,6 +330,7 @@ bool TransModel::insertRows(int row, int /*count*/, const QModelIndex& parent)
     auto* trans_shadow { sql_->AllocateTransShadow() };
 
     *trans_shadow->lhs_node = node_id_;
+    IniRatio(trans_shadow);
 
     beginInsertRows(parent, row, row);
     trans_shadow_list_.emplaceBack(trans_shadow);

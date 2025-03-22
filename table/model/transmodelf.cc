@@ -10,24 +10,6 @@ TransModelF::TransModelF(CTransModelArg& arg, QObject* parent)
     sql_->ReadTrans(trans_shadow_list_, node_id_);
 }
 
-bool TransModelF::insertRows(int row, int /*count*/, const QModelIndex& parent)
-{
-    assert(row >= 0 && row <= rowCount(parent) && "Row must be in the valid range [0, rowCount(parent)]");
-    // just register trans_shadow in this function
-    // while set rhs node in setData function, register trans to sql_'s trans_hash_
-    auto* trans_shadow { sql_->AllocateTransShadow() };
-
-    *trans_shadow->lhs_node = node_id_;
-    *trans_shadow->lhs_ratio = 1.0;
-    *trans_shadow->rhs_ratio = 1.0;
-
-    beginInsertRows(parent, row, row);
-    trans_shadow_list_.emplaceBack(trans_shadow);
-    endInsertRows();
-
-    return true;
-}
-
 QVariant TransModelF::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole)
@@ -237,4 +219,10 @@ Qt::ItemFlags TransModelF::flags(const QModelIndex& index) const
     }
 
     return flags;
+}
+
+void TransModelF::IniRatio(TransShadow* trans_shadow) const
+{
+    *trans_shadow->lhs_ratio = 1.0;
+    *trans_shadow->rhs_ratio = 1.0;
 }

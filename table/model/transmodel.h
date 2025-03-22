@@ -105,6 +105,8 @@ protected:
     virtual bool UpdateCredit(TransShadow* trans_shadow, double value);
     virtual bool UpdateRatio(TransShadow* trans_shadow, double value);
 
+    virtual void IniRatio(TransShadow* trans_shadow) const { Q_UNUSED(trans_shadow) }
+
 protected:
     Sqlite* sql_ {};
     CInfo& info_;

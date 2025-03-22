@@ -20,8 +20,6 @@
 #ifndef TRANSMODEL_H
 #define TRANSMODEL_H
 
-// default implementations are for finance.
-
 #include <QAbstractItemModel>
 #include <QMutex>
 

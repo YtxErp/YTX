@@ -508,7 +508,7 @@ QString SqliteS::QSTransToRemove() const
 
 QString SqliteS::QSReadTransRef(int unit) const
 {
-    QString base_query = R"(
+    QString base_query = QStringLiteral(R"(
         SELECT
             %4 AS section,
             %1.inside_product,
@@ -524,9 +524,9 @@ QString SqliteS::QSReadTransRef(int unit) const
         FROM %1
         INNER JOIN %2 ON %1.lhs_node = %2.id
         WHERE %2.%3 = :node_id AND %2.finished = 1 AND (%2.date_time BETWEEN :start AND :end) AND %1.removed = 0;
-    )";
+    )");
 
-    QString query_employee = R"(
+    QString query_employee = QStringLiteral(R"(
         SELECT
             4 AS section,
             st.inside_product,
@@ -560,7 +560,7 @@ QString SqliteS::QSReadTransRef(int unit) const
         FROM purchase_transaction pt
         INNER JOIN purchase pn ON pt.lhs_node = pn.id
         WHERE pn.employee = :node_id AND pn.finished = 1 AND (pn.date_time BETWEEN :start AND :end) AND pt.removed = 0
-    )";
+    )");
 
     QString node {};
     QString node_trans {};
@@ -569,16 +569,16 @@ QString SqliteS::QSReadTransRef(int unit) const
 
     switch (UnitS(unit)) {
     case UnitS::kCust:
-        node_trans = "sales_transaction";
-        node = "sales";
-        column = "party";
-        section = "4";
+        node_trans = QStringLiteral("sales_transaction");
+        node = QStringLiteral("sales");
+        column = QStringLiteral("party");
+        section = QStringLiteral("4");
         break;
     case UnitS::kVend:
-        node_trans = "purchase_transaction";
-        node = "purchase";
-        column = "party";
-        section = "5";
+        node_trans = QStringLiteral("purchase_transaction");
+        node = QStringLiteral("purchase");
+        column = QStringLiteral("party");
+        section = QStringLiteral("5");
         break;
     case UnitS::kEmp:
         return query_employee;

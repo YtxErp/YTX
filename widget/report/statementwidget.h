@@ -44,7 +44,6 @@ public:
 
     QPointer<QTableView> View() const override;
     QPointer<QAbstractItemModel> Model() const override;
-    bool IsReportWidget() const override { return true; }
 
 private slots:
     void on_pBtnRefresh_clicked();

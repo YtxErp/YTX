@@ -63,7 +63,6 @@ public slots:
 public:
     QPointer<TransModel> Model() const override { return order_trans_; }
     QPointer<QTableView> View() const override;
-    bool IsTransWidget() const override { return true; }
 
 private slots:
 

@@ -35,7 +35,6 @@ public:
 
     QPointer<QTreeView> View() const override;
     QPointer<NodeModel> Model() const override { return model_; };
-    bool IsNodeWidget() const override { return true; }
 
 private:
     Ui::NodeWidgetS* ui;

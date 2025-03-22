@@ -34,8 +34,6 @@ public:
     void sort(int column, Qt::SortOrder order) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
-
 protected:
     bool UpdateDebit(TransShadow* trans_shadow, double value) override;
     bool UpdateCredit(TransShadow* trans_shadow, double value) override;

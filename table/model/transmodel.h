@@ -20,8 +20,6 @@
 #ifndef TRANSMODEL_H
 #define TRANSMODEL_H
 
-// default implementations are for finance.
-
 #include <QAbstractItemModel>
 #include <QMutex>
 
@@ -106,6 +104,14 @@ protected:
     virtual bool UpdateDebit(TransShadow* trans_shadow, double value);
     virtual bool UpdateCredit(TransShadow* trans_shadow, double value);
     virtual bool UpdateRatio(TransShadow* trans_shadow, double value);
+
+    virtual void IniRatio(TransShadow* trans_shadow) const { Q_UNUSED(trans_shadow) }
+    virtual void UpdateUnitCost(int lhs_node, int rhs_node, double value)
+    {
+        Q_UNUSED(lhs_node)
+        Q_UNUSED(rhs_node)
+        Q_UNUSED(value)
+    }
 
 protected:
     Sqlite* sql_ {};

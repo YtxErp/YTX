@@ -40,7 +40,9 @@ void NodeModelT::RSyncDouble(int node_id, int column, double value)
         return;
 
     auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf || node->unit != std::to_underlying(UnitT::kProd))
+    assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
+
+    if (node->unit != std::to_underlying(UnitT::kProd))
         return;
 
     node->first += value;

@@ -224,56 +224,15 @@ Qt::ItemFlags TransModelT::flags(const QModelIndex& index) const
     return flags;
 }
 
-bool TransModelT::removeRows(int row, int /*count*/, const QModelIndex& parent)
-{
-    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
-
-    auto* trans_shadow { trans_shadow_list_.at(row) };
-    int rhs_node_id { *trans_shadow->rhs_node };
-
-    beginRemoveRows(parent, row, row);
-    trans_shadow_list_.removeAt(row);
-    endRemoveRows();
-
-    if (rhs_node_id != 0) {
-        double unit_cost { *trans_shadow->lhs_ratio };
-        double debit { *trans_shadow->lhs_debit };
-        double credit { *trans_shadow->lhs_credit };
-        emit SUpdateLeafValue(node_id_, -debit, -credit, -unit_cost * debit, -unit_cost * credit);
-
-        debit = *trans_shadow->rhs_debit;
-        credit = *trans_shadow->rhs_credit;
-        emit SUpdateLeafValue(rhs_node_id, -debit, -credit, -unit_cost * debit, -unit_cost * credit);
-
-        int trans_id { *trans_shadow->id };
-        emit SRemoveOneTransL(section_, rhs_node_id, trans_id);
-
-        TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
-
-        if (int support_id = *trans_shadow->support_id; support_id != 0)
-            emit SRemoveOneTransS(section_, support_id, *trans_shadow->id);
-
-        sql_->RemoveTrans(trans_id);
-
-        QTimer::singleShot(50, this, [this, rhs_node_id, unit_cost]() {
-            emit SSyncDouble(rhs_node_id, std::to_underlying(TransEnumT::kUnitCost), -unit_cost);
-            emit SSyncDouble(node_id_, std::to_underlying(TransEnumT::kUnitCost), -unit_cost);
-        });
-    }
-
-    ResourcePool<TransShadow>::Instance().Recycle(trans_shadow);
-    return true;
-}
-
 bool TransModelT::UpdateDebit(TransShadow* trans_shadow, double value)
 {
-    double lhs_debit { *trans_shadow->lhs_debit };
+    const double lhs_debit { *trans_shadow->lhs_debit };
     if (std::abs(lhs_debit - value) < kTolerance)
         return false;
 
-    double lhs_credit { *trans_shadow->lhs_credit };
+    const double lhs_credit { *trans_shadow->lhs_credit };
 
-    double abs { qAbs(value - lhs_credit) };
+    const double abs { qAbs(value - lhs_credit) };
     *trans_shadow->lhs_debit = (value > lhs_credit) ? abs : 0;
     *trans_shadow->lhs_credit = (value <= lhs_credit) ? abs : 0;
 
@@ -283,11 +242,11 @@ bool TransModelT::UpdateDebit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double unit_cost { *trans_shadow->lhs_ratio };
-    double quantity_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
-    double quantity_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
-    double amount_debit_delta { quantity_debit_delta * unit_cost };
-    double amount_credit_delta { quantity_credit_delta * unit_cost };
+    const double unit_cost { *trans_shadow->lhs_ratio };
+    const double quantity_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    const double quantity_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    const double amount_debit_delta { quantity_debit_delta * unit_cost };
+    const double amount_credit_delta { quantity_credit_delta * unit_cost };
 
     emit SUpdateLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
@@ -301,9 +260,9 @@ bool TransModelT::UpdateCredit(TransShadow* trans_shadow, double value)
     if (std::abs(lhs_credit - value) < kTolerance)
         return false;
 
-    double lhs_debit { *trans_shadow->lhs_debit };
+    const double lhs_debit { *trans_shadow->lhs_debit };
 
-    double abs { qAbs(value - lhs_debit) };
+    const double abs { qAbs(value - lhs_debit) };
     *trans_shadow->lhs_debit = (value > lhs_debit) ? 0 : abs;
     *trans_shadow->lhs_credit = (value <= lhs_debit) ? 0 : abs;
 
@@ -313,11 +272,11 @@ bool TransModelT::UpdateCredit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double unit_cost { *trans_shadow->lhs_ratio };
-    double quantity_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
-    double quantity_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
-    double amount_debit_delta { quantity_debit_delta * unit_cost };
-    double amount_credit_delta { quantity_credit_delta * unit_cost };
+    const double unit_cost { *trans_shadow->lhs_ratio };
+    const double quantity_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    const double quantity_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    const double amount_debit_delta { quantity_debit_delta * unit_cost };
+    const double amount_credit_delta { quantity_credit_delta * unit_cost };
 
     emit SUpdateLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
@@ -327,11 +286,11 @@ bool TransModelT::UpdateCredit(TransShadow* trans_shadow, double value)
 
 bool TransModelT::UpdateRatio(TransShadow* trans_shadow, double value)
 {
-    double unit_cost { *trans_shadow->lhs_ratio };
+    const double unit_cost { *trans_shadow->lhs_ratio };
     if (std::abs(unit_cost - value) < kTolerance || value < 0)
         return false;
 
-    double delta { value - unit_cost };
+    const double delta { value - unit_cost };
     *trans_shadow->lhs_ratio = value;
     *trans_shadow->rhs_ratio = value;
 
@@ -343,8 +302,12 @@ bool TransModelT::UpdateRatio(TransShadow* trans_shadow, double value)
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
     emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * delta, *trans_shadow->rhs_credit * delta);
 
-    emit SSyncDouble(*trans_shadow->rhs_node, std::to_underlying(NodeEnumT::kUnitCost), delta);
-    emit SSyncDouble(node_id_, std::to_underlying(NodeEnumT::kUnitCost), delta);
-
+    UpdateUnitCost(node_id_, *trans_shadow->rhs_node, delta);
     return true;
+}
+
+void TransModelT::UpdateUnitCost(int lhs_node, int rhs_node, double value)
+{
+    emit SSyncDouble(rhs_node, std::to_underlying(NodeEnumT::kUnitCost), value);
+    emit SSyncDouble(lhs_node, std::to_underlying(NodeEnumT::kUnitCost), value);
 }

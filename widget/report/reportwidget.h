@@ -32,7 +32,6 @@ public:
 
     virtual QPointer<QAbstractItemModel> Model() const = 0;
     virtual QPointer<QTableView> View() const = 0;
-    virtual bool IsReportWidget() const = 0;
 
 protected:
     explicit ReportWidget(QWidget* parent = nullptr)

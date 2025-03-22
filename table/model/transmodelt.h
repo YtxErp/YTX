@@ -34,12 +34,12 @@ public:
     void sort(int column, Qt::SortOrder order) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
-
-private:
+protected:
     bool UpdateDebit(TransShadow* trans_shadow, double value) override;
     bool UpdateCredit(TransShadow* trans_shadow, double value) override;
     bool UpdateRatio(TransShadow* trans_shadow, double value) override;
+
+    void UpdateUnitCost(int lhs_node, int rhs_node, double value) override;
 };
 
 #endif // TRANSMODELT_H

@@ -57,7 +57,7 @@ void TransModel::RAppendOneTransL(const TransShadow* trans_shadow)
     trans_shadow_list_.emplaceBack(new_trans_shadow);
     endInsertRows();
 
-    double previous_balance { row >= 1 ? trans_shadow_list_.at(row - 1)->subtotal : 0.0 };
+    const double previous_balance { row >= 1 ? trans_shadow_list_.at(row - 1)->subtotal : 0.0 };
     new_trans_shadow->subtotal = TransModelUtils::Balance(node_rule_, *new_trans_shadow->lhs_debit, *new_trans_shadow->lhs_credit) + previous_balance;
 }
 
@@ -91,28 +91,30 @@ bool TransModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
     assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
 
     auto* trans_shadow { trans_shadow_list_.at(row) };
-    int rhs_node_id { *trans_shadow->rhs_node };
+    const int rhs_node_id { *trans_shadow->rhs_node };
 
     beginRemoveRows(parent, row, row);
     trans_shadow_list_.removeAt(row);
     endRemoveRows();
 
     if (rhs_node_id != 0) {
-        auto ratio { *trans_shadow->lhs_ratio };
-        auto debit { *trans_shadow->lhs_debit };
-        auto credit { *trans_shadow->lhs_credit };
-        emit SUpdateLeafValue(node_id_, -debit, -credit, -ratio * debit, -ratio * credit);
+        const double lhs_ratio { *trans_shadow->lhs_ratio };
+        const double lhs_debit { *trans_shadow->lhs_debit };
+        const double lhs_credit { *trans_shadow->lhs_credit };
+        emit SUpdateLeafValue(node_id_, -lhs_debit, -lhs_credit, -lhs_ratio * lhs_debit, -lhs_ratio * lhs_credit);
 
-        ratio = *trans_shadow->rhs_ratio;
-        debit = *trans_shadow->rhs_debit;
-        credit = *trans_shadow->rhs_credit;
-        emit SUpdateLeafValue(*trans_shadow->rhs_node, -debit, -credit, -ratio * debit, -ratio * credit);
+        const double rhs_ratio { *trans_shadow->rhs_ratio };
+        const double rhs_debit { *trans_shadow->rhs_debit };
+        const double rhs_credit { *trans_shadow->rhs_credit };
+        emit SUpdateLeafValue(*trans_shadow->rhs_node, -rhs_debit, -rhs_credit, -rhs_ratio * rhs_debit, -rhs_ratio * rhs_credit);
 
-        int trans_id { *trans_shadow->id };
+        const int trans_id { *trans_shadow->id };
         emit SRemoveOneTransL(section_, rhs_node_id, trans_id);
         TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 
-        if (int support_id = *trans_shadow->support_id; support_id != 0)
+        UpdateUnitCost(node_id_, *trans_shadow->rhs_node, -lhs_ratio);
+
+        if (const int support_id = *trans_shadow->support_id; support_id != 0)
             emit SRemoveOneTransS(section_, support_id, *trans_shadow->id);
 
         sql_->RemoveTrans(trans_id);
@@ -152,7 +154,7 @@ void TransModel::UpdateAllState(Check state)
         sql_->WriteState(state);
 
         // 刷新视图
-        int column { std::to_underlying(TransEnum::kState) };
+        const int column { std::to_underlying(TransEnum::kState) };
         emit dataChanged(index(0, column), index(rowCount() - 1, column));
 
         // 释放 QFutureWatcher
@@ -165,20 +167,20 @@ void TransModel::UpdateAllState(Check state)
 
 bool TransModel::UpdateDebit(TransShadow* trans_shadow, double value)
 {
-    double lhs_debit { *trans_shadow->lhs_debit };
+    const double lhs_debit { *trans_shadow->lhs_debit };
     if (std::abs(lhs_debit - value) < kTolerance)
         return false;
 
-    double lhs_credit { *trans_shadow->lhs_credit };
-    double lhs_ratio { *trans_shadow->lhs_ratio };
+    const double lhs_credit { *trans_shadow->lhs_credit };
+    const double lhs_ratio { *trans_shadow->lhs_ratio };
 
-    double abs { qAbs(value - lhs_credit) };
+    const double abs { qAbs(value - lhs_credit) };
     *trans_shadow->lhs_debit = (value > lhs_credit) ? abs : 0;
     *trans_shadow->lhs_credit = (value <= lhs_credit) ? abs : 0;
 
-    double rhs_debit { *trans_shadow->rhs_debit };
-    double rhs_credit { *trans_shadow->rhs_credit };
-    double rhs_ratio { *trans_shadow->rhs_ratio };
+    const double rhs_debit { *trans_shadow->rhs_debit };
+    const double rhs_credit { *trans_shadow->rhs_credit };
+    const double rhs_ratio { *trans_shadow->rhs_ratio };
 
     *trans_shadow->rhs_debit = (*trans_shadow->lhs_credit) * lhs_ratio / rhs_ratio;
     *trans_shadow->rhs_credit = (*trans_shadow->lhs_debit) * lhs_ratio / rhs_ratio;
@@ -186,12 +188,12 @@ bool TransModel::UpdateDebit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
-    double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    const double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    const double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
     emit SUpdateLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
 
-    double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
-    double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
+    const double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
+    const double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
     emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
@@ -199,20 +201,20 @@ bool TransModel::UpdateDebit(TransShadow* trans_shadow, double value)
 
 bool TransModel::UpdateCredit(TransShadow* trans_shadow, double value)
 {
-    double lhs_credit { *trans_shadow->lhs_credit };
+    const double lhs_credit { *trans_shadow->lhs_credit };
     if (std::abs(lhs_credit - value) < kTolerance)
         return false;
 
-    double lhs_debit { *trans_shadow->lhs_debit };
-    double lhs_ratio { *trans_shadow->lhs_ratio };
+    const double lhs_debit { *trans_shadow->lhs_debit };
+    const double lhs_ratio { *trans_shadow->lhs_ratio };
 
-    double abs { qAbs(value - lhs_debit) };
+    const double abs { qAbs(value - lhs_debit) };
     *trans_shadow->lhs_debit = (value > lhs_debit) ? 0 : abs;
     *trans_shadow->lhs_credit = (value <= lhs_debit) ? 0 : abs;
 
-    double rhs_debit { *trans_shadow->rhs_debit };
-    double rhs_credit { *trans_shadow->rhs_credit };
-    double rhs_ratio { *trans_shadow->rhs_ratio };
+    const double rhs_debit { *trans_shadow->rhs_debit };
+    const double rhs_credit { *trans_shadow->rhs_credit };
+    const double rhs_ratio { *trans_shadow->rhs_ratio };
 
     *trans_shadow->rhs_debit = (*trans_shadow->lhs_credit) * lhs_ratio / rhs_ratio;
     *trans_shadow->rhs_credit = (*trans_shadow->lhs_debit) * lhs_ratio / rhs_ratio;
@@ -220,12 +222,12 @@ bool TransModel::UpdateCredit(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
-    double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
+    const double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
+    const double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
     emit SUpdateLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
 
-    double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
-    double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
+    const double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
+    const double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
     emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
@@ -233,19 +235,19 @@ bool TransModel::UpdateCredit(TransShadow* trans_shadow, double value)
 
 bool TransModel::UpdateRatio(TransShadow* trans_shadow, double value)
 {
-    double lhs_ratio { *trans_shadow->lhs_ratio };
+    const double lhs_ratio { *trans_shadow->lhs_ratio };
 
     if (std::abs(lhs_ratio - value) < kTolerance || value <= 0)
         return false;
 
-    double delta { value - lhs_ratio };
-    double proportion { value / *trans_shadow->lhs_ratio };
+    const double delta { value - lhs_ratio };
+    const double proportion { value / *trans_shadow->lhs_ratio };
 
     *trans_shadow->lhs_ratio = value;
 
-    double rhs_debit { *trans_shadow->rhs_debit };
-    double rhs_credit { *trans_shadow->rhs_credit };
-    double rhs_ratio { *trans_shadow->rhs_ratio };
+    const double rhs_debit { *trans_shadow->rhs_debit };
+    const double rhs_credit { *trans_shadow->rhs_credit };
+    const double rhs_ratio { *trans_shadow->rhs_ratio };
 
     *trans_shadow->rhs_debit *= proportion;
     *trans_shadow->rhs_credit *= proportion;
@@ -255,8 +257,8 @@ bool TransModel::UpdateRatio(TransShadow* trans_shadow, double value)
 
     emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
 
-    double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
-    double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
+    const double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
+    const double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
     emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
@@ -330,6 +332,7 @@ bool TransModel::insertRows(int row, int /*count*/, const QModelIndex& parent)
     auto* trans_shadow { sql_->AllocateTransShadow() };
 
     *trans_shadow->lhs_node = node_id_;
+    IniRatio(trans_shadow);
 
     beginInsertRows(parent, row, row);
     trans_shadow_list_.emplaceBack(trans_shadow);
@@ -345,9 +348,9 @@ void TransModel::RRemoveMultiTransL(int node_id, const QSet<int>& trans_id_set)
     int min_row { std::numeric_limits<int>::max() };
 
     for (int i = trans_shadow_list_.size() - 1; i >= 0; --i) {
-        const int kTransID { *trans_shadow_list_[i]->id };
+        const int trans_id { *trans_shadow_list_[i]->id };
 
-        if (trans_id_set.contains(kTransID)) {
+        if (trans_id_set.contains(trans_id)) {
             min_row = i;
 
             beginRemoveRows(QModelIndex(), i, i);

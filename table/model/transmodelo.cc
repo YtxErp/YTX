@@ -195,22 +195,22 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
         emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, *trans_shadow->lhs_debit - old_first);
 
     if (sec_changed) {
-        double second_delta { *trans_shadow->lhs_credit - old_second };
-        double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
-        double discount_delta { *trans_shadow->discount - old_discount };
-        double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
+        const double second_delta { *trans_shadow->lhs_credit - old_second };
+        const double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
+        const double discount_delta { *trans_shadow->discount - old_discount };
+        const double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
         emit SUpdateLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta, 0.0, second_delta, discount_delta);
     }
 
     if (uni_changed) {
-        double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
-        double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
+        const double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
+        const double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
         emit SUpdateLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta);
     }
 
     if (dis_changed) {
-        double discount_delta { *trans_shadow->discount - old_discount };
-        double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
+        const double discount_delta { *trans_shadow->discount - old_discount };
+        const double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
         emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, net_amount_delta, 0.0, 0.0, discount_delta);
     }
 
@@ -334,7 +334,7 @@ bool TransModelO::UpdateOutsideProduct(TransShadow* trans_shadow, int value)
     if (*trans_shadow->support_id == value)
         return false;
 
-    int old_rhs_node { *trans_shadow->rhs_node };
+    const int old_rhs_node { *trans_shadow->rhs_node };
 
     *trans_shadow->support_id = value;
     CrossSearch(trans_shadow, value, false);
@@ -355,7 +355,7 @@ bool TransModelO::UpdateUnitPrice(TransShadow* trans_shadow, double value)
     if (std::abs(*trans_shadow->lhs_ratio - value) < kTolerance)
         return false;
 
-    double delta { *trans_shadow->lhs_credit * (value - *trans_shadow->lhs_ratio) };
+    const double delta { *trans_shadow->lhs_credit * (value - *trans_shadow->lhs_ratio) };
     *trans_shadow->rhs_credit += delta;
     *trans_shadow->rhs_debit += delta;
     *trans_shadow->lhs_ratio = value;
@@ -376,7 +376,7 @@ bool TransModelO::UpdateDiscountPrice(TransShadow* trans_shadow, double value)
     if (std::abs(*trans_shadow->rhs_ratio - value) < kTolerance)
         return false;
 
-    double delta { *trans_shadow->lhs_credit * (value - *trans_shadow->rhs_ratio) };
+    const double delta { *trans_shadow->lhs_credit * (value - *trans_shadow->rhs_ratio) };
     *trans_shadow->rhs_credit -= delta;
     *trans_shadow->discount += delta;
     *trans_shadow->rhs_ratio = value;
@@ -397,7 +397,7 @@ bool TransModelO::UpdateSecond(TransShadow* trans_shadow, double value, int kCoe
     if (std::abs(*trans_shadow->lhs_credit - value) < kTolerance)
         return false;
 
-    double delta { value * kCoefficient - *trans_shadow->lhs_credit };
+    const double delta { value * kCoefficient - *trans_shadow->lhs_credit };
     *trans_shadow->rhs_debit += *trans_shadow->lhs_ratio * delta;
     *trans_shadow->discount += *trans_shadow->rhs_ratio * delta;
     *trans_shadow->rhs_credit += (*trans_shadow->lhs_ratio - *trans_shadow->rhs_ratio) * delta;

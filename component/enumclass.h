@@ -22,7 +22,10 @@
 
 enum NodeType { kTypeLeaf, kTypeBranch, kTypeSupport };
 
-// defining section
+// Define section values, starting from 0. In QSReadTransRef and delegate-SectionR:
+// - 4 corresponds to kSales
+// - 5 corresponds to kPurchase
+// Section values must start from 0 to maintain consistency.
 enum class Section { kFinance, kProduct, kTask, kStakeholder, kSales, kPurchase };
 
 // Abbreviations: Finance -> F, Product -> P, Task -> T, Stakeholder -> S, Order -> O

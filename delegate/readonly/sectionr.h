@@ -17,30 +17,15 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SUPPORTWIDGETFPTS_H
-#define SUPPORTWIDGETFPTS_H
+#ifndef SECTIONR_H
+#define SECTIONR_H
 
-#include <QPointer>
-#include <QTableView>
+#include "delegate/styleditemdelegate.h"
 
-#include "supportwidget.h"
-
-namespace Ui {
-class SupportWidgetFPTS;
-}
-
-class SupportWidgetFPTS final : public SupportWidget {
-    Q_OBJECT
-
+class SectionR final : public StyledItemDelegate {
 public:
-    explicit SupportWidgetFPTS(QAbstractItemModel* model, QWidget* parent = nullptr);
-    ~SupportWidgetFPTS();
-
-    QPointer<QAbstractItemModel> Model() const override;
-    QPointer<QTableView> View() const override;
-
-private:
-    Ui::SupportWidgetFPTS* ui;
+    explicit SectionR(QObject* parent = nullptr);
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 };
 
-#endif // SUPPORTWIDGETFPTS_H
+#endif // SECTIONR_H

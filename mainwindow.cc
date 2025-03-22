@@ -36,6 +36,7 @@
 #include "delegate/readonly/doublespinunitrps.h"
 #include "delegate/readonly/nodenamer.h"
 #include "delegate/readonly/nodepathr.h"
+#include "delegate/readonly/sectionr.h"
 #include "delegate/search/searchpathtabler.h"
 #include "delegate/specificunit.h"
 #include "delegate/spin.h"
@@ -1367,6 +1368,9 @@ void MainWindow::DelegateTransRef(PTableView table_view, CSettings* settings) co
     auto* outside_product { new NodePathR(stakeholder_tree_model, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kOutsideProduct), outside_product);
 
+    auto* section { new SectionR(table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kSection), section);
+
     if (start_ == Section::kProduct) {
         auto* name { new NodeNameR(stakeholder_tree_model, table_view) };
         table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kPP), name);
@@ -1393,6 +1397,7 @@ void MainWindow::SetSupportViewS(PTableView table_view) const
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsDebit), true);
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kLhsCredit), true);
     table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsCredit), true);
+    table_view->setColumnHidden(std::to_underlying(TransSearchEnum::kRhsRatio), true);
 }
 
 void MainWindow::SetStatementView(PTableView view, int stretch_column) const
@@ -2098,11 +2103,13 @@ void MainWindow::REditNodeDocument(const QModelIndex& index)
 
 void MainWindow::RTransRef(const QModelIndex& index)
 {
-    assert(node_widget_ && "node_widget_ must be non-null");
-    assert(index.isValid() && "index must be valid");
-
     const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
     const int unit { index.siblingAtColumn(std::to_underlying(NodeEnum::kUnit)).data().toInt() };
+
+    assert(node_widget_ && "node_widget_ must be non-null");
+    assert(index.isValid() && "index must be valid");
+    assert(node_widget_->Model()->Type(node_id) == kTypeLeaf
+        && "Node type should be 'kTypeLeaf' at this point. The type check should be performed in the delegate DoubleSpinUnitRPS.");
 
     switch (start_) {
     case Section::kProduct:

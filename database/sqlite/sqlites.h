@@ -67,7 +67,7 @@ protected:
     QString QSSearchTransText() const override;
     QString QSRemoveNodeFirst() const override;
     QString QSTransToRemove() const override;
-    QString QSReadTransRef() const override;
+    QString QSReadTransRef(int unit) const override;
     QString QSRemoveTrans() const override;
     QString QSLeafTotal(int unit) const override;
     QString QSReplaceSupport() const override;

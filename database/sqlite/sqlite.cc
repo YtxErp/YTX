@@ -847,12 +847,12 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text)
     return true;
 }
 
-bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const
+bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    auto string { QSReadTransRef() };
+    auto string { QSReadTransRef(unit) };
     if (string.isEmpty())
         return false;
 

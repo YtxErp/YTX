@@ -506,26 +506,87 @@ QString SqliteS::QSTransToRemove() const
     )");
 }
 
-QString SqliteS::QSReadTransRef() const
+QString SqliteS::QSReadTransRef(int unit) const
 {
-    return QStringLiteral(R"(
-    SELECT
-        st.inside_product,
-        st.unit_price,
-        st.second,
-        st.lhs_node,
-        st.description,
-        st.first,
-        st.gross_amount,
-        st.discount,
-        st.net_amount,
-        st.outside_product,
-        st.discount_price,
-        sn.date_time
-    FROM sales_transaction st
-    INNER JOIN sales sn ON st.lhs_node = sn.id
-    WHERE sn.party = :node_id AND sn.finished = 1 AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0;
-    )");
+    QString base_query = R"(
+        SELECT
+            %4 AS section,
+            %1.inside_product,
+            %1.unit_price,
+            %1.second,
+            %1.lhs_node,
+            %1.description,
+            %1.first,
+            %1.gross_amount,
+            %1.outside_product,
+            %1.discount_price,
+            %2.date_time
+        FROM %1
+        INNER JOIN %2 ON %1.lhs_node = %2.id
+        WHERE %2.%3 = :node_id AND %2.finished = 1 AND (%2.date_time BETWEEN :start AND :end) AND %1.removed = 0;
+    )";
+
+    QString query_employee = R"(
+        SELECT
+            4 AS section,
+            st.inside_product,
+            st.unit_price,
+            st.second,
+            st.lhs_node,
+            st.description,
+            st.first,
+            st.gross_amount,
+            st.outside_product,
+            st.discount_price,
+            sn.date_time
+        FROM sales_transaction st
+        INNER JOIN sales sn ON st.lhs_node = sn.id
+        WHERE sn.employee = :node_id AND sn.finished = 1 AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0
+
+        UNION ALL
+
+        SELECT
+            5 AS section,
+            pt.inside_product,
+            pt.unit_price,
+            pt.second,
+            pt.lhs_node,
+            pt.description,
+            pt.first,
+            pt.gross_amount,
+            pt.outside_product,
+            pt.discount_price,
+            pn.date_time
+        FROM purchase_transaction pt
+        INNER JOIN purchase pn ON pt.lhs_node = pn.id
+        WHERE pn.employee = :node_id AND pn.finished = 1 AND (pn.date_time BETWEEN :start AND :end) AND pt.removed = 0
+    )";
+
+    QString node {};
+    QString node_trans {};
+    QString column {};
+    QString section {};
+
+    switch (UnitS(unit)) {
+    case UnitS::kCust:
+        node_trans = "sales_transaction";
+        node = "sales";
+        column = "party";
+        section = "4";
+        break;
+    case UnitS::kVend:
+        node_trans = "purchase_transaction";
+        node = "purchase";
+        column = "party";
+        section = "5";
+        break;
+    case UnitS::kEmp:
+        return query_employee;
+    default:
+        return {};
+    }
+
+    return base_query.arg(node_trans, node, column, section);
 }
 
 QString SqliteS::QSRemoveTrans() const
@@ -584,14 +645,13 @@ void SqliteS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
     while (query.next()) {
         auto* trans { ResourcePool<Trans>::Instance().Allocate() };
 
-        trans->id = query.value(QStringLiteral("inside_product")).toInt();
+        trans->id = query.value(QStringLiteral("section")).toInt();
+        trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
         trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
-        trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
-        trans->discount = query.value(QStringLiteral("discount")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
         trans->date_time = query.value(QStringLiteral("date_time")).toString();

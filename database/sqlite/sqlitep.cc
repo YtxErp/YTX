@@ -208,15 +208,13 @@ void SqliteP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
     // remind to recycle these trans
     while (query.next()) {
         auto* trans { ResourcePool<Trans>::Instance().Allocate() };
-
-        trans->id = query.value(QStringLiteral("party")).toInt();
+        trans->id = query.value(QStringLiteral("section")).toInt();
+        trans->rhs_node = query.value(QStringLiteral("party")).toInt();
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
         trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
-        trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
-        trans->discount = query.value(QStringLiteral("discount")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
         trans->date_time = query.value(QStringLiteral("date_time")).toString();
@@ -369,10 +367,11 @@ QString SqliteP::QSSearchTransText() const
     )");
 }
 
-QString SqliteP::QSReadTransRef() const
+QString SqliteP::QSReadTransRef(int /*unit*/) const
 {
     return QStringLiteral(R"(
     SELECT
+        4 AS section,
         st.unit_price,
         st.second,
         st.lhs_node,
@@ -387,7 +386,27 @@ QString SqliteP::QSReadTransRef() const
         sn.date_time
     FROM sales_transaction st
     INNER JOIN sales sn ON st.lhs_node = sn.id
-    WHERE st.inside_product = :node_id AND sn.finished = 1 AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0;
+    WHERE st.inside_product = :node_id AND sn.finished = 1 AND (sn.date_time BETWEEN :start AND :end) AND st.removed = 0
+
+    UNION ALL
+
+    SELECT
+        5 AS section,
+        pt.unit_price,
+        pt.second,
+        pt.lhs_node,
+        pt.description,
+        pt.first,
+        pt.gross_amount,
+        pt.discount,
+        pt.net_amount,
+        pt.outside_product,
+        pt.discount_price,
+        pn.party,
+        pn.date_time
+    FROM purchase_transaction pt
+    INNER JOIN purchase pn ON pt.lhs_node = pn.id
+    WHERE pt.inside_product = :node_id AND pn.finished = 1 AND (pn.date_time BETWEEN :start AND :end) AND pt.removed = 0;
     )");
 }
 

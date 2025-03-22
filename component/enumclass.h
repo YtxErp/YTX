@@ -87,6 +87,7 @@ enum class TransSearchEnum {
 enum class TransRefEnum {
     kDateTime,
     kOrderNode,
+    kSection,
     kPP,
     kOutsideProduct,
     kFirst,
@@ -95,8 +96,6 @@ enum class TransRefEnum {
     kDiscountPrice,
     kDescription,
     kGrossAmount,
-    kDiscount,
-    kNetAmount
 };
 
 // P:Previous, C:Current

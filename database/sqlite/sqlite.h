@@ -109,7 +109,7 @@ public:
     bool SearchTrans(TransList& trans_list, CString& text);
     bool RemoveTrans(int trans_id);
 
-    bool ReadTransRef(TransList& trans_list, int node_id, const QDateTime& start, const QDateTime& end) const;
+    bool ReadTransRef(TransList& trans_list, int node_id, int unit, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
@@ -131,7 +131,11 @@ protected:
     virtual QString QSSupportReference() const { return {}; }
     virtual QString QSRemoveSupport() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
-    virtual QString QSReadTransRef() const { return {}; };
+    virtual QString QSReadTransRef(int unit) const
+    {
+        Q_UNUSED(unit);
+        return {};
+    };
 
     virtual QString QSLeafTotal(int unit = 0) const
     {

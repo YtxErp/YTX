@@ -3,10 +3,11 @@
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
 
-TransRefModel::TransRefModel(Sqlite* sql, CInfo& info, QObject* parent)
+TransRefModel::TransRefModel(Sqlite* sql, CInfo& info, int unit, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
+    , unit_ { unit }
 {
 }
 
@@ -46,6 +47,8 @@ QVariant TransRefModel::data(const QModelIndex& index, int role) const
     case TransRefEnum::kDateTime:
         return trans->date_time;
     case TransRefEnum::kPP:
+        return trans->rhs_node;
+    case TransRefEnum::kSection:
         return trans->id;
     case TransRefEnum::kOrderNode:
         return trans->lhs_node;
@@ -63,10 +66,6 @@ QVariant TransRefModel::data(const QModelIndex& index, int role) const
         return trans->description;
     case TransRefEnum::kGrossAmount:
         return trans->rhs_debit == 0 ? QVariant() : trans->rhs_debit;
-    case TransRefEnum::kDiscount:
-        return trans->discount == 0 ? QVariant() : trans->discount;
-    case TransRefEnum::kNetAmount:
-        return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
     default:
         return QVariant();
     }
@@ -103,10 +102,6 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
             return (order == Qt::AscendingOrder) ? (lhs->lhs_credit < rhs->lhs_credit) : (lhs->lhs_credit > rhs->lhs_credit);
         case TransRefEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
-        case TransRefEnum::kDiscount:
-            return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
-        case TransRefEnum::kNetAmount:
-            return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
         case TransRefEnum::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
         case TransRefEnum::kDiscountPrice:
@@ -131,7 +126,7 @@ void TransRefModel::RRetrieveData(int node_id, const QDateTime& start, const QDa
         ResourcePool<Trans>::Instance().Recycle(trans_list_);
 
     if (node_id >= 1)
-        sql_->ReadTransRef(trans_list_, node_id, start, end);
+        sql_->ReadTransRef(trans_list_, node_id, unit_, start, end);
 
     endResetModel();
 }

@@ -350,14 +350,15 @@ void MainWindow::RSectionGroup(int id)
 void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
 {
     const int kNodeID { index.siblingAtColumn(std::to_underlying(TransRefEnum::kOrderNode)).data().toInt() };
-    const int kColumn { std::to_underlying(TransRefEnum::kNetAmount) };
+    const int kColumn { std::to_underlying(TransRefEnum::kGrossAmount) };
 
     assert(kNodeID >= 1 && "kNodeID must be greater than 0");
 
     if (index.column() != kColumn)
         return;
 
-    SalesNodeLocation(kNodeID);
+    const Section section { index.siblingAtColumn(std::to_underlying(TransRefEnum::kSection)).data().toInt() };
+    OrderNodeLocation(section, kNodeID);
 }
 
 void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double /*pbalance*/, double /*cbalance*/)
@@ -1305,7 +1306,7 @@ void MainWindow::on_actionStatement_triggered()
     RegisterRptWgt(widget);
 }
 
-void MainWindow::CreateTransRef(PNodeModel tree_model, CData* data, int node_id)
+void MainWindow::CreateTransRef(PNodeModel tree_model, CData* data, int node_id, int unit)
 {
     assert(tree_model && "tree_model must be non-null");
     assert(tree_model->Contains(node_id) && "node_id must exist in tree_model");
@@ -1315,7 +1316,7 @@ void MainWindow::CreateTransRef(PNodeModel tree_model, CData* data, int node_id)
     const Info& info { data->info };
     const Section section { info.section };
 
-    auto* model { new TransRefModel(sql, info, this) };
+    auto* model { new TransRefModel(sql, info, unit, this) };
 
     const auto start { QDateTime(QDate(QDate::currentDate().year() - 1, 1, 1), kStartTime) };
     const auto end { QDateTime(QDate(QDate::currentDate().year(), 12, 31), kEndTime) };
@@ -1358,8 +1359,6 @@ void MainWindow::DelegateTransRef(PTableView table_view, CSettings* settings) co
 
     auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kGrossAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kNetAmount), amount);
 
     auto* date_time { new DateTimeR(sales_settings_.date_format, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(TransRefEnum::kDateTime), date_time);
@@ -2122,15 +2121,15 @@ void MainWindow::TransRefP(int node_id, int unit)
     if (unit == std::to_underlying(UnitP::kPos) || start_ != Section::kProduct)
         return;
 
-    CreateTransRef(node_widget_->Model(), data_, node_id);
+    CreateTransRef(node_widget_->Model(), data_, node_id, unit);
 }
 
 void MainWindow::TransRefS(int node_id, int unit)
 {
-    if (unit != std::to_underlying(UnitS::kCust) || start_ != Section::kStakeholder)
+    if (start_ != Section::kStakeholder)
         return;
 
-    CreateTransRef(node_widget_->Model(), data_, node_id);
+    CreateTransRef(node_widget_->Model(), data_, node_id, unit);
 }
 
 void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
@@ -2432,10 +2431,20 @@ void MainWindow::RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id)
     SwitchToLeaf(id, trans_id);
 }
 
-void MainWindow::SalesNodeLocation(int node_id)
+void MainWindow::OrderNodeLocation(Section section, int node_id)
 {
-    RSectionGroup(std::to_underlying(Section::kSales));
-    ui->rBtnSales->setChecked(true);
+    switch (section) {
+    case Section::kSales:
+        RSectionGroup(std::to_underlying(Section::kSales));
+        ui->rBtnSales->setChecked(true);
+        break;
+    case Section::kPurchase:
+        RSectionGroup(std::to_underlying(Section::kPurchase));
+        ui->rBtnPurchase->setChecked(true);
+        break;
+    default:
+        return;
+    }
 
     ui->tabWidget->setCurrentWidget(node_widget_);
 

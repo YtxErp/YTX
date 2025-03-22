@@ -60,7 +60,7 @@ protected:
     QString QSSyncTransValue() const override;
     QString QSSearchTransValue() const override;
     QString QSSearchTransText() const override;
-    QString QSReadTransRef() const override;
+    QString QSReadTransRef(int unit) const override;
 
 private:
     QString QSReplaceLeafSP() const; // stakeholder product

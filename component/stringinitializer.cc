@@ -181,7 +181,8 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     product.trans_ref_header = {
         QObject::tr("DateTime"),
         QObject::tr("LhsNode"),
-        QObject::tr("CUST"),
+        QObject::tr("Section"),
+        QObject::tr("Party"),
         QObject::tr("Outside"),
         QObject::tr("First"),
         QObject::tr("Second"),
@@ -189,8 +190,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("DiscountPrice"),
         QObject::tr("Description"),
         QObject::tr("GrossAmount"),
-        QObject::tr("Discount"),
-        QObject::tr("NetAmount"),
     };
 
     stakeholder.node_header = {
@@ -279,6 +278,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     stakeholder.trans_ref_header = {
         QObject::tr("DateTime"),
         QObject::tr("LhsNode"),
+        QObject::tr("Section"),
         QObject::tr("Inside"),
         QObject::tr("Outside"),
         QObject::tr("First"),
@@ -287,8 +287,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("DiscountPrice"),
         QObject::tr("Description"),
         QObject::tr("GrossAmount"),
-        QObject::tr("Discount"),
-        QObject::tr("NetAmount"),
     };
 
     task.node_header = {

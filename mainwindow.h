@@ -140,7 +140,7 @@ private:
     void CreateSupport(PNodeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PTableView table_view, PNodeModel tree_model, CSettings* settings) const;
 
-    void CreateTransRef(PNodeModel tree_model, CData* data, int node_id);
+    void CreateTransRef(PNodeModel tree_model, CData* data, int node_id, int unit);
     void DelegateTransRef(PTableView table_view, CSettings* settings) const;
 
     void DelegateSupportS(PTableView table_view, PNodeModel tree_model, PNodeModel product_tree_model) const;
@@ -203,7 +203,7 @@ private:
     void IniSectionGroup();
     void TransRefP(int node_id, int unit);
     void TransRefS(int node_id, int unit);
-    void SalesNodeLocation(int node_id);
+    void OrderNodeLocation(Section section, int node_id);
 
     void LeafToSupport(TransWidget* widget);
     void SupportToLeaf(SupportWidget* widget);

@@ -31,7 +31,7 @@
 class TransRefModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    TransRefModel(Sqlite* sql, CInfo& info, QObject* parent = nullptr);
+    TransRefModel(Sqlite* sql, CInfo& info, int unit, QObject* parent = nullptr);
     ~TransRefModel();
 
 public slots:
@@ -52,6 +52,7 @@ public:
 private:
     Sqlite* sql_ {};
     CInfo& info_;
+    const int unit_ {};
 
     TransList trans_list_ {};
 };

@@ -2100,6 +2100,8 @@ void MainWindow::RTransRef(const QModelIndex& index)
 {
     assert(node_widget_ && "node_widget_ must be non-null");
     assert(index.isValid() && "index must be valid");
+    assert(node_widget_->Model()->Type(node_id) != kTypeLeaf
+        && "Node type should not be 'kTypeLeaf' at this point. The type check should be performed in the delegate DoubleSpinUnitRPS.");
 
     const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
     const int unit { index.siblingAtColumn(std::to_underlying(NodeEnum::kUnit)).data().toInt() };

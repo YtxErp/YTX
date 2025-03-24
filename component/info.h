@@ -35,11 +35,14 @@ struct Info {
 
     QStringList node_header {};
     QStringList trans_header {};
+
     QStringList trans_ref_header {};
-    QStringList excel_trans_header {}; // The order should match the column order of SQLite3's *_transaction table.
     QStringList statement_header {};
     QStringList statement_primary_header {};
     QStringList statement_secondary_header {};
+
+    QStringList excel_trans_header {}; // The order should match the column order of SQLite3's *_transaction table.
+    QStringList excel_node_header {}; // The order should match the column order of SQLite3's *_node table.
 
     QStringList search_trans_header {};
     QStringList search_node_header {};

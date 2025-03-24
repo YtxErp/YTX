@@ -283,11 +283,11 @@ void Sqlite::CalculateLeafTotal(Node* node, QSqlQuery& query) const
     int sign = rule ? 1 : -1;
 
     if (query.next()) {
-        QVariant initial_balance { query.value(QStringLiteral("initial_balance")) };
-        QVariant final_balance { query.value(QStringLiteral("final_balance")) };
+        const double initial_balance { query.value(QStringLiteral("initial_balance")).toDouble() };
+        const double final_balance { query.value(QStringLiteral("final_balance")).toDouble() };
 
-        node->initial_total = sign * (initial_balance.isNull() ? 0.0 : initial_balance.toDouble());
-        node->final_total = sign * (final_balance.isNull() ? 0.0 : final_balance.toDouble());
+        node->initial_total = sign * initial_balance;
+        node->final_total = sign * final_balance;
     }
 }
 
@@ -890,6 +890,33 @@ bool Sqlite::ReadStatement(TransList& trans_list, int unit, const QDateTime& sta
     }
 
     ReadStatementQuery(trans_list, query);
+
+    return true;
+}
+
+bool Sqlite::ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    auto string { QSReadBalance(unit) };
+    if (string.isEmpty())
+        return false;
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party_id"), party_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatement" << query.lastError().text();
+        return false;
+    }
+
+    if (query.next()) {
+        pbalance = query.value(QStringLiteral("pbalance")).toDouble();
+        cdelta = query.value(QStringLiteral("cgross_amount")).toDouble() - query.value(QStringLiteral("csettlement")).toDouble();
+    }
 
     return true;
 }

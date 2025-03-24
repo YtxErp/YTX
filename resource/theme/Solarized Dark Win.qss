@@ -78,6 +78,10 @@ QPushButton#pBtnRefresh {
     border-bottom: none;
 }
 
+QPushButton#pBtnExport {
+    border: none;
+}
+
 QTabBar::tab, QTreeView#treeViewFPT, QGroupBox#treeWidgetOrder {
     border-bottom: none;
 }

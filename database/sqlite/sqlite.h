@@ -111,6 +111,7 @@ public:
 
     bool ReadTransRef(TransList& trans_list, int node_id, int unit, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
+    bool ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // common
@@ -143,6 +144,11 @@ protected:
         return {};
     }
     virtual QString QSReadStatement(int unit) const
+    {
+        Q_UNUSED(unit);
+        return {};
+    }
+    virtual QString QSReadBalance(int unit) const
     {
         Q_UNUSED(unit);
         return {};

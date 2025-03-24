@@ -67,26 +67,26 @@
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"
 #include "mainwindowutils.h"
+#include "report/model/statementmodel.h"
+#include "report/model/statementprimarymodel.h"
+#include "report/model/statementsecondarymodel.h"
+#include "report/model/transrefmodel.h"
+#include "report/widget/refwidget.h"
+#include "report/widget/statementwidget.h"
 #include "table/model/transmodelf.h"
 #include "table/model/transmodelp.h"
 #include "table/model/transmodels.h"
 #include "table/model/transmodelt.h"
-#include "table/statementmodel.h"
-#include "table/statementsecondarymodel.h"
-#include "table/transrefmodel.h"
 #include "tree/model/nodemodelf.h"
 #include "tree/model/nodemodelo.h"
 #include "tree/model/nodemodelp.h"
 #include "tree/model/nodemodels.h"
 #include "tree/model/nodemodelt.h"
-#include "tree/statementprimarymodel.h"
 #include "ui_mainwindow.h"
 #include "widget/node/nodewidgetf.h"
 #include "widget/node/nodewidgeto.h"
 #include "widget/node/nodewidgetpt.h"
 #include "widget/node/nodewidgets.h"
-#include "widget/report/refwidget.h"
-#include "widget/report/statementwidget.h"
 #include "widget/support/supportwidgetfpts.h"
 #include "widget/trans/transwidgetfpts.h"
 
@@ -171,7 +171,7 @@ bool MainWindow::ROpenFile(CString& file_path)
 
     this->setWindowTitle(complete_base_name);
     file_settings_ = std::make_unique<QSettings>(
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + kSlash + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
 
     ytx_sql_ = std::make_unique<SqlieYtx>();
     SetFinanceData();
@@ -362,13 +362,13 @@ void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
     OrderNodeLocation(section, kNodeID);
 }
 
-void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double /*pbalance*/, double /*cbalance*/)
+void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end)
 {
     auto* sql { data_->sql };
     const auto& info { data_->info };
 
     auto* model { new StatementPrimaryModel(sql, info, party_id, this) };
-    auto* widget { new StatementWidget(model, unit, start, end, this) };
+    auto* widget { new StatementWidget(model, unit, false, start, end, this) };
 
     const QString name { tr("StatementPrimary-") + stakeholder_tree_->Model()->Name(party_id) };
     const int tab_index { ui->tabWidget->addTab(widget, name) };
@@ -386,13 +386,14 @@ void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& star
     RegisterRptWgt(widget);
 }
 
-void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double /*pbalance*/, double /*cbalance*/)
+void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end)
 {
     auto* sql { data_->sql };
     const auto& info { data_->info };
 
-    auto* model { new StatementSecondaryModel(sql, info, party_id, this) };
-    auto* widget { new StatementWidget(model, unit, start, end, this) };
+    auto* model { new StatementSecondaryModel(
+        sql, info, party_id, product_tree_->Model()->LeafPath(), stakeholder_tree_->Model(), interface_.company_name, this) };
+    auto* widget { new StatementWidget(model, unit, true, start, end, this) };
 
     const QString name { tr("StatementSecondary-") + stakeholder_tree_->Model()->Name(party_id) };
     const int tab_index { ui->tabWidget->addTab(widget, name) };
@@ -406,6 +407,7 @@ void MainWindow::RStatementSecondary(int party_id, int unit, const QDateTime& st
     DelegateStatementSecondary(view, settings_);
 
     connect(widget, &StatementWidget::SRetrieveData, model, &StatementSecondaryModel::RRetrieveData);
+    connect(widget, &StatementWidget::SExport, model, &StatementSecondaryModel::RExport);
 
     RegisterRptWgt(widget);
 }
@@ -1131,7 +1133,7 @@ void MainWindow::AddRecentFile(CString& file_path)
 
 bool MainWindow::LockFile(const QFileInfo& file_info)
 {
-    CString lock_file_path { file_info.absolutePath() + "/" + file_info.completeBaseName() + kDotSuffixLOCK };
+    CString lock_file_path { file_info.absolutePath() + QDir::separator() + file_info.completeBaseName() + kDotSuffixLOCK };
 
     lock_file_ = std::make_unique<QLockFile>(lock_file_path);
 
@@ -1289,7 +1291,7 @@ void MainWindow::on_actionStatement_triggered()
     const auto start { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1), kStartTime) };
     const auto end { QDateTime(QDate(QDate::currentDate().year(), QDate::currentDate().month(), QDate::currentDate().daysInMonth()), kEndTime) };
 
-    auto* widget { new StatementWidget(model, unit, start, end, this) };
+    auto* widget { new StatementWidget(model, unit, false, start, end, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, tr("Statement")) };
     auto* tab_bar { ui->tabWidget->tabBar() };
@@ -2072,7 +2074,7 @@ void MainWindow::REditTransDocument(const QModelIndex& index)
     assert(leaf_widget && "leaf_widget must be non-null");
     assert(index.isValid() && "index must be valid");
 
-    const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
+    const auto document_dir { QDir::homePath() + QDir::separator() + settings_->document_dir };
     const int trans_id { index.siblingAtColumn(std::to_underlying(TransEnum::kID)).data().toInt() };
 
     auto* document_pointer { leaf_widget->Model()->GetDocumentPointer(index) };
@@ -2089,7 +2091,7 @@ void MainWindow::REditNodeDocument(const QModelIndex& index)
     assert(node_widget_ && "node_widget_ must be non-null");
     assert(index.isValid() && "index must be valid");
 
-    const auto document_dir { QDir::homePath() + "/" + settings_->document_dir };
+    const auto document_dir { QDir::homePath() + QDir::separator() + settings_->document_dir };
     const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
 
     auto* document_pointer { node_widget_->Model()->DocumentPointer(node_id) };
@@ -2255,6 +2257,7 @@ void MainWindow::UpdateInterface(CInterface& interface)
     app_settings_->beginGroup(kInterface);
     app_settings_->setValue(kLanguage, interface.language);
     app_settings_->setValue(kSeparator, interface.separator);
+    app_settings_->setValue(kCompanyName, interface.company_name);
     app_settings_->endGroup();
 }
 
@@ -2361,6 +2364,7 @@ void MainWindow::AppSettings()
     interface_.language = app_settings_->value(kLanguage, language_code).toString();
     interface_.theme = app_settings_->value(kTheme, kSolarizedDark).toString();
     interface_.separator = app_settings_->value(kSeparator, kDash).toString();
+    interface_.company_name = app_settings_->value(kCompanyName, {}).toString();
     app_settings_->endGroup();
 
     LoadAndInstallTranslator(interface_.language);
@@ -2709,7 +2713,7 @@ void MainWindow::on_actionExportExcel_triggered()
 
             auto book1 { d.GetWorkbook() };
             book1->AppendSheet(data_->info.node);
-            book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.node_header);
+            book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.excel_node_header);
             MainWindowUtils::ExportExcel(source, data_->info.node, book1->GetCurrentWorksheet());
 
             book1->AppendSheet(data_->info.path);
@@ -2718,7 +2722,8 @@ void MainWindow::on_actionExportExcel_triggered()
 
             book1->AppendSheet(data_->info.trans);
             book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.excel_trans_header);
-            MainWindowUtils::ExportExcel(source, data_->info.trans, book1->GetCurrentWorksheet());
+            const bool where { start_ == Section::kStakeholder ? false : true };
+            MainWindowUtils::ExportExcel(source, data_->info.trans, book1->GetCurrentWorksheet(), where);
 
             d.Save();
             MainWindowUtils::RemoveDatabase(kSourceConnection);

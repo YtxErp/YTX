@@ -55,7 +55,7 @@ void EditDocument::on_pBtnOk_clicked() { *document_ = list_model_->stringList();
 
 void EditDocument::on_listView_doubleClicked(const QModelIndex& index)
 {
-    QString file_path { QDir::homePath() + "/" + index.data().toString() };
+    QString file_path { QDir::homePath() + QDir::separator() + index.data().toString() };
     auto file_url { QUrl::fromLocalFile(file_path) };
 
     if (QFile::exists(file_path)) {

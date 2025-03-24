@@ -32,12 +32,12 @@
 #include "component/settings.h"
 #include "component/using.h"
 #include "database/sqlieytx.h"
+#include "report/widget/reportwidget.h"
 #include "table/model/transmodel.h"
 #include "table/model/transmodelo.h"
 #include "tree/model/nodemodel.h"
 #include "ui_mainwindow.h"
 #include "widget/node/nodewidget.h"
-#include "widget/report/reportwidget.h"
 #include "widget/support/supportwidget.h"
 #include "widget/trans/transwidgeto.h"
 
@@ -107,8 +107,8 @@ private slots:
     void RSectionGroup(int id);
     void RTransRefDoubleClicked(const QModelIndex& index);
 
-    void RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
-    void RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end);
+    void RStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end);
 
     void REnableAction(bool finished);
 

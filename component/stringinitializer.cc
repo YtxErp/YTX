@@ -71,6 +71,20 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("RhsNode"),
     };
 
+    finance.excel_node_header = {
+        QObject::tr("Name"),
+        QObject::tr("ID"),
+        QObject::tr("Code"),
+        QObject::tr("Description"),
+        QObject::tr("Note"),
+        QObject::tr("Type"),
+        QObject::tr("Rule"),
+        QObject::tr("Unit"),
+        QObject::tr("ForeignTotal"),
+        QObject::tr("LocalTotal"),
+        QObject::tr("Removed"),
+    };
+
     finance.excel_trans_header = {
         QObject::tr("DateTime"),
         QObject::tr("ID"),
@@ -87,6 +101,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("RhsDebit"),
         QObject::tr("RhsFXRate"),
         QObject::tr("RhsNode"),
+        QObject::tr("Removed"),
     };
 
     product.node_header = {
@@ -161,6 +176,23 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("RhsNode"),
     };
 
+    product.excel_node_header = {
+        QObject::tr("Name"),
+        QObject::tr("ID"),
+        QObject::tr("Code"),
+        QObject::tr("Description"),
+        QObject::tr("Note"),
+        QObject::tr("Type"),
+        QObject::tr("Rule"),
+        QObject::tr("Unit"),
+        QObject::tr("Color"),
+        QObject::tr("UnitPrice"),
+        QObject::tr("Commission"),
+        QObject::tr("Quantity"),
+        QObject::tr("Amount"),
+        QObject::tr("Removed"),
+    };
+
     product.excel_trans_header = {
         QObject::tr("DateTime"),
         QObject::tr("ID"),
@@ -176,6 +208,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("RhsCredit"),
         QObject::tr("RhsDebit"),
         QObject::tr("RhsNode"),
+        QObject::tr("Removed"),
     };
 
     product.trans_ref_header = {
@@ -261,6 +294,22 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Inside"),
     };
 
+    stakeholder.excel_node_header = {
+        QObject::tr("Name"),
+        QObject::tr("ID"),
+        QObject::tr("Code"),
+        QObject::tr("Description"),
+        QObject::tr("Note"),
+        QObject::tr("Type"),
+        QObject::tr("PaymentPeriod"),
+        QObject::tr("Unit"),
+        QObject::tr("Deadline"),
+        QObject::tr("Employee"),
+        QObject::tr("TaxRate"),
+        QObject::tr("Amount"),
+        QObject::tr("Removed"),
+    };
+
     stakeholder.excel_trans_header = {
         QObject::tr("DateTime"),
         QObject::tr("ID"),
@@ -269,7 +318,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("UnitPrice"),
         QObject::tr("Description"),
         QObject::tr("Outside"),
-        {},
         QObject::tr("D"),
         QObject::tr("S"),
         QObject::tr("Inside"),
@@ -345,6 +393,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     };
     task.search_trans_header = product.search_trans_header;
     task.excel_trans_header = product.excel_trans_header;
+    task.excel_node_header = product.excel_node_header;
 
     sales.node_header = {
         QObject::tr("Name"),
@@ -383,9 +432,9 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     sales.search_node_header = {
         QObject::tr("Name"),
         QObject::tr("ID"),
-        QObject::tr("Code"),
+        {},
         QObject::tr("Description"),
-        QObject::tr("Note"),
+        {},
         QObject::tr("Type"),
         QObject::tr("Rule"),
         QObject::tr("Unit"),
@@ -420,6 +469,26 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("InsideProduct"),
     };
 
+    sales.excel_node_header = {
+        QObject::tr("BranchName"),
+        QObject::tr("ID"),
+        QObject::tr("Party"),
+        QObject::tr("Description"),
+        QObject::tr("Employee"),
+        QObject::tr("Type"),
+        QObject::tr("Rule"),
+        QObject::tr("Unit"),
+        QObject::tr("DateTime"),
+        QObject::tr("First"),
+        QObject::tr("Second"),
+        QObject::tr("Finished"),
+        QObject::tr("GrossAmount"),
+        QObject::tr("Discount"),
+        QObject::tr("Settlement"),
+        QObject::tr("Removed"),
+        QObject::tr("SettlementID"),
+    };
+
     sales.excel_trans_header = {
         QObject::tr("ID"),
         QObject::tr("Code"),
@@ -434,6 +503,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("GrossAmount"),
         QObject::tr("DiscountPrice"),
         QObject::tr("InsideProduct"),
+        QObject::tr("Removed"),
     };
 
     sales.statement_header = {
@@ -476,6 +546,7 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     purchase.search_trans_header = sales.search_trans_header;
     purchase.search_node_header = sales.search_node_header;
     purchase.excel_trans_header = sales.excel_trans_header;
+    purchase.excel_node_header = sales.excel_node_header;
     purchase.statement_header = sales.statement_header;
     purchase.statement_primary_header = sales.statement_primary_header;
     purchase.statement_secondary_header = sales.statement_secondary_header;

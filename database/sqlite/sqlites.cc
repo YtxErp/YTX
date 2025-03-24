@@ -602,14 +602,14 @@ QString SqliteS::QSLeafTotal(int unit) const
     switch (UnitS(unit)) {
     case UnitS::kCust:
         return QStringLiteral(R"(
-        SELECT SUM(gross_amount) AS amount
+        SELECT SUM(gross_amount) AS final_balance
         FROM sales
         WHERE party = :node_id AND finished = 1 AND settlement_id = 0 AND unit = 1 AND removed = 0;
         )");
         break;
     case UnitS::kVend:
         return QStringLiteral(R"(
-        SELECT SUM(gross_amount) AS amount
+        SELECT SUM(gross_amount) AS final_balance
         FROM purchase
         WHERE party = :node_id AND finished = 1 AND settlement_id = 0 AND unit = 1 AND removed = 0;
         )");
@@ -650,7 +650,7 @@ void SqliteS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
-        trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toDouble();
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
@@ -663,8 +663,8 @@ void SqliteS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
 
 void SqliteS::CalculateLeafTotal(Node* node, QSqlQuery& query) const
 {
-    query.next();
-    node->final_total = query.value(QStringLiteral("amount")).toDouble();
+    if (query.next())
+        node->final_total = query.value(QStringLiteral("final_balance")).toDouble();
 }
 
 void SqliteS::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
@@ -691,7 +691,7 @@ void SqliteS::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();
     node->date_time = query.value(QStringLiteral("deadline")).toString();
-    node->first = query.value(QStringLiteral("payment_term")).toInt();
+    node->first = query.value(QStringLiteral("payment_term")).toDouble();
     node->second = query.value(QStringLiteral("tax_rate")).toDouble();
     node->final_total = query.value(QStringLiteral("amount")).toDouble();
 }

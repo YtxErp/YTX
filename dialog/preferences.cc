@@ -54,6 +54,7 @@ void Preferences::IniDialog(QStandardItemModel* unit_model)
     ui->comboDynamicRhs->setModel(leaf_path_branch_path_model_);
 
     IniCombo(ui->comboOperation, operation_list_);
+    ui->lineCompany->setText(interface_.company_name);
 }
 
 void Preferences::IniCombo(QComboBox* combo, CStringList& list) { combo->addItems(list); }
@@ -118,7 +119,7 @@ void Preferences::on_pBtnApply_clicked() { emit SUpdateSettings(settings_, inter
 void Preferences::on_pBtnDocumentDir_clicked()
 {
     auto dir { ui->pBtnDocumentDir->text() };
-    auto default_dir { QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::homePath() + "/" + dir) };
+    auto default_dir { QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::homePath() + QDir::separator() + dir) };
 
     if (!default_dir.isEmpty()) {
         auto relative_path { QDir::home().relativeFilePath(default_dir) };
@@ -230,4 +231,10 @@ void Preferences::on_comboOperation_currentIndexChanged(int index)
 {
     Q_UNUSED(index)
     settings_.operation = ui->comboOperation->currentText();
+}
+
+void Preferences::on_lineCompany_editingFinished()
+{
+    interface_.company_name = ui->lineCompany->text();
+    ResizeLine(ui->lineCompany, interface_.company_name);
 }

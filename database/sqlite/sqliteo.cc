@@ -387,6 +387,40 @@ QString SqliteO::QSReadStatement(int unit) const
     }
 }
 
+QString SqliteO::QSReadBalance(int unit) const
+{
+    switch (UnitO(unit)) {
+    case UnitO::kMS:
+        return QString(R"(
+                SELECT
+
+                    SUM(CASE WHEN o.date_time < :start AND o.settlement_id = 0 THEN o.gross_amount                 ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount                          ELSE 0 END) AS cgross_amount,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end AND o.settlement_id != 0 THEN o.gross_amount ELSE 0 END) AS csettlement
+
+                FROM stakeholder s
+                INNER JOIN %1 o ON s.id = o.party
+                WHERE o.party = :party_id AND o.unit = 1 AND o.finished = 1 AND o.removed = 0
+            )")
+            .arg(info_.node);
+    case UnitO::kPEND:
+        return QString(R"(
+                SELECT
+
+                    SUM(CASE WHEN o.date_time < :start THEN o.gross_amount                 ELSE 0 END) AS pbalance,
+                    SUM(CASE WHEN o.date_time BETWEEN :start AND :end THEN o.gross_amount  ELSE 0 END) AS cgross_amount,
+                    0 AS csettlement
+
+                FROM stakeholder s
+                INNER JOIN %1 o ON s.id = o.party
+                WHERE o.party = :party_id AND o.unit = 2 AND o.removed = 0
+            )")
+            .arg(info_.node);
+    default:
+        return {};
+    }
+}
+
 QString SqliteO::QSReadStatementPrimary(int unit) const
 {
     static const QString kBaseQuery = R"(
@@ -519,7 +553,7 @@ void SqliteO::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
         trans->id = query.value(QStringLiteral("party")).toInt();
         trans->lhs_ratio = query.value(QStringLiteral("pbalance")).toDouble();
         trans->rhs_debit = query.value(QStringLiteral("cgross_amount")).toDouble();
-        trans->rhs_credit = query.value(QStringLiteral("csettlement")).toInt();
+        trans->rhs_credit = query.value(QStringLiteral("csettlement")).toDouble();
         trans->rhs_ratio = query.value(QStringLiteral("cbalance")).toDouble();
         trans->lhs_debit = query.value(QStringLiteral("cfirst")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("csecond")).toDouble();
@@ -555,7 +589,7 @@ void SqliteO::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& quer
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
-        trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toDouble();
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
         trans->rhs_credit = query.value(QStringLiteral("settlement")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
@@ -600,7 +634,7 @@ void SqliteO::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
-    trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+    trans->lhs_debit = query.value(QStringLiteral("first")).toDouble();
     trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
     trans->rhs_credit = query.value(QStringLiteral("net_amount")).toDouble();
     trans->discount = query.value(QStringLiteral("discount")).toDouble();
@@ -730,7 +764,7 @@ void SqliteO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->party = query.value(QStringLiteral("party")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();
     node->date_time = query.value(QStringLiteral("date_time")).toString();
-    node->first = query.value(QStringLiteral("first")).toInt();
+    node->first = query.value(QStringLiteral("first")).toDouble();
     node->second = query.value(QStringLiteral("second")).toDouble();
     node->discount = query.value(QStringLiteral("discount")).toDouble();
     node->finished = query.value(QStringLiteral("finished")).toBool();

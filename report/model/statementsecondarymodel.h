@@ -24,15 +24,18 @@
 
 #include "component/info.h"
 #include "database/sqlite/sqlite.h"
+#include "tree/model/nodemodel.h"
 
 class StatementSecondaryModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    StatementSecondaryModel(Sqlite* sql, CInfo& info, int party_id, QObject* parent = nullptr);
+    StatementSecondaryModel(
+        Sqlite* sql, CInfo& info, int party_id, CStringHash& product_leaf, PNodeModel stakeholder, CString& company_name, QObject* parent = nullptr);
     ~StatementSecondaryModel();
 
 public slots:
     void RRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void RExport(int unit, const QDateTime& start, const QDateTime& end);
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -52,7 +55,10 @@ private:
     Sqlite* sql_ {};
     CInfo& info_;
     const int party_id_ {};
-
+    CStringHash& product_leaf_ {};
+    CStringHash& stakeholder_leaf_ {};
+    PNodeModel stakeholder_ {};
+    CString& company_name_ {};
     TransList trans_list_ {};
 };
 

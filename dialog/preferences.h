@@ -64,6 +64,7 @@ private slots:
     void on_comboLanguage_currentIndexChanged(int index);
     void on_comboDateFormat_currentIndexChanged(int index);
     void on_comboSeparator_currentIndexChanged(int index);
+    void on_lineCompany_editingFinished();
 
 private:
     void IniDialog(QStandardItemModel* unit_model);

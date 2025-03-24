@@ -155,6 +155,8 @@ public:
     inline QStandardItemModel* SupportModel() const { return support_model_; }
     inline QStandardItemModel* LeafModel() const { return leaf_model_; }
 
+    inline CStringHash& LeafPath() const { return leaf_path_; }
+
     void LeafPathBranchPathModel(QStandardItemModel* model) const;
 
     void SearchNode(QList<const Node*>& node_list, const QSet<int>& node_id_set) const;

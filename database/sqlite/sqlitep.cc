@@ -213,7 +213,7 @@ void SqliteP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
         trans->lhs_ratio = query.value(QStringLiteral("unit_price")).toDouble();
         trans->lhs_credit = query.value(QStringLiteral("second")).toDouble();
         trans->description = query.value(QStringLiteral("description")).toString();
-        trans->lhs_debit = query.value(QStringLiteral("first")).toInt();
+        trans->lhs_debit = query.value(QStringLiteral("first")).toDouble();
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();

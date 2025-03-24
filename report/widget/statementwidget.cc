@@ -7,7 +7,7 @@
 #include "component/signalblocker.h"
 #include "ui_statementwidget.h"
 
-StatementWidget::StatementWidget(QAbstractItemModel* model, int unit, CDateTime& start, CDateTime& end, QWidget* parent)
+StatementWidget::StatementWidget(QAbstractItemModel* model, int unit, bool enable_excel, CDateTime& start, CDateTime& end, QWidget* parent)
     : ReportWidget(parent)
     , ui(new Ui::StatementWidget)
     , unit_ { unit }
@@ -17,7 +17,7 @@ StatementWidget::StatementWidget(QAbstractItemModel* model, int unit, CDateTime&
     ui->setupUi(this);
     SignalBlocker blocker(this);
     IniUnitGroup();
-    IniWidget(model);
+    IniWidget(model, enable_excel);
     IniUnit(unit);
     IniConnect();
 
@@ -75,7 +75,7 @@ void StatementWidget::IniUnit(int unit)
     }
 }
 
-void StatementWidget::IniWidget(QAbstractItemModel* model)
+void StatementWidget::IniWidget(QAbstractItemModel* model, bool enable_excel)
 {
     ui->start->setDisplayFormat(kDateFST);
     ui->end->setDisplayFormat(kDateFST);
@@ -85,19 +85,21 @@ void StatementWidget::IniWidget(QAbstractItemModel* model)
 
     ui->start->setDateTime(start_);
     ui->end->setDateTime(end_);
+
+    ui->pBtnExport->setEnabled(enable_excel);
 }
 
 void StatementWidget::on_tableView_doubleClicked(const QModelIndex& index)
 {
     const int kParty { index.siblingAtColumn(std::to_underlying(StatementEnum::kParty)).data().toInt() };
-    const double pbalance { index.siblingAtColumn(std::to_underlying(StatementEnum::kPBalance)).data().toDouble() };
-    const double cbalance { index.siblingAtColumn(std::to_underlying(StatementEnum::kCBalance)).data().toDouble() };
 
     if (index.column() == std::to_underlying(StatementEnum::kParty)) {
-        emit SStatementPrimary(kParty, unit_, start_, end_, pbalance, cbalance);
+        emit SStatementPrimary(kParty, unit_, start_, end_);
     }
 
     if (index.column() == std::to_underlying(StatementEnum::kCSettlement)) {
-        emit SStatementSecondary(kParty, unit_, start_, end_, pbalance, cbalance);
+        emit SStatementSecondary(kParty, unit_, start_, end_);
     }
 }
+
+void StatementWidget::on_pBtnExport_clicked() { emit SExport(unit_, start_, end_); }

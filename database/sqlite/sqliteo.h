@@ -68,6 +68,7 @@ protected:
     QString QSSyncTransValue() const override;
     QString QSTransToRemove() const override;
     QString QSReadStatement(int unit) const override;
+    QString QSReadBalance(int unit) const override;
     QString QSReadStatementPrimary(int unit) const override;
     QString QSReadStatementSecondary(int unit) const override;
     QString QSInvertTransValue() const override;

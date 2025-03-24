@@ -117,6 +117,13 @@
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="QPushButton" name="pBtnExport">
+        <property name="text">
+         <string>Export</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

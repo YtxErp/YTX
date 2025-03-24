@@ -34,12 +34,13 @@ class StatementWidget final : public ReportWidget {
     Q_OBJECT
 
 signals:
-    void SStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
-    void SStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end, double pbalance, double cbalance);
+    void SStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end);
+    void SStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end);
     void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void SExport(int unit, const QDateTime& start, const QDateTime& end);
 
 public:
-    StatementWidget(QAbstractItemModel* model, int unit, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);
+    StatementWidget(QAbstractItemModel* model, int unit, bool enable_excel, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);
     ~StatementWidget() override;
 
     QPointer<QTableView> View() const override;
@@ -50,6 +51,7 @@ private slots:
     void on_tableView_doubleClicked(const QModelIndex& index);
     void on_start_dateChanged(const QDate& date);
     void on_end_dateChanged(const QDate& date);
+    void on_pBtnExport_clicked();
 
     void RUnitGroupClicked(int id);
 
@@ -57,7 +59,7 @@ private:
     void IniUnitGroup();
     void IniConnect();
     void IniUnit(int unit);
-    void IniWidget(QAbstractItemModel* model);
+    void IniWidget(QAbstractItemModel* model, bool enable_excel);
 
 private:
     Ui::StatementWidget* ui;

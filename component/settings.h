@@ -27,11 +27,12 @@ struct Interface {
     QString theme {};
     QString language {};
     QString separator {};
+    QString company_name {};
 
     // Equality operator overload to compare two Interface structs
     bool operator==(const Interface& other) const noexcept
     {
-        return std::tie(theme, language, separator) == std::tie(other.theme, other.language, other.separator);
+        return std::tie(theme, language, separator, company_name) == std::tie(other.theme, other.language, other.separator, other.company_name);
     }
 
     // Inequality operator overload to compare two Interface structs

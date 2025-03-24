@@ -39,6 +39,7 @@ inline constexpr bool kRuleDDCI = 1;
 inline constexpr char kDateTime[] = "date_time";
 inline constexpr char kDateTimeFST[] = "yyyy-MM-dd HH:mm";
 inline constexpr char kDateFST[] = "yyyy-MM-dd";
+inline constexpr char kMonthFST[] = "yyyyMM";
 
 inline constexpr char kFullWidthPeriod[] = u8"。";
 inline constexpr char kHalfWidthPeriod[] = u8".";
@@ -47,6 +48,7 @@ inline constexpr char kHalfWidthPeriod[] = u8".";
 inline constexpr char kColon[] = ":";
 inline constexpr char kDash[] = "-";
 inline constexpr char kSeparator[] = "separator";
+inline constexpr char kCompanyName[] = "company_name";
 inline constexpr char kSlash[] = "/";
 
 // Constants for operators

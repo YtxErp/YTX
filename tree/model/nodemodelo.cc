@@ -38,7 +38,7 @@ void NodeModelO::RSyncBoolWD(int node_id, int column, bool value)
         coefficient * node->discount);
 
     if (node->unit == std::to_underlying(UnitO::kMS))
-        emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
+        emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * node->initial_total);
 }
 
 void NodeModelO::UpdateTree(const QDateTime& start, const QDateTime& end)
@@ -164,7 +164,7 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
     node->finished = value;
     emit SSyncBoolWD(node->id, std::to_underlying(NodeEnumO::kFinished), value);
     if (node->unit == std::to_underlying(UnitO::kMS))
-        emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * (node->initial_total - node->discount));
+        emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * node->initial_total);
 
     sql_->WriteField(info_.node, kFinished, value, node->id);
     if (value)
@@ -213,7 +213,7 @@ void NodeModelO::RemovePath(Node* node, Node* parent_node)
             UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
 
             if (node->unit == std::to_underlying(UnitO::kMS))
-                emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), node->discount - node->initial_total);
+                emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), -node->initial_total);
         }
         break;
     default:

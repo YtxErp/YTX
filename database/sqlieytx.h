@@ -52,6 +52,8 @@ private:
     bool NodeIndex(QSqlQuery& query);
     // bool TransIndex(QSqlQuery& query);
 
+    QString SettlementOrder(CString& order);
+
 private:
     QSqlDatabase* db_ {};
 };

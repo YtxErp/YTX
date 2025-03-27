@@ -16,7 +16,7 @@ void SqlieYtx::QuerySettings(Settings& settings, Section section)
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    auto part = QStringLiteral(R"(
+    const QString part = QStringLiteral(R"(
     SELECT static_label, static_node, dynamic_label, dynamic_node_lhs, operation, dynamic_node_rhs, default_unit, document_dir, date_format, amount_decimal, common_decimal
     FROM settings
     WHERE id = :section
@@ -46,7 +46,7 @@ void SqlieYtx::QuerySettings(Settings& settings, Section section)
 
 void SqlieYtx::UpdateSettings(CSettings& settings, Section section)
 {
-    auto part = QStringLiteral(R"(
+    const QString part = QStringLiteral(R"(
     UPDATE settings SET
         static_label = :static_label, static_node = :static_node, dynamic_label = :dynamic_label, dynamic_node_lhs = :dynamic_node_lhs,
         operation = :operation, dynamic_node_rhs = :dynamic_node_rhs, default_unit = :default_unit, document_dir = :document_dir,
@@ -83,31 +83,33 @@ bool SqlieYtx::NewFile(CString& file_path)
     if (!db.open())
         return false;
 
-    QString finance = NodeFinance();
-    QString finance_path = Path(kFinancePath);
-    QString finance_trans = TransFinance();
+    const QString finance { NodeFinance() };
+    const QString finance_path { Path(kFinance) };
+    const QString finance_trans { TransFinance() };
 
-    QString product = NodeProduct();
-    QString product_path = Path(kProductPath);
-    QString product_trans = TransProduct();
+    const QString product { NodeProduct() };
+    const QString product_path { Path(kProduct) };
+    const QString product_trans { TransProduct() };
 
-    QString task = NodeTask();
-    QString task_path = Path(kTaskPath);
-    QString task_trans = TransTask();
+    const QString task { NodeTask() };
+    const QString task_path { Path(kTask) };
+    const QString task_trans { TransTask() };
 
-    QString stakeholder = NodeStakeholder();
-    QString stakeholder_path = Path(kStakeholderPath);
-    QString stakeholder_trans = TransStakeholder();
+    const QString stakeholder { NodeStakeholder() };
+    const QString stakeholder_path { Path(kStakeholder) };
+    const QString stakeholder_trans { TransStakeholder() };
 
-    QString purchase = NodeOrder(kPurchase);
-    QString purchase_path = Path(kPurchasePath);
-    QString purchase_trans = TransOrder(kPurchaseTrans);
+    const QString purchase { NodeOrder(kPurchase) };
+    const QString purchase_path { Path(kPurchase) };
+    const QString purchase_trans { TransOrder(kPurchase) };
+    const QString purchase_settlement { SettlementOrder(kPurchase) };
 
-    QString sales = NodeOrder(kSales);
-    QString sales_path = Path(kSalesPath);
-    QString sales_trans = TransOrder(kSalesTrans);
+    const QString sales { NodeOrder(kSales) };
+    const QString sales_path { Path(kSales) };
+    const QString sales_trans { TransOrder(kSales) };
+    const QString sales_settlement { SettlementOrder(kSales) };
 
-    QString settings = QStringLiteral(R"(
+    const QString settings { QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS settings (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
         static_label        TEXT,
@@ -122,7 +124,7 @@ bool SqlieYtx::NewFile(CString& file_path)
         amount_decimal      INTEGER    DEFAULT 2,
         common_decimal      INTEGER    DEFAULT 2
     );
-    )");
+    )") };
 
     QSqlQuery query {};
     if (db.transaction()) {
@@ -130,7 +132,8 @@ bool SqlieYtx::NewFile(CString& file_path)
         if (query.exec(finance) && query.exec(finance_path) && query.exec(finance_trans) && query.exec(product) && query.exec(product_path)
             && query.exec(product_trans) && query.exec(stakeholder) && query.exec(stakeholder_path) && query.exec(stakeholder_trans) && query.exec(task)
             && query.exec(task_path) && query.exec(task_trans) && query.exec(purchase) && query.exec(purchase_path) && query.exec(purchase_trans)
-            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(settings) && NodeIndex(query)) {
+            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(settings) && query.exec(purchase_settlement)
+            && query.exec(sales_settlement) && NodeIndex(query)) {
             // Commit the transaction if all queries are successful
             if (db.commit()) {
                 for (int i = 0; i != 6; ++i) {
@@ -272,7 +275,7 @@ QString SqlieYtx::NodeOrder(CString& order)
 QString SqlieYtx::Path(CString& table_name)
 {
     return QString(R"(
-    CREATE TABLE IF NOT EXISTS %1 (
+    CREATE TABLE IF NOT EXISTS %1_path (
         ancestor      INTEGER    CHECK (ancestor   >= 1),
         descendant    INTEGER    CHECK (descendant >= 1),
         distance      INTEGER    CHECK (distance   >= 0)
@@ -308,7 +311,7 @@ QString SqlieYtx::TransFinance()
 QString SqlieYtx::TransOrder(CString& order)
 {
     return QString(R"(
-    CREATE TABLE IF NOT EXISTS %1 (
+    CREATE TABLE IF NOT EXISTS %1_transaction (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
         code                TEXT,
         lhs_node            INTEGER,
@@ -422,6 +425,19 @@ bool SqlieYtx::NodeIndex(QSqlQuery& query)
     }
 
     return true;
+}
+
+QString SqlieYtx::SettlementOrder(CString& order)
+{
+    return QString(R"(
+    CREATE TABLE IF NOT EXISTS %1_settlement (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time      DATE,
+        description    TEXT,
+        removed        BOOLEAN    DEFAULT 0
+    );
+    )")
+        .arg(order);
 }
 
 #if 0

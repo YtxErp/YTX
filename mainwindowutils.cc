@@ -92,6 +92,7 @@ void MainWindowUtils::WriteSettings(std::shared_ptr<QSettings> settings, const Q
     settings->setValue(QString("%1/%2").arg(section, property), value);
 }
 
+#if 0
 bool MainWindowUtils::CopyFile(CString& source, QString& destination)
 {
     if (!CheckFileValid(source, kSuffixYTX)) {
@@ -122,6 +123,7 @@ bool MainWindowUtils::CopyFile(CString& source, QString& destination)
     RemoveDatabase("copy_file");
     return true;
 }
+#endif
 
 bool MainWindowUtils::AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name)
 {

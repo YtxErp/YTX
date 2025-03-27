@@ -193,8 +193,8 @@ public:
 
 private:
     static QString GeneratePlaceholder(const QVariantList& values);
-    static bool CopyFile(CString& source, QString& destination);
     static bool CheckFileSQLite(CString& file_path);
+    // static bool CopyFile(CString& source, QString& destination);
 };
 
 #endif // MAINWINDOWUTILS_H

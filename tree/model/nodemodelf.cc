@@ -93,13 +93,13 @@ bool NodeModelF::setData(const QModelIndex& index, const QVariant& value, int ro
 
     switch (kColumn) {
     case NodeEnumF::kCode:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kCode, value.toString(), &Node::code);
         break;
     case NodeEnumF::kDescription:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDescription, value.toString(), &Node::description);
         break;
     case NodeEnumF::kNote:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kNote, value.toString(), &Node::note);
         break;
     case NodeEnumF::kRule:
         UpdateRule(node, value.toBool());

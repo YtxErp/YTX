@@ -365,7 +365,7 @@ bool NodeModelO::setData(const QModelIndex& index, const QVariant& value, int ro
 
     switch (kColumn) {
     case NodeEnumO::kDescription:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDescription, value.toString(), &Node::description);
         emit SSyncString(node->id, index.column(), value.toString());
         break;
     case NodeEnumO::kRule:
@@ -377,14 +377,14 @@ bool NodeModelO::setData(const QModelIndex& index, const QVariant& value, int ro
         emit SSyncInt(node->id, index.column(), value.toInt());
         break;
     case NodeEnumO::kParty:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kParty, &Node::party);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kParty, value.toInt(), &Node::party);
         break;
     case NodeEnumO::kEmployee:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kEmployee, value.toInt(), &Node::employee);
         emit SSyncInt(node->id, index.column(), value.toInt());
         break;
     case NodeEnumO::kDateTime:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDateTime, &Node::date_time);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDateTime, value.toString(), &Node::date_time);
         emit SSyncString(node->id, index.column(), value.toString());
         break;
     case NodeEnumO::kFinished:

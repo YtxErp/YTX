@@ -136,6 +136,8 @@ public:
         return QVariant();
     }
 
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+
     // Ytx's
     // Default implementations
     double InitialTotal(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::initial_total); }
@@ -165,14 +167,8 @@ public:
     void UpdateSeparator(CString& old_separator, CString& new_separator);
 
     bool InsertNode(int row, const QModelIndex& parent, Node* node);
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex());
 
     inline bool Contains(int node_id) const { return node_hash_.contains(node_id); }
-    inline bool ChildrenEmpty(int node_id) const
-    {
-        auto it { node_hash_.constFind(node_id) };
-        return it == node_hash_.constEnd() || it.value()->children.isEmpty();
-    }
     inline void SetParent(Node* node, int parent_id) const
     {
         assert(node && "Node must be non-null");

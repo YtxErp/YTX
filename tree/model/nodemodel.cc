@@ -23,7 +23,7 @@ void NodeModel::RRemoveNode(int node_id)
     auto index { GetIndex(node_id) };
     int row { index.row() };
     auto parent_index { index.parent() };
-    RemoveNode(row, parent_index);
+    removeRows(row, 1, parent_index);
 }
 
 void NodeModel::RUpdateMultiLeafTotal(const QList<int>& node_list)
@@ -92,6 +92,31 @@ QMimeData* NodeModel::mimeData(const QModelIndexList& indexes) const
     }
 
     return mime_data;
+}
+
+bool NodeModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
+{
+    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
+
+    auto* parent_node { GetNodeByIndex(parent) };
+    auto* node { parent_node->children.at(row) };
+
+    const int node_id { node->id };
+
+    beginRemoveRows(parent, row, row);
+    parent_node->children.removeOne(node);
+    endRemoveRows();
+
+    RemovePath(node, parent_node);
+
+    ResourcePool<Node>::Instance().Recycle(node);
+    node_hash_.remove(node_id);
+
+    emit SSearch();
+    emit SUpdateStatusValue();
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
+
+    return true;
 }
 
 QStringList* NodeModel::DocumentPointer(int node_id) const
@@ -214,31 +239,6 @@ bool NodeModel::InsertNode(int row, const QModelIndex& parent, Node* node)
     SortModel(node->type);
 
     emit SSearch();
-    return true;
-}
-
-bool NodeModel::RemoveNode(int row, const QModelIndex& parent)
-{
-    assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
-
-    auto* parent_node { GetNodeByIndex(parent) };
-    auto* node { parent_node->children.at(row) };
-
-    const int node_id { node->id };
-
-    beginRemoveRows(parent, row, row);
-    parent_node->children.removeOne(node);
-    endRemoveRows();
-
-    RemovePath(node, parent_node);
-
-    ResourcePool<Node>::Instance().Recycle(node);
-    node_hash_.remove(node_id);
-
-    emit SSearch();
-    emit SUpdateStatusValue();
-    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
-
     return true;
 }
 

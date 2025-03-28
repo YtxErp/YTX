@@ -1019,7 +1019,7 @@ void MainWindow::RemoveNode(NodeWidget* node_widget)
 
 void MainWindow::RemoveNonBranch(PNodeModel tree_model, const QModelIndex& index, int node_id, int node_type)
 {
-    tree_model->RemoveNode(index.row(), index.parent());
+    tree_model->removeRows(index.row(), 1, index.parent());
     data_->sql->RemoveNode(node_id, node_type);
 
     RFreeWidget(node_id, node_type);
@@ -1159,7 +1159,7 @@ void MainWindow::RemoveBranch(PNodeModel tree_model, const QModelIndex& index, i
     msg.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
 
     if (msg.exec() == QMessageBox::Ok) {
-        tree_model->RemoveNode(index.row(), index.parent());
+        tree_model->removeRows(index.row(), 1, index.parent());
         data_->sql->RemoveNode(node_id, kTypeBranch);
     }
 }

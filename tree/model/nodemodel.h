@@ -112,6 +112,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QMimeData* mimeData(const QModelIndexList& indexes) const override;
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
     inline Qt::DropActions supportedDropActions() const override { return Qt::CopyAction | Qt::MoveAction; }
     inline QStringList mimeTypes() const override { return QStringList { kNodeID }; }
@@ -165,14 +166,8 @@ public:
     void UpdateSeparator(CString& old_separator, CString& new_separator);
 
     bool InsertNode(int row, const QModelIndex& parent, Node* node);
-    bool RemoveNode(int row, const QModelIndex& parent = QModelIndex());
 
     inline bool Contains(int node_id) const { return node_hash_.contains(node_id); }
-    inline bool ChildrenEmpty(int node_id) const
-    {
-        auto it { node_hash_.constFind(node_id) };
-        return it == node_hash_.constEnd() || it.value()->children.isEmpty();
-    }
     inline void SetParent(Node* node, int parent_id) const
     {
         assert(node && "Node must be non-null");

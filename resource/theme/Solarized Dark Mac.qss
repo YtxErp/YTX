@@ -160,7 +160,7 @@ QTreeView::item:selected, QTableView::item:selected, QListView::item:selected, Q
     background-color: #586E75;
 }
 
-QLineEdit, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QComboBox:editable {
+QLineEdit, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QComboBox:editable, QPlainTextEdit {
     selection-background-color: transparent;
 }
 

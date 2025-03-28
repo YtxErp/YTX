@@ -244,13 +244,13 @@ bool NodeModelS::setData(const QModelIndex& index, const QVariant& value, int ro
 
     switch (kColumn) {
     case NodeEnumS::kCode:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kCode, value.toString(), &Node::code);
         break;
     case NodeEnumS::kDescription:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDescription, value.toString(), &Node::description);
         break;
     case NodeEnumS::kNote:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kNote, value.toString(), &Node::note);
         break;
     case NodeEnumS::kType:
         UpdateType(node, value.toInt());
@@ -259,16 +259,16 @@ bool NodeModelS::setData(const QModelIndex& index, const QVariant& value, int ro
         UpdateUnit(node, value.toInt());
         break;
     case NodeEnumS::kDeadline:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDeadline, &Node::date_time, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDeadline, value.toString(), &Node::date_time, true);
         break;
     case NodeEnumS::kEmployee:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toInt(), kEmployee, &Node::employee, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kEmployee, value.toInt(), &Node::employee, true);
         break;
     case NodeEnumS::kPaymentTerm:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kPaymentTerm, &Node::first, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kPaymentTerm, value.toDouble(), &Node::first, true);
         break;
     case NodeEnumS::kTaxRate:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kTaxRate, &Node::second, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kTaxRate, value.toDouble(), &Node::second, true);
         break;
     default:
         return false;

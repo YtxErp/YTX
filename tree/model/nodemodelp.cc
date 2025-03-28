@@ -166,13 +166,13 @@ bool NodeModelP::setData(const QModelIndex& index, const QVariant& value, int ro
 
     switch (kColumn) {
     case NodeEnumP::kCode:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kCode, &Node::code);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kCode, value.toString(), &Node::code);
         break;
     case NodeEnumP::kDescription:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kDescription, &Node::description);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDescription, value.toString(), &Node::description);
         break;
     case NodeEnumP::kNote:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kNote, &Node::note);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kNote, value.toString(), &Node::note);
         break;
     case NodeEnumP::kRule:
         UpdateRule(node, value.toBool());
@@ -182,16 +182,16 @@ bool NodeModelP::setData(const QModelIndex& index, const QVariant& value, int ro
         UpdateType(node, value.toInt());
         break;
     case NodeEnumP::kColor:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toString(), kColor, &Node::color, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kColor, value.toString(), &Node::color, true);
         break;
     case NodeEnumP::kUnit:
         UpdateUnit(node, value.toInt());
         break;
     case NodeEnumP::kCommission:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kCommission, &Node::second, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kCommission, value.toDouble(), &Node::second, true);
         break;
     case NodeEnumP::kUnitPrice:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, value.toDouble(), kUnitPrice, &Node::first, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kUnitPrice, value.toDouble(), &Node::first, true);
         break;
     default:
         return false;

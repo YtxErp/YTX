@@ -112,6 +112,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QMimeData* mimeData(const QModelIndexList& indexes) const override;
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
     inline Qt::DropActions supportedDropActions() const override { return Qt::CopyAction | Qt::MoveAction; }
     inline QStringList mimeTypes() const override { return QStringList { kNodeID }; }
@@ -135,8 +136,6 @@ public:
 
         return QVariant();
     }
-
-    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
     // Ytx's
     // Default implementations

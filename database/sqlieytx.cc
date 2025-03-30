@@ -432,8 +432,11 @@ QString SqlieYtx::SettlementOrder(CString& order)
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_settlement (
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        party          INTEGER,
         date_time      DATE,
         description    TEXT,
+        finished       BOOLEAN    DEFAULT 0,
+        gross_amount   NUMERIC,
         removed        BOOLEAN    DEFAULT 0
     );
     )")

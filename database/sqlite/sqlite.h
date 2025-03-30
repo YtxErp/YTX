@@ -26,7 +26,6 @@
 #include "component/enumclass.h"
 #include "component/info.h"
 #include "component/using.h"
-#include "database/sqlite/prices.h"
 #include "table/trans.h"
 #include "tree/node.h"
 
@@ -49,8 +48,6 @@ signals:
     void SUpdateProduct(int old_node_id, int new_node_id);
     // send to sql itsself and treemodel
     void SUpdateStakeholder(int old_node_id, int new_node_id);
-    // send to sql itsself
-    void SPriceSList(QList<PriceS>& list);
     // send to LeafSStation, Stakeholder transactions are removed directly
     void SRemoveMultiTransL(Section section, const QMultiHash<int, int>& leaf_trans);
     void SMoveMultiTransL(Section section, int old_node_id, int new_node_id, const QSet<int>& trans_id_set);
@@ -69,13 +66,6 @@ public slots:
         Q_UNUSED(old_node_id);
         Q_UNUSED(new_node_id);
     };
-    virtual void RUpdateStakeholder(int old_node_id, int new_node_id) const
-    {
-        Q_UNUSED(old_node_id);
-        Q_UNUSED(new_node_id);
-    };
-    // receive from sql
-    virtual void RPriceSList(QList<PriceS>& list) { Q_UNUSED(list) };
 
 public:
     // tree
@@ -89,16 +79,11 @@ public:
     bool ReadLeafTotal(Node* node) const;
     bool SyncLeafValue(const Node* node) const;
     bool SearchNodeName(QSet<int>& node_id_set, CString& text) const;
-    bool ReadStatementPrimary(QList<Node*>& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
-
-    bool SyncPriceS(int node_id);
-    bool InvertTransValue(int node_id) const;
 
     // table
     bool ReadTrans(TransShadowList& trans_shadow_list, int node_id);
     bool RetrieveTransRange(TransShadowList& trans_shadow_list, int node_id, const QSet<int>& trans_id_set);
     bool WriteTrans(TransShadow* trans_shadow);
-    bool WriteTransRange(const QList<TransShadow*>& list) const;
     bool SyncTransValue(const TransShadow* trans_shadow) const;
     TransShadow* AllocateTransShadow();
 
@@ -110,9 +95,6 @@ public:
     bool RemoveTrans(int trans_id);
 
     bool ReadTransRef(TransList& trans_list, int node_id, int unit, const QDateTime& start, const QDateTime& end) const;
-    bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
-    bool ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
-    bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
     // common
     bool WriteField(CString& table, CString& field, CVariant& value, int id) const;
@@ -128,10 +110,11 @@ protected:
     virtual QString QSSearchTransText() const = 0;
     virtual QString QSSyncLeafValue() const = 0;
 
-    virtual QString QSExternalReferencePS() const { return {}; }
+    virtual QString QSExternalReference() const { return {}; }
     virtual QString QSSupportReference() const { return {}; }
     virtual QString QSRemoveSupport() const { return {}; }
     virtual QString QSRemoveNodeFirst() const;
+
     virtual QString QSReadTransRef(int unit) const
     {
         Q_UNUSED(unit);
@@ -139,27 +122,6 @@ protected:
     };
 
     virtual QString QSLeafTotal(int unit = 0) const
-    {
-        Q_UNUSED(unit);
-        return {};
-    }
-    virtual QString QSReadStatement(int unit) const
-    {
-        Q_UNUSED(unit);
-        return {};
-    }
-    virtual QString QSReadBalance(int unit) const
-    {
-        Q_UNUSED(unit);
-        return {};
-    }
-    virtual QString QSReadStatementPrimary(int unit) const
-    {
-        Q_UNUSED(unit);
-        return {};
-    }
-
-    virtual QString QSReadStatementSecondary(int unit) const
     {
         Q_UNUSED(unit);
         return {};
@@ -196,10 +158,7 @@ protected:
     virtual QString QSReplaceLeaf() const { return {}; }
     virtual QString QSReplaceSupport() const { return {}; }
 
-    virtual QString QSSyncPriceSFirst() const { return {}; };
-    virtual QString QSSyncPriceSSecond() const { return {}; };
     virtual QString QSSyncTransValue() const { return {}; }
-    virtual QString QSInvertTransValue() const { return {}; }
 
     virtual void ReadTransQuery(Trans* trans, const QSqlQuery& query) const = 0;
     virtual void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const = 0;
@@ -215,32 +174,6 @@ protected:
         Q_UNUSED(trans_list);
         Q_UNUSED(query);
     };
-
-    virtual void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
-    {
-        Q_UNUSED(trans_list);
-        Q_UNUSED(query);
-    };
-
-    virtual void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const
-    {
-        Q_UNUSED(node_list);
-        Q_UNUSED(query);
-    };
-
-    virtual void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const
-    {
-        Q_UNUSED(trans_list);
-        Q_UNUSED(query);
-    };
-
-    virtual void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const
-    {
-        Q_UNUSED(list);
-        Q_UNUSED(query);
-    };
-
-    //
 
     virtual void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query);
     virtual void CalculateLeafTotal(Node* node, QSqlQuery& query) const;

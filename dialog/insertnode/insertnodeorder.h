@@ -25,6 +25,7 @@
 #include <QShortcut>
 
 #include "component/arg/insertnodeargo.h"
+#include "database/sqlite/sqliteo.h"
 
 namespace Ui {
 class InsertNodeOrder;
@@ -100,7 +101,7 @@ private:
     Ui::InsertNodeOrder* ui;
 
     Node* node_ {};
-    Sqlite* sql_ {};
+    SqliteO* sql_ {};
     NodeModel* stakeholder_node_ {};
     TransModel* order_trans_ {};
     QButtonGroup* rule_group_ {};

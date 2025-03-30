@@ -194,30 +194,23 @@ bool Sqlite::RemoveNode(int old_node_id) const
     CString string_frist { QSRemoveNodeFirst() };
     CString string_third { QSRemoveNodeThird() };
 
-    if (!DBTransaction([&]() {
-            query.prepare(string_frist);
-            query.bindValue(QStringLiteral(":node_id"), old_node_id);
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceNode 1st" << query.lastError().text();
-                return false;
-            }
+    return DBTransaction([&]() {
+        query.prepare(string_frist);
+        query.bindValue(QStringLiteral(":node_id"), old_node_id);
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceNode 1st" << query.lastError().text();
+            return false;
+        }
 
-            query.clear();
+        query.prepare(string_third);
+        query.bindValue(QStringLiteral(":node_id"), old_node_id);
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceNode 3rd" << query.lastError().text();
+            return false;
+        }
 
-            query.prepare(string_third);
-            query.bindValue(QStringLiteral(":node_id"), old_node_id);
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceNode 3rd" << query.lastError().text();
-                return false;
-            }
-
-            return true;
-        })) {
-        qWarning() << "Failed in RemoveNode";
-        return false;
-    }
-
-    return true;
+        return true;
+    });
 }
 
 bool Sqlite::ReadNode(NodeHash& node_hash)
@@ -253,28 +246,21 @@ bool Sqlite::WriteNode(int parent_id, Node* node) const
         return false;
 
     QSqlQuery query(*db_);
-    if (!DBTransaction([&]() {
-            // 插入节点记录
-            query.prepare(string);
-            WriteNodeBind(node, query);
+    return DBTransaction([&]() {
+        // 插入节点记录
+        query.prepare(string);
+        WriteNodeBind(node, query);
 
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in WriteNode" << query.lastError().text();
-                return false;
-            }
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in WriteNode" << query.lastError().text();
+            return false;
+        }
 
-            // 获取最后插入的ID
-            node->id = query.lastInsertId().toInt();
+        node->id = query.lastInsertId().toInt();
 
-            // 插入节点路径记录
-            WriteRelationship(node->id, parent_id, query);
-            return true;
-        })) {
-        qWarning() << "Section: " << std::to_underlying(section_) << "Failed in WriteNode commit";
-        return false;
-    }
-
-    return true;
+        WriteRelationship(node->id, parent_id, query);
+        return true;
+    });
 }
 
 void Sqlite::CalculateLeafTotal(Node* node, QSqlQuery& query) const
@@ -367,39 +353,30 @@ bool Sqlite::RemoveNode(int node_id, int node_type) const
         break;
     }
 
-    if (!DBTransaction([&]() {
-            query.prepare(string_first);
-            query.bindValue(QStringLiteral(":node_id"), node_id);
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in RemoveNode 1st" << query.lastError().text();
-                return false;
-            }
+    return DBTransaction([&]() {
+        query.prepare(string_first);
+        query.bindValue(QStringLiteral(":node_id"), node_id);
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in RemoveNode 1st" << query.lastError().text();
+            return false;
+        }
 
-            query.clear();
+        query.prepare(string_second);
+        query.bindValue(QStringLiteral(":node_id"), node_id);
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in RemoveNode 2nd" << query.lastError().text();
+            return false;
+        }
 
-            query.prepare(string_second);
-            query.bindValue(QStringLiteral(":node_id"), node_id);
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in RemoveNode 2nd" << query.lastError().text();
-                return false;
-            }
+        query.prepare(string_third);
+        query.bindValue(QStringLiteral(":node_id"), node_id);
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in RemoveNode 3rd" << query.lastError().text();
+            return false;
+        }
 
-            query.clear();
-
-            query.prepare(string_third);
-            query.bindValue(QStringLiteral(":node_id"), node_id);
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in RemoveNode 3rd" << query.lastError().text();
-                return false;
-            }
-
-            return true;
-        })) {
-        qWarning() << "Failed in RemoveNode";
-        return false;
-    }
-
-    return true;
+        return true;
+    });
 }
 
 void Sqlite::ReplaceSupportFunction(QSet<int>& trans_id_set, int old_support_id, int new_support_id)
@@ -479,34 +456,26 @@ bool Sqlite::DragNode(int destination_node_id, int node_id) const
     CString string_first { QSDragNodeFirst() };
     CString string_second { QSDragNodeSecond() };
 
-    if (!DBTransaction([&]() {
-            // 第一个查询
-            query.prepare(string_first);
-            query.bindValue(QStringLiteral(":node_id"), node_id);
+    return DBTransaction([&]() {
+        query.prepare(string_first);
+        query.bindValue(QStringLiteral(":node_id"), node_id);
 
-            if (!query.exec()) {
-                qWarning() << "Failed in DragNode 1st" << query.lastError().text();
-                return false;
-            }
+        if (!query.exec()) {
+            qWarning() << "Failed in DragNode 1st" << query.lastError().text();
+            return false;
+        }
 
-            query.clear();
+        query.prepare(string_second);
+        query.bindValue(QStringLiteral(":node_id"), node_id);
+        query.bindValue(QStringLiteral(":destination_node_id"), destination_node_id);
 
-            // 第二个查询
-            query.prepare(string_second);
-            query.bindValue(QStringLiteral(":node_id"), node_id);
-            query.bindValue(QStringLiteral(":destination_node_id"), destination_node_id);
+        if (!query.exec()) {
+            qWarning() << "Failed in DragNode 2nd" << query.lastError().text();
+            return false;
+        }
 
-            if (!query.exec()) {
-                qWarning() << "Failed in DragNode 2nd" << query.lastError().text();
-                return false;
-            }
-            return true;
-        })) {
-        qWarning() << "Failed in DragNode";
-        return false;
-    }
-
-    return true;
+        return true;
+    });
 }
 
 bool Sqlite::InternalReference(int node_id) const
@@ -528,15 +497,17 @@ bool Sqlite::InternalReference(int node_id) const
         return false;
     }
 
-    query.next();
-    return query.value(0).toInt() >= 1;
+    if (query.next())
+        return query.value(0).toBool();
+
+    return false;
 }
 
 bool Sqlite::ExternalReference(int node_id) const
 {
     assert(node_id >= 1 && "Node ID must be positive");
 
-    CString string { QSExternalReferencePS() };
+    CString string { QSExternalReference() };
     if (string.isEmpty())
         return false;
 
@@ -551,8 +522,10 @@ bool Sqlite::ExternalReference(int node_id) const
         return false;
     }
 
-    query.next();
-    return query.value(0).toInt() >= 1;
+    if (query.next())
+        return query.value(0).toBool();
+
+    return false;
 }
 
 bool Sqlite::SupportReference(int support_id) const
@@ -574,8 +547,7 @@ bool Sqlite::SupportReference(int support_id) const
         return false;
     }
 
-    query.next();
-    return query.value(0).toInt() >= 1;
+    return query.next();
 }
 
 bool Sqlite::ReadTrans(TransShadowList& trans_shadow_list, int node_id)
@@ -636,54 +608,6 @@ bool Sqlite::WriteTrans(TransShadow* trans_shadow)
     return true;
 }
 
-bool Sqlite::WriteTransRange(const QList<TransShadow*>& list) const
-{
-    if (list.isEmpty())
-        return false;
-
-    QSqlQuery query(*db_);
-
-    query.exec(QStringLiteral("PRAGMA synchronous = OFF"));
-    query.exec(QStringLiteral("PRAGMA journal_mode = MEMORY"));
-
-    if (!db_->transaction()) {
-        qDebug() << "Failed to start transaction" << db_->lastError();
-        return false;
-    }
-
-    CString string { QSWriteTrans() };
-
-    // 插入多条记录的 SQL 语句
-    query.prepare(string);
-    WriteTransRangeFunction(list, query);
-
-    // 执行批量插入
-    if (!query.execBatch()) {
-        qDebug() << "Failed in WriteTransRange" << query.lastError();
-        db_->rollback();
-        return false;
-    }
-
-    // 提交事务
-    if (!db_->commit()) {
-        qDebug() << "Failed to commit transaction" << db_->lastError();
-        db_->rollback();
-        return false;
-    }
-
-    query.exec(QStringLiteral("PRAGMA synchronous = FULL"));
-    query.exec(QStringLiteral("PRAGMA journal_mode = DELETE"));
-
-    int last_id { query.lastInsertId().toInt() };
-
-    for (int i = list.size() - 1; i >= 0; --i) {
-        *list.at(i)->id = last_id;
-        --last_id;
-    }
-
-    return true;
-}
-
 bool Sqlite::RemoveTrans(int trans_id)
 {
     QSqlQuery query(*db_);
@@ -735,24 +659,6 @@ bool Sqlite::SyncTransValue(const TransShadow* trans_shadow) const
 
     if (!query.exec()) {
         qWarning() << "Failed in SyncTransValue" << query.lastError().text();
-        return false;
-    }
-
-    return true;
-}
-
-bool Sqlite::InvertTransValue(int node_id) const
-{
-    CString string { QSInvertTransValue() };
-    if (string.isEmpty())
-        return false;
-
-    QSqlQuery query(*db_);
-    query.prepare(string);
-    query.bindValue(":lhs_node", node_id);
-
-    if (!query.exec()) {
-        qWarning() << "Failed in InvertValue" << query.lastError().text();
         return false;
     }
 
@@ -871,157 +777,6 @@ bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, int unit, const QD
     return true;
 }
 
-bool Sqlite::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
-{
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
-
-    auto string { QSReadStatement(unit) };
-    if (string.isEmpty())
-        return false;
-
-    query.prepare(string);
-    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
-
-    if (!query.exec()) {
-        qWarning() << "Failed in ReadStatement" << query.lastError().text();
-        return false;
-    }
-
-    ReadStatementQuery(trans_list, query);
-
-    return true;
-}
-
-bool Sqlite::ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
-{
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
-
-    auto string { QSReadBalance(unit) };
-    if (string.isEmpty())
-        return false;
-
-    query.prepare(string);
-    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":party_id"), party_id);
-
-    if (!query.exec()) {
-        qWarning() << "Failed in ReadStatement" << query.lastError().text();
-        return false;
-    }
-
-    if (query.next()) {
-        pbalance = query.value(QStringLiteral("pbalance")).toDouble();
-        cdelta = query.value(QStringLiteral("cgross_amount")).toDouble() - query.value(QStringLiteral("csettlement")).toDouble();
-    }
-
-    return true;
-}
-
-bool Sqlite::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
-{
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
-
-    const auto string { QSReadStatementSecondary(unit) };
-    if (string.isEmpty())
-        return false;
-
-    query.prepare(string);
-    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":party"), party_id);
-    query.bindValue(QStringLiteral(":unit"), unit);
-
-    if (!query.exec()) {
-        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
-        return false;
-    }
-
-    ReadStatementSecondaryQuery(trans_list, query);
-    return true;
-}
-
-bool Sqlite::SyncPriceS(int node_id)
-{
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
-
-    const auto string { QSSyncPriceSFirst() };
-    if (string.isEmpty()) {
-        qWarning() << "QSSyncStakeholderPriceFirst returned an empty SQL string!";
-        return false;
-    }
-
-    if (!query.prepare(string)) {
-        qWarning() << "SQL prepare failed in QSSyncStakeholderPriceFirst:" << query.lastError().text();
-        return false;
-    }
-
-    query.bindValue(QStringLiteral(":node_id"), node_id);
-
-    if (!query.exec()) {
-        qWarning() << "SQL execution failed in QSSyncStakeholderPriceFirst:" << query.lastError().text();
-        return false;
-    }
-
-    const auto string_second { QSSyncPriceSSecond() };
-
-    if (!query.prepare(string_second)) {
-        qWarning() << "SQL prepare failed in QSSyncStakeholderPriceSecond:" << query.lastError().text();
-        return false;
-    }
-
-    query.bindValue(QStringLiteral(":node_id"), node_id);
-
-    if (!query.exec()) {
-        qWarning() << "SQL execution failed in QSSyncStakeholderPriceSecond:" << query.lastError().text();
-        return false;
-    }
-
-    QList<PriceS> list {};
-
-    while (query.next()) {
-        PriceS item {};
-        item.date_time = query.value("date_time").toString();
-        item.lhs_node = query.value("lhs_node").toInt();
-        item.inside_product = query.value("inside_product").toInt();
-        item.unit_price = query.value("unit_price").toDouble();
-
-        list.append(std::move(item));
-    }
-
-    emit SPriceSList(list);
-    return true;
-}
-
-bool Sqlite::ReadStatementPrimary(QList<Node*>& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
-{
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
-
-    const auto string { QSReadStatementPrimary(unit) };
-    if (string.isEmpty())
-        return false;
-
-    query.prepare(string);
-    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
-    query.bindValue(QStringLiteral(":party"), party_id);
-    query.bindValue(QStringLiteral(":unit"), unit);
-
-    if (!query.exec()) {
-        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
-        return false;
-    }
-
-    ReadStatementPrimaryQuery(node_list, query);
-    return true;
-}
-
 bool Sqlite::RetrieveTransRange(TransShadowList& trans_shadow_list, int node_id, const QSet<int>& trans_id_set)
 {
     if (trans_id_set.empty() || node_id <= 0)
@@ -1087,7 +842,6 @@ bool Sqlite::DBTransaction(std::function<bool()> function) const
         return true;
     } else {
         db_->rollback();
-        qWarning() << "Failed in Transaction";
         return false;
     }
 }

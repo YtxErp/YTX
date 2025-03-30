@@ -76,19 +76,23 @@ void RemoveNode::IniData(Section section, bool exteral_reference, int node_type)
     ui->pBtnCancel->setDefault(true);
     this->setWindowTitle(tr("Remove %1").arg(model_->Path(node_id_)));
 
+    if (exteral_reference) {
+        ui->rBtnRemoveRecords->setEnabled(false);
+        ui->label->setText(tr("The node has external references, so it can’t be removed directly. Should it be replaced instead?"));
+    }
+
     if (section == Section::kSales || section == Section::kPurchase) {
         ui->comboBox->setEnabled(false);
         ui->rBtnReplaceRecords->setEnabled(false);
-        ui->rBtnRemoveRecords->setChecked(true);
+
+        if (exteral_reference) {
+            ui->pBtnOk->setEnabled(false);
+            ui->label->setText(tr("This order has been settled and cannot be deleted or modified."));
+        }
         return;
     }
 
     ui->rBtnReplaceRecords->setChecked(true);
-
-    if (exteral_reference) {
-        ui->rBtnRemoveRecords->setDisabled(true);
-        ui->label->setText(tr("The node has external references, so it can’t be removed directly. Should it be replaced instead?"));
-    }
 
     auto* filter_model { new ExcludeIntFilterModel(node_id_, this) };
 

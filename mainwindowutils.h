@@ -69,7 +69,7 @@ public:
 
     template <InheritQAbstractItemView T> static bool HasSelection(QPointer<T> view)
     {
-        return view && view->selectionModel() && view->selectionModel()->hasSelection();
+        return view && view->selectionModel() && view->selectionModel()->hasSelection() && !view->selectionModel()->selectedIndexes().isEmpty();
     }
 
     template <typename Container> static void SwitchDialog(Container* container, bool enable)

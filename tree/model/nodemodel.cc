@@ -94,9 +94,10 @@ QMimeData* NodeModel::mimeData(const QModelIndexList& indexes) const
     return mime_data;
 }
 
-bool NodeModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
+bool NodeModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     assert(row >= 0 && row <= rowCount(parent) - 1 && "Row must be in the valid range [0, rowCount(parent) - 1]");
+    assert(count == 1 && "Only support removing one row");
 
     auto* parent_node { GetNodeByIndex(parent) };
     auto* node { parent_node->children.at(row) };
@@ -114,6 +115,65 @@ bool NodeModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
 
     emit SSearch();
     emit SUpdateStatusValue();
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
+
+    return true;
+}
+
+bool NodeModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{
+    if (!canDropMimeData(data, action, row, column, parent))
+        return false;
+
+    auto* destination_parent { GetNodeByIndex(parent) };
+    if (destination_parent->type != kTypeBranch)
+        return false;
+
+    int node_id {};
+
+    if (auto mime { data->data(kNodeID) }; !mime.isEmpty())
+        node_id = QVariant(mime).toInt();
+
+    auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
+    assert(node && "Node must be non-null");
+
+    if (node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
+        return false;
+
+    auto destination_child { row == -1 ? destination_parent->children.size() : row };
+    auto source_row { node->parent->children.indexOf(node) };
+    auto source_parent { createIndex(source_row, 0, node).parent() };
+
+    if (moveRows(source_parent, source_row, 1, parent, destination_child))
+        sql_->DragNode(destination_parent->id, node_id);
+
+    return true;
+}
+
+bool NodeModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int /*count*/, const QModelIndex& destinationParent, int destinationChild)
+{
+    auto* source_parent { GetNodeByIndex(sourceParent) };
+    auto* destination_parent { GetNodeByIndex(destinationParent) };
+
+    assert(source_parent && "Source parent is null!");
+    assert(destination_parent && "Destination parent is null!");
+    assert(sourceRow >= 0 && sourceRow < source_parent->children.size() && "Source row is out of bounds!");
+
+    beginMoveRows(sourceParent, sourceRow, sourceRow, destinationParent, destinationChild);
+    auto* node { source_parent->children.takeAt(sourceRow) };
+    assert(node && "Node extraction failed!");
+
+    UpdateAncestorValue(node, -node->initial_total, -node->final_total);
+
+    destination_parent->children.insert(destinationChild, node);
+    node->parent = destination_parent;
+    UpdateAncestorValue(node, node->initial_total, node->final_total);
+    endMoveRows();
+
+    NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
+    NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
+
+    emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;

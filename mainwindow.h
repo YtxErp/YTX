@@ -33,6 +33,7 @@
 #include "component/using.h"
 #include "database/sqlieytx.h"
 #include "report/widget/reportwidget.h"
+#include "report/widget/settlementwidget.h"
 #include "table/model/transmodel.h"
 #include "table/model/transmodelo.h"
 #include "tree/model/nodemodel.h"
@@ -82,7 +83,7 @@ private slots:
     void on_actionExportExcel_triggered();
 
     void on_actionStatement_triggered();
-    void on_actionSettle_triggered();
+    void on_actionSettlement_triggered();
 
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);
@@ -148,6 +149,8 @@ private:
 
     void SetStatementView(PTableView table_view, int stretch_column) const;
     void DelegateStatement(PTableView table_view, CSettings* settings) const;
+    void DelegateSettlement(PTableView table_view, CSettings* settings) const;
+    void DelegateSettlementPrimary(PTableView table_view, CSettings* settings) const;
 
     void DelegateStatementPrimary(PTableView table_view, CSettings* settings) const;
     void DelegateStatementSecondary(PTableView table_view, CSettings* settings) const;
@@ -220,6 +223,8 @@ private:
     QStringList recent_file_ {};
     Section start_ {};
     int report_id_ { -1 };
+
+    QPointer<SettlementWidget> settlement_widget_;
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};

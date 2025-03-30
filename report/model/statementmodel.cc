@@ -5,7 +5,7 @@
 
 StatementModel::StatementModel(Sqlite* sql, CInfo& info, QObject* parent)
     : QAbstractItemModel { parent }
-    , sql_ { sql }
+    , sql_ { qobject_cast<SqliteO*>(sql) }
     , info_ { info }
 {
 }

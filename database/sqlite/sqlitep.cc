@@ -40,27 +40,30 @@ QString SqliteP::QSRemoveNodeSecond() const
 QString SqliteP::QSInternalReference() const
 {
     return QStringLiteral(R"(
-    SELECT COUNT(*) FROM product_transaction
-    WHERE (lhs_node = :node_id OR rhs_node = :node_id) AND removed = 0
+    SELECT EXISTS(
+        SELECT 1 FROM product_transaction
+        WHERE (lhs_node = :node_id OR rhs_node = :node_id) AND removed = 0
+    ) AS is_referenced
     )");
 }
 
-QString SqliteP::QSExternalReferencePS() const
+QString SqliteP::QSExternalReference() const
 {
     return QStringLiteral(R"(
-    SELECT
-    (SELECT COUNT(*) FROM stakeholder_transaction WHERE inside_product = :node_id) +
-    (SELECT COUNT(*) FROM sales_transaction WHERE inside_product = :node_id AND removed = 0) +
-    (SELECT COUNT(*) FROM purchase_transaction WHERE inside_product = :node_id AND removed = 0)
-    AS total_count;
+   SELECT
+        EXISTS(SELECT 1 FROM stakeholder_transaction WHERE inside_product = :node_id) OR
+        EXISTS(SELECT 1 FROM sales_transaction WHERE inside_product = :node_id AND removed = 0) OR
+        EXISTS(SELECT 1 FROM purchase_transaction WHERE inside_product = :node_id AND removed = 0)
+    AS is_referenced;
     )");
 }
 
 QString SqliteP::QSSupportReference() const
 {
     return QStringLiteral(R"(
-    SELECT COUNT(*) FROM product_transaction
+    SELECT 1 FROM product_transaction
     WHERE support_id = :support_id AND removed = 0
+    LIMIT 1
     )");
 }
 
@@ -229,56 +232,51 @@ bool SqliteP::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const
     QSqlQuery query(*db_);
     QString string { QSReplaceLeaf() };
 
-    if (!DBTransaction([&]() {
-            query.prepare(string);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
+    return DBTransaction([&]() {
+        query.prepare(string);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
 
-            if (!query.exec()) {
-                qWarning() << "Failed in ReplaceLeaf" << query.lastError().text();
-                return false;
-            }
+        if (!query.exec()) {
+            qWarning() << "Failed in ReplaceLeaf" << query.lastError().text();
+            return false;
+        }
 
-            if (node_unit == std::to_underlying(UnitP::kPos))
-                return true;
-
-            CString stringsp { QSReplaceLeafSP() };
-            query.prepare(stringsp);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
-
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 1st" << query.lastError().text();
-                return false;
-            }
-
-            CString stringosp { QSReplaceLeafOSP() };
-            query.prepare(stringosp);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
-
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 2nd" << query.lastError().text();
-                return false;
-            }
-
-            CString stringopp { QSReplaceLeafOPP() };
-            query.prepare(stringopp);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
-
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 3rd" << query.lastError().text();
-                return false;
-            }
-
+        if (node_unit == std::to_underlying(UnitP::kPos))
             return true;
-        })) {
-        qWarning() << "Failed in ReplaceLeaf";
-        return false;
-    }
 
-    return true;
+        CString stringsp { QSReplaceLeafSP() };
+        query.prepare(stringsp);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
+
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 1st" << query.lastError().text();
+            return false;
+        }
+
+        CString stringosp { QSReplaceLeafOSP() };
+        query.prepare(stringosp);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
+
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 2nd" << query.lastError().text();
+            return false;
+        }
+
+        CString stringopp { QSReplaceLeafOPP() };
+        query.prepare(stringopp);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
+
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 3rd" << query.lastError().text();
+            return false;
+        }
+
+        return true;
+    });
 }
 
 QString SqliteP::QSReadTrans() const

@@ -1,5 +1,7 @@
 #include "nodemodelo.h"
 
+#include "mainwindowutils.h"
+
 NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
     : NodeModel(arg, parent)
     , sql_ { static_cast<SqliteO*>(arg.sql) }
@@ -155,6 +157,13 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
 {
     if (node->finished == value || node->unit == std::to_underlying(UnitO::kPEND) || node->type != kTypeLeaf)
         return false;
+
+    if (!value && sql_->SettlementID(node->id)) {
+        MainWindowUtils::Message(
+            QMessageBox::Warning, tr("Settled Order"), tr("This order has been settled and cannot be deleted or modified."), kThreeThousand);
+
+        return false;
+    }
 
     int coefficient = value ? 1 : -1;
 
@@ -430,49 +439,35 @@ Qt::ItemFlags NodeModelO::flags(const QModelIndex& index) const
     return flags;
 }
 
-bool NodeModelO::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+bool NodeModelO::moveRows(const QModelIndex& sourceParent, int sourceRow, int /*count*/, const QModelIndex& destinationParent, int destinationChild)
 {
-    if (!canDropMimeData(data, action, row, column, parent))
-        return false;
+    auto* source_parent { GetNodeByIndex(sourceParent) };
+    auto* destination_parent { GetNodeByIndex(destinationParent) };
 
-    auto* destination_parent { GetNodeByIndex(parent) };
-    if (destination_parent->type != kTypeBranch)
-        return false;
+    assert(source_parent && "Source parent is null!");
+    assert(destination_parent && "Destination parent is null!");
+    assert(sourceRow >= 0 && sourceRow < source_parent->children.size() && "Source row is out of bounds!");
 
-    int node_id {};
+    beginMoveRows(sourceParent, sourceRow, sourceRow, destinationParent, destinationChild);
+    auto* node { source_parent->children.takeAt(sourceRow) };
+    assert(node && "Node extraction failed!");
 
-    if (auto mime { data->data(kNodeID) }; !mime.isEmpty())
-        node_id = QVariant(mime).toInt();
-
-    auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    assert(node && "Node must be non-null");
-
-    if (node->parent == destination_parent || NodeModelUtils::IsDescendant(destination_parent, node))
-        return false;
-
-    auto begin_row { row == -1 ? destination_parent->children.size() : row };
-    auto source_row { node->parent->children.indexOf(node) };
-    auto source_index { createIndex(node->parent->children.indexOf(node), 0, node) };
     bool update_ancestor { node->type == kTypeBranch || node->finished };
 
-    if (beginMoveRows(source_index.parent(), source_row, source_row, parent, begin_row)) {
-        node->parent->children.removeAt(source_row);
-        if (update_ancestor) {
-            UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
-        }
-
-        destination_parent->children.insert(begin_row, node);
-        node->parent = destination_parent;
-
-        if (update_ancestor) {
-            UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
-        }
-
-        endMoveRows();
+    if (update_ancestor) {
+        UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
     }
 
-    sql_->DragNode(destination_parent->id, node_id);
-    emit SResizeColumnToContents(std::to_underlying(NodeEnumO::kName));
+    destination_parent->children.insert(destinationChild, node);
+    node->parent = destination_parent;
+
+    if (update_ancestor) {
+        UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
+    }
+
+    endMoveRows();
+
+    emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
 }

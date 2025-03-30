@@ -165,5 +165,6 @@ inline void Node::Reset()
 
 using NodeHash = QHash<int, Node*>;
 using CNodeHash = const QHash<int, Node*>;
+using NodeList = QList<Node*>;
 
 #endif // NODE_H

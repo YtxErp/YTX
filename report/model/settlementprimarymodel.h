@@ -17,22 +17,26 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef STATEMENTPRIMARYMODEL_H
-#define STATEMENTPRIMARYMODEL_H
+#ifndef SETTLEMENTPRIMARYMODEL_H
+#define SETTLEMENTPRIMARYMODEL_H
 
 #include <QAbstractItemModel>
 
 #include "component/info.h"
 #include "database/sqlite/sqliteo.h"
 
-class StatementPrimaryModel final : public QAbstractItemModel {
+class SettlementPrimaryModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    StatementPrimaryModel(Sqlite* sql, CInfo& info, int party_id, QObject* parent = nullptr);
-    ~StatementPrimaryModel();
+    SettlementPrimaryModel(Sqlite* sql, CInfo& info, QObject* parent = nullptr);
+    ~SettlementPrimaryModel();
+
+signals:
+    void SUpdateLeafValue(int node_id, double delta1);
 
 public slots:
-    void RRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void RUpdateFinished(int party_id, int settlement_id, bool settlement_finished);
+    void RResetModel(int party_id, int settlement_id, bool settlement_finished);
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -49,11 +53,18 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
+    void RemoveUnfinishedNode();
+    void UpdateSettlementInfo(int party_id, int settlement_id, bool settlement_finished);
+
+private:
     SqliteO* sql_ {};
     CInfo& info_;
-    const int party_id_ {};
+
+    int party_id_ {};
+    int settlement_id_ {};
+    bool settlement_finished_ {};
 
     NodeList node_list_ {};
 };
 
-#endif // STATEMENTPRIMARYMODEL_H
+#endif // SETTLEMENTPRIMARYMODEL_H

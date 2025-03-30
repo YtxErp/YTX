@@ -10,7 +10,7 @@ TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, QWidget* parent)
     : TransWidget(parent)
     , ui(new Ui::TransWidgetO)
     , node_ { arg.node }
-    , sql_ { arg.sql }
+    , sql_ { qobject_cast<SqliteO*>(arg.sql) }
     , order_trans_ { arg.order_trans }
     , stakeholder_node_ { arg.stakeholder_node }
     , settings_ { arg.settings }
@@ -291,6 +291,9 @@ void TransWidgetO::IniFinished(bool finished)
         ui->pBtnPrint->setDefault(true);
         ui->tableViewO->clearSelection();
     }
+
+    if (sql_->ExternalReference(node_id_))
+        ui->pBtnFinishOrder->setEnabled(false);
 }
 
 void TransWidgetO::IniRuleGroup()

@@ -13,7 +13,7 @@
 StatementSecondaryModel::StatementSecondaryModel(
     Sqlite* sql, CInfo& info, int party_id, CStringHash& product_leaf, PNodeModel stakeholder, CString& company_name, QObject* parent)
     : QAbstractItemModel { parent }
-    , sql_ { sql }
+    , sql_ { qobject_cast<SqliteO*>(sql) }
     , info_ { info }
     , party_id_ { party_id }
     , product_leaf_ { product_leaf }

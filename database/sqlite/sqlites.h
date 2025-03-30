@@ -20,6 +20,7 @@
 #ifndef SQLITES_H
 #define SQLITES_H
 
+#include "database/sqlite/prices.h"
 #include "sqlite.h"
 
 class SqliteS final : public Sqlite {
@@ -31,8 +32,9 @@ public:
 public slots:
     void RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit) override;
     void RRemoveNode(int node_id, int node_type) override;
-    void RPriceSList(QList<PriceS>& list) override;
     void RUpdateProduct(int old_node_id, int new_node_id) override;
+
+    void RPriceSList(QList<PriceS>& list);
 
 public:
     bool CrossSearch(TransShadow* order_trans_shadow, int party_id, int product_id, bool is_inside) const;
@@ -47,7 +49,7 @@ protected:
     QString QSWriteNode() const override;
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
-    QString QSExternalReferencePS() const override;
+    QString QSExternalReference() const override;
     QString QSSupportReference() const override;
     QString QSRemoveSupport() const override;
 

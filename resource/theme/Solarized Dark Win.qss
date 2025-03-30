@@ -78,7 +78,7 @@ QPushButton#pBtnRefresh {
     border-bottom: none;
 }
 
-QPushButton#pBtnExport {
+QPushButton#pBtnExport, QPushButton#pBtnRemove, QPushButton#pBtnAppend {
     border: none;
 }
 
@@ -86,7 +86,7 @@ QTabBar::tab, QTreeView#treeViewFPT, QGroupBox#treeWidgetOrder {
     border-bottom: none;
 }
 
-QGroupBox#treeWidgetFPT, QTableView#tableViewO, QPushButton#pBtnCancelOrder, QPushButton#pBtnFinishOrder,
+QGroupBox#treeWidgetFPT, QTableView#tableViewO, QTableView#settlementView, QTableView#settlementViewPrimary, QPushButton#pBtnCancelOrder, QPushButton#pBtnFinishOrder,
 QPushButton#pBtnSaveOrder {
     border-top: none;
 }
@@ -169,7 +169,7 @@ QLineEdit, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QComboBox:editable, QPlainTe
 
 /*-------------------------------------color---------------------------------------------------*/
 
-QToolTip, QPushButton#pBtnFinishOrder:checked {
+QToolTip {
     color: #93A1A1;
 }
 
@@ -332,6 +332,10 @@ QPushButton#pBtnDocumentDir, QPushButton#pBtnLink {
 QPushButton#pBtnLink:pressed {
     background-color: transparent;
     color: #93A1A1;
+}
+
+QPushButton:disabled{
+    color: #586E75;
 }
 
 /*-----------------------------------------QScrollBar Horizontal-----------------------------------------------*/

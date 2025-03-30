@@ -7,6 +7,7 @@ TransModelO::TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* prod
     : TransModel { arg, parent }
     , product_tree_ { static_cast<const NodeModelP*>(product_tree) }
     , sqlite_stakeholder_ { static_cast<SqliteS*>(sqlite_stakeholder) }
+    , sqlite_order_ { qobject_cast<SqliteO*>(arg.sql) }
     , node_ { node }
     , party_id_ { node->party }
 {
@@ -29,7 +30,7 @@ void TransModelO::UpdateLhsNode(int node_id)
     PurifyTransShadow(node_id);
 
     if (!trans_shadow_list_.isEmpty())
-        sql_->WriteTransRange(trans_shadow_list_);
+        sqlite_order_->WriteTransRange(trans_shadow_list_);
 }
 
 void TransModelO::UpdateParty(int node_id, int party_id)

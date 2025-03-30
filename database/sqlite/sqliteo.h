@@ -20,6 +20,7 @@
 #ifndef SQLITEO_H
 #define SQLITEO_H
 
+#include "database/sqlite/prices.h"
 #include "sqlite.h"
 
 class SqliteO final : public Sqlite {
@@ -29,14 +30,41 @@ public:
     SqliteO(CInfo& info, QObject* parent = nullptr);
     ~SqliteO();
 
+signals:
+    // send to sqlite stakeholder
+    void SPriceSList(QList<PriceS>& list);
+
+public slots:
+    void RRemoveNode(int node_id, int node_type) override;
+    void RUpdateProduct(int old_node_id, int new_node_id) override;
+
+    void RUpdateStakeholder(int old_node_id, int new_node_id) const;
+
+public:
     bool ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end);
     bool SearchNode(QList<const Node*>& node_list, const QList<int>& party_id_list);
     Node* ReadNode(int node_id);
 
-public slots:
-    void RRemoveNode(int node_id, int node_type) override;
-    void RUpdateStakeholder(int old_node_id, int new_node_id) const override;
-    void RUpdateProduct(int old_node_id, int new_node_id) override;
+    bool SettlementReference(int settlement_id) const;
+    int SettlementID(int node_id) const;
+
+    bool ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const;
+    bool WriteSettlement(Node* node) const;
+    bool RemoveSettlement(int settlement_id) const;
+    bool ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished);
+
+    bool SyncNewSettlement(int node_id, int settlement_id) const;
+    bool SyncOldSettlement(int node_id) const;
+
+    bool SyncPriceS(int node_id);
+    bool InvertTransValue(int node_id) const;
+
+    bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
+    bool ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
+    bool ReadStatementPrimary(NodeList& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
+    bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
+
+    bool WriteTransRange(const QList<TransShadow*>& list) const;
 
 protected:
     // tree
@@ -47,16 +75,13 @@ protected:
     QString QSWriteNode() const override;
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
+    QString QSExternalReference() const override;
 
     // table
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query) override;
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const override;
-    void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const override;
-    void ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const override;
-    void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const override;
 
     QString QSSyncLeafValue() const override;
     void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
@@ -67,19 +92,39 @@ protected:
     QString QSSearchTransText() const override;
     QString QSSyncTransValue() const override;
     QString QSTransToRemove() const override;
-    QString QSReadStatement(int unit) const override;
-    QString QSReadBalance(int unit) const override;
-    QString QSReadStatementPrimary(int unit) const override;
-    QString QSReadStatementSecondary(int unit) const override;
-    QString QSInvertTransValue() const override;
-    QString QSSyncPriceSFirst() const override;
-    QString QSSyncPriceSSecond() const override;
 
 private:
-    QString SearchNodeQS(CString& in_list) const;
+    QString QSSearchNode(CString& in_list) const;
 
     void ReadNodeFunction(NodeHash& node_hash, QSqlQuery& query);
     void SearchNodeFunction(QList<const Node*>& node_list, QSqlQuery& query);
+
+    QString QSReadSettlement() const;
+    void ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const;
+    QString QSWriteSettlement() const;
+    void WriteSettlementBind(Node* node, QSqlQuery& query) const;
+
+    QString QSRemoveSettlementFirst() const;
+    QString QSRemoveSettlementSecond() const;
+
+    QString QSReadSettlementPrimary(bool finished) const;
+
+    void ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query);
+
+    QString QSSyncPriceSFirst() const;
+    QString QSSyncPriceSSecond() const;
+    QString QSInvertTransValue() const;
+
+    QString QSReadStatement(int unit) const;
+    QString QSReadBalance(int unit) const;
+    QString QSReadStatementPrimary(int unit) const;
+    QString QSReadStatementSecondary(int unit) const;
+
+    void ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const;
+    void ReadStatementPrimaryQuery(NodeList& node_list, QSqlQuery& query) const;
+    void ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const;
+
+    void WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const;
 
 private:
     NodeHash node_hash_ {};

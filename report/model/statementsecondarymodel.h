@@ -23,7 +23,7 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sqlite/sqliteo.h"
 #include "tree/model/nodemodel.h"
 
 class StatementSecondaryModel final : public QAbstractItemModel {
@@ -52,7 +52,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
-    Sqlite* sql_ {};
+    SqliteO* sql_ {};
     CInfo& info_;
     const int party_id_ {};
     CStringHash& product_leaf_ {};

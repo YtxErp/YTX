@@ -541,6 +541,24 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
         QObject::tr("Settlement"),
     };
 
+    sales.settlement_header = {
+        QObject::tr("DateTime"),
+        QObject::tr("ID"),
+        QObject::tr("Party"),
+        QObject::tr("Description"),
+        QObject::tr("Finished"),
+        QObject::tr("GrossAmount"),
+    };
+
+    sales.settlement_primary_header = {
+        QObject::tr("DateTime"),
+        QObject::tr("ID"),
+        QObject::tr("Employee"),
+        QObject::tr("Description"),
+        QObject::tr("S"),
+        QObject::tr("GrossAmount"),
+    };
+
     purchase.node_header = sales.node_header;
     purchase.trans_header = sales.trans_header;
     purchase.search_trans_header = sales.search_trans_header;
@@ -550,4 +568,6 @@ void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholde
     purchase.statement_header = sales.statement_header;
     purchase.statement_primary_header = sales.statement_primary_header;
     purchase.statement_secondary_header = sales.statement_secondary_header;
+    purchase.settlement_header = sales.settlement_header;
+    purchase.settlement_primary_header = sales.settlement_primary_header;
 }

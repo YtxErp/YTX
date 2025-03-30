@@ -16,14 +16,12 @@ SqliteO::~SqliteO() { qDeleteAll(node_hash_); }
 
 bool SqliteO::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end)
 {
-    CString string { QSReadNode() };
-    if (string.isEmpty())
-        return false;
-
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
-    query.prepare(string);
 
+    CString string { QSReadNode() };
+
+    query.prepare(string);
     query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
     query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
 
@@ -81,7 +79,7 @@ bool SqliteO::SearchNode(QList<const Node*>& node_list, const QList<int>& party_
         QList<int> current_batch { party_id_list.mid(start, end - start) };
 
         QStringList placeholder { current_batch.size(), QStringLiteral("?") };
-        QString string { SearchNodeQS(placeholder.join(QStringLiteral(","))) };
+        QString string { QSSearchNode(placeholder.join(QStringLiteral(","))) };
 
         query.prepare(string);
 
@@ -124,15 +122,15 @@ Node* SqliteO::ReadNode(int node_id)
 
     // if search order trans, will read node from sqlite3
 
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
     CString string { QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement, settlement_id
     FROM %1
     WHERE id = :node_id AND removed = 0
     )")
             .arg(info_.node) };
-
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
@@ -150,6 +148,58 @@ Node* SqliteO::ReadNode(int node_id)
 
     node_hash_.insert(node_id, node);
     return node;
+}
+
+bool SqliteO::SettlementReference(int settlement_id) const
+{
+    assert(settlement_id >= 1 && "settlement_id must be positive");
+
+    CString string { QString(R"(
+    SELECT 1 FROM %1
+    WHERE settlement_id = :settlement_id AND removed = 0
+    LIMIT 1
+    )")
+            .arg(info_.node) };
+
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":settlement_id"), settlement_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in SettlementReference" << query.lastError().text();
+        return false;
+    }
+
+    return query.next();
+}
+
+int SqliteO::SettlementID(int node_id) const
+{
+    assert(node_id >= 1 && "node_id must be positive");
+
+    CString string { QString(R"(
+    SELECT settlement_id FROM %1
+    WHERE id = :node_id AND removed = 0
+    )")
+            .arg(info_.node) };
+
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in SettlementID" << query.lastError().text();
+        return false;
+    }
+
+    if (query.next())
+        return query.value(0).toInt();
+
+    return 0;
 }
 
 void SqliteO::RRemoveNode(int node_id, int node_type)
@@ -187,6 +237,335 @@ void SqliteO::RUpdateProduct(int old_node_id, int new_node_id)
         if (trans->rhs_node == old_node_id)
             trans->rhs_node = new_node_id;
     }
+}
+
+bool SqliteO::ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    auto string { QSReadSettlement() };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatement" << query.lastError().text();
+        return false;
+    }
+
+    ReadSettlementQuery(node_list, query);
+    return true;
+}
+
+bool SqliteO::WriteSettlement(Node* node) const
+{
+    assert(node && "node should not be null");
+
+    QSqlQuery query(*db_);
+
+    CString string { QSWriteSettlement() };
+
+    query.prepare(string);
+    WriteSettlementBind(node, query);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in WriteSettlement" << query.lastError().text();
+        return false;
+    }
+
+    node->id = query.lastInsertId().toInt();
+    return true;
+}
+
+bool SqliteO::RemoveSettlement(int settlement_id) const
+{
+    QSqlQuery query(*db_);
+
+    CString string_first { QSRemoveSettlementFirst() };
+    CString string_second { QSRemoveSettlementSecond() };
+
+    return DBTransaction([&]() {
+        query.prepare(string_first);
+        query.bindValue(QStringLiteral(":node_id"), settlement_id);
+        if (!query.exec()) {
+            qWarning() << "Failed in RemoveSettlement 1st" << query.lastError().text();
+            return false;
+        }
+
+        query.prepare(string_second);
+        query.bindValue(QStringLiteral(":node_id"), settlement_id);
+        if (!query.exec()) {
+            qWarning() << "Failed in RemoveSettlement 2nd" << query.lastError().text();
+            return false;
+        }
+
+        return true;
+    });
+}
+
+bool SqliteO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished)
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QSReadSettlementPrimary(finished) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":party_id"), party_id);
+    query.bindValue(QStringLiteral(":settlement_id"), settlement_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadSettlementPrimary" << query.lastError().text();
+        return false;
+    }
+
+    ReadSettlementPrimaryQuery(node_list, query);
+    return true;
+}
+
+bool SqliteO::SyncNewSettlement(int node_id, int settlement_id) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QString("UPDATE %1 SET settlement_id = :settlement_id, settlement = gross_amount - discount WHERE id = :node_id").arg(info_.node) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+    query.bindValue(QStringLiteral(":settlement_id"), settlement_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in SyncNewSettlement" << query.lastError().text();
+        return false;
+    }
+
+    auto* node { node_hash_.value(node_id) };
+    if (node) {
+        node->final_total = node->initial_total - node->discount;
+    }
+
+    return true;
+}
+
+bool SqliteO::SyncOldSettlement(int node_id) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QString("UPDATE %1 SET settlement_id = 0, settlement = 0 WHERE id = :node_id").arg(info_.node) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in SyncNewSettlement" << query.lastError().text();
+        return false;
+    }
+
+    auto* node { node_hash_.value(node_id) };
+    if (node) {
+        node->final_total = 0.0;
+    }
+
+    return true;
+}
+
+bool SqliteO::SyncPriceS(int node_id)
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QSSyncPriceSFirst() };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "SQL execution failed in QSSyncStakeholderPriceFirst:" << query.lastError().text();
+        return false;
+    }
+
+    CString string_second { QSSyncPriceSSecond() };
+
+    query.prepare(string_second);
+    query.bindValue(QStringLiteral(":node_id"), node_id);
+
+    if (!query.exec()) {
+        qWarning() << "SQL execution failed in QSSyncStakeholderPriceSecond:" << query.lastError().text();
+        return false;
+    }
+
+    QList<PriceS> list {};
+
+    while (query.next()) {
+        PriceS item {};
+        item.date_time = query.value("date_time").toString();
+        item.lhs_node = query.value("lhs_node").toInt();
+        item.inside_product = query.value("inside_product").toInt();
+        item.unit_price = query.value("unit_price").toDouble();
+
+        list.append(std::move(item));
+    }
+
+    emit SPriceSList(list);
+    return true;
+}
+
+bool SqliteO::InvertTransValue(int node_id) const
+{
+    QSqlQuery query(*db_);
+
+    CString string { QSInvertTransValue() };
+
+    query.prepare(string);
+    query.bindValue(":lhs_node", node_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in InvertValue" << query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
+bool SqliteO::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QSReadStatement(unit) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatement" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementQuery(trans_list, query);
+
+    return true;
+}
+
+bool SqliteO::ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QSReadBalance(unit) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party_id"), party_id);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatement" << query.lastError().text();
+        return false;
+    }
+
+    if (query.next()) {
+        pbalance = query.value(QStringLiteral("pbalance")).toDouble();
+        cdelta = query.value(QStringLiteral("cgross_amount")).toDouble() - query.value(QStringLiteral("csettlement")).toDouble();
+    }
+
+    return true;
+}
+
+bool SqliteO::ReadStatementPrimary(NodeList& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QSReadStatementPrimary(unit) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party"), party_id);
+    query.bindValue(QStringLiteral(":unit"), unit);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementPrimaryQuery(node_list, query);
+    return true;
+}
+
+bool SqliteO::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+{
+    QSqlQuery query(*db_);
+    query.setForwardOnly(true);
+
+    CString string { QSReadStatementSecondary(unit) };
+
+    query.prepare(string);
+    query.bindValue(QStringLiteral(":start"), start.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":end"), end.toString(kDateTimeFST));
+    query.bindValue(QStringLiteral(":party"), party_id);
+    query.bindValue(QStringLiteral(":unit"), unit);
+
+    if (!query.exec()) {
+        qWarning() << "Failed in ReadStatementPrimary" << query.lastError().text();
+        return false;
+    }
+
+    ReadStatementSecondaryQuery(trans_list, query);
+    return true;
+}
+
+bool SqliteO::WriteTransRange(const QList<TransShadow*>& list) const
+{
+    if (list.isEmpty())
+        return false;
+
+    QSqlQuery query(*db_);
+
+    query.exec(QStringLiteral("PRAGMA synchronous = OFF"));
+    query.exec(QStringLiteral("PRAGMA journal_mode = MEMORY"));
+
+    if (!db_->transaction()) {
+        qDebug() << "Failed to start transaction" << db_->lastError();
+        return false;
+    }
+
+    CString string { QSWriteTrans() };
+
+    // 插入多条记录的 SQL 语句
+    query.prepare(string);
+    WriteTransRangeFunction(list, query);
+
+    // 执行批量插入
+    if (!query.execBatch()) {
+        qDebug() << "Failed in WriteTransRange" << query.lastError();
+        db_->rollback();
+        return false;
+    }
+
+    // 提交事务
+    if (!db_->commit()) {
+        qDebug() << "Failed to commit transaction" << db_->lastError();
+        db_->rollback();
+        return false;
+    }
+
+    query.exec(QStringLiteral("PRAGMA synchronous = FULL"));
+    query.exec(QStringLiteral("PRAGMA journal_mode = DELETE"));
+
+    int last_id { query.lastInsertId().toInt() };
+
+    for (int i = list.size() - 1; i >= 0; --i) {
+        *list.at(i)->id = last_id;
+        --last_id;
+    }
+
+    return true;
 }
 
 /**
@@ -236,10 +615,23 @@ QString SqliteO::QSRemoveNodeSecond() const
 QString SqliteO::QSInternalReference() const
 {
     return QString(R"(
-    SELECT COUNT(*) FROM %1
-    WHERE lhs_node = :node_id AND removed = 0
+    SELECT EXISTS(
+        SELECT 1 FROM %1
+        WHERE lhs_node = :node_id AND removed = 0
+    ) AS is_referenced
     )")
         .arg(info_.trans);
+}
+
+QString SqliteO::QSExternalReference() const
+{
+    return QString(R"(
+    SELECT EXISTS(
+        SELECT 1 FROM %1
+        WHERE id = :node_id AND settlement_id <> 0 AND removed = 0
+    ) AS is_referenced
+    )")
+        .arg(info_.node);
 }
 
 QString SqliteO::QSReadTrans() const
@@ -544,6 +936,65 @@ QString SqliteO::QSSyncPriceSSecond() const
         .arg(info_.node, info_.trans);
 }
 
+QString SqliteO::QSWriteSettlement() const
+{
+    return QString(R"(
+    INSERT INTO %1 (date_time)
+    VALUES (:date_time)
+    )")
+        .arg(info_.settlement);
+}
+
+QString SqliteO::QSRemoveSettlementFirst() const
+{
+    return QString(R"(
+    UPDATE %1 SET
+        removed = 1
+    WHERE id = :node_id
+    )")
+        .arg(info_.settlement);
+}
+
+QString SqliteO::QSRemoveSettlementSecond() const
+{
+    return QString(R"(
+    UPDATE %1 SET
+        settlement_id = 0,
+        settlement = 0
+    WHERE settlement_id = :node_id
+    )")
+        .arg(info_.node);
+}
+
+QString SqliteO::QSReadSettlementPrimary(bool finished) const
+{
+    CString finished_string { finished ? QString() : "OR settlement_id = 0" };
+
+    return QString(R"(
+    SELECT id, date_time, description, gross_amount, employee, settlement_id
+    FROM %1
+    WHERE party = :party_id AND unit = 1 AND finished = 1 AND (settlement_id = :settlement_id %2) AND removed = 0
+    )")
+        .arg(info_.node, finished_string);
+}
+
+void SqliteO::ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query)
+{
+    // remind to recycle these trans
+    while (query.next()) {
+        auto* node { ResourcePool<Node>::Instance().Allocate() };
+
+        node->id = query.value(QStringLiteral("id")).toInt();
+        node->employee = query.value(QStringLiteral("employee")).toInt();
+        node->description = query.value(QStringLiteral("description")).toString();
+        node->date_time = query.value(QStringLiteral("date_time")).toString();
+        node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
+        node->finished = query.value(QStringLiteral("settlement_id")).toInt() != 0;
+
+        node_list.emplaceBack(node);
+    }
+}
+
 void SqliteO::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
@@ -562,7 +1013,7 @@ void SqliteO::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
     }
 }
 
-void SqliteO::ReadStatementPrimaryQuery(QList<Node*>& node_list, QSqlQuery& query) const
+void SqliteO::ReadStatementPrimaryQuery(NodeList& node_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -600,7 +1051,36 @@ void SqliteO::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& quer
     }
 }
 
-QString SqliteO::SearchNodeQS(CString& in_list) const
+QString SqliteO::QSReadSettlement() const
+{
+    return QString(R"(
+    SELECT id, date_time, description, finished, gross_amount, party
+    FROM %1
+    WHERE (date_time BETWEEN :start AND :end) AND removed = 0
+    )")
+        .arg(info_.settlement);
+}
+
+void SqliteO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
+{
+    // remind to recycle these Node
+    while (query.next()) {
+        auto* node { ResourcePool<Node>::Instance().Allocate() };
+
+        node->id = query.value(QStringLiteral("id")).toInt();
+        node->party = query.value(QStringLiteral("party")).toInt();
+        node->description = query.value(QStringLiteral("description")).toString();
+        node->date_time = query.value(QStringLiteral("date_time")).toString();
+        node->finished = query.value(QStringLiteral("finished")).toBool();
+        node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
+
+        node_list.emplaceBack(node);
+    }
+}
+
+void SqliteO::WriteSettlementBind(Node* node, QSqlQuery& query) const { query.bindValue(QStringLiteral(":date_time"), node->date_time); }
+
+QString SqliteO::QSSearchNode(CString& in_list) const
 {
     return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement

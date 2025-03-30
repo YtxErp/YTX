@@ -23,6 +23,7 @@
 #include <QButtonGroup>
 
 #include "component/arg/insertnodeargo.h"
+#include "database/sqlite/sqliteo.h"
 
 namespace Ui {
 class TransWidgetO;
@@ -95,7 +96,7 @@ private:
 private:
     Ui::TransWidgetO* ui;
     Node* node_ {};
-    Sqlite* sql_ {};
+    SqliteO* sql_ {};
     TransModel* order_trans_ {};
     NodeModel* stakeholder_node_ {};
     CSettings* settings_ {};

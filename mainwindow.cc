@@ -32,7 +32,6 @@
 #include "delegate/readonly/doublespinr.h"
 #include "delegate/readonly/doublespinrnonezero.h"
 #include "delegate/readonly/doublespinunitr.h"
-#include "delegate/readonly/doublespinunitrnonezero.h"
 #include "delegate/readonly/doublespinunitrps.h"
 #include "delegate/readonly/nodenamer.h"
 #include "delegate/readonly/nodepathr.h"
@@ -67,6 +66,7 @@
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"
 #include "mainwindowutils.h"
+#include "report/model/settlementmodel.h"
 #include "report/model/statementmodel.h"
 #include "report/model/statementprimarymodel.h"
 #include "report/model/statementsecondarymodel.h"
@@ -350,16 +350,16 @@ void MainWindow::RSectionGroup(int id)
 
 void MainWindow::RTransRefDoubleClicked(const QModelIndex& index)
 {
-    const int kNodeID { index.siblingAtColumn(std::to_underlying(TransRefEnum::kOrderNode)).data().toInt() };
+    const int node_id { index.siblingAtColumn(std::to_underlying(TransRefEnum::kOrderNode)).data().toInt() };
     const int kColumn { std::to_underlying(TransRefEnum::kGrossAmount) };
 
-    assert(kNodeID >= 1 && "kNodeID must be greater than 0");
+    assert(node_id >= 1 && "node_id must be greater than 0");
 
     if (index.column() != kColumn)
         return;
 
     const Section section { index.siblingAtColumn(std::to_underlying(TransRefEnum::kSection)).data().toInt() };
-    OrderNodeLocation(section, kNodeID);
+    OrderNodeLocation(section, node_id);
 }
 
 void MainWindow::RStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end)
@@ -873,9 +873,7 @@ void MainWindow::DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings
     auto* amount { new DoubleSpinUnitR(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kGrossAmount), amount);
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kSettlement), amount);
-
-    auto* discount { new DoubleSpinUnitRNoneZero(settings.amount_decimal, finance_settings_.default_unit, finance_data_.info.unit_symbol_map, tree_view) };
-    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDiscount), discount);
+    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDiscount), amount);
 
     auto* quantity { new DoubleSpinRNoneZero(settings.common_decimal, kCoefficient16, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kSecond), quantity);
@@ -1055,7 +1053,7 @@ void MainWindow::EnableAction(bool enable) const
     ui->actionExportExcel->setEnabled(enable);
     ui->actionExportYTX->setEnabled(enable);
     ui->actionStatement->setEnabled(enable);
-    ui->actionSettle->setEnabled(enable);
+    ui->actionSettlement->setEnabled(enable);
 }
 
 QStandardItemModel* MainWindow::CreateModelFromList(QStringList& list, QObject* parent)
@@ -1309,6 +1307,52 @@ void MainWindow::on_actionStatement_triggered()
     RegisterRptWgt(widget);
 }
 
+void MainWindow::on_actionSettlement_triggered()
+{
+    assert(start_ == Section::kSales || start_ == Section::kPurchase && "start_ must be kSales or kPurchase");
+
+    if (settlement_widget_) {
+        ui->tabWidget->setCurrentWidget(settlement_widget_);
+        settlement_widget_->activateWindow();
+        return;
+    }
+
+    auto* sql { data_->sql };
+    const auto& info { data_->info };
+
+    const auto start { QDateTime(QDate(QDate::currentDate().year() - 1, 1, 1), kStartTime) };
+    const auto end { QDateTime(QDate(QDate::currentDate().year(), 12, 31), kEndTime) };
+
+    auto* model { new SettlementModel(sql, info, this) };
+    model->ResetModel(start, end);
+
+    auto* primary_model { new SettlementPrimaryModel(sql, info, this) };
+
+    settlement_widget_ = new SettlementWidget(model, primary_model, start, end, this);
+
+    const int tab_index { ui->tabWidget->addTab(settlement_widget_, tr("Settlement")) };
+    auto* tab_bar { ui->tabWidget->tabBar() };
+
+    tab_bar->setTabData(tab_index, QVariant::fromValue(Tab { start_, report_id_ }));
+
+    auto view { settlement_widget_->View() };
+    auto primary_view { settlement_widget_->PrimaryView() };
+    SetStatementView(view, std::to_underlying(SettlementEnum::kDescription));
+    SetStatementView(primary_view, std::to_underlying(SettlementEnum::kDescription));
+
+    DelegateSettlement(view, settings_);
+    DelegateSettlementPrimary(primary_view, settings_);
+
+    connect(model, &SettlementModel::SResetModel, primary_model, &SettlementPrimaryModel::RResetModel);
+    connect(model, &SettlementModel::SUpdateFinished, primary_model, &SettlementPrimaryModel::RUpdateFinished);
+    connect(model, &SettlementModel::SResizeColumnToContents, view, &QTableView::resizeColumnToContents);
+
+    connect(primary_model, &SettlementPrimaryModel::SUpdateLeafValue, model, &SettlementModel::RUpdateLeafValue);
+    connect(model, &SettlementModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble);
+
+    RegisterRptWgt(settlement_widget_);
+}
+
 void MainWindow::CreateTransRef(PNodeModel tree_model, CData* data, int node_id, int unit)
 {
     assert(tree_model && "tree_model must be non-null");
@@ -1432,6 +1476,43 @@ void MainWindow::DelegateStatement(PTableView table_view, CSettings* settings) c
 
     auto* name { new NodeNameR(stakeholder_tree_->Model(), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(StatementEnum::kParty), name);
+}
+
+void MainWindow::DelegateSettlement(PTableView table_view, CSettings* settings) const
+{
+    auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kGrossAmount), amount);
+
+    auto* finished { new CheckBox(QEvent::MouseButtonDblClick, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kFinished), finished);
+
+    auto* line { new Line(table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kDescription), line);
+
+    auto* date_time { new TreeDateTime(kDateFirst, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kDateTime), date_time);
+
+    auto model { stakeholder_tree_->Model() };
+    const int unit { start_ == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) };
+
+    auto* filter_model { model->IncludeUnitModel(unit) };
+    auto* node { new TableCombo(model, filter_model, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kParty), node);
+}
+
+void MainWindow::DelegateSettlementPrimary(PTableView table_view, CSettings* settings) const
+{
+    auto* amount { new DoubleSpinRNoneZero(settings->amount_decimal, kCoefficient16, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kGrossAmount), amount);
+
+    auto* employee { new NodeNameR(stakeholder_tree_->Model(), table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kParty), employee);
+
+    auto* state { new CheckBox(QEvent::MouseButtonRelease, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kFinished), state);
+
+    auto* date_time { new DateTimeR(kDateFirst, table_view) };
+    table_view->setItemDelegateForColumn(std::to_underlying(SettlementEnum::kDateTime), date_time);
 }
 
 void MainWindow::DelegateStatementPrimary(PTableView table_view, CSettings* settings) const
@@ -1654,6 +1735,7 @@ void MainWindow::SetSalesData()
     info.node = kSales;
     info.path = kSalesPath;
     info.trans = kSalesTrans;
+    info.settlement = kSalesSettlement;
 
     // IM: IMMEDIATE, MS: MONTHLY SETTLEMENT, PEND: PENDING
     QStringList unit_list { tr("IS"), tr("MS"), tr("PEND") };
@@ -1683,10 +1765,13 @@ void MainWindow::SetSalesData()
 
     sales_tree_ = new NodeWidgetO(model, this);
 
-    connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
+    auto* sqlite_stakeholder { qobject_cast<SqliteS*>(stakeholder_data_.sql) };
+    auto* sqlite_sales { qobject_cast<SqliteO*>(sql) };
+
+    connect(sqlite_stakeholder, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
     connect(model, &NodeModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble);
-    connect(sql, &Sqlite::SPriceSList, stakeholder_data_.sql, &Sqlite::RPriceSList);
+    connect(sqlite_sales, &SqliteO::SPriceSList, sqlite_stakeholder, &SqliteS::RPriceSList);
 }
 
 void MainWindow::SetPurchaseData()
@@ -1699,6 +1784,7 @@ void MainWindow::SetPurchaseData()
     info.node = kPurchase;
     info.path = kPurchasePath;
     info.trans = kPurchaseTrans;
+    info.settlement = kPurchaseSettlement;
 
     // IM: IMMEDIATE, MS: MONTHLY SETTLEMENT, PEND: PENDING
     QStringList unit_list { tr("IS"), tr("MS"), tr("PEND") };
@@ -1728,10 +1814,13 @@ void MainWindow::SetPurchaseData()
 
     purchase_tree_ = new NodeWidgetO(model, this);
 
-    connect(stakeholder_data_.sql, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
+    auto* sqlite_s { qobject_cast<SqliteS*>(stakeholder_data_.sql) };
+    auto* sqlite_purchase { qobject_cast<SqliteO*>(sql) };
+
+    connect(sqlite_s, &Sqlite::SUpdateStakeholder, model, &NodeModel::RUpdateStakeholder);
     connect(product_data_.sql, &Sqlite::SUpdateProduct, sql, &Sqlite::RUpdateProduct);
     connect(model, &NodeModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble);
-    connect(sql, &Sqlite::SPriceSList, stakeholder_data_.sql, &Sqlite::RPriceSList);
+    connect(sqlite_purchase, &SqliteO::SPriceSList, sqlite_s, &SqliteS::RPriceSList);
 }
 
 void MainWindow::SetAction() const
@@ -1752,7 +1841,7 @@ void MainWindow::SetAction() const
     ui->actionCheckReverse->setIcon(QIcon(":/solarized_dark/solarized_dark/check-reverse.png"));
     ui->actionAppendTrans->setIcon(QIcon(":/solarized_dark/solarized_dark/append_trans.png"));
     ui->actionStatement->setIcon(QIcon(":/solarized_dark/solarized_dark/statement.png"));
-    ui->actionSettle->setIcon(QIcon(":/solarized_dark/solarized_dark/settle.png"));
+    ui->actionSettlement->setIcon(QIcon(":/solarized_dark/solarized_dark/settle.png"));
 
     ui->actionCheckAll->setProperty(kCheck, std::to_underlying(Check::kAll));
     ui->actionCheckNone->setProperty(kCheck, std::to_underlying(Check::kNone));
@@ -1766,7 +1855,7 @@ void MainWindow::SetTreeView(PTreeView tree_view, CInfo& info) const
         tree_view->setColumnHidden(std::to_underlying(NodeEnumO::kParty), false);
 
     tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
-    tree_view->setDragDropMode(QAbstractItemView::InternalMove);
+    tree_view->setDragDropMode(QAbstractItemView::DragDrop);
     tree_view->setEditTriggers(QAbstractItemView::DoubleClicked);
     tree_view->setDropIndicatorShown(true);
     tree_view->setSortingEnabled(true);
@@ -1986,8 +2075,8 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
     QDialog* dialog {};
     QSortFilterProxyModel* employee_model {};
 
-    const auto name_list { tree_model->ChildrenName(parent_id) };
-    const auto arg { InsertNodeArgFPTS { node, unit_model, parent_path, name_list } };
+    const auto children_name { tree_model->ChildrenName(parent_id) };
+    const auto arg { InsertNodeArgFPTS { node, unit_model, parent_path, children_name } };
 
     switch (start_) {
     case Section::kFinance:
@@ -2151,25 +2240,25 @@ void MainWindow::RUpdateName(int node_id, const QString& name, bool branch)
 
     QSet<int> nodes;
 
-    if (!branch) {
+    if (branch) {
+        nodes = model->ChildrenID(node_id);
+    } else {
         nodes.insert(node_id);
+
         if (start_ == Section::kStakeholder)
             UpdateStakeholderReference(nodes, branch);
 
         if (!trans_wgt_hash_->contains(node_id))
             return;
-
-    } else {
-        nodes = model->ChildrenID(node_id);
     }
 
     QString path {};
 
     for (int index = 0; index != count; ++index) {
-        const int kNodeID { tab_bar->tabData(index).value<Tab>().node_id };
+        const int node_id { tab_bar->tabData(index).value<Tab>().node_id };
 
-        if (widget->isTabVisible(index) && nodes.contains(kNodeID)) {
-            path = model->Path(kNodeID);
+        if (widget->isTabVisible(index) && nodes.contains(node_id)) {
+            path = model->Path(node_id);
 
             if (!branch) {
                 tab_bar->setTabText(index, name);
@@ -2394,12 +2483,14 @@ void MainWindow::on_actionSearch_triggered()
 
 void MainWindow::RNodeLocation(int node_id)
 {
+    // Ignore report widget
+    if (node_id <= 0)
+        return;
+
     auto* widget { node_widget_ };
     ui->tabWidget->setCurrentWidget(widget);
 
     if (start_ == Section::kSales || start_ == Section::kPurchase) {
-        assert(node_id >= 1 && "node_id must be positive");
-
         node_widget_->Model()->ReadNode(node_id);
     }
 
@@ -2609,7 +2700,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     ui->actionSupportJump->setEnabled(is_leaf_fpts || is_support);
 
     ui->actionStatement->setEnabled(is_order_section);
-    ui->actionSettle->setEnabled(is_order_section);
+    ui->actionSettlement->setEnabled(is_order_section);
 
     ui->actionAppendTrans->setEnabled(is_leaf_fpts || (is_leaf_order && !finished));
     ui->actionRemove->setEnabled(is_node || is_leaf_fpts || (is_leaf_order && !finished));
@@ -2750,5 +2841,3 @@ void MainWindow::on_actionExportExcel_triggered()
 
     watcher->setFuture(future);
 }
-
-void MainWindow::on_actionSettle_triggered() { }

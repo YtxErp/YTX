@@ -197,45 +197,36 @@ bool SqliteS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id) c
     CString stringose { QSReplaceLeafOSE() };
     CString stringope { QSReplaceLeafOPE() };
 
-    if (!DBTransaction([&]() {
-            query.prepare(stringse);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
+    return DBTransaction([&]() {
+        query.prepare(stringse);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
 
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 1st" << query.lastError().text();
-                return false;
-            }
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 1st" << query.lastError().text();
+            return false;
+        }
 
-            query.clear();
+        query.prepare(stringose);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
 
-            query.prepare(stringose);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 2nd" << query.lastError().text();
+            return false;
+        }
 
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 2nd" << query.lastError().text();
-                return false;
-            }
+        query.prepare(stringope);
+        query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
+        query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
 
-            query.clear();
+        if (!query.exec()) {
+            qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 3rd" << query.lastError().text();
+            return false;
+        }
 
-            query.prepare(stringope);
-            query.bindValue(QStringLiteral(":new_node_id"), new_node_id);
-            query.bindValue(QStringLiteral(":old_node_id"), old_node_id);
-
-            if (!query.exec()) {
-                qWarning() << "Section: " << std::to_underlying(section_) << "Failed in ReplaceLeaf 3rd" << query.lastError().text();
-                return false;
-            }
-
-            return true;
-        })) {
-        qWarning() << "Failed in ReplaceLeaf";
-        return false;
-    }
-
-    return true;
+        return true;
+    });
 }
 
 bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id) const
@@ -337,29 +328,30 @@ QString SqliteS::QSInternalReference() const
 {
     return QStringLiteral(R"(
     SELECT
-    (SELECT COUNT(*) FROM stakeholder_transaction WHERE lhs_node = :node_id) +
-    (SELECT COUNT(*) FROM stakeholder WHERE employee = :node_id AND removed = 0)
-    AS total_count;
+    EXISTS(SELECT 1 FROM stakeholder_transaction WHERE lhs_node = :node_id) OR
+    EXISTS(SELECT 1 FROM stakeholder WHERE employee = :node_id AND removed = 0)
+    AS is_referenced;
     )");
 }
 
-QString SqliteS::QSExternalReferencePS() const
+QString SqliteS::QSExternalReference() const
 {
     return QStringLiteral(R"(
     SELECT
-    (SELECT COUNT(*) FROM sales WHERE (party = :node_id OR employee = :node_id) AND removed = 0) +
-    (SELECT COUNT(*) FROM purchase WHERE (party = :node_id OR employee = :node_id) AND removed = 0) +
-    (SELECT COUNT(*) FROM sales_transaction WHERE outside_product = :node_id AND removed = 0) +
-    (SELECT COUNT(*) FROM purchase_transaction WHERE outside_product = :node_id AND removed = 0)
-    AS total_count;
+        EXISTS(SELECT 1 FROM sales WHERE (party = :node_id OR employee = :node_id) AND removed = 0) OR
+        EXISTS(SELECT 1 FROM purchase WHERE (party = :node_id OR employee = :node_id) AND removed = 0) OR
+        EXISTS(SELECT 1 FROM sales_transaction WHERE outside_product = :node_id AND removed = 0) OR
+        EXISTS(SELECT 1 FROM purchase_transaction WHERE outside_product = :node_id AND removed = 0)
+    AS is_referenced;
     )");
 }
 
 QString SqliteS::QSSupportReference() const
 {
     return QStringLiteral(R"(
-    SELECT COUNT(*) FROM stakeholder_transaction
+    SELECT 1 FROM stakeholder_transaction
     WHERE outside_product = :support_id
+    LIMIT 1
     )");
 }
 

@@ -32,7 +32,7 @@ protected:
     QString QSWriteNode() const override;
     QString QSRemoveNodeSecond() const override;
     QString QSInternalReference() const override;
-    QString QSExternalReferencePS() const override;
+    QString QSExternalReference() const override;
     QString QSSupportReference() const override;
     QString QSReplaceSupport() const override;
     QString QSRemoveSupport() const override;

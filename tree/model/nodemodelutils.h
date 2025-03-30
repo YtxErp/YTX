@@ -49,7 +49,9 @@ public:
         }
 
         current_value = value;
-        sql->WriteField(table, field, value, node->id);
+
+        if (node->id != 0)
+            sql->WriteField(table, field, value, node->id);
 
         return true;
     }

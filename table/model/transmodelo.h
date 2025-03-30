@@ -20,6 +20,7 @@
 #ifndef TRANSMODELO_H
 #define TRANSMODELO_H
 
+#include "database/sqlite/sqliteo.h"
 #include "database/sqlite/sqlites.h"
 #include "transmodel.h"
 #include "tree/model/nodemodel.h"
@@ -63,6 +64,7 @@ private:
 private:
     const NodeModelP* product_tree_ {};
     SqliteS* sqlite_stakeholder_ {};
+    SqliteO* sqlite_order_ {};
     const Node* node_ {};
     int party_id_ {};
 };

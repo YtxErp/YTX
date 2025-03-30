@@ -119,6 +119,8 @@ enum class StatementSecondaryEnum {
     kSettlement,
 };
 
+enum class SettlementEnum { kDateTime, kID, kParty, kDescription, kFinished, kGrossAmount };
+
 // defining node column
 enum class NodeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };
 

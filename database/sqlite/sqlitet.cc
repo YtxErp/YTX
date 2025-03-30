@@ -38,16 +38,19 @@ QString SqliteT::QSRemoveNodeSecond() const
 QString SqliteT::QSInternalReference() const
 {
     return QStringLiteral(R"(
-    SELECT COUNT(*) FROM task_transaction
-    WHERE (lhs_node = :node_id OR rhs_node = :node_id) AND removed = 0
+    SELECT EXISTS(
+        SELECT 1 FROM task_transaction
+        WHERE (lhs_node = :node_id OR rhs_node = :node_id) AND removed = 0
+    ) AS is_referenced
     )");
 }
 
 QString SqliteT::QSSupportReference() const
 {
     return QStringLiteral(R"(
-    SELECT COUNT(*) FROM task_transaction
+    SELECT 1 FROM task_transaction
     WHERE support_id = :support_id AND removed = 0
+    LIMIT 1
     )");
 }
 

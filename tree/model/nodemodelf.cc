@@ -9,7 +9,7 @@ NodeModelF::NodeModelF(CNodeModelArg& arg, QObject* parent)
 
 NodeModelF::~NodeModelF() { qDeleteAll(node_hash_); }
 
-void NodeModelF::RUpdateLeafValue(
+void NodeModelF::RSyncLeafValue(
     int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled*/)
 {
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
@@ -26,9 +26,9 @@ void NodeModelF::RUpdateLeafValue(
     node->initial_total += initial_delta;
     node->final_total += final_delta;
 
-    sql_->SyncLeafValue(node);
+    sql_->UpdateLeafValue(node);
     UpdateAncestorValue(node, initial_delta, final_delta);
-    emit SUpdateStatusValue();
+    emit SSyncStatusValue();
 }
 
 void NodeModelF::UpdateDefaultUnit(int default_unit)

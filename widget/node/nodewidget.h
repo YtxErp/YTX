@@ -30,7 +30,7 @@ class NodeWidget : public QWidget {
     Q_OBJECT
 
 public slots:
-    virtual void RUpdateStatusValue() { };
+    virtual void RSyncStatusValue() { };
 
 public:
     virtual ~NodeWidget() = default;

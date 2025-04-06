@@ -34,7 +34,7 @@ class NodeWidgetF final : public NodeWidget {
     Q_OBJECT
 
 public slots:
-    void RUpdateStatusValue() override;
+    void RSyncStatusValue() override;
 
 public:
     NodeWidgetF(NodeModel* model, CInfo& info, CSettings& settings, QWidget* parent = nullptr);

@@ -17,7 +17,7 @@ TransModel::TransModel(CTransModelArg& arg, QObject* parent)
 
 TransModel::~TransModel() { ResourcePool<TransShadow>::Instance().Recycle(trans_shadow_list_); }
 
-void TransModel::RRule(int node_id, bool rule)
+void TransModel::RSyncRule(int node_id, bool rule)
 {
     assert(node_id_ == node_id && node_rule_ != rule && "node_id must match and node_rule must be different from rule");
 
@@ -77,7 +77,7 @@ void TransModel::RRemoveOneTransL(int node_id, int trans_id)
     TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, row, node_rule_);
 }
 
-void TransModel::RUpdateBalance(int node_id, int trans_id)
+void TransModel::RSyncBalance(int node_id, int trans_id)
 {
     assert(node_id_ == node_id && "node_id must match");
 
@@ -101,12 +101,12 @@ bool TransModel::removeRows(int row, int /*count*/, const QModelIndex& parent)
         const double lhs_ratio { *trans_shadow->lhs_ratio };
         const double lhs_debit { *trans_shadow->lhs_debit };
         const double lhs_credit { *trans_shadow->lhs_credit };
-        emit SUpdateLeafValue(node_id_, -lhs_debit, -lhs_credit, -lhs_ratio * lhs_debit, -lhs_ratio * lhs_credit);
+        emit SSyncLeafValue(node_id_, -lhs_debit, -lhs_credit, -lhs_ratio * lhs_debit, -lhs_ratio * lhs_credit);
 
         const double rhs_ratio { *trans_shadow->rhs_ratio };
         const double rhs_debit { *trans_shadow->rhs_debit };
         const double rhs_credit { *trans_shadow->rhs_credit };
-        emit SUpdateLeafValue(*trans_shadow->rhs_node, -rhs_debit, -rhs_credit, -rhs_ratio * rhs_debit, -rhs_ratio * rhs_credit);
+        emit SSyncLeafValue(*trans_shadow->rhs_node, -rhs_debit, -rhs_credit, -rhs_ratio * rhs_debit, -rhs_ratio * rhs_credit);
 
         const int trans_id { *trans_shadow->id };
         emit SRemoveOneTransL(section_, rhs_node_id, trans_id);
@@ -190,11 +190,11 @@ bool TransModel::UpdateDebit(TransShadow* trans_shadow, double value)
 
     const double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
     const double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
-    emit SUpdateLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
+    emit SSyncLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
 
     const double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
     const double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
+    emit SSyncLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
 }
@@ -224,11 +224,11 @@ bool TransModel::UpdateCredit(TransShadow* trans_shadow, double value)
 
     const double lhs_debit_delta { *trans_shadow->lhs_debit - lhs_debit };
     const double lhs_credit_delta { *trans_shadow->lhs_credit - lhs_credit };
-    emit SUpdateLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
+    emit SSyncLeafValue(node_id_, lhs_debit_delta, lhs_credit_delta, lhs_debit_delta * lhs_ratio, lhs_credit_delta * lhs_ratio);
 
     const double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
     const double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
+    emit SSyncLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
 }
@@ -255,11 +255,11 @@ bool TransModel::UpdateRatio(TransShadow* trans_shadow, double value)
     if (*trans_shadow->rhs_node == 0)
         return false;
 
-    emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
+    emit SSyncLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
 
     const double rhs_debit_delta { *trans_shadow->rhs_debit - rhs_debit };
     const double rhs_credit_delta { *trans_shadow->rhs_credit - rhs_credit };
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
+    emit SSyncLeafValue(*trans_shadow->rhs_node, rhs_debit_delta, rhs_credit_delta, rhs_debit_delta * rhs_ratio, rhs_credit_delta * rhs_ratio);
 
     return true;
 }

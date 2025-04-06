@@ -32,7 +32,7 @@ public:
 public slots:
     void RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit) override;
     void RRemoveNode(int node_id, int node_type) override;
-    void RUpdateProduct(int old_node_id, int new_node_id) override;
+    void RSyncProduct(int old_node_id, int new_node_id) const override;
 
     void RPriceSList(QList<PriceS>& list);
 
@@ -60,7 +60,7 @@ protected:
     void CalculateLeafTotal(Node* node, QSqlQuery& query) const override;
     bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const override;
 
-    void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
+    void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
     QString QSReadTrans() const override;
     QString QSReadSupportTrans() const override;
@@ -73,7 +73,7 @@ protected:
     QString QSRemoveTrans() const override;
     QString QSLeafTotal(int unit) const override;
     QString QSReplaceSupport() const override;
-    QString QSSyncLeafValue() const override;
+    QString QSUpdateLeafValue() const override;
 
 private:
     void ReadTransS(QSqlQuery& query);

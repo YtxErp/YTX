@@ -116,7 +116,7 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void TransRefModel::RRetrieveData(int node_id, const QDateTime& start, const QDateTime& end)
+void TransRefModel::RResetModel(int node_id, const QDateTime& start, const QDateTime& end)
 {
     if (node_id <= 0)
         return;

@@ -26,7 +26,7 @@ void NodeModel::RRemoveNode(int node_id)
     removeRows(row, 1, parent_index);
 }
 
-void NodeModel::RUpdateMultiLeafTotal(const QList<int>& node_list)
+void NodeModel::RSyncMultiLeafValue(const QList<int>& node_list)
 {
     for (int node_id : node_list) {
         auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
@@ -37,7 +37,7 @@ void NodeModel::RUpdateMultiLeafTotal(const QList<int>& node_list)
         const double old_initial_total { node->initial_total };
 
         sql_->ReadLeafTotal(node);
-        sql_->SyncLeafValue(node);
+        sql_->UpdateLeafValue(node);
 
         const double final_delta { node->final_total - old_final_total };
         const double initial_delta { node->initial_total - old_initial_total };
@@ -45,7 +45,7 @@ void NodeModel::RUpdateMultiLeafTotal(const QList<int>& node_list)
         UpdateAncestorValue(node, initial_delta, final_delta);
     }
 
-    emit SUpdateStatusValue();
+    emit SSyncStatusValue();
 }
 
 QModelIndex NodeModel::parent(const QModelIndex& index) const
@@ -114,7 +114,7 @@ bool NodeModel::removeRows(int row, int count, const QModelIndex& parent)
     node_hash_.remove(node_id);
 
     emit SSearch();
-    emit SUpdateStatusValue();
+    emit SSyncStatusValue();
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
@@ -173,7 +173,7 @@ bool NodeModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int /*c
     NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
 
-    emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
+    emit SSyncName(node->id, node->name, node->type == kTypeBranch);
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
@@ -258,7 +258,7 @@ void NodeModel::UpdateName(int node_id, CString& new_name)
     assert(node && "Node must be non-null");
 
     UpdateNameFunction(node, new_name);
-    emit SUpdateName(node->id, node->name, node->type == kTypeBranch);
+    emit SSyncName(node->id, node->name, node->type == kTypeBranch);
 }
 
 QString NodeModel::Path(int node_id) const
@@ -317,7 +317,7 @@ void NodeModel::RemovePath(Node* node, Node* parent_node)
         NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
 
         branch_path_.remove(node_id);
-        emit SUpdateName(node_id, node->name, true);
+        emit SSyncName(node_id, node->name, true);
 
     } break;
     case kTypeLeaf: {
@@ -444,11 +444,11 @@ bool NodeModel::UpdateRule(Node* node, bool value)
     node->initial_total = -node->initial_total;
     node->first = -node->first;
     if (node->type == kTypeLeaf) {
-        emit SRule(info_.section, node->id, value);
-        sql_->SyncLeafValue(node);
+        emit SSyncRule(info_.section, node->id, value);
+        sql_->UpdateLeafValue(node);
     }
 
-    emit SUpdateStatusValue();
+    emit SSyncStatusValue();
     return true;
 }
 

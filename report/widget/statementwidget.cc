@@ -21,7 +21,7 @@ StatementWidget::StatementWidget(QAbstractItemModel* model, int unit, bool enabl
     IniUnit(unit);
     IniConnect();
 
-    QTimer::singleShot(0, this, [this]() { emit SRetrieveData(unit_, start_, end_); });
+    QTimer::singleShot(0, this, [this]() { emit SResetModel(unit_, start_, end_); });
 }
 
 StatementWidget::~StatementWidget() { delete ui; }
@@ -42,7 +42,7 @@ void StatementWidget::on_end_dateChanged(const QDate& date)
     end_.setDate(date);
 }
 
-void StatementWidget::on_pBtnRefresh_clicked() { emit SRetrieveData(unit_, start_, end_); }
+void StatementWidget::on_pBtnRefresh_clicked() { emit SResetModel(unit_, start_, end_); }
 
 void StatementWidget::RUnitGroupClicked(int id) { unit_ = id; }
 

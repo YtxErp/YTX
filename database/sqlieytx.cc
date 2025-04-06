@@ -164,8 +164,8 @@ QString SqlieYtx::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
-        name             TEXT,
         id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        name             TEXT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
@@ -183,16 +183,16 @@ QString SqlieYtx::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
-        name              TEXT,
         id                INTEGER PRIMARY KEY AUTOINCREMENT,
+        name              TEXT,
         code              TEXT,
         description       TEXT,
         note              TEXT,
         type              INTEGER,
+        payment_term      INTEGER,
         unit              INTEGER,
         deadline          TEXT,
         employee          INTEGER,
-        payment_term      INTEGER,
         tax_rate          NUMERIC,
         amount            NUMERIC,
         removed           BOOLEAN    DEFAULT 0
@@ -204,8 +204,8 @@ QString SqlieYtx::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
-        name             TEXT,
         id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        name             TEXT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
@@ -226,8 +226,8 @@ QString SqlieYtx::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
-        name             TEXT,
         id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        name             TEXT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
@@ -250,8 +250,8 @@ QString SqlieYtx::NodeOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
-        name              TEXT,
         id                INTEGER PRIMARY KEY AUTOINCREMENT,
+        name              TEXT,
         party             INTEGER,
         description       TEXT,
         employee          INTEGER,
@@ -265,8 +265,8 @@ QString SqlieYtx::NodeOrder(CString& order)
         gross_amount      NUMERIC,
         discount          NUMERIC,
         settlement        NUMERIC,
-        removed           BOOLEAN    DEFAULT 0,
-        settlement_id     INTEGER    DEFAULT 0
+        settlement_id     INTEGER    DEFAULT 0,
+        removed           BOOLEAN    DEFAULT 0
     );
     )")
         .arg(order);
@@ -288,8 +288,8 @@ QString SqlieYtx::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
-        date_time      DATE,
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time      DATE,
         code           TEXT,
         lhs_node       INTEGER,
         lhs_ratio      NUMERIC                   CHECK (lhs_ratio   > 0),
@@ -335,8 +335,8 @@ QString SqlieYtx::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
-        date_time          DATE,
         id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time          DATE,
         code               TEXT,
         lhs_node           INTEGER,
         unit_price         NUMERIC,
@@ -354,8 +354,8 @@ QString SqlieYtx::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
-        date_time      DATE,
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time      DATE,
         code           TEXT,
         lhs_node       INTEGER,
         unit_cost      NUMERIC,
@@ -377,8 +377,8 @@ QString SqlieYtx::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
-        date_time      DATE,
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_time      DATE,
         code           TEXT,
         lhs_node       INTEGER,
         unit_cost      NUMERIC,

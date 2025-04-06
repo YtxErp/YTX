@@ -108,12 +108,12 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
         double credit { *trans_shadow->lhs_credit };
-        emit SUpdateLeafValue(node_id_, debit, credit, ratio * debit, ratio * credit);
+        emit SSyncLeafValue(node_id_, debit, credit, ratio * debit, ratio * credit);
 
         ratio = *trans_shadow->rhs_ratio;
         debit = *trans_shadow->rhs_debit;
         credit = *trans_shadow->rhs_credit;
-        emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
+        emit SSyncLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
 
         if (*trans_shadow->support_id != 0) {
             emit SAppendOneTransS(section_, *trans_shadow->support_id, *trans_shadow->id);
@@ -121,9 +121,9 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
     }
 
     if (deb_changed || cre_changed || rat_changed) {
-        sql_->SyncTransValue(trans_shadow);
+        sql_->UpdateTransValue(trans_shadow);
         emit SSearch();
-        emit SUpdateBalance(section_, old_rhs_node, *trans_shadow->id);
+        emit SSyncBalance(section_, old_rhs_node, *trans_shadow->id);
     }
 
     if (sup_changed) {
@@ -141,15 +141,15 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
-        sql_->SyncTransValue(trans_shadow);
+        sql_->UpdateTransValue(trans_shadow);
         emit SRemoveOneTransL(section_, old_rhs_node, *trans_shadow->id);
         emit SAppendOneTransL(section_, trans_shadow);
 
         double ratio { *trans_shadow->rhs_ratio };
         double debit { *trans_shadow->rhs_debit };
         double credit { *trans_shadow->rhs_credit };
-        emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
-        emit SUpdateLeafValue(old_rhs_node, -debit, -credit, -ratio * debit, -ratio * credit);
+        emit SSyncLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
+        emit SSyncLeafValue(old_rhs_node, -debit, -credit, -ratio * debit, -ratio * credit);
     }
 
     emit SResizeColumnToContents(index.column());

@@ -44,7 +44,7 @@ void Sqlite::RRemoveNode(int node_id, int node_type)
         auto update_list { leaf_trans.uniqueKeys() };
         update_list.removeOne(node_id);
 
-        QTimer::singleShot(0, this, [this, update_list = std::move(update_list)]() { emit SUpdateMultiLeafTotal(update_list); });
+        QTimer::singleShot(0, this, [this, update_list = std::move(update_list)]() { emit SSyncMultiLeafValue(update_list); });
     }
 
     // Remove node, path, trans from the sqlite3 database
@@ -137,10 +137,10 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type, int n
         ReplaceLeafFunction(trans_id_set, old_node_id, new_node_id);
 
         emit SMoveMultiTransL(section_, old_node_id, new_node_id, trans_id_set);
-        emit SUpdateMultiLeafTotal(free ? QList<int> { new_node_id } : QList<int> { old_node_id, new_node_id });
+        emit SSyncMultiLeafValue(free ? QList<int> { new_node_id } : QList<int> { old_node_id, new_node_id });
 
         if (section_ == Section::kProduct && node_unit != std::to_underlying(UnitP::kPos)) {
-            emit SUpdateProduct(old_node_id, new_node_id);
+            emit SSyncProduct(old_node_id, new_node_id);
         }
     }
 
@@ -624,19 +624,19 @@ bool Sqlite::RemoveTrans(int trans_id)
     return true;
 }
 
-bool Sqlite::SyncLeafValue(const Node* node) const
+bool Sqlite::UpdateLeafValue(const Node* node) const
 {
     if (node->type != kTypeLeaf)
         return false;
 
-    CString string { QSSyncLeafValue() };
+    CString string { QSUpdateLeafValue() };
     if (string.isEmpty())
         return false;
 
     QSqlQuery query(*db_);
 
     query.prepare(string);
-    SyncLeafValueBind(node, query);
+    UpdateLeafValueBind(node, query);
 
     if (!query.exec()) {
         qWarning() << "Failed in SyncLeafValue" << query.lastError().text();
@@ -646,16 +646,16 @@ bool Sqlite::SyncLeafValue(const Node* node) const
     return true;
 }
 
-bool Sqlite::SyncTransValue(const TransShadow* trans_shadow) const
+bool Sqlite::UpdateTransValue(const TransShadow* trans_shadow) const
 {
-    CString string { QSSyncTransValue() };
+    CString string { QSUpdateTransValue() };
     if (string.isEmpty())
         return false;
 
     QSqlQuery query(*db_);
 
     query.prepare(string);
-    SyncTransValueBind(trans_shadow, query);
+    UpdateTransValueBind(trans_shadow, query);
 
     if (!query.exec()) {
         qWarning() << "Failed in SyncTransValue" << query.lastError().text();

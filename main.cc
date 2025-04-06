@@ -24,43 +24,18 @@
 
 #ifdef Q_OS_MACOS
 #include "component/application.h"
-
-int main(int argc, char* argv[])
-{
-    Application application(argc, argv);
-    QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
-
-    // Centralize config directory creation
-    const QString location { QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) };
-
-    if (!QDir(location).exists() && !QDir().mkpath(location)) {
-        qCritical() << "Failed to create config directory:" << location;
-        return EXIT_FAILURE;
-    }
-
-    MainWindow mainwindow {};
-
-    if (application.arguments().size() >= 2) {
-        const QString file_path { application.arguments().at(1) };
-
-        if (!mainwindow.ROpenFile(file_path)) {
-            return EXIT_FAILURE;
-        }
-    }
-
-    QObject::connect(&application, &Application::SOpenFile, &mainwindow, &MainWindow::ROpenFile);
-
-    mainwindow.show();
-    return application.exec();
-}
-#endif
-
-#ifdef Q_OS_WIN
+#elif Q_OS_WIN
 #include <QApplication>
+#endif
 
 int main(int argc, char* argv[])
 {
+#ifdef Q_OS_MACOS
+    Application application(argc, argv);
+#elif Q_OS_WIN
     QApplication application(argc, argv);
+#endif
+
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
 
     // Centralize config directory creation
@@ -73,7 +48,6 @@ int main(int argc, char* argv[])
 
     MainWindow mainwindow {};
 
-    // Simplified file handling and locking
     if (application.arguments().size() >= 2) {
         const QString file_path { application.arguments().at(1) };
 
@@ -82,7 +56,10 @@ int main(int argc, char* argv[])
         }
     }
 
+#ifdef Q_OS_MACOS
+    QObject::connect(&application, &Application::SOpenFile, &mainwindow, &MainWindow::ROpenFile);
+#endif
+
     mainwindow.show();
     return application.exec();
 }
-#endif

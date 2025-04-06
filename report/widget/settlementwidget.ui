@@ -104,7 +104,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pBtnRemove">
+       <widget class="QPushButton" name="pBtnRemoveSettlement">
         <property name="text">
          <string>Remove</string>
         </property>

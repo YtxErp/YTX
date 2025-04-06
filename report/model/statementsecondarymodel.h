@@ -34,7 +34,7 @@ public:
     ~StatementSecondaryModel();
 
 public slots:
-    void RRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void RResetModel(int unit, const QDateTime& start, const QDateTime& end);
     void RExport(int unit, const QDateTime& start, const QDateTime& end);
 
 public:

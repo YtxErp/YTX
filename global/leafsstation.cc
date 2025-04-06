@@ -36,14 +36,14 @@ void LeafSStation::RRemoveOneTransL(Section section, int node_id, int trans_id)
     emit SRemoveOneTransL(node_id, trans_id);
 }
 
-void LeafSStation::RUpdateBalance(Section section, int node_id, int trans_id)
+void LeafSStation::RSyncBalance(Section section, int node_id, int trans_id)
 {
     const auto* model { FindModel(section, node_id) };
     if (!model)
         return;
 
-    connect(this, &LeafSStation::SUpdateBalance, model, &TransModel::RUpdateBalance, Qt::SingleShotConnection);
-    emit SUpdateBalance(node_id, trans_id);
+    connect(this, &LeafSStation::SSyncBalance, model, &TransModel::RSyncBalance, Qt::SingleShotConnection);
+    emit SSyncBalance(node_id, trans_id);
 }
 
 void LeafSStation::RAppendMultiTrans(Section section, int node_id, const TransShadowList& trans_shadow_list)
@@ -59,14 +59,14 @@ void LeafSStation::RAppendMultiTrans(Section section, int node_id, const TransSh
     emit SAppendMultiTrans(node_id, trans_shadow_list);
 }
 
-void LeafSStation::RRule(Section section, int node_id, bool rule)
+void LeafSStation::RSyncRule(Section section, int node_id, bool rule)
 {
     const auto* model { FindModel(section, node_id) };
     if (!model)
         return;
 
-    connect(this, &LeafSStation::SRule, model, &TransModel::RRule, Qt::SingleShotConnection);
-    emit SRule(node_id, rule);
+    connect(this, &LeafSStation::SSyncRule, model, &TransModel::RSyncRule, Qt::SingleShotConnection);
+    emit SSyncRule(node_id, rule);
 }
 
 void LeafSStation::RRemoveMultiTransL(Section section, const QMultiHash<int, int>& leaf_trans)

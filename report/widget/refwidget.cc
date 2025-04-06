@@ -17,7 +17,7 @@ RefWidget::RefWidget(QAbstractItemModel* model, int node_id, CDateTime& start, C
     SignalBlocker blocker(this);
     IniWidget(model);
 
-    QTimer::singleShot(0, this, [this]() { emit SRetrieveData(node_id_, start_, end_); });
+    QTimer::singleShot(0, this, [this]() { emit SResetModel(node_id_, start_, end_); });
 }
 
 RefWidget::~RefWidget() { delete ui; }
@@ -38,7 +38,7 @@ void RefWidget::on_end_dateChanged(const QDate& date)
     end_.setDate(date);
 }
 
-void RefWidget::on_pBtnRefresh_clicked() { emit SRetrieveData(node_id_, start_, end_); }
+void RefWidget::on_pBtnRefresh_clicked() { emit SResetModel(node_id_, start_, end_); }
 
 void RefWidget::IniWidget(QAbstractItemModel* model)
 {

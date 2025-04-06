@@ -36,7 +36,7 @@ class StatementWidget final : public ReportWidget {
 signals:
     void SStatementPrimary(int party_id, int unit, const QDateTime& start, const QDateTime& end);
     void SStatementSecondary(int party_id, int unit, const QDateTime& start, const QDateTime& end);
-    void SRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void SResetModel(int unit, const QDateTime& start, const QDateTime& end);
     void SExport(int unit, const QDateTime& start, const QDateTime& end);
 
 public:

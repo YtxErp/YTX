@@ -14,9 +14,9 @@ SettlementModel::SettlementModel(Sqlite* sql, CInfo& info, QObject* parent)
 
 SettlementModel::~SettlementModel() { ResourcePool<Node>::Instance().Recycle(node_list_); }
 
-void SettlementModel::RUpdateLeafValue(int node_id, double delta1)
+void SettlementModel::RSyncDouble(int node_id, int column, double delta1)
 {
-    if (delta1 == 0.0)
+    if (delta1 == 0.0 || column != std::to_underlying(SettlementEnum::kGrossAmount))
         return;
 
     int row { 0 };
@@ -236,7 +236,7 @@ bool SettlementModel::UpdateFinished(Node* node, bool finished)
     node->finished = finished;
     sql_->WriteField(info_.settlement, kFinished, finished, node->id);
 
-    emit SUpdateFinished(node->party, node->id, finished);
+    emit SSyncFinished(node->party, node->id, finished);
     return true;
 }
 

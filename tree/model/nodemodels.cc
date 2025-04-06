@@ -12,7 +12,7 @@ NodeModelS::NodeModelS(CNodeModelArg& arg, QObject* parent)
 
 NodeModelS::~NodeModelS() { qDeleteAll(node_hash_); }
 
-void NodeModelS::RUpdateStakeholder(int old_node_id, int new_node_id)
+void NodeModelS::RSyncStakeholder(int old_node_id, int new_node_id)
 {
     for (auto* node : std::as_const(node_hash_)) {
         if (node->employee == old_node_id)
@@ -37,7 +37,7 @@ void NodeModelS::RSyncDouble(int node_id, int column, double value)
     UpdateAncestorValue(node, 0.0, value);
 }
 
-void NodeModelS::RUpdateMultiLeafTotal(const QList<int>& node_list)
+void NodeModelS::RSyncMultiLeafValue(const QList<int>& node_list)
 {
     for (int node_id : node_list) {
         auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
@@ -47,7 +47,7 @@ void NodeModelS::RUpdateMultiLeafTotal(const QList<int>& node_list)
         const double old_final_total { node->final_total };
 
         sql_->ReadLeafTotal(node);
-        sql_->SyncLeafValue(node);
+        sql_->UpdateLeafValue(node);
 
         const double final_delta { node->final_total - old_final_total };
 

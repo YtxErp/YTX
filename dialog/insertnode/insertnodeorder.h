@@ -49,7 +49,7 @@ signals:
     void SSyncBoolTrans(int node_id, int column, bool value);
 
     // send to TreeModelOrder
-    void SUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
+    void SSyncLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
 public slots:
     void accept() override;

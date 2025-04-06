@@ -32,10 +32,10 @@ public:
     ~SettlementPrimaryModel();
 
 signals:
-    void SUpdateLeafValue(int node_id, double delta1);
+    void SSyncDouble(int node_id, int column, double delta1);
 
 public slots:
-    void RUpdateFinished(int party_id, int settlement_id, bool settlement_finished);
+    void RSyncFinished(int party_id, int settlement_id, bool settlement_finished);
     void RResetModel(int party_id, int settlement_id, bool settlement_finished);
 
 public:

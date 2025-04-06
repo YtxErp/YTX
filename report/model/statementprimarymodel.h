@@ -32,7 +32,7 @@ public:
     ~StatementPrimaryModel();
 
 public slots:
-    void RRetrieveData(int unit, const QDateTime& start, const QDateTime& end);
+    void RResetModel(int unit, const QDateTime& start, const QDateTime& end);
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;

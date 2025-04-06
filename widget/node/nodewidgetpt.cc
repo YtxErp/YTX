@@ -58,7 +58,7 @@ void NodeWidgetPT::UpdateDynamicStatus()
 
 QPointer<QTreeView> NodeWidgetPT::View() const { return ui->treeViewFPT; }
 
-void NodeWidgetPT::RUpdateStatusValue()
+void NodeWidgetPT::RSyncStatusValue()
 {
     UpdateStaticValue(settings_.static_node);
     UpdateDynamicValue(settings_.dynamic_node_lhs, settings_.dynamic_node_rhs);

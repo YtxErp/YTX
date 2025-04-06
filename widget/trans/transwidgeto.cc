@@ -112,7 +112,7 @@ void TransWidgetO::RSyncString(int node_id, int column, const QString& value)
     }
 }
 
-void TransWidgetO::RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
+void TransWidgetO::RSyncLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     if (node_id_ != node_id)
         return;
@@ -127,7 +127,7 @@ void TransWidgetO::RUpdateLeafValue(int node_id, double initial_delta, double fi
 
     IniLeafValue();
 
-    emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
+    emit SSyncLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
 }
 
 void TransWidgetO::IniWidget()
@@ -378,7 +378,7 @@ void TransWidgetO::RRuleGroupClicked(int id)
     IniLeafValue();
 
     sql_->WriteField(party_info_, kRule, node_->rule, node_id_);
-    sql_->SyncLeafValue(node_);
+    sql_->UpdateLeafValue(node_);
     sql_->InvertTransValue(node_id_);
 
     emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->rule);
@@ -422,5 +422,5 @@ void TransWidgetO::on_pBtnFinishOrder_toggled(bool checked)
     LockWidgets(checked);
 
     if (checked)
-        sql_->SyncPriceS(node_id_);
+        sql_->SyncPrice(node_id_);
 }

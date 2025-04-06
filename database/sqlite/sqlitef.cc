@@ -72,7 +72,7 @@ void SqliteF::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":support_id"), *trans_shadow->support_id);
 }
 
-void SqliteF::SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqliteF::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_ratio"), *trans_shadow->lhs_ratio);
@@ -226,7 +226,7 @@ QString SqliteF::QSReplaceLeaf() const
     )");
 }
 
-QString SqliteF::QSSyncTransValue() const
+QString SqliteF::QSUpdateTransValue() const
 {
     return QStringLiteral(R"(
     UPDATE finance_transaction SET
@@ -236,7 +236,7 @@ QString SqliteF::QSSyncTransValue() const
     )");
 }
 
-QString SqliteF::QSSyncLeafValue() const
+QString SqliteF::QSUpdateLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE finance SET
@@ -245,7 +245,7 @@ QString SqliteF::QSSyncLeafValue() const
     )");
 }
 
-void SqliteF::SyncLeafValueBind(const Node* node, QSqlQuery& query) const
+void SqliteF::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(":foreign_total", node->initial_total);
     query.bindValue(":local_total", node->final_total);

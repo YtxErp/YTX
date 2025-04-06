@@ -133,7 +133,7 @@ void StatementPrimaryModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void StatementPrimaryModel::RRetrieveData(int unit, const QDateTime& start, const QDateTime& end)
+void StatementPrimaryModel::RResetModel(int unit, const QDateTime& start, const QDateTime& end)
 {
     if (party_id_ <= 0 || !start.isValid() || !end.isValid())
         return;

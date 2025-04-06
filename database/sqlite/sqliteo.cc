@@ -220,7 +220,7 @@ void SqliteO::RRemoveNode(int node_id, int node_type)
     RemoveNode(node_id, kTypeLeaf);
 }
 
-void SqliteO::RUpdateStakeholder(int old_node_id, int new_node_id) const
+void SqliteO::RSyncStakeholder(int old_node_id, int new_node_id) const
 {
     for (auto* node : std::as_const(node_hash_)) {
         if (node->party == old_node_id)
@@ -231,7 +231,7 @@ void SqliteO::RUpdateStakeholder(int old_node_id, int new_node_id) const
     }
 }
 
-void SqliteO::RUpdateProduct(int old_node_id, int new_node_id)
+void SqliteO::RSyncProduct(int old_node_id, int new_node_id) const
 {
     for (auto* trans : std::as_const(trans_hash_)) {
         if (trans->rhs_node == old_node_id)
@@ -325,7 +325,7 @@ bool SqliteO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settl
     return true;
 }
 
-bool SqliteO::SyncNewSettlement(int node_id, int settlement_id) const
+bool SqliteO::AddSettlementPrimary(int node_id, int settlement_id) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -349,7 +349,7 @@ bool SqliteO::SyncNewSettlement(int node_id, int settlement_id) const
     return true;
 }
 
-bool SqliteO::SyncOldSettlement(int node_id) const
+bool SqliteO::RemoveSettlementPrimary(int node_id) const
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
@@ -372,12 +372,12 @@ bool SqliteO::SyncOldSettlement(int node_id) const
     return true;
 }
 
-bool SqliteO::SyncPriceS(int node_id)
+bool SqliteO::SyncPrice(int node_id)
 {
     QSqlQuery query(*db_);
     query.setForwardOnly(true);
 
-    CString string { QSSyncPriceSFirst() };
+    CString string { QSSyncPriceFirst() };
 
     query.prepare(string);
     query.bindValue(QStringLiteral(":node_id"), node_id);
@@ -387,7 +387,7 @@ bool SqliteO::SyncPriceS(int node_id)
         return false;
     }
 
-    CString string_second { QSSyncPriceSSecond() };
+    CString string_second { QSSyncPriceSecond() };
 
     query.prepare(string_second);
     query.bindValue(QStringLiteral(":node_id"), node_id);
@@ -409,7 +409,7 @@ bool SqliteO::SyncPriceS(int node_id)
         list.append(std::move(item));
     }
 
-    emit SPriceSList(list);
+    emit SSyncPrice(list);
     return true;
 }
 
@@ -675,7 +675,7 @@ QString SqliteO::QSSearchTransText() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSSyncTransValue() const
+QString SqliteO::QSUpdateTransValue() const
 {
     return QString(R"(
     UPDATE %1 SET
@@ -900,7 +900,7 @@ QString SqliteO::QSInvertTransValue() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSSyncPriceSFirst() const
+QString SqliteO::QSSyncPriceFirst() const
 {
     return QString(R"(
         INSERT INTO stakeholder_transaction(date_time, lhs_node, inside_product, unit_price)
@@ -920,7 +920,7 @@ QString SqliteO::QSSyncPriceSFirst() const
         .arg(info_.node, info_.trans);
 }
 
-QString SqliteO::QSSyncPriceSSecond() const
+QString SqliteO::QSSyncPriceSecond() const
 {
     return QString(R"(
         SELECT
@@ -1140,7 +1140,7 @@ void SqliteO::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_i
     }
 }
 
-void SqliteO::SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqliteO::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":second"), *trans_shadow->lhs_credit);
     query.bindValue(QStringLiteral(":first"), *trans_shadow->lhs_debit);
@@ -1213,7 +1213,7 @@ void SqliteO::WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery
     query.bindValue(QStringLiteral(":discount_price"), discount_price_list);
 }
 
-QString SqliteO::QSSyncLeafValue() const
+QString SqliteO::QSUpdateLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE %1 SET
@@ -1223,7 +1223,7 @@ QString SqliteO::QSSyncLeafValue() const
         .arg(info_.node);
 }
 
-void SqliteO::SyncLeafValueBind(const Node* node, QSqlQuery& query) const
+void SqliteO::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":gross_amount"), node->initial_total);
     query.bindValue(QStringLiteral(":second"), node->second);

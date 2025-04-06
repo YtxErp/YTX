@@ -94,7 +94,7 @@ private slots:
 
     void RUpdateSettings(const Settings& settings, const Interface& interface);
     void RSyncInt(int node_id, int column, const QVariant& value);
-    void RUpdateName(int node_id, const QString& name, bool branch);
+    void RSyncName(int node_id, const QString& name, bool branch);
     void RUpdateState();
 
     void RFreeWidget(int node_id, int node_type);
@@ -132,11 +132,16 @@ private:
 
     void CreateLeafFPTS(PNodeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id);
     void CreateLeafO(PNodeModel tree_model, TransWgtHash* trans_wgt_hash, CData* data, CSettings* settings, int node_id);
-    void DelegateFPTS(PTableView table_view, PNodeModel tree_model, CSettings* settings) const;
-    void DelegateFPT(PTableView table_view, PNodeModel tree_model, CSettings* settings, int node_id) const;
-    void DelegateS(PTableView table_view) const;
-    void DelegateO(PTableView table_view, CSettings* settings) const;
+
+    void TableDelegateFPTS(PTableView table_view, PNodeModel tree_model, CSettings* settings) const;
+    void TableDelegateFPT(PTableView table_view, PNodeModel tree_model, CSettings* settings, int node_id) const;
+    void TableDelegateS(PTableView table_view) const;
+    void TableDelegateO(PTableView table_view, CSettings* settings) const;
+
     void SetTableView(PTableView table_view, int stretch_column) const;
+    void TableConnectFPT(PTableView table_view, PTransModel table_model, PNodeModel tree_model) const;
+    void TableConnectS(PTableView table_view, PTransModel table_model, PNodeModel tree_model) const;
+    void TableConnectO(PTableView table_view, TransModelO* table_model, PNodeModel tree_model, TransWidgetO* widget) const;
 
     void CreateSupport(PNodeModel tree_model, SupWgtHash* sup_wgt_hash, CData* data, CSettings* settings, int node_id);
     void DelegateSupport(PTableView table_view, PNodeModel tree_model, CSettings* settings) const;
@@ -155,26 +160,23 @@ private:
     void DelegateStatementPrimary(PTableView table_view, CSettings* settings) const;
     void DelegateStatementSecondary(PTableView table_view, CSettings* settings) const;
 
-    void TableConnectFPT(PTableView table_view, PTransModel table_model, PNodeModel tree_model) const;
-    void TableConnectO(PTableView table_view, TransModelO* table_model, PNodeModel tree_model, TransWidgetO* widget) const;
-    void TableConnectS(PTableView table_view, PTransModel table_model, PNodeModel tree_model) const;
-
     void CreateSection(NodeWidget* node_widget, TransWgtHash& trans_wgt_hash, CData& data, CSettings& settings, CString& name);
     void SwitchSection(CTab& last_tab) const;
     void UpdateLastTab() const;
 
-    void SetDelegate(PTreeView tree_view, CInfo& info, CSettings& settings) const;
-    void DelegateFPTSO(PTreeView tree_view, CInfo& info) const;
-    void DelegateF(PTreeView tree_view, CInfo& info, CSettings& settings) const;
-    void DelegateT(PTreeView tree_view, CSettings& settings) const;
-    void DelegateP(PTreeView tree_view, CSettings& settings) const;
-    void DelegateS(PTreeView tree_view, CSettings& settings) const;
-    void DelegateO(PTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void SetTreeDelegate(PTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void TreeDelegate(PTreeView tree_view, CInfo& info) const;
+    void TreeDelegateF(PTreeView tree_view, CInfo& info, CSettings& settings) const;
+    void TreeDelegateT(PTreeView tree_view, CSettings& settings) const;
+    void TreeDelegateP(PTreeView tree_view, CSettings& settings) const;
+    void TreeDelegateS(PTreeView tree_view, CSettings& settings) const;
+    void TreeDelegateO(PTreeView tree_view, CSettings& settings) const;
 
     void SetTreeView(PTreeView tree_view, CInfo& info) const;
     void TreeConnect(NodeWidget* node_widget, const Sqlite* sql) const;
-    void TreeConnectFPT(const Sqlite* sql) const;
-    void TreeConnectS(PNodeModel tree_model, const Sqlite* sql) const;
+    void TreeConnectFPT(PNodeModel node_model, const Sqlite* sql) const;
+    void TreeConnectS(PNodeModel node_model, const Sqlite* sql) const;
+    void TreeConnectPSO(PNodeModel node_order, const Sqlite* sql_order) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task

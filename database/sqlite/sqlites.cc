@@ -18,8 +18,8 @@ void SqliteS::RReplaceNode(int old_node_id, int new_node_id, int node_type, int 
 
     if (node_type == kTypeLeaf) {
         ReplaceLeaf(old_node_id, new_node_id, node_unit);
-        emit SUpdateStakeholder(old_node_id, new_node_id);
-        emit SUpdateMultiLeafTotal({ new_node_id });
+        emit SSyncStakeholder(old_node_id, new_node_id);
+        emit SSyncMultiLeafValue({ new_node_id });
     }
 
     if (node_type == kTypeSupport) {
@@ -49,7 +49,7 @@ void SqliteS::RRemoveNode(int node_id, int node_type)
 
         TransToRemove(leaf_trans, support_trans, node_id, node_type);
 
-        emit SUpdateStakeholder(node_id, 0); // Update Stakeholder's employee
+        emit SSyncStakeholder(node_id, 0); // Update Stakeholder's employee
 
         if (!support_trans.isEmpty())
             emit SRemoveMultiTransS(section_, support_trans);
@@ -88,7 +88,7 @@ void SqliteS::RPriceSList(QList<PriceS>& list)
     ReadTransRange(set);
 }
 
-void SqliteS::RUpdateProduct(int old_node_id, int new_node_id)
+void SqliteS::RSyncProduct(int old_node_id, int new_node_id) const
 {
     for (auto* trans : std::as_const(trans_hash_))
         if (trans->rhs_node == old_node_id)
@@ -364,7 +364,7 @@ QString SqliteS::QSReplaceSupport() const
     )");
 }
 
-QString SqliteS::QSSyncLeafValue() const
+QString SqliteS::QSUpdateLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder SET
@@ -373,7 +373,7 @@ QString SqliteS::QSSyncLeafValue() const
     )");
 }
 
-void SqliteS::SyncLeafValueBind(const Node* node, QSqlQuery& query) const
+void SqliteS::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(":amount", node->final_total);
     query.bindValue(":node_id", node->id);

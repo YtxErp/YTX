@@ -43,7 +43,7 @@ void TransModelO::UpdateParty(int node_id, int party_id)
     sqlite_stakeholder_->ReadTrans(party_id);
 }
 
-void TransModelO::SyncRule(int node_id, bool value)
+void TransModelO::UpdateRule(int node_id, bool value)
 {
     assert(node_id_ == node_id && "Assertion failed: node_id_ must be equal to node_id");
     if (node_rule_ == value)
@@ -77,7 +77,7 @@ void TransModelO::RSyncBoolWD(int node_id, int column, bool value)
     }
 
     if (NodeEnumO(column) == NodeEnumO::kRule) {
-        SyncRule(node_id, value);
+        UpdateRule(node_id, value);
     }
 }
 
@@ -193,26 +193,26 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
     emit SResizeColumnToContents(index.column());
 
     if (fir_changed)
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, *trans_shadow->lhs_debit - old_first);
+        emit SSyncLeafValue(*trans_shadow->lhs_node, 0.0, 0.0, *trans_shadow->lhs_debit - old_first);
 
     if (sec_changed) {
         const double second_delta { *trans_shadow->lhs_credit - old_second };
         const double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
         const double discount_delta { *trans_shadow->discount - old_discount };
         const double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta, 0.0, second_delta, discount_delta);
+        emit SSyncLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta, 0.0, second_delta, discount_delta);
     }
 
     if (uni_changed) {
         const double gross_amount_delta { *trans_shadow->rhs_debit - old_gross_amount };
         const double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta);
+        emit SSyncLeafValue(*trans_shadow->lhs_node, gross_amount_delta, net_amount_delta);
     }
 
     if (dis_changed) {
         const double discount_delta { *trans_shadow->discount - old_discount };
         const double net_amount_delta { *trans_shadow->rhs_credit - old_net_amount };
-        emit SUpdateLeafValue(*trans_shadow->lhs_node, 0.0, net_amount_delta, 0.0, 0.0, discount_delta);
+        emit SSyncLeafValue(*trans_shadow->lhs_node, 0.0, net_amount_delta, 0.0, 0.0, discount_delta);
     }
 
     if (node_id_ == 0) {
@@ -222,7 +222,7 @@ bool TransModelO::setData(const QModelIndex& index, const QVariant& value, int r
     if (ins_changed) {
         if (old_rhs_node == 0) {
             sql_->WriteTrans(trans_shadow);
-            emit SUpdateLeafValue(*trans_shadow->lhs_node, *trans_shadow->rhs_debit, *trans_shadow->rhs_credit, *trans_shadow->lhs_debit,
+            emit SSyncLeafValue(*trans_shadow->lhs_node, *trans_shadow->rhs_debit, *trans_shadow->rhs_credit, *trans_shadow->lhs_debit,
                 *trans_shadow->lhs_credit, *trans_shadow->discount);
         } else
             sql_->WriteField(info_.trans, kInsideProduct, value.toInt(), *trans_shadow->id);
@@ -305,7 +305,7 @@ bool TransModelO::removeRows(int row, int /*count*/, const QModelIndex& parent)
     trans_shadow_list_.removeAt(row);
     endRemoveRows();
 
-    emit SUpdateLeafValue(
+    emit SSyncLeafValue(
         lhs_node, -*trans_shadow->rhs_debit, -*trans_shadow->rhs_credit, -*trans_shadow->lhs_debit, -*trans_shadow->lhs_credit, -*trans_shadow->discount);
 
     if (lhs_node != 0 && rhs_node != 0) {
@@ -368,7 +368,7 @@ bool TransModelO::UpdateUnitPrice(TransShadow* trans_shadow, double value)
         return true;
 
     sql_->WriteField(info_.trans, kUnitPrice, value, *trans_shadow->id);
-    sql_->SyncTransValue(trans_shadow);
+    sql_->UpdateTransValue(trans_shadow);
     return true;
 }
 
@@ -389,7 +389,7 @@ bool TransModelO::UpdateDiscountPrice(TransShadow* trans_shadow, double value)
         return true;
 
     sql_->WriteField(info_.trans, kDiscountPrice, value, *trans_shadow->id);
-    sql_->SyncTransValue(trans_shadow);
+    sql_->UpdateTransValue(trans_shadow);
     return true;
 }
 
@@ -413,7 +413,7 @@ bool TransModelO::UpdateSecond(TransShadow* trans_shadow, double value, int kCoe
         // Return without writing data to SQLite
         return true;
 
-    sql_->SyncTransValue(trans_shadow);
+    sql_->UpdateTransValue(trans_shadow);
     return true;
 }
 

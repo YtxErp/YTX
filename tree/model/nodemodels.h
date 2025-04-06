@@ -30,9 +30,9 @@ public:
     ~NodeModelS() override;
 
 public slots:
-    void RUpdateStakeholder(int old_node_id, int new_node_id) override;
+    void RSyncStakeholder(int old_node_id, int new_node_id) override;
     void RSyncDouble(int node_id, int column, double value) override; // amount
-    void RUpdateMultiLeafTotal(const QList<int>& node_list) override;
+    void RSyncMultiLeafValue(const QList<int>& node_list) override;
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

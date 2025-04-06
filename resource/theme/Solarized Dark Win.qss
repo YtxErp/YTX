@@ -78,7 +78,7 @@ QPushButton#pBtnRefresh {
     border-bottom: none;
 }
 
-QPushButton#pBtnExport, QPushButton#pBtnRemove, QPushButton#pBtnAppend {
+QPushButton#pBtnExport, QPushButton#pBtnRemoveSettlement, QPushButton#pBtnAppend {
     border: none;
 }
 

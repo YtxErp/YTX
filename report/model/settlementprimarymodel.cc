@@ -72,11 +72,11 @@ bool SettlementPrimaryModel::setData(const QModelIndex& index, const QVariant& v
     auto* node { node_list_.at(index.row()) };
     const bool check { value.toBool() };
 
-    check ? sql_->SyncNewSettlement(node->id, settlement_id_) : sql_->SyncOldSettlement(node->id);
+    check ? sql_->AddSettlementPrimary(node->id, settlement_id_) : sql_->RemoveSettlementPrimary(node->id);
 
     node->finished = check;
 
-    emit SUpdateLeafValue(settlement_id_, check ? node->initial_total : -node->initial_total);
+    emit SSyncDouble(settlement_id_, std::to_underlying(SettlementEnum::kGrossAmount), check ? node->initial_total : -node->initial_total);
     return true;
 }
 
@@ -139,7 +139,7 @@ void SettlementPrimaryModel::UpdateSettlementInfo(int party_id, int settlement_i
     settlement_finished_ = settlement_finished;
 }
 
-void SettlementPrimaryModel::RUpdateFinished(int party_id, int settlement_id, bool settlement_finished)
+void SettlementPrimaryModel::RSyncFinished(int party_id, int settlement_id, bool settlement_finished)
 {
     UpdateSettlementInfo(party_id, settlement_id, settlement_finished);
 

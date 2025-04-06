@@ -40,8 +40,8 @@ protected:
     explicit NodeModel(CNodeModelArg& arg, QObject* parent = nullptr);
 
 signals:
-    // send to SignalStation
-    void SRule(Section seciton, int node_id, bool rule);
+    // send to LeafSStation
+    void SSyncRule(Section seciton, int node_id, bool rule);
 
     // send to its view
     void SResizeColumnToContents(int column);
@@ -50,8 +50,10 @@ signals:
     void SSearch();
 
     // send to Mainwindow
-    void SUpdateName(int node_id, const QString& name, bool branch);
-    void SUpdateStatusValue();
+    void SSyncName(int node_id, const QString& name, bool branch);
+
+    // send to NodeWidget
+    void SSyncStatusValue();
 
     // send to TreeModelStakeholder
     void SSyncDouble(int node_id, int column, double value);
@@ -68,7 +70,7 @@ signals:
 public slots:
     // receive from Sqlite
     void RRemoveNode(int node_id);
-    virtual void RUpdateMultiLeafTotal(const QList<int>& node_list);
+    virtual void RSyncMultiLeafValue(const QList<int>& node_list);
 
     // receive from  TableModel
     void RSearch() { emit SSearch(); }
@@ -81,7 +83,7 @@ public slots:
         Q_UNUSED(value);
     }
 
-    virtual void RUpdateLeafValue(int node_id, double delta1, double delta2, double delta3, double delta4, double delta5)
+    virtual void RSyncLeafValue(int node_id, double delta1, double delta2, double delta3, double delta4, double delta5)
     {
         Q_UNUSED(node_id);
         Q_UNUSED(delta1);
@@ -99,7 +101,7 @@ public slots:
         Q_UNUSED(value);
     }
 
-    virtual void RUpdateStakeholder(int old_node_id, int new_node_id)
+    virtual void RSyncStakeholder(int old_node_id, int new_node_id)
     {
         Q_UNUSED(old_node_id);
         Q_UNUSED(new_node_id);

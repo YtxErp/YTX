@@ -33,7 +33,7 @@ public:
 
 signals:
     void SResetModel(int party_id, int settlement_id, bool settlement_finished);
-    void SUpdateFinished(int party_id, int settlement_id, bool settlement_finished);
+    void SSyncFinished(int party_id, int settlement_id, bool settlement_finished);
 
     // send to its table view
     void SResizeColumnToContents(int column);
@@ -42,7 +42,7 @@ signals:
     void SSyncDouble(int node_id, int column, double value);
 
 public slots:
-    void RUpdateLeafValue(int node_id, double delta1);
+    void RSyncDouble(int node_id, int column, double delta1);
 
 public:
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;

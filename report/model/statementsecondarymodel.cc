@@ -149,7 +149,7 @@ void StatementSecondaryModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void StatementSecondaryModel::RRetrieveData(int unit, const QDateTime& start, const QDateTime& end)
+void StatementSecondaryModel::RResetModel(int unit, const QDateTime& start, const QDateTime& end)
 {
     if (party_id_ <= 0 || !start.isValid() || !end.isValid())
         return;

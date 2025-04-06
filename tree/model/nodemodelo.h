@@ -33,7 +33,7 @@ public:
     ~NodeModelO() override = default;
 
 public slots:
-    void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
+    void RSyncLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta) override;
     void RSyncBoolWD(int node_id, int column, bool value) override; // kFinished
 
 public:

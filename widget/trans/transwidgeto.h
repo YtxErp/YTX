@@ -47,7 +47,7 @@ signals:
     void SSyncBoolTrans(int node_id, int column, bool value);
 
     // send to TreeModelOrder
-    void SUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
+    void SSyncLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
     // send to MainWindow
     void SEnableAction(bool finished);
@@ -59,7 +59,7 @@ public slots:
     void RSyncString(int node_id, int column, const QString& value);
 
     // receive from TableModelOrder
-    void RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
+    void RSyncLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta);
 
 public:
     QPointer<TransModel> Model() const override { return order_trans_; }

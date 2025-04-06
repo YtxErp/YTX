@@ -113,12 +113,12 @@ bool TransModelT::setData(const QModelIndex& index, const QVariant& value, int r
         double ratio { *trans_shadow->lhs_ratio };
         double debit { *trans_shadow->lhs_debit };
         double credit { *trans_shadow->lhs_credit };
-        emit SUpdateLeafValue(node_id_, debit, credit, ratio * debit, ratio * credit);
+        emit SSyncLeafValue(node_id_, debit, credit, ratio * debit, ratio * credit);
 
         ratio = *trans_shadow->rhs_ratio;
         debit = *trans_shadow->rhs_debit;
         credit = *trans_shadow->rhs_credit;
-        emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
+        emit SSyncLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
 
         if (*trans_shadow->support_id != 0) {
             emit SAppendOneTransS(section_, *trans_shadow->support_id, *trans_shadow->id);
@@ -126,11 +126,11 @@ bool TransModelT::setData(const QModelIndex& index, const QVariant& value, int r
     }
 
     if (deb_changed || cre_changed) {
-        sql_->SyncTransValue(trans_shadow);
+        sql_->UpdateTransValue(trans_shadow);
         TransModelUtils::AccumulateSubtotal(mutex_, trans_shadow_list_, kRow, node_rule_);
 
         emit SSearch();
-        emit SUpdateBalance(section_, old_rhs_node, *trans_shadow->id);
+        emit SSyncBalance(section_, old_rhs_node, *trans_shadow->id);
         emit SResizeColumnToContents(std::to_underlying(TransEnumT::kSubtotal));
     }
 
@@ -144,15 +144,15 @@ bool TransModelT::setData(const QModelIndex& index, const QVariant& value, int r
     }
 
     if (old_rhs_node != 0 && rhs_changed) {
-        sql_->SyncTransValue(trans_shadow);
+        sql_->UpdateTransValue(trans_shadow);
         emit SRemoveOneTransL(section_, old_rhs_node, *trans_shadow->id);
         emit SAppendOneTransL(section_, trans_shadow);
 
         double ratio { *trans_shadow->rhs_ratio };
         double debit { *trans_shadow->rhs_debit };
         double credit { *trans_shadow->rhs_credit };
-        emit SUpdateLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
-        emit SUpdateLeafValue(old_rhs_node, -debit, -credit, -ratio * debit, -ratio * credit);
+        emit SSyncLeafValue(*trans_shadow->rhs_node, debit, credit, ratio * debit, ratio * credit);
+        emit SSyncLeafValue(old_rhs_node, -debit, -credit, -ratio * debit, -ratio * credit);
     }
 
     emit SResizeColumnToContents(index.column());
@@ -248,8 +248,8 @@ bool TransModelT::UpdateDebit(TransShadow* trans_shadow, double value)
     const double amount_debit_delta { quantity_debit_delta * unit_cost };
     const double amount_credit_delta { quantity_credit_delta * unit_cost };
 
-    emit SUpdateLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
+    emit SSyncLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
+    emit SSyncLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
 
     return true;
 }
@@ -278,8 +278,8 @@ bool TransModelT::UpdateCredit(TransShadow* trans_shadow, double value)
     const double amount_debit_delta { quantity_debit_delta * unit_cost };
     const double amount_credit_delta { quantity_credit_delta * unit_cost };
 
-    emit SUpdateLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
+    emit SSyncLeafValue(node_id_, quantity_debit_delta, quantity_credit_delta, amount_debit_delta, amount_credit_delta);
+    emit SSyncLeafValue(*trans_shadow->rhs_node, quantity_credit_delta, quantity_debit_delta, amount_credit_delta, amount_debit_delta);
 
     return true;
 }
@@ -299,8 +299,8 @@ bool TransModelT::UpdateRatio(TransShadow* trans_shadow, double value)
 
     sql_->WriteField(info_.trans, kUnitCost, value, *trans_shadow->id);
 
-    emit SUpdateLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
-    emit SUpdateLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * delta, *trans_shadow->rhs_credit * delta);
+    emit SSyncLeafValue(node_id_, 0, 0, *trans_shadow->lhs_debit * delta, *trans_shadow->lhs_credit * delta);
+    emit SSyncLeafValue(*trans_shadow->rhs_node, 0, 0, *trans_shadow->rhs_debit * delta, *trans_shadow->rhs_credit * delta);
 
     UpdateUnitCost(node_id_, *trans_shadow->rhs_node, delta);
     return true;

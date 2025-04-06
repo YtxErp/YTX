@@ -38,8 +38,8 @@ signals:
     // send to TableModel
     void SAppendOneTransL(const TransShadow* trans_shadow);
     void SRemoveOneTransL(int node_id, int trans_id);
-    void SUpdateBalance(int node_id, int trans_id);
-    void SRule(int node_id, bool rule);
+    void SSyncBalance(int node_id, int trans_id);
+    void SSyncRule(int node_id, bool rule);
     void SAppendMultiTrans(int node_id, const TransShadowList& trans_shadow_list);
     void SRemoveMultiTransL(int node_id, const QSet<int>& trans_id_set);
     void SAppendMultiTransL(int node_id, const QSet<int>& trans_id_set);
@@ -48,12 +48,12 @@ public slots:
     // receive from TableModel
     void RAppendOneTransL(Section section, const TransShadow* trans_shadow);
     void RRemoveOneTransL(Section section, int node_id, int trans_id);
-    void RUpdateBalance(Section section, int node_id, int trans_id);
+    void RSyncBalance(Section section, int node_id, int trans_id);
 
     // receive from SqliteStakeholder
 
     // receive from TreeModel
-    void RRule(Section section, int node_id, bool rule);
+    void RSyncRule(Section section, int node_id, bool rule);
 
     // receive from Sqlite
     void RRemoveMultiTransL(Section section, const QMultiHash<int, int>& leaf_trans);

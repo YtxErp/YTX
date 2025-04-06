@@ -40,14 +40,14 @@ protected:
 
 signals:
     // send to TreeModel
-    void SUpdateMultiLeafTotal(const QList<int>& node_id_list);
+    void SSyncMultiLeafValue(const QList<int>& node_id_list);
     void SRemoveNode(int node_id);
     // send to Mainwindow
     void SFreeWidget(int node_id, int node_type);
     // send to sql itsself
-    void SUpdateProduct(int old_node_id, int new_node_id);
+    void SSyncProduct(int old_node_id, int new_node_id);
     // send to sql itsself and treemodel
-    void SUpdateStakeholder(int old_node_id, int new_node_id);
+    void SSyncStakeholder(int old_node_id, int new_node_id);
     // send to LeafSStation, Stakeholder transactions are removed directly
     void SRemoveMultiTransL(Section section, const QMultiHash<int, int>& leaf_trans);
     void SMoveMultiTransL(Section section, int old_node_id, int new_node_id, const QSet<int>& trans_id_set);
@@ -61,11 +61,16 @@ public slots:
     virtual void RRemoveNode(int node_id, int node_type);
     virtual void RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit);
     // receive from sql
-    virtual void RUpdateProduct(int old_node_id, int new_node_id)
+    virtual void RSyncProduct(int old_node_id, int new_node_id) const
     {
         Q_UNUSED(old_node_id);
         Q_UNUSED(new_node_id);
-    };
+    }
+    virtual void RSyncStakeholder(int old_node_id, int new_node_id) const
+    {
+        Q_UNUSED(old_node_id);
+        Q_UNUSED(new_node_id);
+    }
 
 public:
     // tree
@@ -77,14 +82,14 @@ public:
     bool ExternalReference(int node_id) const;
     bool SupportReference(int support_id) const;
     bool ReadLeafTotal(Node* node) const;
-    bool SyncLeafValue(const Node* node) const;
+    bool UpdateLeafValue(const Node* node) const;
     bool SearchNodeName(QSet<int>& node_id_set, CString& text) const;
 
     // table
     bool ReadTrans(TransShadowList& trans_shadow_list, int node_id);
     bool RetrieveTransRange(TransShadowList& trans_shadow_list, int node_id, const QSet<int>& trans_id_set);
     bool WriteTrans(TransShadow* trans_shadow);
-    bool SyncTransValue(const TransShadow* trans_shadow) const;
+    bool UpdateTransValue(const TransShadow* trans_shadow) const;
     TransShadow* AllocateTransShadow();
 
     bool WriteState(Check state) const;
@@ -108,7 +113,7 @@ protected:
     virtual QString QSInternalReference() const = 0;
     virtual QString QSSearchTransValue() const = 0;
     virtual QString QSSearchTransText() const = 0;
-    virtual QString QSSyncLeafValue() const = 0;
+    virtual QString QSUpdateLeafValue() const = 0;
 
     virtual QString QSExternalReference() const { return {}; }
     virtual QString QSSupportReference() const { return {}; }
@@ -129,7 +134,7 @@ protected:
 
     virtual void ReadNodeQuery(Node* node, const QSqlQuery& query) const = 0;
     virtual void WriteNodeBind(Node* node, QSqlQuery& query) const = 0;
-    virtual void SyncLeafValueBind(const Node* node, QSqlQuery& query) const = 0;
+    virtual void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const = 0;
 
     //
     QString QSRemoveBranch() const;
@@ -158,12 +163,12 @@ protected:
     virtual QString QSReplaceLeaf() const { return {}; }
     virtual QString QSReplaceSupport() const { return {}; }
 
-    virtual QString QSSyncTransValue() const { return {}; }
+    virtual QString QSUpdateTransValue() const { return {}; }
 
     virtual void ReadTransQuery(Trans* trans, const QSqlQuery& query) const = 0;
     virtual void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const = 0;
 
-    virtual void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
+    virtual void UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
     {
         Q_UNUSED(trans_shadow);
         Q_UNUSED(query);

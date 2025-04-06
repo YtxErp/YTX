@@ -42,16 +42,16 @@ protected:
     QString QSReadSupportTrans() const override;
     QString QSWriteTrans() const override;
     QString QSReplaceLeaf() const override;
-    QString QSSyncTransValue() const override;
+    QString QSUpdateTransValue() const override;
     QString QSSearchTransValue() const override;
     QString QSSearchTransText() const override;
 
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
 
-    QString QSSyncLeafValue() const override;
-    void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
+    QString QSUpdateLeafValue() const override;
+    void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
     void WriteNodeBind(Node* node, QSqlQuery& query) const override;
     void ReadNodeQuery(Node* node, const QSqlQuery& query) const override;

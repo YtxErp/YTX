@@ -39,13 +39,13 @@ protected:
 signals:
     // send to TreeModel
     void SSyncDouble(int node_id, int column, double value);
-    void SUpdateLeafValue(int node_id, double delta1 = 0.0, double delta2 = 0.0, double delta3 = 0.0, double delta4 = 0.0, double delta5 = 0.0);
+    void SSyncLeafValue(int node_id, double delta1 = 0.0, double delta2 = 0.0, double delta3 = 0.0, double delta4 = 0.0, double delta5 = 0.0);
     void SSearch();
 
     // send to LeafSStation
     void SAppendOneTransL(Section section, const TransShadow* trans_shadow);
     void SRemoveOneTransL(Section section, int node_id, int trans_id);
-    void SUpdateBalance(Section section, int node_id, int trans_id);
+    void SSyncBalance(Section section, int node_id, int trans_id);
 
     // send to SupportSStation
     void SAppendOneTransS(Section section, int support_id, int trans_id);
@@ -62,8 +62,8 @@ public slots:
 
     void RAppendOneTransL(const TransShadow* trans_shadow);
     void RRemoveOneTransL(int node_id, int trans_id);
-    void RUpdateBalance(int node_id, int trans_id);
-    void RRule(int node_id, bool rule);
+    void RSyncBalance(int node_id, int trans_id);
+    void RSyncRule(int node_id, bool rule);
 
     // receive from TreeModel
     virtual void RSyncBoolWD(int node_id, int column, bool value)

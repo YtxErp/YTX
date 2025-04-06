@@ -50,7 +50,7 @@ void InsertNodeOrder::RUpdateLeafValue(
     IniLeafValue();
 
     if (node_id_ != 0) {
-        emit SUpdateLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
+        emit SSyncLeafValue(node_id_, initial_delta, adjusted_final_delta, first_delta, second_delta, discount_delta);
     }
 }
 
@@ -174,7 +174,7 @@ void InsertNodeOrder::accept()
 
         if (node_->type == kTypeLeaf) {
             emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kID), node_id_);
-            emit SUpdateLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
+            emit SSyncLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
         }
     }
 
@@ -459,7 +459,7 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
     LockWidgets(checked, node_->type == kTypeBranch);
 
     if (checked)
-        sql_->SyncPriceS(node_id_);
+        sql_->SyncPrice(node_id_);
 }
 
 void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)
@@ -500,7 +500,7 @@ void InsertNodeOrder::RRuleGroupClicked(int id)
 
     if (node_id_ != 0) {
         sql_->WriteField(party_info_, kRule, node_->rule, node_id_);
-        sql_->SyncLeafValue(node_);
+        sql_->UpdateLeafValue(node_);
         sql_->InvertTransValue(node_id_);
     }
 

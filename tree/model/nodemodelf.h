@@ -30,7 +30,7 @@ public:
     ~NodeModelF() override;
 
 public slots:
-    void RUpdateLeafValue(int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta,
+    void RSyncLeafValue(int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta,
         double delta5 = 0.0) override;
 
 public:

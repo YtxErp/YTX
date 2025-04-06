@@ -107,7 +107,7 @@ void StatementModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void StatementModel::RRetrieveData(int unit, const QDateTime& start, const QDateTime& end)
+void StatementModel::RResetModel(int unit, const QDateTime& start, const QDateTime& end)
 {
     if (!start.isValid() || !end.isValid())
         return;

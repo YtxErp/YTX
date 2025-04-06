@@ -11,7 +11,7 @@ NodeModelP::NodeModelP(CNodeModelArg& arg, QObject* parent)
 
 NodeModelP::~NodeModelP() { qDeleteAll(node_hash_); }
 
-void NodeModelP::RUpdateLeafValue(
+void NodeModelP::RSyncLeafValue(
     int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled_delta*/)
 {
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
@@ -28,9 +28,9 @@ void NodeModelP::RUpdateLeafValue(
     node->initial_total += initial_delta;
     node->final_total += final_delta;
 
-    sql_->SyncLeafValue(node);
+    sql_->UpdateLeafValue(node);
     UpdateAncestorValue(node, initial_delta, final_delta);
-    emit SUpdateStatusValue();
+    emit SSyncStatusValue();
 }
 
 void NodeModelP::RemoveUnitSet(int node_id, int unit)

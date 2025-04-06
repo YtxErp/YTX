@@ -104,8 +104,6 @@ enum class TransRefEnum {
 // P:Previous, C:Current
 enum class StatementEnum { kParty, kPBalance, kCFirst, kCSecond, kCGrossAmount, kCBalance, kPlaceholder, kCSettlement };
 
-enum class StatementPrimaryEnum { kDateTime, kFirst, kSecond, kGrossAmount, kState, kDescription, kEmployee, kSettlement };
-
 enum class StatementSecondaryEnum {
     kDateTime,
     kInsideProduct,
@@ -118,8 +116,6 @@ enum class StatementSecondaryEnum {
     kOutsideProduct,
     kSettlement,
 };
-
-enum class SettlementEnum { kDateTime, kID, kParty, kDescription, kFinished, kGrossAmount };
 
 // defining node column
 enum class NodeEnum { kName, kID, kCode, kDescription, kNote, kType, kRule, kUnit };
@@ -171,6 +167,10 @@ enum class NodeSearchEnum {
     kInitialTotal,
     kFinalTotal
 };
+
+enum class StatementPrimaryEnum { kDateTime, kFirst, kSecond, kGrossAmount, kState, kDescription, kEmployee, kSettlement };
+
+enum class SettlementEnum { kDateTime, kID, kParty, kDescription, kFinished, kGrossAmount };
 
 // Enum class defining check options
 enum class Check { kNone, kAll, kReverse };

@@ -9,7 +9,7 @@ NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
     ConstructTree();
 }
 
-void NodeModelO::RUpdateLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
+void NodeModelO::RSyncLeafValue(int node_id, double initial_delta, double final_delta, double first_delta, double second_delta, double discount_delta)
 {
     auto* node { node_hash_.value(node_id) };
     assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
@@ -17,7 +17,7 @@ void NodeModelO::RUpdateLeafValue(int node_id, double initial_delta, double fina
     if (first_delta == 0.0 && second_delta == 0.0 && initial_delta == 0.0 && discount_delta == 0.0 && final_delta == 0.0)
         return;
 
-    sql_->SyncLeafValue(node);
+    sql_->UpdateLeafValue(node);
 
     auto index { GetIndex(node->id) };
     emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kSettlement)));
@@ -118,7 +118,7 @@ bool NodeModelO::UpdateRule(Node* node, bool value)
     auto index { GetIndex(node->id) };
     emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kSettlement)));
 
-    sql_->SyncLeafValue(node);
+    sql_->UpdateLeafValue(node);
     sql_->InvertTransValue(node->id);
 
     return true;
@@ -177,7 +177,7 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
 
     sql_->WriteField(info_.node, kFinished, value, node->id);
     if (value)
-        sql_->SyncPriceS(node->id);
+        sql_->SyncPrice(node->id);
     return true;
 }
 

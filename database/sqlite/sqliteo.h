@@ -32,13 +32,13 @@ public:
 
 signals:
     // send to sqlite stakeholder
-    void SPriceSList(QList<PriceS>& list);
+    void SSyncPrice(QList<PriceS>& list);
 
 public slots:
     void RRemoveNode(int node_id, int node_type) override;
-    void RUpdateProduct(int old_node_id, int new_node_id) override;
 
-    void RUpdateStakeholder(int old_node_id, int new_node_id) const;
+    void RSyncProduct(int old_node_id, int new_node_id) const override;
+    void RSyncStakeholder(int old_node_id, int new_node_id) const override;
 
 public:
     bool ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end);
@@ -51,12 +51,12 @@ public:
     bool ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const;
     bool WriteSettlement(Node* node) const;
     bool RemoveSettlement(int settlement_id) const;
+
     bool ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished);
+    bool AddSettlementPrimary(int node_id, int settlement_id) const;
+    bool RemoveSettlementPrimary(int node_id) const;
 
-    bool SyncNewSettlement(int node_id, int settlement_id) const;
-    bool SyncOldSettlement(int node_id) const;
-
-    bool SyncPriceS(int node_id);
+    bool SyncPrice(int node_id);
     bool InvertTransValue(int node_id) const;
 
     bool ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const;
@@ -81,16 +81,16 @@ protected:
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void ReadTransFunction(TransShadowList& trans_shadow_list, int node_id, QSqlQuery& query) override;
     void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
-    void SyncTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
 
-    QString QSSyncLeafValue() const override;
-    void SyncLeafValueBind(const Node* node, QSqlQuery& query) const override;
+    QString QSUpdateLeafValue() const override;
+    void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
     QString QSReadTrans() const override;
     QString QSWriteTrans() const override;
     QString QSSearchTransValue() const override;
     QString QSSearchTransText() const override;
-    QString QSSyncTransValue() const override;
+    QString QSUpdateTransValue() const override;
     QString QSTransToRemove() const override;
 
 private:
@@ -111,8 +111,8 @@ private:
 
     void ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query);
 
-    QString QSSyncPriceSFirst() const;
-    QString QSSyncPriceSSecond() const;
+    QString QSSyncPriceFirst() const;
+    QString QSSyncPriceSecond() const;
     QString QSInvertTransValue() const;
 
     QString QSReadStatement(int unit) const;

@@ -59,7 +59,7 @@ private:
 
     void UpdateLhsNode(int node_id);
     void UpdateParty(int node_id, int party_id);
-    void SyncRule(int node_id, bool value);
+    void UpdateRule(int node_id, bool value);
 
 private:
     const NodeModelP* product_tree_ {};

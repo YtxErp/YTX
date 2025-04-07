@@ -24,7 +24,7 @@
 
 #ifdef Q_OS_MACOS
 #include "component/application.h"
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN32)
 #include <QApplication>
 #endif
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 {
 #ifdef Q_OS_MACOS
     Application application(argc, argv);
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN32)
     QApplication application(argc, argv);
 #endif
 

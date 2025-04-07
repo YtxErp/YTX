@@ -48,7 +48,7 @@ private slots:
     void on_start_dateChanged(const QDate& date);
     void on_end_dateChanged(const QDate& date);
     void on_pBtnAppend_clicked();
-    void on_pBtnRemove_clicked();
+    void on_pBtnRemoveSettlement_clicked();
     void on_settlementView_doubleClicked(const QModelIndex& index);
 
 private:

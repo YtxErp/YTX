@@ -725,13 +725,14 @@ void MainWindow::CreateSection(NodeWidget* node_widget, TransWgtHash& trans_wgt_
     auto view { node_widget->View() };
     auto model { node_widget->Model() };
 
+    // ReadSettings must before SetTreeView
+    MainWindowUtils::ReadSettings(view->header(), &QHeaderView::restoreState, file_settings_, info.node, kHeaderState);
+
     SetTreeView(view, info);
     SetTreeDelegate(view, info, settings);
     TreeConnect(node_widget, data.sql);
 
     tab_widget->tabBar()->setTabData(tab_widget->addTab(node_widget, name), QVariant::fromValue(Tab { info.section, 0 }));
-
-    MainWindowUtils::ReadSettings(view->header(), &QHeaderView::restoreState, file_settings_, info.node, kHeaderState);
 
     switch (info.section) {
     case Section::kFinance:
@@ -1350,6 +1351,9 @@ void MainWindow::on_actionSettlement_triggered()
     auto primary_view { settlement_widget_->PrimaryView() };
     SetStatementView(view, std::to_underlying(SettlementEnum::kDescription));
     SetStatementView(primary_view, std::to_underlying(SettlementEnum::kDescription));
+
+    view->setColumnHidden(std::to_underlying(SettlementEnum::kID), false);
+    primary_view->setColumnHidden(std::to_underlying(SettlementEnum::kID), false);
 
     DelegateSettlement(view, settings_);
     DelegateSettlementPrimary(primary_view, settings_);

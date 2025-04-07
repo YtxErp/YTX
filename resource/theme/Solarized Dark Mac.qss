@@ -52,7 +52,7 @@ QHeaderView::section:disabled {
 
 /*-------------------------------------border none-----------------------------------------------*/
 
-QPushButton#pBtnLink, QDialog#Preferences QGroupBox, QPushButton#pBtnColor,
+QPushButton#pBtnLink, QDialog#Preferences QGroupBox, QPushButton#pBtnColor, QPushButton#pBtnRefresh,
 QTreeView::item
 {
     border: none;
@@ -71,11 +71,6 @@ QHeaderView::section, QHeaderView::section:disabled {
 
 QHeaderView::section:last, QHeaderView::section:last:disabled {
     border-right: none;
-}
-
-QPushButton#pBtnRefresh {
-    border-top: none;
-    border-bottom: none;
 }
 
 QPushButton#pBtnExport, QPushButton#pBtnRemoveSettlement, QPushButton#pBtnAppend {

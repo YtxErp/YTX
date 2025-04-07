@@ -57,7 +57,7 @@ void SettlementWidget::IniWidget(SettlementModel* settlement_model, SettlementPr
 
 void SettlementWidget::on_pBtnAppend_clicked() { settlement_model_->insertRows(settlement_model_->rowCount(), 1); }
 
-void SettlementWidget::on_pBtnRemove_clicked()
+void SettlementWidget::on_pBtnRemoveSettlement_clicked()
 {
     auto view { QPointer(ui->settlementView) };
 

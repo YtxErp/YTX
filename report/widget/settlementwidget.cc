@@ -85,3 +85,12 @@ void SettlementWidget::on_settlementView_doubleClicked(const QModelIndex& index)
 
     settlement_primary_model_->RResetModel(party, settlement_id, finished);
 }
+
+void SettlementWidget::on_settlementViewPrimary_doubleClicked(const QModelIndex& index)
+{
+    if (index.column() != std::to_underlying(SettlementEnum::kGrossAmount))
+        return;
+
+    const int node_id { index.siblingAtColumn(std::to_underlying(SettlementEnum::kID)).data().toInt() };
+    emit SNodeLocation(node_id);
+}

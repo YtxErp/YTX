@@ -1364,6 +1364,7 @@ void MainWindow::on_actionSettlement_triggered()
 
     connect(primary_model, &SettlementPrimaryModel::SSyncDouble, model, &SettlementModel::RSyncDouble);
     connect(model, &SettlementModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble);
+    connect(settlement_widget_, &SettlementWidget::SNodeLocation, this, &MainWindow::RNodeLocation);
 
     RegisterRptWgt(settlement_widget_);
 }

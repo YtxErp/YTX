@@ -34,6 +34,9 @@ class SettlementWidget;
 class SettlementWidget final : public ReportWidget {
     Q_OBJECT
 
+signals:
+    void SNodeLocation(int node_id);
+
 public:
     SettlementWidget(
         SettlementModel* settlement_model, SettlementPrimaryModel* settlement_primary_model, CDateTime& start, CDateTime& end, QWidget* parent = nullptr);
@@ -50,6 +53,7 @@ private slots:
     void on_pBtnAppend_clicked();
     void on_pBtnRemoveSettlement_clicked();
     void on_settlementView_doubleClicked(const QModelIndex& index);
+    void on_settlementViewPrimary_doubleClicked(const QModelIndex& index);
 
 private:
     void IniWidget(SettlementModel* settlement_model, SettlementPrimaryModel* settlement_primary_model);

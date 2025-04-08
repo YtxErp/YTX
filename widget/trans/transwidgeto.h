@@ -33,7 +33,7 @@ class TransWidgetO final : public TransWidget {
     Q_OBJECT
 
 public:
-    TransWidgetO(CInsertNodeArgO& arg, QWidget* parent = nullptr);
+    TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QWidget* parent = nullptr);
     ~TransWidgetO();
 
 signals:
@@ -109,6 +109,7 @@ private:
     const int node_id_ {};
     const int party_unit_ {};
     const QString party_info_ {};
+    const QMap<QString, QString>& print_template_ {};
 };
 
 #endif // TRANSWIDGETO_H

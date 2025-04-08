@@ -6,7 +6,7 @@
 #include "global/resourcepool.h"
 #include "ui_transwidgeto.h"
 
-TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, QWidget* parent)
+TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QWidget* parent)
     : TransWidget(parent)
     , ui(new Ui::TransWidgetO)
     , node_ { arg.node }
@@ -17,6 +17,7 @@ TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, QWidget* parent)
     , node_id_ { arg.node->id }
     , party_unit_ { arg.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
     , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }
+    , print_template_ { print_template }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -160,6 +161,10 @@ void TransWidgetO::IniWidget()
     ui->tableViewO->setFocus();
 
     ui->chkBoxBranch->setEnabled(false);
+
+    for (auto it = print_template_.constBegin(); it != print_template_.constEnd(); ++it) {
+        ui->comboTemplate->addItem(it.key(), it.value());
+    }
 }
 
 void TransWidgetO::IniData()

@@ -35,7 +35,7 @@ class InsertNodeOrder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeOrder(CInsertNodeArgO& arg, QWidget* parent = nullptr);
+    InsertNodeOrder(CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QWidget* parent = nullptr);
     ~InsertNodeOrder();
 
 signals:
@@ -117,6 +117,7 @@ private:
     const QString party_info_ {};
     const int party_unit_ {};
     const QString party_text_ {};
+    const QMap<QString, QString>& print_template_ {};
 
     int node_id_ {};
 };

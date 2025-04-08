@@ -46,6 +46,13 @@ if(APPLE)
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
   )
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/print"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/print"
+            "$<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/Contents/Resources/print"
+  )
 elseif(WIN32)
   set(INFO_RC "${CMAKE_CURRENT_SOURCE_DIR}/Info.rc")
   qt6_add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES} ${INFO_RC} ${brc})

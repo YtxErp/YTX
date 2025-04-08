@@ -190,9 +190,14 @@ bool MainWindow::ROpenFile(CString& file_path)
 
     RSectionGroup(static_cast<int>(start_));
 
-    AddRecentFile(file_path);
     EnableAction(true);
     on_tabWidget_currentChanged(0);
+
+    QTimer::singleShot(0, this, [this, file_path]() {
+        AddRecentFile(file_path);
+        MainWindowUtils::ReadPrintTmplate(print_template_);
+    });
+
     return true;
 }
 

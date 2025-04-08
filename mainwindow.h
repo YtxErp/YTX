@@ -227,6 +227,7 @@ private:
     int report_id_ { -1 };
 
     QPointer<SettlementWidget> settlement_widget_;
+    QMap<QString, QString> print_template_ {};
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};

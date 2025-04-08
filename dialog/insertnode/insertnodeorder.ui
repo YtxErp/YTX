@@ -406,6 +406,16 @@
          </spacer>
         </item>
         <item>
+         <widget class="QComboBox" name="comboTemplate"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pBtnPreview">
+          <property name="text">
+           <string>Preview</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="DateTimeEdit" name="dateTimeEdit">
           <property name="frame">
            <bool>false</bool>

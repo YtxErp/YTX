@@ -226,9 +226,27 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pBtnPrint">
-          <property name="text">
-           <string>Print</string>
+         <widget class="DateTimeEdit" name="dateTimeEdit">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
+          </property>
+          <property name="correctionMode">
+           <enum>QAbstractSpinBox::CorrectionMode::CorrectToNearestValue</enum>
+          </property>
+          <property name="displayFormat">
+           <string>yyyy/MM/dd HH:mm</string>
+          </property>
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+          <property name="currentSectionIndex">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -406,27 +424,19 @@
          </spacer>
         </item>
         <item>
-         <widget class="DateTimeEdit" name="dateTimeEdit">
-          <property name="frame">
-           <bool>false</bool>
+         <widget class="ComboBox" name="comboTemplate"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pBtnPreview">
+          <property name="text">
+           <string>Preview</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-          </property>
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
-          </property>
-          <property name="correctionMode">
-           <enum>QAbstractSpinBox::CorrectionMode::CorrectToNearestValue</enum>
-          </property>
-          <property name="displayFormat">
-           <string>yyyy/MM/dd HH:mm</string>
-          </property>
-          <property name="calendarPopup">
-           <bool>true</bool>
-          </property>
-          <property name="currentSectionIndex">
-           <number>0</number>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pBtnPrint">
+          <property name="text">
+           <string>Print</string>
           </property>
          </widget>
         </item>

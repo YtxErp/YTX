@@ -50,6 +50,8 @@ public:
     static QVariantList SaveTab(CTransWgtHash& trans_wgt_hash);
     static QSet<int> ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property);
 
+    static void ReadPrintTmplate(QMap<QString, QString>& print_template);
+
     static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);
     static void ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
     static void ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);

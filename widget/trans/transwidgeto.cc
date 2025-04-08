@@ -1,22 +1,22 @@
 #include "transwidgeto.h"
 
-#include <QTimer>
-
 #include "component/signalblocker.h"
 #include "global/resourcepool.h"
 #include "ui_transwidgeto.h"
 
-TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, QWidget* parent)
+TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QSharedPointer<PrintManager> print_manager, QWidget* parent)
     : TransWidget(parent)
     , ui(new Ui::TransWidgetO)
     , node_ { arg.node }
     , sql_ { qobject_cast<SqliteO*>(arg.sql) }
-    , order_trans_ { arg.order_trans }
+    , order_trans_ { qobject_cast<TransModelO*>(arg.order_trans) }
     , stakeholder_node_ { arg.stakeholder_node }
     , settings_ { arg.settings }
     , node_id_ { arg.node->id }
     , party_unit_ { arg.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
     , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }
+    , print_template_ { print_template }
+    , print_manager_ { print_manager }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -160,6 +160,10 @@ void TransWidgetO::IniWidget()
     ui->tableViewO->setFocus();
 
     ui->chkBoxBranch->setEnabled(false);
+
+    for (auto it = print_template_.constBegin(); it != print_template_.constEnd(); ++it) {
+        ui->comboTemplate->addItem(it.key(), it.value());
+    }
 }
 
 void TransWidgetO::IniData()
@@ -423,4 +427,39 @@ void TransWidgetO::on_pBtnFinishOrder_toggled(bool checked)
 
     if (checked)
         sql_->SyncPrice(node_id_);
+}
+
+void TransWidgetO::on_pBtnPrint_clicked()
+{
+    PreparePrint();
+    print_manager_->Print();
+}
+
+void TransWidgetO::on_pBtnPreview_clicked()
+{
+    PreparePrint();
+    print_manager_->Preview();
+}
+
+void TransWidgetO::PreparePrint()
+{
+    print_manager_->LoadIni(ui->comboTemplate->currentData().toString());
+
+    QString unit {};
+    switch (UnitO(node_->unit)) {
+    case UnitO::kMS:
+        unit = tr("MS");
+        break;
+    case UnitO::kIS:
+        unit = tr("IS");
+        break;
+    case UnitO::kPEND:
+        unit = tr("Pend");
+        break;
+    default:
+        break;
+    }
+
+    PrintData data { stakeholder_node_->Name(node_->party), node_->date_time, stakeholder_node_->Name(node_->employee), unit, node_->initial_total };
+    print_manager_->SetData(data, order_trans_->GetTransShadowList());
 }

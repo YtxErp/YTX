@@ -26,6 +26,8 @@
 
 #include "component/arg/insertnodeargo.h"
 #include "database/sqlite/sqliteo.h"
+#include "report/model/printmanager.h"
+#include "table/model/transmodelo.h"
 
 namespace Ui {
 class InsertNodeOrder;
@@ -35,7 +37,7 @@ class InsertNodeOrder final : public QDialog {
     Q_OBJECT
 
 public:
-    InsertNodeOrder(CInsertNodeArgO& arg, QWidget* parent = nullptr);
+    InsertNodeOrder(CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QSharedPointer<PrintManager> print_manager, QWidget* parent = nullptr);
     ~InsertNodeOrder();
 
 signals:
@@ -77,6 +79,9 @@ private slots:
     void on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time);
     void on_lineDescription_editingFinished();
 
+    void on_pBtnPreview_clicked();
+    void on_pBtnPrint_clicked();
+
     void on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1);
 
     void RRuleGroupClicked(int id);
@@ -97,13 +102,15 @@ private:
 
     void LockWidgets(bool finished, bool branch);
 
+    void PreparePrint();
+
 private:
     Ui::InsertNodeOrder* ui;
 
     Node* node_ {};
     SqliteO* sql_ {};
     NodeModel* stakeholder_node_ {};
-    TransModel* order_trans_ {};
+    TransModelO* order_trans_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
 
@@ -117,6 +124,9 @@ private:
     const QString party_info_ {};
     const int party_unit_ {};
     const QString party_text_ {};
+
+    const QMap<QString, QString>& print_template_ {};
+    QSharedPointer<PrintManager> print_manager_ {};
 
     int node_id_ {};
 };

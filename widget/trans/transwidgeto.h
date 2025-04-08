@@ -24,6 +24,8 @@
 
 #include "component/arg/insertnodeargo.h"
 #include "database/sqlite/sqliteo.h"
+#include "report/model/printmanager.h"
+#include "table/model/transmodelo.h"
 
 namespace Ui {
 class TransWidgetO;
@@ -33,7 +35,7 @@ class TransWidgetO final : public TransWidget {
     Q_OBJECT
 
 public:
-    TransWidgetO(CInsertNodeArgO& arg, QWidget* parent = nullptr);
+    TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QSharedPointer<PrintManager> print_manager, QWidget* parent = nullptr);
     ~TransWidgetO();
 
 signals:
@@ -76,6 +78,9 @@ private slots:
     void on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time);
     void on_lineDescription_editingFinished();
 
+    void on_pBtnPreview_clicked();
+    void on_pBtnPrint_clicked();
+
     void RRuleGroupClicked(int id);
     void RUnitGroupClicked(int id);
 
@@ -93,11 +98,13 @@ private:
     void IniRuleGroup();
     void IniUnitGroup();
 
+    void PreparePrint();
+
 private:
     Ui::TransWidgetO* ui;
     Node* node_ {};
     SqliteO* sql_ {};
-    TransModel* order_trans_ {};
+    TransModelO* order_trans_ {};
     NodeModel* stakeholder_node_ {};
     CSettings* settings_ {};
     QButtonGroup* rule_group_ {};
@@ -109,6 +116,9 @@ private:
     const int node_id_ {};
     const int party_unit_ {};
     const QString party_info_ {};
+
+    const QMap<QString, QString>& print_template_ {};
+    QSharedPointer<PrintManager> print_manager_ {};
 };
 
 #endif // TRANSWIDGETO_H

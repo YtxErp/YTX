@@ -1,22 +1,23 @@
 #include "insertnodeorder.h"
 
-#include <QTimer>
-
 #include "component/signalblocker.h"
 #include "global/resourcepool.h"
 #include "mainwindow.h"
 #include "ui_insertnodeorder.h"
 
-InsertNodeOrder::InsertNodeOrder(CInsertNodeArgO& arg, QWidget* parent)
+InsertNodeOrder::InsertNodeOrder(
+    CInsertNodeArgO& arg, const QMap<QString, QString>& print_template, QSharedPointer<PrintManager> print_manager, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InsertNodeOrder)
     , node_ { arg.node }
     , sql_ { qobject_cast<SqliteO*>(arg.sql) }
     , stakeholder_node_ { arg.stakeholder_node }
-    , order_trans_ { arg.order_trans }
+    , order_trans_ { qobject_cast<TransModelO*>(arg.order_trans) }
     , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }
     , party_unit_ { arg.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
     , party_text_ { arg.section == Section::kSales ? tr("CUST") : tr("VEND") }
+    , print_template_ { print_template }
+    , print_manager_ { print_manager }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -164,6 +165,10 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->tableViewO->setModel(order_trans_);
 
     ui->comboParty->setFocus();
+
+    for (auto it = print_template_.constBegin(); it != print_template_.constEnd(); ++it) {
+        ui->comboTemplate->addItem(it.key(), it.value());
+    }
 }
 
 void InsertNodeOrder::accept()
@@ -225,6 +230,31 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
     ui->lineDescription->setEnabled(basic_enable);
 
     ui->pBtnPrint->setEnabled(finished && !branch);
+    ui->pBtnPreview->setEnabled(!branch);
+    ui->comboTemplate->setEnabled(!branch);
+}
+
+void InsertNodeOrder::PreparePrint()
+{
+    print_manager_->LoadIni(ui->comboTemplate->currentData().toString());
+
+    QString unit {};
+    switch (UnitO(node_->unit)) {
+    case UnitO::kMS:
+        unit = tr("MS");
+        break;
+    case UnitO::kIS:
+        unit = tr("IS");
+        break;
+    case UnitO::kPEND:
+        unit = tr("Pend");
+        break;
+    default:
+        break;
+    }
+
+    PrintData data { stakeholder_node_->Name(node_->party), node_->date_time, stakeholder_node_->Name(node_->employee), unit, node_->initial_total };
+    print_manager_->SetData(data, order_trans_->GetTransShadowList());
 }
 
 void InsertNodeOrder::IniUnit(int unit)
@@ -541,4 +571,16 @@ void InsertNodeOrder::on_lineDescription_editingFinished()
 
     if (node_id_ != 0)
         sql_->WriteField(party_info_, kDescription, node_->description, node_id_);
+}
+
+void InsertNodeOrder::on_pBtnPreview_clicked()
+{
+    PreparePrint();
+    print_manager_->Preview();
+}
+
+void InsertNodeOrder::on_pBtnPrint_clicked()
+{
+    PreparePrint();
+    print_manager_->Print();
 }

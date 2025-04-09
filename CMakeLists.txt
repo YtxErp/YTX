@@ -56,6 +56,16 @@ if(APPLE)
 elseif(WIN32)
   set(INFO_RC "${CMAKE_CURRENT_SOURCE_DIR}/Info.rc")
   qt6_add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES} ${INFO_RC} ${brc})
+
+ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+           "${CMAKE_CURRENT_SOURCE_DIR}/print"
+           "$<TARGET_FILE_DIR:${PROJECT_NAME}>/print")
+
+ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy
+           "${CMAKE_CURRENT_SOURCE_DIR}/resource/resource.brc"
+           "$<TARGET_FILE_DIR:${PROJECT_NAME}>/resource.brc")
 else()
   qt6_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${brc})
 endif()

@@ -1,8 +1,8 @@
 #include "printmanager.h"
 
 #include <QFile>
+#include <QPainter>
 #include <QPrintPreviewDialog>
-#include <QRegularExpression>
 
 PrintManager::PrintManager(NodeModel* product, NodeModel* stakeholder)
     : product_ { product }
@@ -10,43 +10,10 @@ PrintManager::PrintManager(NodeModel* product, NodeModel* stakeholder)
 {
 }
 
-bool PrintManager::LoadHtml(const QString& file_path)
-{
-    QFile file(file_path);
-
-    // Check if the template file exists
-    if (!file.exists()) {
-        qWarning() << "Template file does not exist:" << file_path;
-        return false;
-    }
-
-    // Try to open the file in read-only text mode
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Failed to open template file:" << file_path;
-        return false;
-    }
-
-    // Read all content
-    QTextStream in(&file);
-    html_ = in.readAll();
-
-    file.close();
-    ReadConfig();
-    return true;
-}
-
 void PrintManager::SetData(const PrintData& data, QList<TransShadow*> trans_shadow)
 {
+    data_ = data;
     trans_shadow_ = trans_shadow;
-
-    const long long total_pages { (trans_shadow_.size() + rows_per_page_ - 1) / rows_per_page_ };
-
-    html_.replace("{{party}}", data.party);
-    html_.replace("{{date_time}}", data.date_time);
-    html_.replace("{{employee}}", data.employee);
-    html_.replace("{{gross_amount}}", QString::number(data.gross_amount));
-    html_.replace("{{unit}}", data.unit);
-    html_.replace("{{total_pages}}", QString::number(total_pages));
 }
 
 void PrintManager::Preview()
@@ -60,107 +27,164 @@ void PrintManager::Preview()
     preview.exec();
 }
 
-void PrintManager::Print()
+void PrintManager::Print() { }
+
+bool PrintManager::LoadIni(const QString& file_path)
 {
-    const long long total_pages { (trans_shadow_.size() + rows_per_page_ - 1) / rows_per_page_ };
-    QPrinter printer { QPrinter::ScreenResolution };
-    ApplyConfig(&printer);
+    // Page settings
+    QSettings settings(file_path, QSettings::IniFormat);
 
-    for (long long page = 0; page != total_pages; ++page) {
-        long long start { page * rows_per_page_ };
-        long long end { std::min(start + rows_per_page_, trans_shadow_.size()) };
+    page_settings_["paper_size"] = settings.value("page_settings/paper_size");
+    page_settings_["orientation"] = settings.value("page_settings/orientation");
+    page_settings_["rows_per_page"] = settings.value("page_settings/rows_per_page").toInt();
+    page_settings_["font_size"] = settings.value("page_settings/font_size").toInt();
 
-        QString rows_html {};
-        for (long long i = start; i != end; ++i) {
-            rows_html += BuildProductRow(trans_shadow_[i]);
-        }
+    const QList<QString> header_fields { "party", "date_time" };
+    const QList<QString> content_fields { "inside_product", "outside_product", "description", "first", "second", "unit_price", "amount" };
+    const QList<QString> footer_fields { "employee", "gross_amount", "page_info" };
 
-        QString page_html = html_;
-        page_html.replace("{{products}}", rows_html);
-        page_html.replace("{{page}}", QString::number(page + 1));
-
-        QTextDocument document {};
-
-        document.setHtml(page_html);
-        document.print(&printer);
+    // Read fields for header section
+    for (const QString& field : header_fields) {
+        ReadFieldGeometry(settings, field_geometry_, "header", field);
     }
-}
 
-QString PrintManager::BuildProductRow(TransShadow* item)
-{
-    static const QString row_template { QStringLiteral(R"(
-        <tr>
-            <td>%1</td><td>%2</td><td>%3</td><td>%4</td><td>%5</td><td>%6</td><td>%7</td>
-        </tr>
-        )") };
+    // Read fields for content section
+    for (const QString& field : content_fields) {
+        ReadFieldGeometry(settings, field_geometry_, "content", field);
+    }
 
-    return row_template.arg(product_->Name(*item->rhs_node))
-        .arg(stakeholder_->Name(*item->support_id))
-        .arg(*item->description)
-        .arg(*item->lhs_debit)
-        .arg(*item->lhs_credit)
-        .arg(*item->lhs_ratio)
-        .arg(*item->rhs_debit);
+    // Read fields for footer section
+    for (const QString& field : footer_fields) {
+        ReadFieldGeometry(settings, field_geometry_, "footer", field);
+    }
+
+    return true;
 }
 
 void PrintManager::RenderAllPages(QPrinter* printer)
 {
-    const long long total_pages { (trans_shadow_.size() + rows_per_page_ - 1) / rows_per_page_ };
-
-    for (long long page = 0; page != total_pages; ++page) {
-        long long start { page * rows_per_page_ };
-        long long end { std::min(start + rows_per_page_, trans_shadow_.size()) };
-
-        QString rows_html {};
-        for (long long i = start; i != end; ++i) {
-            rows_html += BuildProductRow(trans_shadow_[i]);
-        }
-
-        QString page_html { html_ };
-        page_html.replace("{{products}}", rows_html);
-        page_html.replace("{{page}}", QString::number(page + 1));
-
-        QTextDocument document {};
-
-        document.setHtml(page_html);
-        document.print(printer);
-
-        if (page + 1 != total_pages)
-            printer->newPage();
+    QPainter painter {};
+    if (!painter.begin(printer)) {
+        qWarning("Failed to start painter for printing.");
+        return;
     }
+
+    QFont font {};
+    font.setPointSize(page_settings_["font_size"].toInt());
+    painter.setFont(font);
+
+    int rows_per_page = page_settings_["rows_per_page"].toInt();
+    int current_row = 0; // 当前绘制的行号
+    int total_rows = trans_shadow_.size();
+
+    RenderHeader(&painter);
+
+    // 当前页面内容的 y 坐标
+    int y_offset = field_geometry_["inside_product"].y;
+
+    for (int i = 0; i != total_rows; ++i) {
+        const TransShadow* item = trans_shadow_.at(i);
+
+        // 获取每列的字段位置
+        const FieldGeometry& inside_product_geom = field_geometry_["inside_product"];
+        const FieldGeometry& outside_product_geom = field_geometry_["outside_product"];
+        const FieldGeometry& description_geom = field_geometry_["description"];
+        const FieldGeometry& first_geom = field_geometry_["first"];
+        const FieldGeometry& second_geom = field_geometry_["second"];
+        const FieldGeometry& unit_price_geom = field_geometry_["unit_price"];
+        const FieldGeometry& amount_geom = field_geometry_["amount"];
+
+        // 绘制每列的文本
+        painter.drawText(inside_product_geom.x, y_offset, product_->Name(*item->rhs_node));
+        painter.drawText(outside_product_geom.x, y_offset, stakeholder_->Name(*item->support_id));
+        painter.drawText(description_geom.x, y_offset, *item->description);
+        painter.drawText(first_geom.x, y_offset, QString::number(*item->lhs_debit));
+        painter.drawText(second_geom.x, y_offset, QString::number(*item->lhs_credit));
+        painter.drawText(unit_price_geom.x, y_offset, QString::number(*item->lhs_ratio));
+        painter.drawText(amount_geom.x, y_offset, QString::number(*item->rhs_debit));
+
+        // 更新 y 坐标，准备绘制下一行
+        y_offset += inside_product_geom.y; // 假设 y 位置是固定的
+
+        // 检查是否需要分页
+        current_row++;
+        if (current_row >= rows_per_page) {
+            // 达到每页最大行数时，插入分页符
+            painter.end(); // 结束当前页面的绘制
+
+            printer->newPage(); // 创建新的一页
+
+            // 重新开始新的页面绘制
+            painter.begin(printer);
+
+            // 绘制新的页眉
+            RenderHeader(&painter);
+
+            // 重置 y 坐标
+            y_offset = field_geometry_["inside_product"].y;
+
+            // 重置行计数器
+            current_row = 0;
+        }
+    }
+
+    // 绘制页脚
+    RenderFooter(&painter);
+
+    painter.end();
 }
 
-QString PrintManager::ReadHtmlConfig(const QString& html, const QString& id) const
+void PrintManager::RenderHeader(QPainter* painter) const
 {
-    QRegularExpression re(QString(R"(<div\s+id="%1"[^>]*>\s*([^<]*?)\s*</div>)").arg(QRegularExpression::escape(id)));
-    QRegularExpressionMatch match = re.match(html);
-    return match.hasMatch() ? match.captured(1).trimmed() : QString {};
+    const FieldGeometry& party_geometry { field_geometry_["party"] };
+    const FieldGeometry& date_time_geometry { field_geometry_["date_time"] };
+
+    painter->drawText(party_geometry.x, party_geometry.y, data_.party);
+    painter->drawText(date_time_geometry.x, date_time_geometry.y, data_.date_time);
 }
 
-void PrintManager::ReadConfig()
+void PrintManager::RenderFooter(QPainter* painter) const
 {
-    rows_per_page_ = ReadHtmlConfig(html_, "rows-per-page").toInt();
-    paper_size_ = ReadHtmlConfig(html_, "paper-size");
-    paper_orientation_ = ReadHtmlConfig(html_, "paper-orientation");
+    const FieldGeometry& employee_geometry = field_geometry_["employee"];
+    const FieldGeometry& gross_amount_geometry = field_geometry_["gross_amount"];
+
+    painter->drawText(employee_geometry.x, employee_geometry.y, data_.employee);
+    painter->drawText(gross_amount_geometry.x, gross_amount_geometry.y, QString::number(data_.gross_amount));
 }
 
 void PrintManager::ApplyConfig(QPrinter* printer) const
 {
     QPageLayout layout = printer->pageLayout();
 
-    if (paper_orientation_.compare("landscape", Qt::CaseInsensitive) == 0) {
+    if (page_settings_["orientation"].compare("landscape", Qt::CaseInsensitive) == 0) {
         layout.setOrientation(QPageLayout::Landscape);
     } else {
         layout.setOrientation(QPageLayout::Portrait);
     }
 
-    if (paper_size_.compare("a4", Qt::CaseInsensitive) == 0) {
+    if (page_settings_["paper_size"].compare("a4", Qt::CaseInsensitive) == 0) {
         layout.setPageSize(QPageSize(QPageSize::A4));
-    } else if (paper_size_.compare("a5", Qt::CaseInsensitive) == 0) {
+    } else if (page_settings_["paper_size"].compare("a5", Qt::CaseInsensitive) == 0) {
         layout.setPageSize(QPageSize(QPageSize::A5));
     } else {
         layout.setPageSize(QPageSize(QPageSize::A5));
     }
 
     printer->setPageLayout(layout);
+}
+
+void PrintManager::ReadFieldGeometry(QSettings& settings, QHash<QString, FieldGeometry>& field_geometry, const QString& section, const QString& prefix)
+{
+    // Read the x, y, width values from the settings for a given section and prefix
+    QString field_name { prefix + "_x" };
+    int x = settings.value(section + "/" + field_name).toInt();
+
+    field_name = prefix + "_y";
+    int y = settings.value(section + "/" + field_name).toInt();
+
+    field_name = prefix + "_width";
+    int width = settings.value(section + "/" + field_name).toInt();
+
+    // Store the values in the field_geometry hash map
+    field_geometry[prefix] = FieldGeometry { x, y, width };
 }

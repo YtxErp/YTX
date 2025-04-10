@@ -236,7 +236,7 @@ void InsertNodeOrder::LockWidgets(bool finished, bool branch)
 
 void InsertNodeOrder::PreparePrint()
 {
-    print_manager_->LoadHtml(ui->comboTemplate->currentData().toString());
+    print_manager_->LoadIni(ui->comboTemplate->currentData().toString());
 
     QString unit {};
     switch (UnitO(node_->unit)) {

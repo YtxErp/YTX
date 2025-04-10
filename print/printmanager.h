@@ -20,39 +20,50 @@
 #ifndef PRINTMANAGER_H
 #define PRINTMANAGER_H
 
-#include <QMap>
 #include <QPrinter>
+#include <QSettings>
 #include <QString>
-#include <QTextDocument>
 
-#include "printdata.h"
 #include "table/trans.h"
 #include "tree/model/nodemodel.h"
+
+struct FieldGeometry {
+    int x {};
+    int y {};
+    int width {};
+};
+
+struct PrintData {
+    QString party {};
+    QString date_time {};
+    QString employee {};
+    QString unit {};
+    double gross_amount {};
+};
 
 class PrintManager {
 public:
     PrintManager(NodeModel* product, NodeModel* stakeholder);
 
-    bool LoadHtml(const QString& file_path);
+    bool LoadIni(const QString& file_path);
     void SetData(const PrintData& print_data, QList<TransShadow*> trans_shadow);
     void Preview();
     void Print();
 
 private:
-    QString BuildProductRow(TransShadow* item);
     void RenderAllPages(QPrinter* printer);
+    void RenderHeader(QPainter* painter) const;
+    void RenderFooter(QPainter* painter) const;
 
-    QString ReadHtmlConfig(const QString& html, const QString& id) const;
-    void ReadConfig();
     void ApplyConfig(QPrinter* printer) const;
+    void ReadFieldGeometry(QSettings& settings, QHash<QString, FieldGeometry>& field_geometry, const QString& section, const QString& prefix);
 
 private:
-    QString html_ {};
-    int rows_per_page_ { 7 };
-    QString paper_size_ { "a5" };
-    QString paper_orientation_ { "landscape" };
+    QHash<QString, QVariant> page_settings_ {};
+    QHash<QString, FieldGeometry> field_geometry_ {};
 
     QList<TransShadow*> trans_shadow_ {};
+    PrintData data_ {};
 
     NodeModel* product_ {};
     NodeModel* stakeholder_ {};

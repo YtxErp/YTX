@@ -7,7 +7,6 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
       font-size: 14px;
       background: #f0f0f0;
     }
@@ -41,17 +40,6 @@
     .a4.landscape {
       width: 1122px;
       height: 794px;
-    }
-
-    .a3 {
-      width: 1122px;
-      height: 1587px;
-    }
-
-    /* 297 × 420 mm */
-    .a3.landscape {
-      width: 1587px;
-      height: 1122px;
     }
 
     /* ---------- Layout ---------- */
@@ -162,26 +150,13 @@
       padding: 0 4px;
     }
 
-    /* ---------- Print Specific Styles ---------- */
-    @media print {
-      thead {
-        display: none;
-      }
-    }
-
-    /* Optional: Show field names (for dev) */
-    /* .field::before {
-      content: attr(class) ": ";
-      color: #bbb;
-      font-size: 12px;
-    } */
   </style>
 </head>
 
 <body>
   <!-- Set your desired paper size here -->
   <div class="page a5 landscape">
-    <!-- or a3 / a3 landscape / a5 / a5 landscape -->
+    <!-- or a4 / a4 landscape -->
     <div class="header">
       <span class="field party">{{party}}</span>
       <span class="field date_time">{{date_time}}</span>
@@ -189,16 +164,6 @@
 
     <div class="content">
       <table>
-        <thead>
-          <tr>
-            <th>Inside Product</th>
-            <th>Outside Product</th>
-            <th>First Quantity</th>
-            <th>Second Quantity</th>
-            <th>Price</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
         <tbody>
           {{products}}
         </tbody>
@@ -212,6 +177,11 @@
       <span class="field page-info">第{{page}}页 / 共{{total_pages}}页</span>
     </div>
   </div>
+
+<!-- Page settings and rows-per-page configuration -->
+ <div id="paper-size" style="display: none;">a5</div>
+ <div id="paper-orientation" style="display: none;">landscape</div>
+ <div id="rows-per-page" style="display: none;">7</div>
 </body>
 
 </html>

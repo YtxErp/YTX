@@ -579,8 +579,10 @@ void MainWindow::CreateLeafO(PNodeModel tree_model, TransWgtHash* trans_wgt_hash
     TransModelArg model_arg { sql, info, node_id, node->rule };
     TransModelO* model { new TransModelO(model_arg, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
+    auto print_manager = QSharedPointer<PrintManager>::create(product_tree_->Model(), stakeholder_tree_->Model());
+
     auto widget_arg { InsertNodeArgO { node, sql, model, stakeholder_tree_->Model(), settings_, section } };
-    TransWidgetO* widget { new TransWidgetO(widget_arg, print_template_, this) };
+    TransWidgetO* widget { new TransWidgetO(widget_arg, print_template_, print_manager, this) };
 
     const int tab_index { ui->tabWidget->addTab(widget, stakeholder_tree_->Model()->Name(party_id)) };
     auto* tab_bar { ui->tabWidget->tabBar() };
@@ -2124,8 +2126,10 @@ void MainWindow::InsertNodeO(Node* node, const QModelIndex& parent, int row)
     TransModelArg model_arg { sql, data_->info, 0, 0 };
     auto* table_model { new TransModelO(model_arg, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
+    auto print_manager = QSharedPointer<PrintManager>::create(product_tree_->Model(), stakeholder_tree_->Model());
+
     auto dialog_arg { InsertNodeArgO { node, sql, table_model, stakeholder_tree_->Model(), settings_, start_ } };
-    auto* dialog { new InsertNodeOrder(dialog_arg, print_template_, this) };
+    auto* dialog { new InsertNodeOrder(dialog_arg, print_template_, print_manager, this) };
 
     dialog->setWindowFlags(Qt::Window);
 

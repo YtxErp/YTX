@@ -5,7 +5,7 @@ project(YTX VERSION 0.1.8 LANGUAGES CXX)
 set(CMAKE_AUTOMOC ON)
 
 # Required Qt6 modules
-find_package(Qt6 REQUIRED COMPONENTS LinguistTools Widgets Sql Gui Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS LinguistTools Widgets Sql Gui Concurrent PrintSupport)
 
 # Standard Qt project setup (Qt 6.5 or higher)
 qt_standard_project_setup(REQUIRES 6.5)
@@ -112,5 +112,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   Qt6::Sql
   Qt6::Gui
   Qt6::Concurrent
+  Qt6::PrintSupport
   YXlsx::YXlsx
 )

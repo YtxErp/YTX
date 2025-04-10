@@ -45,6 +45,8 @@ public:
 
     bool removeRows(int row, int, const QModelIndex& parent = QModelIndex()) override;
 
+    const QList<TransShadow*>& GetTransShadowList() { return trans_shadow_list_; }
+
 private:
     bool UpdateInsideProduct(TransShadow* trans_shadow, int value);
     bool UpdateOutsideProduct(TransShadow* trans_shadow, int value);

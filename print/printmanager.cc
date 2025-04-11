@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QFont>
-#include <QPainter>
 #include <QPrintPreviewDialog>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -70,16 +69,9 @@ bool PrintManager::LoadIni(const QString& file_path)
 
 void PrintManager::RenderAllPages(QPrinter* printer)
 {
-    QPainter painter {};
-    if (!painter.begin(printer)) {
-        qWarning("Failed to start painter for printing.");
-        return;
-    }
-
     // Set font size from configuration
     QFont font {};
     font.setPointSize(page_settings_["font_size"].toInt());
-    painter.setFont(font);
 
     // Fetch configuration values for rows and columns
     const int rows_per_page { page_settings_["rows_per_page"].toInt() }; // Number of rows per page
@@ -87,51 +79,33 @@ void PrintManager::RenderAllPages(QPrinter* printer)
     const int total_columns { page_settings_["column"].toInt() }; // Total columns
 
     // Get the starting position for content
-    const QPoint content_position { field_position_["content_position"].row, field_position_["content_position"].column };
+    const QPoint content_position { field_position_["content"].row, field_position_["content"].column };
 
     // Calculate total pages required based on the total rows and rows per page
     const long long total_pages { (trans_shadow_.size() + rows_per_page - 1) / rows_per_page }; // Ceiling division to determine total pages
 
     // Create QTextDocument for rendering the content
-    QTextDocument document;
+    QTextDocument document {};
     QTextCursor cursor(&document);
 
-    // Set up a table format
-    QTextTableFormat tableFormat;
-    tableFormat.setAlignment(Qt::AlignCenter);
-    tableFormat.setCellPadding(5);
-    tableFormat.setCellSpacing(2);
-
     // Insert a table with the total rows and total columns
-    QTextTable* table = cursor.insertTable(total_rows, total_columns, tableFormat);
+    QTextTable* table = cursor.insertTable(total_rows, total_columns);
 
-    // Fill the table with data for each page
-    for (long long page = 0; page != total_pages; ++page) {
-        // Determine the starting and ending row for the current page
-        const long long start_row { page * rows_per_page };
-        const long long end_row { qMin(start_row + rows_per_page, total_rows) };
+    // Set a simple border for the table (optional, but helps visibility)
+    QTextTableFormat table_format { table->format() };
+    table_format.setBorder(1); // Set a border width (can adjust to your preference)
+    table_format.setBorderStyle(QTextTableFormat::BorderStyle_Solid);
+    table->setFormat(table_format);
 
-        // Fill in data for this page's rows
-        for (long long row = start_row; row != end_row; ++row) {
-            for (long long col = 0; col != total_columns; ++col) {
-                QTextTableCell cell = table->cellAt(row, col);
-                QTextCursor cellCursor = cell.firstCursorPosition();
-
-                // Insert dynamic content into each cell (replace with actual content)
-                cellCursor.insertText(QString("Data %1, %2").arg(row + 1).arg(col + 1));
-            }
-        }
-
-        // Render the document contents onto the painter
-        document.drawContents(&painter);
-
-        // If there are more pages, start a new page
-        if (page != total_pages - 1) {
-            printer->newPage();
+    for (int row = 0; row < total_rows; ++row) {
+        for (int col = 0; col < total_columns; ++col) {
+            cursor = table->cellAt(row, col).firstCursorPosition();
+            cursor.insertText(QString("Row %1, Col %2").arg(row + 1).arg(col + 1)); // Example content
         }
     }
 
-    painter.end();
+    // Use QPainter to render the table from QTextDocument
+    document.print(printer);
 }
 
 void PrintManager::ApplyConfig(QPrinter* printer)

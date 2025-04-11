@@ -91,12 +91,6 @@ void PrintManager::RenderAllPages(QPrinter* printer)
     // Insert a table with the total rows and total columns
     QTextTable* table = cursor.insertTable(total_rows, total_columns);
 
-    // Set a simple border for the table (optional, but helps visibility)
-    QTextTableFormat table_format { table->format() };
-    table_format.setBorder(1); // Set a border width (can adjust to your preference)
-    table_format.setBorderStyle(QTextTableFormat::BorderStyle_Solid);
-    table->setFormat(table_format);
-
     for (int row = 0; row < total_rows; ++row) {
         for (int col = 0; col < total_columns; ++col) {
             cursor = table->cellAt(row, col).firstCursorPosition();

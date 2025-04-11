@@ -27,10 +27,9 @@
 #include "table/trans.h"
 #include "tree/model/nodemodel.h"
 
-struct FieldGeometry {
-    int x {};
-    int y {};
-    int width {};
+struct FieldPosition {
+    int row {};
+    int column {};
 };
 
 struct PrintData {
@@ -52,15 +51,13 @@ public:
 
 private:
     void RenderAllPages(QPrinter* printer);
-    void RenderHeader(QPainter* painter) const;
-    void RenderFooter(QPainter* painter) const;
 
-    void ApplyConfig(QPrinter* printer) const;
-    void ReadFieldGeometry(QSettings& settings, QHash<QString, FieldGeometry>& field_geometry, const QString& section, const QString& prefix);
+    void ApplyConfig(QPrinter* printer);
+    void ReadFieldPosition(QSettings& settings, QHash<QString, FieldPosition>& field_position, const QString& section, const QString& prefix);
 
 private:
     QHash<QString, QVariant> page_settings_ {};
-    QHash<QString, FieldGeometry> field_geometry_ {};
+    QHash<QString, FieldPosition> field_position_ {};
 
     QList<TransShadow*> trans_shadow_ {};
     PrintData data_ {};

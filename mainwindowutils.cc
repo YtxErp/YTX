@@ -103,7 +103,7 @@ void MainWindowUtils::ReadPrintTmplate(QMap<QString, QString>& print_template)
         return;
     }
 
-    const QStringList name_filters { "*.html" };
+    const QStringList name_filters { "*.ini" };
     const QDir::Filters entry_filters { QDir::Files | QDir::NoSymLinks };
     const QFileInfoList file_list { dir.entryInfoList(name_filters, entry_filters) };
 

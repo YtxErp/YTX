@@ -162,8 +162,8 @@ void PrintManager::ReadFieldPosition(QSettings& settings, QHash<QString, FieldPo
 
     // Read the position value from the settings
     const auto position { settings.value(full_key).value<QVariantList>() };
-    if (position.isEmpty()) {
-        qWarning() << "Empty position value for section:" << section << "field:" << prefix;
+    if (position.size() != 2) {
+        qWarning() << "Non valid position value for section:" << section << "field:" << prefix;
         return;
     }
 

@@ -32,7 +32,7 @@ public:
 
 signals:
     // send to sqlite stakeholder
-    void SSyncPrice(QList<PriceS>& list);
+    void SSyncPrice(const QList<PriceS>& list);
 
 public slots:
     void RRemoveNode(int node_id, int node_type) override;

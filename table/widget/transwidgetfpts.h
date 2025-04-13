@@ -23,7 +23,7 @@
 #include <QTableView>
 
 #include "table/model/transmodel.h"
-#include "widget/trans/transwidget.h"
+#include "table/widget/transwidget.h"
 
 namespace Ui {
 class TransWidgetFPTS;

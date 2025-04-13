@@ -21,7 +21,7 @@
 #define NODEMODELARG_H
 
 #include "database/sqlite/sqlite.h"
-#include "widget/trans/transwidget.h"
+#include "table/widget/transwidget.h"
 
 struct NodeModelArg {
     Sqlite* sql {};

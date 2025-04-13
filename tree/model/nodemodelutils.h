@@ -22,9 +22,10 @@
 
 #include <QStandardItemModel>
 
+#include "component/constvalue.h"
 #include "component/using.h"
+#include "table/widget/transwidget.h"
 #include "tree/node.h"
-#include "widget/trans/transwidget.h"
 
 class NodeModelUtils {
 public:

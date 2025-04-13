@@ -5,15 +5,17 @@
 #include <QPainter>
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+#include <QPrinterInfo>
 #include <QVariant>
 
-PrintManager::PrintManager(NodeModel* product, NodeModel* stakeholder)
-    : product_ { product }
+PrintManager::PrintManager(CAppSettings& app_settings, NodeModel* product, NodeModel* stakeholder)
+    : app_settings_ { app_settings }
+    , product_ { product }
     , stakeholder_ { stakeholder }
 {
 }
 
-void PrintManager::SetData(const PrintData& data, QList<TransShadow*> trans_shadow_list)
+void PrintManager::SetData(const PrintData& data, const QList<TransShadow*>& trans_shadow_list)
 {
     data_ = data;
     trans_shadow_list_ = trans_shadow_list;
@@ -23,6 +25,8 @@ void PrintManager::Preview()
 {
     QPrinter printer { QPrinter::ScreenResolution };
     ApplyConfig(&printer);
+
+    printer.setPrinterName(app_settings_.printer);
 
     QPrintPreviewDialog preview(&printer);
 
@@ -34,6 +38,18 @@ void PrintManager::Print()
 {
     QPrinter printer(QPrinter::ScreenResolution);
     ApplyConfig(&printer);
+
+    const auto available_printers { QPrinterInfo::availablePrinterNames() };
+    const QString& printer_name { app_settings_.printer };
+
+    if (printer_name.isEmpty() || !available_printers.contains(printer_name)) {
+        QPrintDialog dialog(&printer);
+        if (dialog.exec() != QDialog::Accepted) {
+            return;
+        }
+    } else {
+        printer.setPrinterName(printer_name);
+    }
 
     RenderAllPages(&printer);
 }
@@ -127,7 +143,7 @@ void PrintManager::DrawTable(QPainter* painter, long long start_index, long long
 
         for (int col = 0; col != columns; ++col) {
             QRect cellRect(left + col * width, top + row * heigh, width, heigh);
-            painter->drawRect(cellRect);
+            // painter->drawRect(cellRect);
             painter->drawText(cellRect, Qt::AlignCenter, GetColumnText(col, trans_shadow));
         }
     }

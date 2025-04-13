@@ -26,7 +26,7 @@
 #include <QWidget>
 
 #include "component/constvalue.h"
-#include "widget/trans/transwidget.h"
+#include "table/widget/transwidget.h"
 #include "worksheet.h"
 
 template <typename T>

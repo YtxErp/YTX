@@ -1,82 +1,11 @@
-#include "sqlieytx.h"
+#include "sqliteytx.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
 
 #include "component/constvalue.h"
-#include "global/databasemanager.h"
 
-SqlieYtx::SqlieYtx()
-    : db_ { DatabaseManager::Instance().GetDatabase() }
-{
-}
-
-void SqlieYtx::QuerySettings(Settings& settings, Section section)
-{
-    QSqlQuery query(*db_);
-    query.setForwardOnly(true);
-
-    const QString part = QStringLiteral(R"(
-    SELECT static_label, static_node, dynamic_label, dynamic_node_lhs, operation, dynamic_node_rhs, default_unit, document_dir, date_format, amount_decimal, common_decimal
-    FROM settings
-    WHERE id = :section
-)");
-
-    query.prepare(part);
-    query.bindValue(QStringLiteral(":section"), std::to_underlying(section) + 1);
-    if (!query.exec()) {
-        qWarning() << "Failed to query section settings: " << query.lastError().text();
-        return;
-    }
-
-    while (query.next()) {
-        settings.static_label = query.value(QStringLiteral("static_label")).toString();
-        settings.static_node = query.value(QStringLiteral("static_node")).toInt();
-        settings.dynamic_label = query.value(QStringLiteral("dynamic_label")).toString();
-        settings.dynamic_node_lhs = query.value(QStringLiteral("dynamic_node_lhs")).toInt();
-        settings.operation = query.value(QStringLiteral("operation")).toString();
-        settings.dynamic_node_rhs = query.value(QStringLiteral("dynamic_node_rhs")).toInt();
-        settings.default_unit = query.value(QStringLiteral("default_unit")).toInt();
-        settings.document_dir = query.value(QStringLiteral("document_dir")).toString();
-        settings.date_format = query.value(QStringLiteral("date_format")).toString();
-        settings.amount_decimal = query.value(QStringLiteral("amount_decimal")).toInt();
-        settings.common_decimal = query.value(QStringLiteral("common_decimal")).toInt();
-    }
-}
-
-void SqlieYtx::UpdateSettings(CSettings& settings, Section section)
-{
-    const QString part = QStringLiteral(R"(
-    UPDATE settings SET
-        static_label = :static_label, static_node = :static_node, dynamic_label = :dynamic_label, dynamic_node_lhs = :dynamic_node_lhs,
-        operation = :operation, dynamic_node_rhs = :dynamic_node_rhs, default_unit = :default_unit, document_dir = :document_dir,
-        date_format = :date_format, amount_decimal = :amount_decimal, common_decimal = :common_decimal
-    WHERE id = :section
-)");
-
-    QSqlQuery query(*db_);
-
-    query.prepare(part);
-    query.bindValue(QStringLiteral(":section"), std::to_underlying(section) + 1);
-    query.bindValue(QStringLiteral(":static_label"), settings.static_label);
-    query.bindValue(QStringLiteral(":static_node"), settings.static_node);
-    query.bindValue(QStringLiteral(":dynamic_label"), settings.dynamic_label);
-    query.bindValue(QStringLiteral(":dynamic_node_lhs"), settings.dynamic_node_lhs);
-    query.bindValue(QStringLiteral(":operation"), settings.operation);
-    query.bindValue(QStringLiteral(":dynamic_node_rhs"), settings.dynamic_node_rhs);
-    query.bindValue(QStringLiteral(":default_unit"), settings.default_unit);
-    query.bindValue(QStringLiteral(":document_dir"), settings.document_dir);
-    query.bindValue(QStringLiteral(":date_format"), settings.date_format);
-    query.bindValue(QStringLiteral(":amount_decimal"), settings.amount_decimal);
-    query.bindValue(QStringLiteral(":common_decimal"), settings.common_decimal);
-
-    if (!query.exec()) {
-        qWarning() << "Failed to update section settings: " << query.lastError().text();
-        return;
-    }
-}
-
-bool SqlieYtx::NewFile(CString& file_path)
+bool SqliteYtx::NewFile(const QString& file_path)
 {
     QSqlDatabase db { QSqlDatabase::addDatabase(kQSQLITE) };
     db.setDatabaseName(file_path);
@@ -109,31 +38,14 @@ bool SqlieYtx::NewFile(CString& file_path)
     const QString sales_trans { TransOrder(kSales) };
     const QString sales_settlement { SettlementOrder(kSales) };
 
-    const QString settings { QStringLiteral(R"(
-    CREATE TABLE IF NOT EXISTS settings (
-        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-        static_label        TEXT,
-        static_node         INTEGER,
-        dynamic_label       TEXT,
-        dynamic_node_lhs    INTEGER,
-        operation           TEXT,
-        dynamic_node_rhs    INTEGER,
-        default_unit        INTEGER,
-        document_dir        TEXT,
-        date_format         TEXT       DEFAULT 'yyyy-MM-dd HH:mm',
-        amount_decimal      INTEGER    DEFAULT 2,
-        common_decimal      INTEGER    DEFAULT 2
-    );
-    )") };
-
     QSqlQuery query {};
     if (db.transaction()) {
         // Execute each table creation query
         if (query.exec(finance) && query.exec(finance_path) && query.exec(finance_trans) && query.exec(product) && query.exec(product_path)
             && query.exec(product_trans) && query.exec(stakeholder) && query.exec(stakeholder_path) && query.exec(stakeholder_trans) && query.exec(task)
             && query.exec(task_path) && query.exec(task_trans) && query.exec(purchase) && query.exec(purchase_path) && query.exec(purchase_trans)
-            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(settings) && query.exec(purchase_settlement)
-            && query.exec(sales_settlement) && NodeIndex(query)) {
+            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(purchase_settlement) && query.exec(sales_settlement)
+            && NodeIndex(query)) {
             // Commit the transaction if all queries are successful
             if (db.commit()) {
                 for (int i = 0; i != 6; ++i) {
@@ -160,7 +72,7 @@ bool SqlieYtx::NewFile(CString& file_path)
     return true;
 }
 
-QString SqlieYtx::NodeFinance()
+QString SqliteYtx::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
@@ -179,7 +91,7 @@ QString SqlieYtx::NodeFinance()
     )");
 }
 
-QString SqlieYtx::NodeStakeholder()
+QString SqliteYtx::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
@@ -200,7 +112,7 @@ QString SqlieYtx::NodeStakeholder()
     )");
 }
 
-QString SqlieYtx::NodeProduct()
+QString SqliteYtx::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
@@ -222,7 +134,7 @@ QString SqlieYtx::NodeProduct()
 )");
 }
 
-QString SqlieYtx::NodeTask()
+QString SqliteYtx::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
@@ -246,7 +158,7 @@ QString SqlieYtx::NodeTask()
     )");
 }
 
-QString SqlieYtx::NodeOrder(CString& order)
+QString SqliteYtx::NodeOrder(const QString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -272,7 +184,7 @@ QString SqlieYtx::NodeOrder(CString& order)
         .arg(order);
 }
 
-QString SqlieYtx::Path(CString& table_name)
+QString SqliteYtx::Path(const QString& table_name)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_path (
@@ -284,7 +196,7 @@ QString SqlieYtx::Path(CString& table_name)
         .arg(table_name);
 }
 
-QString SqlieYtx::TransFinance()
+QString SqliteYtx::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
@@ -308,7 +220,7 @@ QString SqlieYtx::TransFinance()
     )");
 }
 
-QString SqlieYtx::TransOrder(CString& order)
+QString SqliteYtx::TransOrder(const QString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_transaction (
@@ -331,7 +243,7 @@ QString SqlieYtx::TransOrder(CString& order)
         .arg(order);
 }
 
-QString SqlieYtx::TransStakeholder()
+QString SqliteYtx::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
@@ -350,7 +262,7 @@ QString SqlieYtx::TransStakeholder()
     )");
 }
 
-QString SqlieYtx::TransTask()
+QString SqliteYtx::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
@@ -373,7 +285,7 @@ QString SqlieYtx::TransTask()
     )");
 }
 
-QString SqlieYtx::TransProduct()
+QString SqliteYtx::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
@@ -396,7 +308,7 @@ QString SqlieYtx::TransProduct()
     )");
 }
 
-bool SqlieYtx::NodeIndex(QSqlQuery& query)
+bool SqliteYtx::NodeIndex(QSqlQuery& query)
 {
     // Create an index on (party, date_time)
     QString sql1 = QStringLiteral("CREATE INDEX IF NOT EXISTS idx_sales_party_datetime ON sales (party, date_time);");
@@ -427,7 +339,7 @@ bool SqlieYtx::NodeIndex(QSqlQuery& query)
     return true;
 }
 
-QString SqlieYtx::SettlementOrder(CString& order)
+QString SqliteYtx::SettlementOrder(const QString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_settlement (
@@ -444,7 +356,7 @@ QString SqlieYtx::SettlementOrder(CString& order)
 }
 
 #if 0
-bool SqlieYtx::TransIndex(QSqlQuery& /*query*/)
+bool SqliteYtx::TransIndex(QSqlQuery& /*query*/)
 {
     bool success = true;
 
@@ -502,7 +414,7 @@ bool SqlieYtx::TransIndex(QSqlQuery& /*query*/)
         QStringList index_columns { "lhs_debit", "lhs_credit", "rhs_debit", "rhs_credit" };
 
         for (const auto& column : index_columns) {
-            CString sql { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(table, column) };
+            const QString sql { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(table, column) };
 
             if (!query.exec(sql)) {
                 qDebug() << "Failed to create index " << table << ": " << query.lastError().text();
@@ -511,7 +423,7 @@ bool SqlieYtx::TransIndex(QSqlQuery& /*query*/)
         }
     }
 
-    CString idx_stakeholder { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(kStakeholderTrans, kUnitPrice) };
+    const QString idx_stakeholder { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(kStakeholderTrans, kUnitPrice) };
     if (!query.exec(idx_stakeholder)) {
         qDebug() << "Failed to create index " << kStakeholderTrans << ": " << query.lastError().text();
         success = false;
@@ -526,7 +438,7 @@ bool SqlieYtx::TransIndex(QSqlQuery& /*query*/)
         QStringList index_columns { kFirst, kSecond };
 
         for (const auto& column : index_columns) {
-            CString sql { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(table, column) };
+            const QString sql { QString("CREATE INDEX IF NOT EXISTS idx_%1_%2 ON %1 (%2);").arg(table, column) };
 
             if (!query.exec(sql)) {
                 qDebug() << "Failed to create index " << table << ": " << query.lastError().text();

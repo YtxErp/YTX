@@ -4,11 +4,11 @@
 #include "component/signalblocker.h"
 #include "ui_nodewidgetpt.h"
 
-NodeWidgetPT::NodeWidgetPT(NodeModel* model, CSettings& settings, QWidget* parent)
+NodeWidgetPT::NodeWidgetPT(NodeModel* model, CSectionSettings& section_settings, QWidget* parent)
     : NodeWidget(parent)
     , ui(new Ui::NodeWidgetPT)
     , model_ { model }
-    , settings_ { settings }
+    , section_settings_ { section_settings }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -29,10 +29,10 @@ void NodeWidgetPT::UpdateStatus()
 
 void NodeWidgetPT::UpdateStaticStatus()
 {
-    ui->dspin_box_static_->setDecimals(settings_.common_decimal);
-    ui->lable_static_->setText(settings_.static_label);
+    ui->dspin_box_static_->setDecimals(section_settings_.common_decimal);
+    ui->lable_static_->setText(section_settings_.static_label);
 
-    const int static_node_id { settings_.static_node };
+    const int static_node_id { section_settings_.static_node };
 
     if (model_->Contains(static_node_id)) {
         UpdateStaticValue(static_node_id);
@@ -43,11 +43,11 @@ void NodeWidgetPT::UpdateStaticStatus()
 
 void NodeWidgetPT::UpdateDynamicStatus()
 {
-    ui->dspin_box_dynamic_->setDecimals(settings_.common_decimal);
-    ui->label_dynamic_->setText(settings_.dynamic_label);
+    ui->dspin_box_dynamic_->setDecimals(section_settings_.common_decimal);
+    ui->label_dynamic_->setText(section_settings_.dynamic_label);
 
-    const int dynamic_node_id_lhs { settings_.dynamic_node_lhs };
-    const int dynamic_node_id_rhs { settings_.dynamic_node_rhs };
+    const int dynamic_node_id_lhs { section_settings_.dynamic_node_lhs };
+    const int dynamic_node_id_rhs { section_settings_.dynamic_node_rhs };
 
     if (model_->Contains(dynamic_node_id_lhs) || model_->Contains(dynamic_node_id_rhs)) {
         UpdateDynamicValue(dynamic_node_id_lhs, dynamic_node_id_rhs);
@@ -60,8 +60,8 @@ QPointer<QTreeView> NodeWidgetPT::View() const { return ui->treeViewFPT; }
 
 void NodeWidgetPT::RSyncStatusValue()
 {
-    UpdateStaticValue(settings_.static_node);
-    UpdateDynamicValue(settings_.dynamic_node_lhs, settings_.dynamic_node_rhs);
+    UpdateStaticValue(section_settings_.static_node);
+    UpdateDynamicValue(section_settings_.dynamic_node_lhs, section_settings_.dynamic_node_rhs);
 }
 
 void NodeWidgetPT::UpdateDynamicValue(int lhs_node_id, int rhs_node_id)
@@ -72,7 +72,7 @@ void NodeWidgetPT::UpdateDynamicValue(int lhs_node_id, int rhs_node_id)
     const double lhs_total { model_->InitialTotal(lhs_node_id) };
     const double rhs_total { model_->InitialTotal(rhs_node_id) };
 
-    const auto& operation { settings_.operation.isEmpty() ? kPlus : settings_.operation };
+    const auto& operation { section_settings_.operation.isEmpty() ? kPlus : section_settings_.operation };
     const double total { Operate(lhs_total, rhs_total, operation) };
 
     ui->dspin_box_dynamic_->setValue(total);

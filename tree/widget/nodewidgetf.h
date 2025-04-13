@@ -17,27 +17,28 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef NODEWIDGETPT_H
-#define NODEWIDGETPT_H
+#ifndef NODEWIDGETF_H
+#define NODEWIDGETF_H
 
 #include <QDoubleSpinBox>
 
+#include "component/info.h"
 #include "component/settings.h"
 #include "nodewidget.h"
 
 namespace Ui {
-class NodeWidgetPT;
+class NodeWidgetF;
 }
 
-class NodeWidgetPT final : public NodeWidget {
+class NodeWidgetF final : public NodeWidget {
     Q_OBJECT
 
 public slots:
     void RSyncStatusValue() override;
 
 public:
-    NodeWidgetPT(NodeModel* model, CSettings& settings, QWidget* parent = nullptr);
-    ~NodeWidgetPT() override;
+    NodeWidgetF(NodeModel* model, CInfo& info, CSectionSettings& section_settings, QWidget* parent = nullptr);
+    ~NodeWidgetF() override;
 
     QPointer<QTreeView> View() const override;
     QPointer<NodeModel> Model() const override { return model_; };
@@ -50,12 +51,17 @@ private:
     void UpdateDynamicValue(int lhs_node_id, int rhs_node_id);
     void UpdateStaticValue(int node_id);
     double Operate(double lhs, double rhs, const QString& operation);
+    void ResetStatus(QDoubleSpinBox* spin_box, bool& flags);
 
 private:
-    Ui::NodeWidgetPT* ui;
+    Ui::NodeWidgetF* ui;
     NodeModel* model_ {};
 
-    CSettings& settings_ {};
+    CInfo& info_ {};
+    CSectionSettings& section_settings_ {};
+
+    bool dynamic_unit_is_not_default_but_equal_ { false };
+    bool static_unit_is_default_ { false };
 };
 
-#endif // NODEWIDGETPT_H
+#endif // NODEWIDGETF_H

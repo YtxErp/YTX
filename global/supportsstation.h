@@ -21,7 +21,7 @@
 #define SUPPORTSSTATION_H
 
 #include "component/enumclass.h"
-#include "table/supportmodel.h"
+#include "support/model/supportmodel.h"
 
 // support node signal station
 

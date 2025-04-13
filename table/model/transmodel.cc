@@ -2,6 +2,7 @@
 
 #include <QtConcurrent>
 
+#include "component/constvalue.h"
 #include "global/resourcepool.h"
 #include "transmodelutils.h"
 

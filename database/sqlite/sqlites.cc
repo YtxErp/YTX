@@ -61,7 +61,7 @@ void SqliteS::RRemoveNode(int node_id, int node_type)
     RemoveNode(node_id, node_type);
 }
 
-void SqliteS::RPriceSList(QList<PriceS>& list)
+void SqliteS::RPriceSList(const QList<PriceS>& list)
 {
     for (int i = 0; i != list.size(); ++i) {
         Trans* latest_trans { nullptr };

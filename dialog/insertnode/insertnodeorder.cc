@@ -22,7 +22,7 @@ InsertNodeOrder::InsertNodeOrder(
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    IniDialog(arg.settings);
+    IniDialog(arg.section_settings);
     IniText(arg.section);
     IniRuleGroup();
     IniUnitGroup();
@@ -126,7 +126,7 @@ void InsertNodeOrder::RSyncString(int node_id, int column, const QString& value)
 
 QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewO; }
 
-void InsertNodeOrder::IniDialog(CSettings* settings)
+void InsertNodeOrder::IniDialog(CSectionSettings* section_settings)
 {
     pmodel_ = stakeholder_node_->IncludeUnitModel(party_unit_);
     ui->comboParty->setModel(pmodel_);
@@ -147,11 +147,11 @@ void InsertNodeOrder::IniDialog(CSettings* settings)
     ui->dSpinSecond->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     ui->dSpinFirst->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
 
-    ui->dSpinDiscount->setDecimals(settings->amount_decimal);
-    ui->dSpinGrossAmount->setDecimals(settings->amount_decimal);
-    ui->dSpinSettlement->setDecimals(settings->amount_decimal);
-    ui->dSpinSecond->setDecimals(settings->common_decimal);
-    ui->dSpinFirst->setDecimals(settings->common_decimal);
+    ui->dSpinDiscount->setDecimals(section_settings->amount_decimal);
+    ui->dSpinGrossAmount->setDecimals(section_settings->amount_decimal);
+    ui->dSpinSettlement->setDecimals(section_settings->amount_decimal);
+    ui->dSpinSecond->setDecimals(section_settings->common_decimal);
+    ui->dSpinFirst->setDecimals(section_settings->common_decimal);
 
     ui->dSpinDiscount->setAlignment(Qt::AlignRight | Qt::AlignBottom);
     ui->dSpinSettlement->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
@@ -247,7 +247,7 @@ void InsertNodeOrder::PreparePrint()
         unit = tr("IS");
         break;
     case UnitO::kPEND:
-        unit = tr("Pend");
+        unit = tr("PEND");
         break;
     default:
         break;

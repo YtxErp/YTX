@@ -24,7 +24,7 @@
 
 #include "component/arg/insertnodeargo.h"
 #include "database/sqlite/sqliteo.h"
-#include "report/model/printmanager.h"
+#include "report/printmanager.h"
 #include "table/model/transmodelo.h"
 
 namespace Ui {
@@ -106,7 +106,7 @@ private:
     SqliteO* sql_ {};
     TransModelO* order_trans_ {};
     NodeModel* stakeholder_node_ {};
-    CSettings* settings_ {};
+    CSectionSettings* settings_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
 

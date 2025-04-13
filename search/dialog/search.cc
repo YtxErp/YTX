@@ -12,7 +12,7 @@
 #include "delegate/search/searchpathtreer.h"
 #include "ui_search.h"
 
-Search::Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent)
+Search::Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSectionSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Search)
     , sql_ { sql }

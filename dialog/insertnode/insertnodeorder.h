@@ -26,7 +26,7 @@
 
 #include "component/arg/insertnodeargo.h"
 #include "database/sqlite/sqliteo.h"
-#include "report/model/printmanager.h"
+#include "report/printmanager.h"
 #include "table/model/transmodelo.h"
 
 namespace Ui {
@@ -88,7 +88,7 @@ private slots:
     void RUnitGroupClicked(int id);
 
 private:
-    void IniDialog(CSettings* settings);
+    void IniDialog(CSectionSettings* section_settings);
     void IniConnect();
     void IniUnit(int unit);
     void IniRule(bool rule);

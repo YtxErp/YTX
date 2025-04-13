@@ -1,10 +1,25 @@
 # YTX
 
-Welcome! I’d like to introduce you to YTX, a stand-alone software designed to simplify your work, inspired by [GnuCash](https://gnucash.org). It functions as a lightweight ERP system to streamline your operations. I hope YTX will be a valuable tool in helping you manage your tasks more efficiently. Dive in and start exploring — Excited to help you get the most out of your experience!
+- [YTX](#ytx)
+  - [Introduction](#introduction)
+  - [Developer](#developer)
+    - [Node](#node)
+    - [Trans](#trans)
+    - [Build](#build)
+  - [User](#user)
+    - [Description](#description)
+    - [Action](#action)
+  - [Support Me](#support-me)
 
-## Developer Guide
+## Introduction
 
-### Node, Sqlite3 And Enum
+YTX is a lightweight standalone ERP software, built on SQLite3 database, designed specifically for small businesses. It covers a range of modules including Finance, Product, Task, Sale, Purchase, and Stakeholder, providing a comprehensive solution for managing day-to-day operations. YTX is user-friendly and ideal for small enterprises seeking an efficient and complete management tool.
+
+Inspired by GnuCash, YTX adopts a similar tree-based organizational model, known for its efficiency. This approach has been extended across all modules in YTX, offering a more modern, maintainable solution that is easy to update and add new features.
+
+## Developer
+
+### Node
 
 | Node              |  name   |   id    |  code   | description  |  note   |  type   |  rule   |  unit   |  party  | employee  | date_time |  color  |  document   |    first     |   second    | discount  | finished  | initial_total | final_total |
 | ----------------- | :-----: | :-----: | :-----: | :----------: | :-----: | :-----: | :-----: | :-----: | :-----: | :-------: | :-------: | :-----: | :---------: | :----------: | :---------: | :-------: | :-------: | :-----------: | :---------: |
@@ -33,7 +48,7 @@ Welcome! I’d like to introduce you to YTX, a stand-alone software designed to 
 | Settlement        |    X    |   kID   |    X    | kDescription |    X    |    X    |    X    |    X    | kParty  |     X     | kDateTime |    X    |      X      |      X       |      X      |     X     | kFinished | kGrossAmount  |      X      |
 | SettlementPrimary |    X    |   kID   |    X    | kDescription |    X    |    X    |    X    |    X    |    X    | kEmployee | kDateTime |    X    |      X      |      X       |      X      |     X     | kFinished | kGrossAmount  |      X      |
 
-### Trans, Sqlite3 And Enum
+### Trans
 
 | Trans              | date_time |   id    |  code   |  lhs_node  | lhs_ratio  | lhs_debit | lhs_credit | description  |   support_id    | discount  |  document   |  state  |  rhs_credit  |   rhs_debit   |   rhs_ratio    |    rhs_node    |
 | ------------------ | :-------: | :-----: | :-----: | :--------: | :--------: | :-------: | :--------: | :----------: | :-------------: | :-------: | :---------: | :-----: | :----------: | :-----------: | :------------: | :------------: |
@@ -63,7 +78,7 @@ Welcome! I’d like to introduce you to YTX, a stand-alone software designed to 
 | Statement          |     X     | kParty  |    X    |     X      | kPBalance  |  kCFirst  |  kCSecond  |      X       |        X        |     X     |      X      |    X    | kCSettlement | kCGrossAmount |   kCBalance    |       X        |
 | StatementSecondary | kDateTime |    X    |    X    |     X      | kUnitPrice |  kFirst   |  kSecond   | kDescription | kOutsideProduct |     X     |      X      | kState  | kSettlement  | kGrossAmount  |       X        | kInsideProduct |
 
-### Build Requirements
+### Build
 
 This is a pure Qt project. Only a compatible version of Qt and a compiler are required.
 
@@ -77,9 +92,9 @@ This is a pure Qt project. Only a compatible version of Qt and a compiler are re
 - CMake: 3.19+
 - Compiler: GCC 12+ or LLVM/Clang 14+
 
-## User Guide
+## User
 
-### Introduction
+### Description
 
 1. Most features are unavailable until the database is opened.
 2. Files
@@ -96,7 +111,7 @@ This is a pure Qt project. Only a compatible version of Qt and a compiler are re
     - Win: `C:/Users/<USER>/AppData/Local/<APPNAME>`
     - Linux: `~/.config/<APPNAME>`
 
-### Actions
+### Action
 
 1. Preferences
     - Default Unit: Set the default unit.
@@ -143,3 +158,9 @@ This is a pure Qt project. Only a compatible version of Qt and a compiler are re
 4. Status bar
     - The middle section shows the node’s total value in the current unit.
     - The right section shows the result of operations between two nodes.
+
+## Support Me
+
+If YTX has helped you, how about buying me a coffee?
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" width="160" height="40">](https://buymeacoffee.com/ytx.cash)

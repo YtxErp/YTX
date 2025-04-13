@@ -34,7 +34,7 @@ public slots:
     void RRemoveNode(int node_id, int node_type) override;
     void RSyncProduct(int old_node_id, int new_node_id) const override;
 
-    void RPriceSList(QList<PriceS>& list);
+    void RPriceSList(const QList<PriceS>& list);
 
 public:
     bool CrossSearch(TransShadow* order_trans_shadow, int party_id, int product_id, bool is_inside) const;

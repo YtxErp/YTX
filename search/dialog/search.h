@@ -25,8 +25,8 @@
 #include <QTableView>
 
 #include "component/settings.h"
-#include "table/searchtransmodel.h"
-#include "tree/searchnodemodel.h"
+#include "search/model/searchnodemodel.h"
+#include "search/model/searchtransmodel.h"
 
 namespace Ui {
 class Search;
@@ -36,7 +36,8 @@ class Search final : public QDialog {
     Q_OBJECT
 
 public:
-    Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSettings* settings, Sqlite* sql, CInfo& info, QWidget* parent = nullptr);
+    Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSectionSettings* settings, Sqlite* sql, CInfo& info,
+        QWidget* parent = nullptr);
     ~Search();
 
 signals:
@@ -79,7 +80,7 @@ private:
     CNodeModel* product_tree_ {};
     QButtonGroup* content_group_ {};
 
-    CSettings* settings_;
+    CSectionSettings* settings_;
     CInfo& info_;
     const Section section_ {};
 };

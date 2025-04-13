@@ -11,7 +11,7 @@ TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& p
     , sql_ { qobject_cast<SqliteO*>(arg.sql) }
     , order_trans_ { qobject_cast<TransModelO*>(arg.order_trans) }
     , stakeholder_node_ { arg.stakeholder_node }
-    , settings_ { arg.settings }
+    , settings_ { arg.section_settings }
     , node_id_ { arg.node->id }
     , party_unit_ { arg.section == Section::kSales ? std::to_underlying(UnitS::kCust) : std::to_underlying(UnitS::kVend) }
     , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }
@@ -454,7 +454,7 @@ void TransWidgetO::PreparePrint()
         unit = tr("IS");
         break;
     case UnitO::kPEND:
-        unit = tr("Pend");
+        unit = tr("PEND");
         break;
     default:
         break;

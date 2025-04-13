@@ -88,7 +88,7 @@ private slots:
     void RUnitGroupClicked(int id);
 
 private:
-    void IniDialog(CSettings* settings);
+    void IniDialog(CSectionSettings* section_settings);
     void IniConnect();
     void IniUnit(int unit);
     void IniRule(bool rule);

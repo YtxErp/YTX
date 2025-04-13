@@ -37,11 +37,11 @@ class Preferences final : public QDialog {
     Q_OBJECT
 
 public:
-    Preferences(CInfo& info, CNodeModel* model, Interface interface, Settings settings, QWidget* parent = nullptr);
+    Preferences(CInfo& info, CNodeModel* model, AppSettings app, FileSettings file, SectionSettings section, QWidget* parent = nullptr);
     ~Preferences();
 
 signals:
-    void SUpdateSettings(CSettings& settings, CInterface& interface);
+    void SUpdateSettings(const AppSettings& app, const FileSettings& file, const SectionSettings& section);
 
 private slots:
     void on_pBtnApply_clicked();
@@ -64,7 +64,9 @@ private slots:
     void on_comboLanguage_currentIndexChanged(int index);
     void on_comboDateFormat_currentIndexChanged(int index);
     void on_comboSeparator_currentIndexChanged(int index);
-    void on_lineCompany_editingFinished();
+    void on_lineCompanyName_editingFinished();
+
+    void on_comboPrinter_currentIndexChanged(int index);
 
 private:
     void IniDialog(QStandardItemModel* unit_model);
@@ -90,8 +92,9 @@ private:
 
     QStandardItemModel* leaf_path_branch_path_model_ {};
 
-    Interface interface_ {};
-    Settings settings_ {};
+    AppSettings app_ {};
+    FileSettings file_ {};
+    SectionSettings section_ {};
     CNodeModel* model_ {};
 };
 

@@ -24,6 +24,7 @@
 #include <QSettings>
 #include <QString>
 
+#include "component/settings.h"
 #include "table/trans.h"
 #include "tree/model/nodemodel.h"
 
@@ -42,10 +43,10 @@ struct PrintData {
 
 class PrintManager {
 public:
-    PrintManager(NodeModel* product, NodeModel* stakeholder);
+    PrintManager(CAppSettings& app_settings, NodeModel* product, NodeModel* stakeholder);
 
     bool LoadIni(const QString& file_path);
-    void SetData(const PrintData& print_data, QList<TransShadow*> trans_shadow_list);
+    void SetData(const PrintData& print_data, const QList<TransShadow*>& trans_shadow_list);
     void Preview();
     void Print();
 
@@ -64,6 +65,7 @@ private:
 private:
     QHash<QString, QVariant> page_settings_ {};
     QHash<QString, FieldSettings> field_settings_ {};
+    CAppSettings& app_settings_ {};
 
     QList<TransShadow*> trans_shadow_list_ {};
     PrintData data_ {};

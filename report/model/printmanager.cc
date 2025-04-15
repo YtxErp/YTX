@@ -143,7 +143,7 @@ void PrintManager::DrawTable(QPainter* painter, long long start_index, long long
 
         for (int col = 0; col != columns; ++col) {
             QRect cellRect(left + col * width, top + row * heigh, width, heigh);
-            painter->drawRect(cellRect);
+            // painter->drawRect(cellRect);
             painter->drawText(cellRect, Qt::AlignCenter, GetColumnText(col, trans_shadow));
         }
     }

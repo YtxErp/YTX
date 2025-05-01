@@ -190,6 +190,7 @@
      <addaction name="actionExportYTX"/>
     </widget>
     <addaction name="actionAbout"/>
+    <addaction name="actionLicence"/>
     <addaction name="separator"/>
     <addaction name="actionNewFile"/>
     <addaction name="actionOpenFile"/>
@@ -442,6 +443,17 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionLicence">
+   <property name="text">
+    <string>Licence...</string>
+   </property>
+   <property name="toolTip">
+    <string>Licence...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::ApplicationSpecificRole</enum>
    </property>
   </action>
  </widget>

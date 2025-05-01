@@ -23,6 +23,7 @@
 #include <QFileInfo>
 #include <QLockFile>
 #include <QMainWindow>
+#include <QNetworkAccessManager>
 #include <QPointer>
 #include <QSettings>
 #include <QTableView>
@@ -72,6 +73,7 @@ private slots:
     void on_actionSupportJump_triggered();
     void on_actionAbout_triggered();
     void on_actionPreferences_triggered();
+    void on_actionLicence_triggered();
     void on_actionSearch_triggered();
     void on_actionClearMenu_triggered();
 
@@ -223,6 +225,7 @@ private:
 
     void OrderTransLocation(int node_id);
     void RegisterRptWgt(ReportWidget* widget);
+    void VerifyActivation();
 
 private:
     Ui::MainWindow* ui {};
@@ -231,8 +234,15 @@ private:
     Section start_ {};
     int report_id_ { -1 };
 
-    QPointer<SettlementWidget> settlement_widget_;
+    QPointer<SettlementWidget> settlement_widget_ {};
     QMap<QString, QString> print_template_ {};
+
+    QPointer<QNetworkAccessManager> network_manager_ {};
+    QSharedPointer<QSettings> license_settings_ {};
+    QString hardware_uuid_ {};
+    QString activation_code_ {};
+    QString activation_url_ {};
+    bool is_activated_ { false };
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};

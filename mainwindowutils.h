@@ -51,6 +51,7 @@ public:
     static QSet<int> ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property);
 
     static void ReadPrintTmplate(QMap<QString, QString>& print_template);
+    static QString GetHardwareUUID();
 
     static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);
     static void ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
@@ -63,7 +64,7 @@ public:
     static bool IsSupportWidget(const QWidget* widget) { return widget && widget->inherits("SupportWidget"); }
 
     static bool PrepareNewFile(QString& file_path, CString& suffix);
-    static bool CheckFileValid(CString& file_path, CString& suffix = kSuffixYTX);
+    static bool CheckFileValid(CString& file_path, CString& suffix = kYTX);
 
     static bool AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name);
     static QSqlDatabase GetDatabase(CString& connection_name);
@@ -196,6 +197,10 @@ public:
 private:
     static QString GeneratePlaceholder(const QVariantList& values);
     static bool CheckFileSQLite(CString& file_path);
+
+    static QString GetWinUUID();
+    static QString GetMacUUID();
+
     // static bool CopyFile(CString& source, QString& destination);
 };
 

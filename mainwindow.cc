@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QNetworkReply>
 #include <QQueue>
 #include <QResource>
 #include <QScrollBar>
@@ -58,6 +59,7 @@
 #include "dialog/insertnode/insertnodeproduct.h"
 #include "dialog/insertnode/insertnodestakeholder.h"
 #include "dialog/insertnode/insertnodetask.h"
+#include "dialog/licence.h"
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "document.h"
@@ -114,6 +116,7 @@ MainWindow::MainWindow(QWidget* parent)
     MainWindowUtils::ReadSettings(this, &QMainWindow::restoreGeometry, app_settings_sync_, kMainwindow, kGeometry);
 
     RestoreRecentFile();
+    VerifyActivation();
     EnableAction(false);
 
 #ifdef Q_OS_WIN
@@ -154,6 +157,11 @@ MainWindow::~MainWindow()
 
 bool MainWindow::ROpenFile(CString& file_path)
 {
+    if (!is_activated_) {
+        QMessageBox::critical(this, tr("Activation Required"), tr("The software is not activated. Please activate it first."));
+        return false;
+    }
+
     if (!MainWindowUtils::CheckFileValid(file_path))
         return false;
 
@@ -2476,9 +2484,63 @@ void MainWindow::ResizeColumn(QHeaderView* header, int stretch_column) const
     header->setSectionResizeMode(stretch_column, QHeaderView::Stretch);
 }
 
+void MainWindow::VerifyActivation()
+{
+    // Initialize hardware UUID
+    hardware_uuid_ = MainWindowUtils::GetHardwareUUID();
+    if (hardware_uuid_.isEmpty()) {
+        QMessageBox::critical(this, tr("Error"), tr("Failed to retrieve hardware UUID."));
+        return;
+    }
+
+    // Initialize network manager if not already created
+    if (!network_manager_) {
+        network_manager_ = new QNetworkAccessManager(this);
+    }
+
+    // Load activation code from ini file
+    license_settings_ = QSharedPointer<QSettings>::create(
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + kLicense + kDotSuffixINI, QSettings::IniFormat);
+
+    license_settings_->beginGroup(kLicense);
+    activation_code_ = license_settings_->value(kActivationCode, {}).toString();
+    activation_url_ = license_settings_->value(kActivationUrl, "http://127.0.0.1:8080").toString();
+    license_settings_->endGroup();
+
+    // Prepare the request
+    const QUrl url(activation_url_ + QDir::separator() + kActivate);
+
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    // Create JSON payload
+    const QJsonObject json { { "hardware_uuid", hardware_uuid_ }, { "activation_code", activation_code_ } };
+
+    // Send the request
+    QNetworkReply* reply { network_manager_->post(request, QJsonDocument(json).toJson()) };
+
+    // Handle response
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            is_activated_ = true;
+        } else {
+            is_activated_ = false;
+        }
+        reply->deleteLater();
+    });
+
+    // Handle timeout
+    connect(reply, &QNetworkReply::errorOccurred, this, [this](QNetworkReply::NetworkError error) {
+        if (error == QNetworkReply::TimeoutError) {
+            QMessageBox::critical(this, tr("Error"), tr("Connection timeout. Please try again."));
+        }
+    });
+}
+
 void MainWindow::ReadAppSettings()
 {
-    app_settings_sync_ = std::make_unique<QSettings>(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/ytx.ini", QSettings::IniFormat);
+    app_settings_sync_ = std::make_shared<QSettings>(
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + kYTX + kDotSuffixINI, QSettings::IniFormat);
 
     QString language_code { kEnUS };
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
@@ -2511,7 +2573,7 @@ void MainWindow::ReadAppSettings()
 
 void MainWindow::ReadFileSettings(CString& complete_base_name)
 {
-    file_settings_sync_ = std::make_unique<QSettings>(
+    file_settings_sync_ = std::make_shared<QSettings>(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
 
     file_settings_sync_->beginGroup(kCompany);
@@ -2663,6 +2725,20 @@ void MainWindow::on_actionAbout_triggered()
 
     if (!dialog) {
         dialog = new About(this);
+        dialog->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+        connect(dialog, &QDialog::finished, [=]() { dialog = nullptr; });
+    }
+
+    dialog->show();
+    dialog->activateWindow();
+}
+
+void MainWindow::on_actionLicence_triggered()
+{
+    static Licence* dialog = nullptr;
+
+    if (!dialog) {
+        dialog = new Licence(network_manager_, license_settings_, hardware_uuid_, activation_code_, activation_url_, is_activated_, this);
         dialog->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
         connect(dialog, &QDialog::finished, [=]() { dialog = nullptr; });
     }

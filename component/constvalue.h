@@ -72,7 +72,11 @@ inline constexpr char kDotSuffixYTX[] = ".ytx";
 
 inline constexpr char kSuffixPERCENT[] = "%";
 inline constexpr char kSuffixXLSX[] = "xlsx";
-inline constexpr char kSuffixYTX[] = "ytx";
+
+inline constexpr char kLicense[] = "license";
+inline constexpr char kActivationCode[] = "activation_code";
+inline constexpr char kActivationUrl[] = "activation_url";
+inline constexpr char kActivate[] = "activate";
 
 inline constexpr char kSourceConnection[] = "source_connection";
 inline constexpr char kDestinationConnection[] = "destination_connection";

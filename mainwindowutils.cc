@@ -265,6 +265,51 @@ bool MainWindowUtils::CheckFileSQLite(CString& file_path)
     return file_header.startsWith("SQLite");
 }
 
+QString MainWindowUtils::GetHardwareUUID()
+{
+#ifdef Q_OS_WIN
+    return GetWinUUID();
+#elif defined(Q_OS_MAC)
+    return GetMacUUID();
+#else
+    return QString();
+#endif
+}
+
+QString MainWindowUtils::GetWinUUID()
+{
+    QProcess process {};
+    process.start("wmic", QStringList() << "csproduct" << "get" << "UUID");
+    if (!process.waitForFinished(5000)) { // 5 second timeout
+        qDebug() << "Failed to get Windows UUID: Process timeout";
+        return QString();
+    }
+
+    const QString output { process.readAllStandardOutput() };
+    const QStringList lines { output.split("\n", Qt::SkipEmptyParts) };
+    return lines.size() > 1 ? lines[1].trimmed() : QString();
+}
+
+QString MainWindowUtils::GetMacUUID()
+{
+    QProcess process {};
+    process.start("ioreg", QStringList() << "-rd1" << "-c" << "IOPlatformExpertDevice");
+    if (!process.waitForFinished(5000)) { // 5 second timeout
+        qDebug() << "Failed to get Mac UUID: Process timeout";
+        return QString();
+    }
+
+    const QString output { process.readAllStandardOutput() };
+    const QStringList lines { output.split("\n", Qt::SkipEmptyParts) };
+
+    for (const QString& line : lines) {
+        if (line.contains("IOPlatformUUID")) {
+            return line.split("=").last().trimmed().remove("\"");
+        }
+    }
+    return QString();
+}
+
 void MainWindowUtils::ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns)
 {
     if (!CheckFileValid(source) || !CheckFileValid(destination)) {

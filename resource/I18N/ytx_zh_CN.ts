@@ -111,6 +111,61 @@ Rage, rage against the dying of the light.</source>
     </message>
 </context>
 <context>
+    <name>AgreementDialog</name>
+    <message>
+        <location filename="../../dialog/agreementdialog.ui" line="+14"/>
+        <source>User Agreement</source>
+        <translation>用户需知</translation>
+    </message>
+    <message>
+        <location filename="../../dialog/agreementdialog.cc" line="+11"/>
+        <source>Thank you for using this software. To ensure proper usage and protect your rights, please read the following terms carefully before activating the software:
+
+1. Activation Code Instructions
+When activating this software, you will receive a unique activation code. This code is used to verify your purchase and unlock the software features. Please keep it safe and avoid disclosing it.
+
+2. Activation Restrictions
+Each activation code can only be used on one device. Activation requires an internet connection. If the hardware changes, the activation code may become invalid and re-verification will be required.
+
+3. Offline Usage
+You may use this software offline, but you must go online at least once every 7 days for verification.
+
+4. Expired or Invalid Codes
+If your activation code is invalid or expired, please contact us. If the software is updated, re-activation may be required.
+
+5. Returns and Refunds
+We offer a 7-day unconditional return policy. If you return the product within 7 days, your license will be revoked and your activation code invalidated.
+
+6. Privacy
+Your personal information will not be collected or shared without your consent. Activation data is used solely for license verification.
+
+7. Terms Modification
+We reserve the right to modify these terms. Updated terms will apply the next time you start the software.</source>
+        <translation>感谢您使用本软件。为确保软件的正常使用并保护您的权益，请您在激活软件前仔细阅读以下条款：
+
+1. 激活码使用说明
+在激活本软件时，您将收到一组唯一的激活码。该激活码用于验证您的购买并解锁软件功能。请妥善保管您的激活码，避免泄露。
+
+2. 激活限制
+每个激活码仅限在一台设备上使用；激活过程需联网验证，请确保您的设备处于联网状态，若设备发生硬件更换，激活码可能会失效，需要重新验证。
+
+3. 离线使用
+本软件支持离线使用，但为了确保软件功能的正常运行，您需要每7天至少连接一次网络进行验证。
+
+4. 激活码失效与更新
+如发现您的激活码无效或过期，请与我们联系；软件可能会在一定时间内进行版本更新，若有新的验证机制，将要求您重新激活。
+
+5. 退货与退款
+我们提供7天内无理由退货服务。若您在7天内决定退货，软件使用权限将被撤销，您的激活码将失效。
+
+6. 个人信息保护
+我们承诺不会未经您的同意收集或共享您的个人信息，激活过程中的信息仅用于验证您的购买与授权。
+
+7. 修改与终止
+我们保留随时修改本用户需知条款的权利，修改后的条款将在您下次启动软件时生效。</translation>
+    </message>
+</context>
+<context>
     <name>Color</name>
     <message>
         <location filename="../../delegate/tree/color.cc" line="+54"/>
@@ -1726,17 +1781,27 @@ Rage, rage against the dying of the light.</source>
         <translation>YTX - 许可证</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+37"/>
+        <source>I have read and agree to the User Agreement.</source>
+        <translation>我已阅读并同意用户需知。</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Agreement</source>
+        <translation>用户需知</translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Activate</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="-49"/>
         <source>Thanking you for registering YTX</source>
         <translation>感谢您注册 YTX</translation>
     </message>
     <message>
-        <location filename="../../dialog/licence.cc" line="+56"/>
+        <location filename="../../dialog/licence.cc" line="+93"/>
         <source>Success</source>
         <translation>成功</translation>
     </message>
@@ -1746,22 +1811,30 @@ Rage, rage against the dying of the light.</source>
         <translation>激活成功！</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-24"/>
+        <location line="+27"/>
         <source>Fail</source>
         <translation>失败</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="-27"/>
+        <location line="+27"/>
         <source>Activation Failed!</source>
         <translation>激活失败！</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-21"/>
+        <location line="+28"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="-28"/>
+        <source>Invalid server response.</source>
+        <translation>无效的数据。</translation>
+    </message>
+    <message>
+        <location line="+28"/>
         <source>Connection timeout. Please try again.</source>
         <translation>连接超时，请重试。</translation>
     </message>
@@ -1776,7 +1849,7 @@ Rage, rage against the dying of the light.</source>
         <translation>激活码必须是有效的 UUID 格式（8-4-4-4-12 位十六进制字符）。</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+25"/>
         <source>Activated</source>
         <translation>已激活</translation>
     </message>
@@ -2015,7 +2088,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2570"/>
+        <location filename="../../mainwindow.cc" line="+2568"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -2044,7 +2117,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+5"/>
-        <location filename="../../mainwindow.cc" line="-1442"/>
+        <location filename="../../mainwindow.cc" line="-1440"/>
         <source>Statement</source>
         <translation>帐单</translation>
     </message>
@@ -2074,7 +2147,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">导出 Xlsx...</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="+1519"/>
+        <location filename="../../mainwindow.cc" line="+1517"/>
         <source>Export Structure</source>
         <translation>导出 Ytx</translation>
     </message>
@@ -2211,7 +2284,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="-281"/>
-        <location filename="../../mainwindow.cc" line="-2685"/>
+        <location filename="../../mainwindow.cc" line="-2683"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2269,7 +2342,7 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+230"/>
-        <location filename="../../mainwindow.cc" line="+2559"/>
+        <location filename="../../mainwindow.cc" line="+2557"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2358,7 +2431,7 @@ Rage, rage against the dying of the light.</source>
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1571"/>
+        <location filename="../../mainwindow.cc" line="-1569"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -2566,22 +2639,20 @@ Rage, rage against the dying of the light.</source>
     </message>
     <message>
         <location line="+1101"/>
-        <location line="+43"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location line="-43"/>
+        <location line="+0"/>
         <source>Failed to retrieve hardware UUID.</source>
         <translation>无法获取硬件 UUID。</translation>
     </message>
     <message>
-        <location line="+43"/>
         <source>Connection timeout. Please try again.</source>
-        <translation>连接超时，请重试。</translation>
+        <translation type="vanished">连接超时，请重试。</translation>
     </message>
     <message>
-        <location line="+387"/>
+        <location line="+428"/>
         <location line="+60"/>
         <source>Export Completed</source>
         <translation>成功</translation>
@@ -2629,7 +2700,7 @@ Rage, rage against the dying of the light.</source>
         <translation>距离</translation>
     </message>
     <message>
-        <location line="-1179"/>
+        <location line="-1177"/>
         <location line="+43"/>
         <source>MS</source>
         <translation>月结</translation>

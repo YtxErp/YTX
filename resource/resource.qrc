@@ -47,4 +47,7 @@
         <file>solarized_dark/settle.png</file>
         <file>solarized_dark/statement.png</file>
     </qresource>
+    <qresource prefix="/keys">
+        <file>public.pem</file>
+    </qresource>
 </RCC>

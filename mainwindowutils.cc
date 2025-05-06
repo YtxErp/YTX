@@ -24,7 +24,7 @@ QString MainWindowUtils::ResourceFile()
     path += "/resource.brc";
 
 #if 0
-    QString command { "D:/Qt/6.8.3/llvm-mingw_64/bin/rcc.exe" };
+    QString command { "D:/Qt/6.8.3/mingw_64/bin/rcc.exe" };
     QStringList arguments {};
     arguments << "-binary"
               << "E:/YTX/resource/resource.qrc"
@@ -68,7 +68,7 @@ QVariantList MainWindowUtils::SaveTab(CTransWgtHash& trans_wgt_hash)
     return list;
 }
 
-QSet<int> MainWindowUtils::ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property)
+QSet<int> MainWindowUtils::ReadSettings(QSharedPointer<QSettings> settings, CString& section, CString& property)
 {
     assert(settings && "settings must be non-null");
 
@@ -112,7 +112,7 @@ void MainWindowUtils::ReadPrintTmplate(QMap<QString, QString>& print_template)
     }
 }
 
-void MainWindowUtils::WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property)
+void MainWindowUtils::WriteSettings(QSharedPointer<QSettings> settings, const QVariant& value, CString& section, CString& property)
 {
     assert(settings && "settings must be non-null");
     settings->setValue(QString("%1/%2").arg(section, property), value);
@@ -279,21 +279,25 @@ QString MainWindowUtils::GetHardwareUUID()
 QString MainWindowUtils::GetWinUUID()
 {
     QProcess process {};
-    process.start("wmic", QStringList() << "csproduct" << "get" << "UUID");
+    process.start("powershell",
+        QStringList() << "-Command"
+                      << "(Get-CimInstance -Class Win32_ComputerSystemProduct).UUID");
     if (!process.waitForFinished(5000)) { // 5 second timeout
         qDebug() << "Failed to get Windows UUID: Process timeout";
         return QString();
     }
 
-    const QString output { process.readAllStandardOutput() };
-    const QStringList lines { output.split("\n", Qt::SkipEmptyParts) };
-    return lines.size() > 1 ? lines[1].trimmed() : QString();
+    const QString output { process.readAllStandardOutput().trimmed() };
+    return output;
 }
 
 QString MainWindowUtils::GetMacUUID()
 {
     QProcess process {};
-    process.start("ioreg", QStringList() << "-rd1" << "-c" << "IOPlatformExpertDevice");
+    process.start("ioreg",
+        QStringList() << "-rd1"
+                      << "-c"
+                      << "IOPlatformExpertDevice");
     if (!process.waitForFinished(5000)) { // 5 second timeout
         qDebug() << "Failed to get Mac UUID: Process timeout";
         return QString();

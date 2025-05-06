@@ -99,6 +99,8 @@ MainWindow::MainWindow(QWidget* parent)
 {
     QResource::registerResource(MainWindowUtils::ResourceFile());
     ReadAppSettings();
+    VerifyActivationOffline();
+    QTimer::singleShot(5 * 60 * 1000, this, &MainWindow::VerifyActivationOnline);
 
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -116,7 +118,6 @@ MainWindow::MainWindow(QWidget* parent)
     MainWindowUtils::ReadSettings(this, &QMainWindow::restoreGeometry, app_settings_sync_, kMainwindow, kGeometry);
 
     RestoreRecentFile();
-    VerifyActivation();
     EnableAction(false);
 
 #ifdef Q_OS_WIN
@@ -1159,7 +1160,7 @@ bool MainWindow::LockFile(const QFileInfo& file_info)
 {
     CString lock_file_path { file_info.absolutePath() + QDir::separator() + file_info.completeBaseName() + kDotSuffixLOCK };
 
-    lock_file_ = std::make_unique<QLockFile>(lock_file_path);
+    lock_file_.reset(new QLockFile(lock_file_path));
 
     if (!lock_file_->tryLock(100)) {
         MainWindowUtils::Message(QMessageBox::Critical, tr("Lock Failed"),
@@ -2484,62 +2485,55 @@ void MainWindow::ResizeColumn(QHeaderView* header, int stretch_column) const
     header->setSectionResizeMode(stretch_column, QHeaderView::Stretch);
 }
 
-void MainWindow::VerifyActivation()
+void MainWindow::VerifyActivationOffline()
 {
     // Initialize hardware UUID
-    hardware_uuid_ = MainWindowUtils::GetHardwareUUID();
+    hardware_uuid_ = MainWindowUtils::GetHardwareUUID().toLower();
     if (hardware_uuid_.isEmpty()) {
         QMessageBox::critical(this, tr("Error"), tr("Failed to retrieve hardware UUID."));
         return;
     }
 
-    // Initialize network manager if not already created
-    if (!network_manager_) {
-        network_manager_ = new QNetworkAccessManager(this);
-    }
-
-    // Load activation code from ini file
+    // Load license info from ini file
     license_settings_ = QSharedPointer<QSettings>::create(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + kLicense + kDotSuffixINI, QSettings::IniFormat);
 
     license_settings_->beginGroup(kLicense);
     activation_code_ = license_settings_->value(kActivationCode, {}).toString();
-    activation_url_ = license_settings_->value(kActivationUrl, "http://127.0.0.1:8080").toString();
+    signature_ = license_settings_->value(kSignature).toString();
+    activation_url_ = license_settings_->value(kActivationUrl, "https://ytxerp.cc").toString();
     license_settings_->endGroup();
 
-    // Prepare the request
-    const QUrl url(activation_url_ + QDir::separator() + kActivate);
+    const QString payload { QString("%1:%2:%3").arg(activation_code_, hardware_uuid_, "true") };
+    const QByteArray payload_bytes { payload.toUtf8() };
+    const QByteArray signature_bytes { QByteArray::fromBase64(signature_.toUtf8()) };
 
+    const QString pub_key_path(":/keys/public.pem");
+    is_activated_ = Licence::VerifySignature(payload_bytes, signature_bytes, pub_key_path);
+}
+
+void MainWindow::VerifyActivationOnline()
+{
+    auto* network_manager_ { new QNetworkAccessManager(this) };
+
+    const QUrl url(activation_url_ + QDir::separator() + kActivate);
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    // Create JSON payload
     const QJsonObject json { { "hardware_uuid", hardware_uuid_ }, { "activation_code", activation_code_ } };
-
-    // Send the request
     QNetworkReply* reply { network_manager_->post(request, QJsonDocument(json).toJson()) };
 
-    // Handle response
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            is_activated_ = true;
-        } else {
-            is_activated_ = false;
+        if (reply->error() != QNetworkReply::NoError) {
+            QMessageBox::critical(this, tr("Fail"), tr("Activation Failed!"));
         }
         reply->deleteLater();
-    });
-
-    // Handle timeout
-    connect(reply, &QNetworkReply::errorOccurred, this, [this](QNetworkReply::NetworkError error) {
-        if (error == QNetworkReply::TimeoutError) {
-            QMessageBox::critical(this, tr("Error"), tr("Connection timeout. Please try again."));
-        }
     });
 }
 
 void MainWindow::ReadAppSettings()
 {
-    app_settings_sync_ = std::make_shared<QSettings>(
+    app_settings_sync_ = QSharedPointer<QSettings>::create(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + kYTX + kDotSuffixINI, QSettings::IniFormat);
 
     QString language_code { kEnUS };
@@ -2573,7 +2567,7 @@ void MainWindow::ReadAppSettings()
 
 void MainWindow::ReadFileSettings(CString& complete_base_name)
 {
-    file_settings_sync_ = std::make_shared<QSettings>(
+    file_settings_sync_ = QSharedPointer<QSettings>::create(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
 
     file_settings_sync_->beginGroup(kCompany);
@@ -2738,7 +2732,7 @@ void MainWindow::on_actionLicence_triggered()
     static Licence* dialog = nullptr;
 
     if (!dialog) {
-        dialog = new Licence(network_manager_, license_settings_, hardware_uuid_, activation_code_, activation_url_, is_activated_, this);
+        dialog = new Licence(license_settings_, hardware_uuid_, activation_url_, activation_code_, signature_, is_activated_, this);
         dialog->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
         connect(dialog, &QDialog::finished, [=]() { dialog = nullptr; });
     }

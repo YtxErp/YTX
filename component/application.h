@@ -43,9 +43,9 @@ protected:
     {
         if (event->type() == QEvent::FileOpen) {
             // Cast the event to QFileOpenEvent
-            auto open_event { static_cast<QFileOpenEvent*>(event) };
+            const auto file_path { static_cast<QFileOpenEvent*>(event)->file() };
             // Emit the signal with the file path from the event
-            emit SOpenFile(open_event->file());
+            emit SOpenFile(file_path);
         }
 
         // Pass the event to the base class event handler

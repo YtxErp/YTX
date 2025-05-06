@@ -48,12 +48,12 @@ class MainWindowUtils {
 public:
     static QString ResourceFile();
     static QVariantList SaveTab(CTransWgtHash& trans_wgt_hash);
-    static QSet<int> ReadSettings(std::shared_ptr<QSettings> settings, CString& section, CString& property);
+    static QSet<int> ReadSettings(QSharedPointer<QSettings> settings, CString& section, CString& property);
 
     static void ReadPrintTmplate(QMap<QString, QString>& print_template);
     static QString GetHardwareUUID();
 
-    static void WriteSettings(std::shared_ptr<QSettings> settings, const QVariant& value, CString& section, CString& property);
+    static void WriteSettings(QSharedPointer<QSettings> settings, const QVariant& value, CString& section, CString& property);
     static void ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
     static void ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);
     static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
@@ -168,7 +168,7 @@ public:
     }
 
     template <InheritQWidget Widget, MemberFunction Function, typename... Args>
-    static void WriteSettings(Widget* widget, Function function, std::shared_ptr<QSettings> settings, CString& section, CString& property, Args&&... args)
+    static void WriteSettings(Widget* widget, Function function, QSharedPointer<QSettings> settings, CString& section, CString& property, Args&&... args)
     {
         static_assert(std::is_same_v<decltype((std::declval<Widget>().*function)(std::forward<Args>(args)...)), QByteArray>, "Function must return QByteArray");
 
@@ -180,7 +180,7 @@ public:
     }
 
     template <InheritQWidget Widget, MemberFunction Function, typename... Args>
-    static void ReadSettings(Widget* widget, Function function, std::shared_ptr<QSettings> settings, CString& section, CString& property, Args&&... args)
+    static void ReadSettings(Widget* widget, Function function, QSharedPointer<QSettings> settings, CString& section, CString& property, Args&&... args)
     {
         static_assert(std::is_same_v<decltype((std::declval<Widget>().*function)(std::declval<QByteArray>(), std::declval<Args>()...)), bool>,
             "Function must accept QByteArray and additional arguments, and return bool");

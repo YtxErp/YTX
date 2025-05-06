@@ -23,7 +23,6 @@
 #include <QFileInfo>
 #include <QLockFile>
 #include <QMainWindow>
-#include <QNetworkAccessManager>
 #include <QPointer>
 #include <QSettings>
 #include <QTableView>
@@ -225,7 +224,9 @@ private:
 
     void OrderTransLocation(int node_id);
     void RegisterRptWgt(ReportWidget* widget);
-    void VerifyActivation();
+
+    void VerifyActivationOffline();
+    void VerifyActivationOnline();
 
 private:
     Ui::MainWindow* ui {};
@@ -237,11 +238,11 @@ private:
     QPointer<SettlementWidget> settlement_widget_ {};
     QMap<QString, QString> print_template_ {};
 
-    QPointer<QNetworkAccessManager> network_manager_ {};
     QSharedPointer<QSettings> license_settings_ {};
     QString hardware_uuid_ {};
     QString activation_code_ {};
     QString activation_url_ {};
+    QString signature_ {};
     bool is_activated_ { false };
 
     QTranslator qt_translator_ {};
@@ -250,10 +251,10 @@ private:
     AppSettings app_settings_ {};
     FileSettings file_settings_ {};
 
-    std::unique_ptr<QLockFile> lock_file_;
+    QScopedPointer<QLockFile> lock_file_ {};
 
-    std::shared_ptr<QSettings> app_settings_sync_ {};
-    std::shared_ptr<QSettings> file_settings_sync_ {};
+    QSharedPointer<QSettings> app_settings_sync_ {};
+    QSharedPointer<QSettings> file_settings_sync_ {};
 
     QButtonGroup* section_group_ {};
 

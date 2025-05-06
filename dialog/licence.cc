@@ -40,7 +40,7 @@ void Licence::on_pBtnActivate_clicked()
     }
 
     // Prepare the request
-    const QUrl url(activation_url_ + QDir::separator() + kActivate);
+    const QUrl url(activation_url_ + "/" + kActivate);
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 

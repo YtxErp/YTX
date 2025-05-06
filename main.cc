@@ -19,6 +19,7 @@
 
 #include <QDir>
 #include <QStandardPaths>
+#include <QTimer>
 
 #include "mainwindow.h"
 
@@ -50,10 +51,7 @@ int main(int argc, char* argv[])
 
     if (application.arguments().size() >= 2) {
         const QString file_path { application.arguments().at(1) };
-
-        if (!mainwindow.ROpenFile(file_path)) {
-            return EXIT_FAILURE;
-        }
+        QTimer::singleShot(kFileOpenDelayMilliseconds, &mainwindow, [&mainwindow, file_path]() { mainwindow.ROpenFile(file_path); });
     }
 
 #ifdef Q_OS_MACOS

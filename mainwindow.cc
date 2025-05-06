@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    VerifyActivation();
     QResource::registerResource(MainWindowUtils::ResourceFile());
     ReadAppSettings();
 
@@ -116,7 +117,6 @@ MainWindow::MainWindow(QWidget* parent)
     MainWindowUtils::ReadSettings(this, &QMainWindow::restoreGeometry, app_settings_sync_, kMainwindow, kGeometry);
 
     RestoreRecentFile();
-    VerifyActivation();
     EnableAction(false);
 
 #ifdef Q_OS_WIN
@@ -1159,7 +1159,7 @@ bool MainWindow::LockFile(const QFileInfo& file_info)
 {
     CString lock_file_path { file_info.absolutePath() + QDir::separator() + file_info.completeBaseName() + kDotSuffixLOCK };
 
-    lock_file_ = std::make_unique<QLockFile>(lock_file_path);
+    lock_file_.reset(new QLockFile(lock_file_path));
 
     if (!lock_file_->tryLock(100)) {
         MainWindowUtils::Message(QMessageBox::Critical, tr("Lock Failed"),
@@ -2504,11 +2504,11 @@ void MainWindow::VerifyActivation()
 
     license_settings_->beginGroup(kLicense);
     activation_code_ = license_settings_->value(kActivationCode, {}).toString();
-    activation_url_ = license_settings_->value(kActivationUrl, "http://127.0.0.1:8080").toString();
+    activation_url_ = license_settings_->value(kActivationUrl, "https://ytxerp.cc").toString();
     license_settings_->endGroup();
 
     // Prepare the request
-    const QUrl url(activation_url_ + QDir::separator() + kActivate);
+    const QUrl url(activation_url_ + "/" + kActivate);
 
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -2521,11 +2521,16 @@ void MainWindow::VerifyActivation()
 
     // Handle response
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        const QByteArray response_data { reply->readAll() };
+        const QString response_text { QString::fromUtf8(response_data) };
+
         if (reply->error() == QNetworkReply::NoError) {
             is_activated_ = true;
         } else {
             is_activated_ = false;
         }
+
+        qDebug() << "Server response:" << response_text;
         reply->deleteLater();
     });
 
@@ -2539,7 +2544,7 @@ void MainWindow::VerifyActivation()
 
 void MainWindow::ReadAppSettings()
 {
-    app_settings_sync_ = std::make_shared<QSettings>(
+    app_settings_sync_ = QSharedPointer<QSettings>::create(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + kYTX + kDotSuffixINI, QSettings::IniFormat);
 
     QString language_code { kEnUS };
@@ -2573,7 +2578,7 @@ void MainWindow::ReadAppSettings()
 
 void MainWindow::ReadFileSettings(CString& complete_base_name)
 {
-    file_settings_sync_ = std::make_shared<QSettings>(
+    file_settings_sync_ = QSharedPointer<QSettings>::create(
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
 
     file_settings_sync_->beginGroup(kCompany);

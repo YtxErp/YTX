@@ -250,10 +250,10 @@ private:
     AppSettings app_settings_ {};
     FileSettings file_settings_ {};
 
-    std::unique_ptr<QLockFile> lock_file_;
+    QScopedPointer<QLockFile> lock_file_ {};
 
-    std::shared_ptr<QSettings> app_settings_sync_ {};
-    std::shared_ptr<QSettings> file_settings_sync_ {};
+    QSharedPointer<QSettings> app_settings_sync_ {};
+    QSharedPointer<QSettings> file_settings_sync_ {};
 
     QButtonGroup* section_group_ {};
 

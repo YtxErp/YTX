@@ -32,6 +32,7 @@ inline constexpr int kHundred = 100;
 inline constexpr int kThreeThousand = 3000;
 inline constexpr long long kBatchSize = 50;
 inline constexpr long long kMaxRecentFile = 10;
+inline constexpr int kFileOpenDelayMilliseconds = 1500;
 
 // Constants for rule
 inline constexpr bool kRuleIS = 0;

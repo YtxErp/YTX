@@ -2525,7 +2525,12 @@ void MainWindow::VerifyActivationOnline()
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() != QNetworkReply::NoError) {
-            QMessageBox::critical(this, tr("Fail"), tr("Activation Failed!"));
+            signature_.clear();
+            is_activated_ = false;
+
+            license_settings_->beginGroup(kLicense);
+            license_settings_->setValue(kSignature, signature_);
+            license_settings_->endGroup();
         }
         reply->deleteLater();
     });

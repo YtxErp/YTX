@@ -20,6 +20,7 @@
 #include <QDir>
 #include <QStandardPaths>
 
+#include "global/dailylogger.h"
 #include "mainwindow.h"
 
 #ifdef Q_OS_MACOS
@@ -36,6 +37,7 @@ int main(int argc, char* argv[])
     QApplication application(argc, argv);
 #endif
 
+    DailyLogger::Instance().Install();
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
 
     // Centralize config directory creation

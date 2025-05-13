@@ -19,18 +19,6 @@ qt_standard_project_setup(REQUIRES 6.5)
 # Disable deprecated Qt features up to 6.5
 add_definitions(-DQT_DISABLE_DEPRECATED_UP_TO=0x060500)
 
-# Include FetchContent module for external dependencies
-include(FetchContent)
-
-# Fetch and include YXlsx as a submodule
-FetchContent_Declare(
-  YXlsx
-  GIT_REPOSITORY https://github.com/YtxErp/YXlsx.git
-  GIT_TAG        main
-  SOURCE_SUBDIR  YXlsx
-)
-FetchContent_MakeAvailable(YXlsx)
-
 # C++ standard settings
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,6 +31,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Add current directory to include path
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(external/YXlsx/YXlsx/)
 
 # Collect all source files recursively
 file(GLOB_RECURSE PROJECT_SOURCES
@@ -67,10 +56,16 @@ if(APPLE)
   qt6_add_executable(${PROJECT_NAME} MACOSX_BUNDLE
     ${PROJECT_SOURCES} ${icon_mac} ${brc})
 
+  configure_file(
+      "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
+      "${CMAKE_CURRENT_BINARY_DIR}/Info.plist"
+      @ONLY
+  )
+
   # Bundle properties
   set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist
   )
 
   # Post-build: copy "print" folder into .app bundle's Resources
@@ -83,7 +78,15 @@ if(APPLE)
 
 # Windows-specific setup
 elseif(WIN32)
-  set(INFO_RC "${CMAKE_CURRENT_SOURCE_DIR}/Info.rc")
+  set(WINRC "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x86\\rc.exe")
+
+  configure_file(
+      "${CMAKE_CURRENT_SOURCE_DIR}/Info.rc"
+      "${CMAKE_CURRENT_BINARY_DIR}/Info.rc"
+      @ONLY
+  )
+
+  set(INFO_RC "${CMAKE_CURRENT_BINARY_DIR}/Info.rc")
   qt6_add_executable(${PROJECT_NAME} WIN32 ${PROJECT_SOURCES} ${INFO_RC} ${brc})
 
 # Linux or other platforms

@@ -22,12 +22,18 @@
 
 #include <QByteArray>
 
+struct EncryptedData {
+    QByteArray ciphertext;
+    QByteArray iv;
+    QByteArray tag;
+};
+
 class SignatureEncryptor {
 public:
     explicit SignatureEncryptor(const QByteArray& key);
 
-    QByteArray Encrypt(const QByteArray& plaintext, QByteArray& out_iv);
-    QByteArray Decrypt(const QByteArray& ciphertext, const QByteArray& iv);
+    EncryptedData Encrypt(const QByteArray& plaintext);
+    QByteArray Decrypt(const QByteArray& ciphertext, const QByteArray& iv, const QByteArray& tag);
 
 private:
     QByteArray key_ {};

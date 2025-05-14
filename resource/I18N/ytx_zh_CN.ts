@@ -1822,7 +1822,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
 <context>
     <name>Licence</name>
     <message>
-        <location filename="../../dialog/licence.ui" line="+14"/>
+        <location filename="../../licence/licence.ui" line="+14"/>
         <source>YTX - Licence</source>
         <translation>YTX - 许可证</translation>
     </message>
@@ -1847,7 +1847,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation>感谢您注册 YTX</translation>
     </message>
     <message>
-        <location filename="../../dialog/licence.cc" line="+93"/>
+        <location filename="../../licence/licence.cc" line="+93"/>
         <source>Success</source>
         <translation>成功</translation>
     </message>
@@ -1893,7 +1893,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation>激活码必须是有效的 UUID 格式（8-4-4-4-12 位十六进制字符）。</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+35"/>
         <source>Activated</source>
         <translation>已激活</translation>
     </message>
@@ -1949,7 +1949,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
     <name>MainWindow</name>
     <message>
         <location filename="../../mainwindow.ui" line="+85"/>
-        <location filename="../../mainwindow.cc" line="+192"/>
+        <location filename="../../mainwindow.cc" line="+193"/>
         <source>Finance</source>
         <translation>财务</translation>
     </message>
@@ -2132,7 +2132,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../../mainwindow.cc" line="+2568"/>
+        <location filename="../../mainwindow.cc" line="+2608"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -2161,7 +2161,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
     </message>
     <message>
         <location line="+5"/>
-        <location filename="../../mainwindow.cc" line="-1440"/>
+        <location filename="../../mainwindow.cc" line="-1480"/>
         <source>Statement</source>
         <translation>帐单</translation>
     </message>
@@ -2191,7 +2191,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation type="vanished">导出 Xlsx...</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="+1517"/>
+        <location filename="../../mainwindow.cc" line="+1557"/>
         <source>Export Structure</source>
         <translation>导出 Ytx</translation>
     </message>
@@ -2328,7 +2328,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
     </message>
     <message>
         <location line="-281"/>
-        <location filename="../../mainwindow.cc" line="-2683"/>
+        <location filename="../../mainwindow.cc" line="-2723"/>
         <source>Product</source>
         <translation>产品</translation>
     </message>
@@ -2386,7 +2386,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
     </message>
     <message>
         <location line="+230"/>
-        <location filename="../../mainwindow.cc" line="+2557"/>
+        <location filename="../../mainwindow.cc" line="+2597"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
@@ -2475,7 +2475,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation type="vanished">余额</translation>
     </message>
     <message>
-        <location filename="../../mainwindow.cc" line="-1569"/>
+        <location filename="../../mainwindow.cc" line="-1609"/>
         <source>Remove %1</source>
         <translation>删除 %1</translation>
     </message>
@@ -2692,11 +2692,21 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation>无法获取硬件 UUID。</translation>
     </message>
     <message>
+        <location line="+24"/>
+        <source>Fail</source>
+        <translation>失败</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Activation Failed!</source>
+        <translation>激活失败！</translation>
+    </message>
+    <message>
         <source>Connection timeout. Please try again.</source>
         <translation type="vanished">连接超时，请重试。</translation>
     </message>
     <message>
-        <location line="+428"/>
+        <location line="+444"/>
         <location line="+60"/>
         <source>Export Completed</source>
         <translation>成功</translation>
@@ -2744,7 +2754,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation>距离</translation>
     </message>
     <message>
-        <location line="-1177"/>
+        <location line="-1217"/>
         <location line="+43"/>
         <source>MS</source>
         <translation>月结</translation>
@@ -3190,7 +3200,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
 <context>
     <name>Preferences</name>
     <message>
-        <location filename="../../dialog/preferences.cc" line="+46"/>
+        <location filename="../../dialog/preferences.cc" line="+45"/>
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>

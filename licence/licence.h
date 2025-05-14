@@ -16,8 +16,8 @@ class Licence : public QDialog {
     Q_OBJECT
 
 public:
-    explicit Licence(QSharedPointer<QSettings> license_settings, CString& hardware_uuid, CString& activation_url, QString& activation_code, QString& signature,
-        bool& is_activated, QWidget* parent = nullptr);
+    explicit Licence(QSharedPointer<QSettings> license_settings, CString& hardware_uuid, CString& activation_url, QString& activation_code, bool& is_activated,
+        QWidget* parent = nullptr);
     ~Licence();
 
     static bool VerifySignature(const QByteArray& payload, const QByteArray& signature, const QString& public_key_path);
@@ -42,7 +42,6 @@ private:
     CString& activation_url_;
 
     QString& activation_code_;
-    QString& signature_;
     bool& is_activated_;
 };
 

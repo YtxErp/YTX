@@ -22,7 +22,7 @@ BEGIN
             VALUE "InternalName",     "YTX"
             VALUE "OriginalFilename", "YTX.exe"
             VALUE "ProductName",      "YTX"
-            VALUE "LegalCopyright",   "Copyright (C) 2023-2025 YTX"
+            VALUE "LegalCopyright",   "Copyright (C) 2023 YTX"
         END
     END
     BLOCK "VarFileInfo"

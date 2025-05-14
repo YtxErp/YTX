@@ -67,6 +67,7 @@
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"
 #include "licence/licence.h"
+#include "licence/signatureencryptor.h"
 #include "mainwindowutils.h"
 #include "report/model/settlementmodel.h"
 #include "report/model/statementmodel.h"
@@ -2500,16 +2501,29 @@ void MainWindow::VerifyActivationOffline()
 
     license_settings_->beginGroup(kLicense);
     activation_code_ = license_settings_->value(kActivationCode, {}).toString();
-    signature_ = license_settings_->value(kSignature).toString();
     activation_url_ = license_settings_->value(kActivationUrl, "https://ytxerp.cc").toString();
+
+    const QByteArray ciphertext { QByteArray::fromBase64(license_settings_->value(kSignatureCiphertext).toByteArray()) };
+    const QByteArray iv { QByteArray::fromBase64(license_settings_->value(kSignatureIV).toByteArray()) };
+    const QByteArray tag { QByteArray::fromBase64(license_settings_->value(kSignatureTag).toByteArray()) };
     license_settings_->endGroup();
+
+    // Construct encryption key from hardware UUID
+    const QByteArray key { QCryptographicHash::hash(hardware_uuid_.toUtf8(), QCryptographicHash::Sha256).left(32) };
+    SignatureEncryptor encryptor(key);
+
+    // Decrypt signature
+    const QByteArray decrypted_signature_bytes { encryptor.Decrypt(ciphertext, iv, tag) };
+    if (decrypted_signature_bytes.isEmpty()) {
+        QMessageBox::critical(this, tr("Fail"), tr("Activation Failed!"));
+        return;
+    }
 
     const QString payload { QString("%1:%2:%3").arg(activation_code_, hardware_uuid_, "true") };
     const QByteArray payload_bytes { payload.toUtf8() };
-    const QByteArray signature_bytes { QByteArray::fromBase64(signature_.toUtf8()) };
 
     const QString pub_key_path(":/keys/public.pem");
-    is_activated_ = Licence::VerifySignature(payload_bytes, signature_bytes, pub_key_path);
+    is_activated_ = Licence::VerifySignature(payload_bytes, decrypted_signature_bytes, pub_key_path);
 }
 
 void MainWindow::VerifyActivationOnline()
@@ -2529,7 +2543,9 @@ void MainWindow::VerifyActivationOnline()
         auto fail = [this]() {
             is_activated_ = false;
             license_settings_->beginGroup(kLicense);
-            license_settings_->setValue(kSignature, {});
+            license_settings_->setValue(kSignatureCiphertext, {});
+            license_settings_->setValue(kSignatureIV, {});
+            license_settings_->setValue(kSignatureTag, {});
             license_settings_->endGroup();
         };
 
@@ -2555,7 +2571,6 @@ void MainWindow::VerifyActivationOnline()
 
         // Read public key
         const QString pub_key_path(":/keys/public.pem");
-
         if (!Licence::VerifySignature(payload_bytes, signature_bytes, pub_key_path)) {
             fail();
         }
@@ -2763,7 +2778,7 @@ void MainWindow::on_actionLicence_triggered()
     static Licence* dialog = nullptr;
 
     if (!dialog) {
-        dialog = new Licence(license_settings_, hardware_uuid_, activation_url_, activation_code_, signature_, is_activated_, this);
+        dialog = new Licence(license_settings_, hardware_uuid_, activation_url_, activation_code_, is_activated_, this);
         dialog->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
         connect(dialog, &QDialog::finished, [=]() { dialog = nullptr; });
     }

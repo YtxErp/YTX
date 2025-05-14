@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-project(YTX VERSION 0.2.2 LANGUAGES CXX)
+project(YTX VERSION 0.2.3 LANGUAGES CXX)
 
 # Enable automatic processing of moc
 set(CMAKE_AUTOMOC ON)

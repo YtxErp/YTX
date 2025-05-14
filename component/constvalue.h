@@ -75,7 +75,10 @@ inline constexpr char kSuffixXLSX[] = "xlsx";
 
 inline constexpr char kLicense[] = "license";
 inline constexpr char kActivationCode[] = "activation_code";
-inline constexpr char kSignature[] = "signature";
+inline constexpr char kSignatureCiphertext[] = "signature_ciphertext";
+inline constexpr char kSignatureIV[] = "signature_iv";
+inline constexpr char kSignatureTag[] = "signature_tag";
+
 inline constexpr char kActivationUrl[] = "activation_url";
 inline constexpr char kActivate[] = "activate";
 

@@ -242,7 +242,6 @@ private:
     QString hardware_uuid_ {};
     QString activation_code_ {};
     QString activation_url_ {};
-    QString signature_ {};
     bool is_activated_ { false };
 
     QTranslator qt_translator_ {};

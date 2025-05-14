@@ -19,10 +19,11 @@
 #include "component/constvalue.h"
 #include "component/signalblocker.h"
 #include "dialog/agreementdialog.h"
+#include "licence/signatureencryptor.h"
 #include "ui_licence.h"
 
-Licence::Licence(QSharedPointer<QSettings> license_settings, CString& hardware_uuid, CString& activation_url, QString& activation_code, QString& signature,
-    bool& is_activated, QWidget* parent)
+Licence::Licence(
+    QSharedPointer<QSettings> license_settings, CString& hardware_uuid, CString& activation_url, QString& activation_code, bool& is_activated, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Licence)
     , network_manager_(new QNetworkAccessManager(this))
@@ -30,7 +31,6 @@ Licence::Licence(QSharedPointer<QSettings> license_settings, CString& hardware_u
     , hardware_uuid_ { hardware_uuid }
     , activation_url_ { activation_url }
     , activation_code_ { activation_code }
-    , signature_ { signature }
     , is_activated_ { is_activated }
 {
     ui->setupUi(this);
@@ -112,12 +112,22 @@ bool Licence::IsActivationCodeValid(CString& activation_code)
 void Licence::SaveActivationCode(CString& activation_code, CString& signature)
 {
     activation_code_ = activation_code;
-    signature_ = signature;
     is_activated_ = true;
+
+    const QByteArray key { QCryptographicHash::hash(hardware_uuid_.toUtf8(), QCryptographicHash::Sha256).left(32) };
+    SignatureEncryptor encryptor(key);
+
+    const auto encrypted { encryptor.Encrypt(QByteArray::fromBase64(signature.toUtf8())) };
+    if (encrypted.ciphertext.isEmpty()) {
+        qWarning() << "Signature encryption failed.";
+        return;
+    }
 
     license_settings_->beginGroup(kLicense);
     license_settings_->setValue(kActivationCode, activation_code_);
-    license_settings_->setValue(kSignature, signature_);
+    license_settings_->setValue(kSignatureCiphertext, encrypted.ciphertext.toBase64());
+    license_settings_->setValue(kSignatureIV, encrypted.iv.toBase64());
+    license_settings_->setValue(kSignatureTag, encrypted.tag.toBase64());
     license_settings_->setValue(kActivationUrl, activation_url_);
     license_settings_->endGroup();
 

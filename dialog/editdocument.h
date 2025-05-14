@@ -33,7 +33,7 @@ class EditDocument final : public QDialog {
     Q_OBJECT
 
 public:
-    explicit EditDocument(QStringList* document, CString& document_dir, QWidget* parent = nullptr);
+    explicit EditDocument(QStringList* document, CString& document_path, QWidget* parent = nullptr);
     ~EditDocument();
 
 private slots:
@@ -49,7 +49,7 @@ private:
     Ui::EditDocument* ui;
     QStringList* document_ {};
     QStringListModel* list_model_ {};
-    QString document_dir_ {};
+    QString document_path_ {};
 };
 
 #endif // EDITDOCUMENT_H

@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
 
     // Centralize config directory creation
     const QString location { QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) };
-
     if (!QDir(location).exists() && !QDir().mkpath(location)) {
         qCritical() << "Failed to create config directory:" << location;
         return EXIT_FAILURE;

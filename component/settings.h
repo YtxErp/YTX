@@ -56,7 +56,7 @@ struct SectionSettings {
     QString operation {};
     int dynamic_node_rhs {};
     int default_unit {};
-    QString document_dir {};
+    QString document_path {};
     QString date_format {};
     int amount_decimal {};
     int common_decimal {};
@@ -64,10 +64,10 @@ struct SectionSettings {
     // Equality operator overload to compare two SectionSettings structs
     bool operator==(const SectionSettings& other) const noexcept
     {
-        return std::tie(static_label, static_node, dynamic_label, dynamic_node_lhs, operation, dynamic_node_rhs, default_unit, document_dir, date_format,
+        return std::tie(static_label, static_node, dynamic_label, dynamic_node_lhs, operation, dynamic_node_rhs, default_unit, document_path, date_format,
                    amount_decimal, common_decimal)
             == std::tie(other.static_label, other.static_node, other.dynamic_label, other.dynamic_node_lhs, other.operation, other.dynamic_node_rhs,
-                other.default_unit, other.document_dir, other.date_format, other.amount_decimal, other.common_decimal);
+                other.default_unit, other.document_path, other.date_format, other.amount_decimal, other.common_decimal);
     }
 
     // Inequality operator overload to compare two SectionSettings structs

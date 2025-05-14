@@ -2182,13 +2182,13 @@ void MainWindow::REditTransDocument(const QModelIndex& index)
     assert(leaf_widget && "leaf_widget must be non-null");
     assert(index.isValid() && "index must be valid");
 
-    const auto document_dir { QDir::homePath() + QDir::separator() + section_settings_->document_dir };
+    const auto document_path { section_settings_->document_path };
     const int trans_id { index.siblingAtColumn(std::to_underlying(TransEnum::kID)).data().toInt() };
 
     auto* document_pointer { leaf_widget->Model()->GetDocumentPointer(index) };
     assert(document_pointer && "document_pointer must be non-null");
 
-    auto* dialog { new EditDocument(document_pointer, document_dir, this) };
+    auto* dialog { new EditDocument(document_pointer, document_path, this) };
 
     if (dialog->exec() == QDialog::Accepted)
         data_->sql->WriteField(data_->info.trans, kDocument, document_pointer->join(kSemicolon), trans_id);
@@ -2199,7 +2199,7 @@ void MainWindow::REditNodeDocument(const QModelIndex& index)
     assert(node_widget_ && "node_widget_ must be non-null");
     assert(index.isValid() && "index must be valid");
 
-    const auto document_dir { QDir::homePath() + QDir::separator() + section_settings_->document_dir };
+    const auto document_dir { section_settings_->document_path };
     const int node_id { index.siblingAtColumn(std::to_underlying(NodeEnum::kID)).data().toInt() };
 
     auto* document_pointer { node_widget_->Model()->DocumentPointer(node_id) };
@@ -2370,7 +2370,7 @@ void MainWindow::UpdateSectionSettings(CSectionSettings& section_settings)
     file_settings_sync_->setValue(kOperation, section_settings.operation);
     file_settings_sync_->setValue(kDynamicNodeRhs, section_settings.dynamic_node_rhs);
     file_settings_sync_->setValue(kDefaultUnit, section_settings.default_unit);
-    file_settings_sync_->setValue(kDocumentDir, section_settings.document_dir);
+    file_settings_sync_->setValue(kDocumentPath, section_settings.document_path);
     file_settings_sync_->setValue(kDateFormat, section_settings.date_format);
     file_settings_sync_->setValue(kAmountDecimal, section_settings.amount_decimal);
     file_settings_sync_->setValue(kCommonDecimal, section_settings.common_decimal);
@@ -2591,7 +2591,7 @@ void MainWindow::ReadSectionSettings(SectionSettings& section, CString& section_
     section.operation = file_settings_sync_->value(kOperation, kPlus).toString();
     section.dynamic_node_rhs = file_settings_sync_->value(kDynamicNodeRhs, 0).toInt();
     section.default_unit = file_settings_sync_->value(kDefaultUnit, 0).toInt();
-    section.document_dir = file_settings_sync_->value(kDocumentDir, {}).toString();
+    section.document_path = file_settings_sync_->value(kDocumentPath, {}).toString();
     section.date_format = file_settings_sync_->value(kDateFormat, kDateTimeFST).toString();
     section.amount_decimal = file_settings_sync_->value(kAmountDecimal, 2).toInt();
     section.common_decimal = file_settings_sync_->value(kCommonDecimal, 2).toInt();

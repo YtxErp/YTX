@@ -3,16 +3,17 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 #include "component/signalblocker.h"
 #include "ui_editdocument.h"
 
-EditDocument::EditDocument(QStringList* document, CString& document_dir, QWidget* parent)
+EditDocument::EditDocument(QStringList* document, CString& document_path, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::EditDocument)
     , document_ { document }
     , list_model_ { new QStringListModel(this) }
-    , document_dir_ { document_dir }
+    , document_path_ { document_path }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -28,19 +29,22 @@ EditDocument::~EditDocument()
 
 void EditDocument::on_pBtnAdd_clicked()
 {
-    QString filter("*.*");
-    auto local_documents { QFileDialog::getOpenFileNames(this, tr("Select Document"), document_dir_, filter, nullptr) };
+    const QString filter("*.*");
+    const QString base_path { QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) };
+    const QString document_path { QDir(base_path).filePath(document_path_) };
 
+    const auto local_documents { QFileDialog::getOpenFileNames(this, tr("Select Document"), document_path, filter, nullptr) };
     if (local_documents.isEmpty())
         return;
 
-    int row {};
+    QDir document_dir(document_path);
 
     for (CString& document : local_documents) {
-        if (!document_->contains(document)) {
-            row = list_model_->rowCount();
+        const QString relative_path { document_dir.relativeFilePath(document) };
+        if (!document_->contains(relative_path)) {
+            const int row { list_model_->rowCount() };
             list_model_->insertRow(row);
-            list_model_->setData(list_model_->index(row), QDir::home().relativeFilePath(document));
+            list_model_->setData(list_model_->index(row), relative_path);
         }
     }
 }

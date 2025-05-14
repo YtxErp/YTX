@@ -21,6 +21,7 @@
 #define DAILYLOGGER_H
 
 #include <QFile>
+#include <QMutex>
 #include <QTextStream>
 
 class DailyLogger {
@@ -30,12 +31,15 @@ public:
 
 private:
     DailyLogger();
+    ~DailyLogger();
+
     void HandleMessage(QtMsgType type, const QMessageLogContext& context, const QString& msg);
     static void MessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
 private:
     QFile file_ {};
     QTextStream log_stream_ {};
+    QMutex mutex_ {};
 };
 
 #endif // DAILYLOGGER_H

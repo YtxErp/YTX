@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QPrinterInfo>
+#include <QStandardPaths>
 #include <QTimer>
 
 #include "component/constvalue.h"
@@ -30,7 +31,6 @@ Preferences::Preferences(CInfo& info, CNodeModel* model, AppSettings app, FileSe
     IniDialog(info.unit_model);
     IniConnect();
 
-    // 使用QTimer延迟执行
     QTimer::singleShot(100, this, [this, info]() { IniData(); });
     IniText(info.section);
 }
@@ -80,7 +80,7 @@ void Preferences::IniData()
 
     IniDataCombo(ui->comboDateFormat, section_.date_format);
     IniDataCombo(ui->comboDefaultUnit, section_.default_unit);
-    ui->pBtnDocumentDir->setText(section_.document_dir);
+    ui->pBtnDocumentDir->setText(section_.document_path);
     ui->spinAmountDecimal->setValue(section_.amount_decimal);
     ui->spinCommonDecimal->setValue(section_.common_decimal);
 
@@ -129,19 +129,23 @@ void Preferences::on_pBtnApply_clicked() { emit SUpdateSettings(app_, file_, sec
 
 void Preferences::on_pBtnDocumentDir_clicked()
 {
-    auto dir { ui->pBtnDocumentDir->text() };
-    auto default_dir { QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::homePath() + QDir::separator() + dir) };
+    const QString base_path { QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) };
+    const QString current_relative { ui->pBtnDocumentDir->text() };
+    const QString current_absolute { QDir(base_path).filePath(current_relative) };
 
-    if (!default_dir.isEmpty()) {
-        auto relative_path { QDir::home().relativeFilePath(default_dir) };
-        section_.document_dir = relative_path;
+    QDir().mkpath(current_absolute);
+
+    const QString selected_path { QFileDialog::getExistingDirectory(this, tr("Select Directory"), current_absolute) };
+    if (!selected_path.isEmpty()) {
+        const QString relative_path { (selected_path == base_path) ? QString() : QDir(base_path).relativeFilePath(selected_path) };
+        section_.document_path = relative_path;
         ui->pBtnDocumentDir->setText(relative_path);
     }
 }
 
 void Preferences::on_pBtnResetDocumentDir_clicked()
 {
-    section_.document_dir = QString();
+    section_.document_path = QString();
     ui->pBtnDocumentDir->setText(QString());
 }
 

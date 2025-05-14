@@ -250,7 +250,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation>确认(&amp;O)</translation>
     </message>
     <message>
-        <location filename="../../dialog/editdocument.cc" line="+32"/>
+        <location filename="../../dialog/editdocument.cc" line="+36"/>
         <source>Select Document</source>
         <translation>选择文件</translation>
     </message>
@@ -3190,12 +3190,12 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
 <context>
     <name>Preferences</name>
     <message>
-        <location filename="../../dialog/preferences.cc" line="+45"/>
+        <location filename="../../dialog/preferences.cc" line="+46"/>
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
     <message>
-        <location line="+110"/>
+        <location line="+114"/>
         <source>Local Currency</source>
         <translation>本币</translation>
     </message>
@@ -3244,7 +3244,7 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
         <translation>占位符</translation>
     </message>
     <message>
-        <location line="-25"/>
+        <location line="-24"/>
         <source>Select Directory</source>
         <translation>默认文件夹</translation>
     </message>

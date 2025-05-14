@@ -2,6 +2,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QStandardPaths>
 
 DailyLogger& DailyLogger::Instance()
 {
@@ -11,16 +12,27 @@ DailyLogger& DailyLogger::Instance()
 
 DailyLogger::DailyLogger()
 {
-    const QString log_dir { "logs" };
+    const QString log_path { QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("logs") };
     const QString log_date { QDate::currentDate().toString("yyyy-MM-dd") };
     const QString log_name { log_date + ".log" };
-    const QString log_path { QDir(log_dir).filePath(log_name) };
+    const QString file_name { QDir(log_path).filePath(log_name) };
 
-    QDir().mkpath(log_dir);
+    QDir().mkpath(log_path);
 
-    file_.setFileName(log_path);
+    file_.setFileName(file_name);
     if (file_.open(QIODevice::Append | QIODevice::Text)) {
         log_stream_.setDevice(&file_);
+    }
+}
+
+DailyLogger::~DailyLogger()
+{
+    if (log_stream_.device()) {
+        log_stream_.flush();
+    }
+
+    if (file_.isOpen()) {
+        file_.close();
     }
 }
 
@@ -55,9 +67,10 @@ void DailyLogger::HandleMessage(QtMsgType type, const QMessageLogContext&, const
         break;
     }
 
-    const QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-    const QString formatted = QString("%1 [%2] %3").arg(time, level, msg);
+    const QString time { QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") };
+    const QString formatted { QString("%1 [%2] %3").arg(time, level, msg) };
 
+    QMutexLocker locker(&mutex_);
     log_stream_ << formatted << '\n';
     log_stream_.flush();
 

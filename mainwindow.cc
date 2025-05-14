@@ -59,7 +59,6 @@
 #include "dialog/insertnode/insertnodeproduct.h"
 #include "dialog/insertnode/insertnodestakeholder.h"
 #include "dialog/insertnode/insertnodetask.h"
-#include "dialog/licence.h"
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "document.h"
@@ -67,6 +66,7 @@
 #include "global/leafsstation.h"
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"
+#include "licence/licence.h"
 #include "mainwindowutils.h"
 #include "report/model/settlementmodel.h"
 #include "report/model/statementmodel.h"
@@ -2524,15 +2524,41 @@ void MainWindow::VerifyActivationOnline()
     QNetworkReply* reply { network_manager_->post(request, QJsonDocument(json).toJson()) };
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        if (reply->error() != QNetworkReply::NoError) {
-            signature_.clear();
-            is_activated_ = false;
-
-            license_settings_->beginGroup(kLicense);
-            license_settings_->setValue(kSignature, signature_);
-            license_settings_->endGroup();
-        }
         reply->deleteLater();
+
+        auto fail = [this]() {
+            is_activated_ = false;
+            license_settings_->beginGroup(kLicense);
+            license_settings_->setValue(kSignature, {});
+            license_settings_->endGroup();
+        };
+
+        if (reply->error() != QNetworkReply::NoError) {
+            fail();
+            return;
+        }
+
+        const QJsonDocument doc { QJsonDocument::fromJson(reply->readAll()) };
+        if (!doc.isObject()) {
+            fail();
+            return;
+        }
+
+        const QJsonObject obj { doc.object() };
+        const bool success { obj["success"].toBool() };
+        const QString signature { obj["signature"].toString() };
+
+        // Construct payload in the same format as server
+        const QString payload { QString("%1:%2:%3").arg(activation_code_, hardware_uuid_, success ? "true" : "false") };
+        const QByteArray payload_bytes { payload.toUtf8() };
+        const QByteArray signature_bytes { QByteArray::fromBase64(signature.toUtf8()) };
+
+        // Read public key
+        const QString pub_key_path(":/keys/public.pem");
+
+        if (!Licence::VerifySignature(payload_bytes, signature_bytes, pub_key_path)) {
+            fail();
+        }
     });
 }
 

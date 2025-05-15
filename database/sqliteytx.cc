@@ -201,7 +201,7 @@ QString SqliteYtx::TransFinance()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time      DATE,
+        date_time      TEXT,
         code           TEXT,
         lhs_node       INTEGER,
         lhs_ratio      NUMERIC                   CHECK (lhs_ratio   > 0),
@@ -248,7 +248,7 @@ QString SqliteYtx::TransStakeholder()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
         id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time          DATE,
+        date_time          TEXT,
         code               TEXT,
         lhs_node           INTEGER,
         unit_price         NUMERIC,
@@ -267,7 +267,7 @@ QString SqliteYtx::TransTask()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time      DATE,
+        date_time      TEXT,
         code           TEXT,
         lhs_node       INTEGER,
         unit_cost      NUMERIC,
@@ -290,7 +290,7 @@ QString SqliteYtx::TransProduct()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
         id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time      DATE,
+        date_time      TEXT,
         code           TEXT,
         lhs_node       INTEGER,
         unit_cost      NUMERIC,
@@ -306,6 +306,22 @@ QString SqliteYtx::TransProduct()
         removed        BOOLEAN    DEFAULT 0
     );
     )");
+}
+
+QString SqliteYtx::SettlementOrder(const QString& order)
+{
+    return QString(R"(
+    CREATE TABLE IF NOT EXISTS %1_settlement (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        party          INTEGER,
+        date_time      TEXT,
+        description    TEXT,
+        finished       BOOLEAN    DEFAULT 0,
+        gross_amount   NUMERIC,
+        removed        BOOLEAN    DEFAULT 0
+    );
+    )")
+        .arg(order);
 }
 
 bool SqliteYtx::NodeIndex(QSqlQuery& query)
@@ -337,22 +353,6 @@ bool SqliteYtx::NodeIndex(QSqlQuery& query)
     }
 
     return true;
-}
-
-QString SqliteYtx::SettlementOrder(const QString& order)
-{
-    return QString(R"(
-    CREATE TABLE IF NOT EXISTS %1_settlement (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        party          INTEGER,
-        date_time      DATE,
-        description    TEXT,
-        finished       BOOLEAN    DEFAULT 0,
-        gross_amount   NUMERIC,
-        removed        BOOLEAN    DEFAULT 0
-    );
-    )")
-        .arg(order);
 }
 
 #if 0

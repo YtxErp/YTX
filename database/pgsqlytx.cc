@@ -5,10 +5,10 @@
 
 #include "component/constvalue.h"
 
-bool PgSqlYtx::NewFile(const QString& file_name)
+bool PgSqlYtx::NewFile(const QString& user, const QString& db_name, int timeout_ms)
 {
-    QSqlDatabase db { QSqlDatabase::addDatabase(kQSQLITE) };
-    db.setDatabaseName(file_name);
+    QSqlDatabase db;
+    AddDatabase(db, user, "abcd1234EFGH", db_name, "new_file", timeout_ms);
     if (!db.open())
         return false;
 
@@ -67,7 +67,7 @@ bool PgSqlYtx::NewFile(const QString& file_name)
         qDebug() << "Error starting transaction" << db.lastError().text();
     }
 
-    db.close();
+    RemoveDatabase("new_file");
     return true;
 }
 
@@ -323,78 +323,56 @@ QString PgSqlYtx::SettlementOrder(const QString& order)
         .arg(order);
 }
 
-bool PgSqlYtx::IsPGServerAvailable(const QString& user, const QString& db_name, int timeout_ms)
+bool PgSqlYtx::AddDatabase(
+    QSqlDatabase& db, const QString& user, const QString& password, const QString& db_name, const QString& connection_name, int timeout_ms)
 {
-    if (QSqlDatabase::contains("pg_check")) {
-        QSqlDatabase::removeDatabase("pg_check");
+    if (QSqlDatabase::contains(connection_name)) {
+        db = QSqlDatabase::database(connection_name);
+
+        if (db.isOpen()) {
+            return true;
+        }
+
+        if (db.open()) {
+            return true;
+        }
+
+        QSqlDatabase::removeDatabase(connection_name);
     }
 
-    qDebug() << "Qt SQL drivers:" << QSqlDatabase::drivers();
-
-    QSqlDatabase db { QSqlDatabase::addDatabase("QPSQL", "pg_check") };
-    db.setConnectOptions(QString("connect_timeout=%1").arg(timeout_ms));
-    db.setHostName("localhost");
-    db.setPassword("abcd1234EFGH");
-    db.setPort(5432);
-    db.setUserName(user);
-    db.setDatabaseName(db_name);
-
-    const bool is_available { db.open() };
-
-    if (db.isOpen()) {
-        db.close();
-    }
-    QSqlDatabase::removeDatabase("pg_check");
-
-    return is_available;
-}
-
-QStringList PgSqlYtx::GetAllDatabaseNames(const QString& user, const QString& db_name, int timeout_ms)
-{
-    QStringList db_list {};
-
-    if (QSqlDatabase::contains("pg_enum")) {
-        QSqlDatabase::removeDatabase("pg_enum");
-    }
-
-    qDebug() << "Qt SQL drivers:" << QSqlDatabase::drivers();
-
-    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL", "pg_enum");
+    db = QSqlDatabase::addDatabase("QPSQL", connection_name);
     db.setHostName("localhost");
     db.setPort(5432);
-    db.setPassword("abcd1234EFGH");
-    db.setConnectOptions(QString("connect_timeout=%1").arg(timeout_ms));
     db.setUserName(user);
+    db.setPassword(password);
     db.setDatabaseName(db_name);
+    db.setConnectOptions(QString("connect_timeout=%1").arg(timeout_ms));
 
     if (!db.open()) {
-        qWarning() << "无法连接数据库：" << db.lastError().text();
-        return db_list;
+        qDebug() << "Failed in CreateConnection:" << db_name;
+        QSqlDatabase::removeDatabase(connection_name);
+        return false;
     }
 
-    QSqlQuery query(db);
-    if (query.exec("SELECT datname FROM pg_database WHERE datname LIKE 'ytx_%' ORDER BY datname")) {
-        while (query.next()) {
-            db_list << query.value(0).toString();
-        }
-    } else {
-        qWarning() << "获取数据库列表失败：" << query.lastError().text();
-    }
+    return true;
+}
 
-    if (db_list.isEmpty()) {
-        qInfo() << "未找到 ytx_ 系列数据库，准备创建默认库 ytx_erp";
-
-        // 注意：默认 OWNER 为 ytx，你也可以根据登录的用户名动态设定
-        if (query.exec("CREATE DATABASE ytx_erp OWNER ytx")) {
-            db_list << "ytx_erp";
-            qInfo() << "成功创建数据库 ytx_erp";
-        } else {
-            qWarning() << "创建数据库失败：" << query.lastError().text();
+void PgSqlYtx::RemoveDatabase(const QString& connection_name)
+{
+    {
+        QSqlDatabase db = QSqlDatabase::database(connection_name);
+        if (db.isOpen()) {
+            db.close();
         }
     }
 
-    db.close();
-    QSqlDatabase::removeDatabase("pg_enum");
+    QSqlDatabase::removeDatabase(connection_name);
+}
 
-    return db_list;
+bool PgSqlYtx::IsPGServerAvailable(const QString& user, const QString& db_name, int timeout_ms)
+{
+    QSqlDatabase db;
+    const bool is_available { AddDatabase(db, user, "abcd1234EFGH", db_name, "pg_check", timeout_ms) };
+    RemoveDatabase("pg_check");
+    return is_available;
 }

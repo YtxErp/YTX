@@ -22,11 +22,12 @@
 
 #include <QSqlDatabase>
 
+#include "component/using.h"
+
 class PgSqlYtx {
 public:
-    static bool NewFile(const QString& file_name);
+    static bool NewFile(CString& user, CString& db_name, int timeout_ms);
     static bool IsPGServerAvailable(const QString& user, const QString& db_name, int timeout_ms);
-    static QStringList GetAllDatabaseNames(const QString& user, const QString& db_name, int timeout_ms);
 
 private:
     static QString NodeFinance();
@@ -47,6 +48,10 @@ private:
     // bool TransIndex(QSqlQuery& query);
 
     static QString SettlementOrder(const QString& order);
+
+    static bool AddDatabase(
+        QSqlDatabase& db, const QString& user, const QString& password, const QString& db_name, const QString& connection_name, int timeout_ms);
+    static void RemoveDatabase(const QString& connection_name);
 };
 
 #endif // PGSQLYTX_H

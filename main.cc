@@ -17,46 +17,34 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <QApplication>
 #include <QDir>
 #include <QStandardPaths>
 
 #include "global/dailylogger.h"
 #include "mainwindow.h"
 
-#ifdef Q_OS_MACOS
-#include "component/application.h"
-#elif defined(Q_OS_WIN32)
-#include <QApplication>
-#endif
-
 int main(int argc, char* argv[])
 {
-#ifdef Q_OS_MACOS
-    Application application(argc, argv);
-#elif defined(Q_OS_WIN32)
     QApplication application(argc, argv);
-#endif
 
     DailyLogger::Instance().Install();
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
 
     // Centralize config directory creation
-    const QString location { QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) };
-    if (!QDir(location).exists() && !QDir().mkpath(location)) {
-        qCritical() << "Failed to create config directory:" << location;
+    const QString config_location { QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) };
+    if (!QDir(config_location).exists() && !QDir().mkpath(config_location)) {
+        qCritical() << "Failed to create config directory:" << config_location;
+        return EXIT_FAILURE;
+    }
+
+    const QString data_location { QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) };
+    if (!QDir(data_location).exists() && !QDir().mkpath(data_location)) {
+        qCritical() << "Failed to create data directory:" << data_location;
         return EXIT_FAILURE;
     }
 
     MainWindow mainwindow {};
-
-    if (application.arguments().size() >= 2) {
-        const QString file_path { application.arguments().at(1) };
-        mainwindow.ROpenFile(file_path);
-    }
-
-#ifdef Q_OS_MACOS
-    QObject::connect(&application, &Application::SOpenFile, &mainwindow, &MainWindow::ROpenFile);
-#endif
 
     mainwindow.show();
     return application.exec();

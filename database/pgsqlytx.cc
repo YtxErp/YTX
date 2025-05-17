@@ -46,11 +46,7 @@ bool PgSqlYtx::NewFile(CString& user, CString& db_name, int timeout_ms)
             && query.exec(task_path) && query.exec(task_trans) && query.exec(purchase) && query.exec(purchase_path) && query.exec(purchase_trans)
             && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(purchase_settlement) && query.exec(sales_settlement)) {
             // Commit the transaction if all queries are successful
-            if (db.commit()) {
-                for (int i = 0; i != 6; ++i) {
-                    query.exec(QLatin1String("INSERT INTO settings (static_node) VALUES (0);"));
-                }
-            } else {
+            if (!db.commit()) {
                 // Handle commit failure
                 qDebug() << "Error committing transaction" << db.lastError().text();
                 // Rollback the transaction in case of failure

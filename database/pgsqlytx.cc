@@ -8,7 +8,7 @@
 bool PgSqlYtx::NewFile(CString& user, CString& db_name, int timeout_ms)
 {
     QSqlDatabase db;
-    AddDatabase(db, user, "abcd1234EFGH", db_name, "new_file", timeout_ms);
+    AddDatabase(db, user, "abcd1234EFGH", db_name, timeout_ms);
     if (!db.open())
         return false;
 
@@ -319,8 +319,10 @@ QString PgSqlYtx::SettlementOrder(CString& order)
         .arg(order);
 }
 
-bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
+bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms)
 {
+    const QString connection_name { QSqlDatabase::defaultConnection };
+
     if (QSqlDatabase::contains(connection_name)) {
         db = QSqlDatabase::database(connection_name);
 
@@ -344,7 +346,7 @@ bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, C
     db.setConnectOptions(QString("connect_timeout=%1").arg(timeout_ms));
 
     if (!db.open()) {
-        qDebug() << "Failed in CreateConnection:" << db_name;
+        qDebug() << "Failed to open connection to database" << db_name;
         QSqlDatabase::removeDatabase(connection_name);
         return false;
     }

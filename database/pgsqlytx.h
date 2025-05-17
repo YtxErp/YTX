@@ -27,6 +27,7 @@
 class PgSqlYtx {
 public:
     static bool NewFile(CString& user, CString& db_name, int timeout_ms);
+    static bool AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms);
 
 private:
     static QString NodeFinance();
@@ -47,8 +48,6 @@ private:
     // bool TransIndex(QSqlQuery& query);
 
     static QString SettlementOrder(CString& order);
-
-    static bool AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
     static void RemoveDatabase(CString& connection_name);
 };
 

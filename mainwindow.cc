@@ -59,6 +59,7 @@
 #include "dialog/insertnode/insertnodeproduct.h"
 #include "dialog/insertnode/insertnodestakeholder.h"
 #include "dialog/insertnode/insertnodetask.h"
+#include "dialog/login.h"
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "document.h"
@@ -128,6 +129,11 @@ MainWindow::MainWindow(QWidget* parent)
     ui->actionRemove->setShortcut(Qt::Key_Backspace);
     qApp->setWindowIcon(QIcon(":/logo/logo/logo.icns"));
 #endif
+
+    QTimer::singleShot(0, this, [this]() {
+        auto* login { new Login(this) };
+        login->exec();
+    });
 }
 
 MainWindow::~MainWindow()

@@ -1946,10 +1946,62 @@ We reserve the right to modify these terms. Updated terms will apply the next ti
     </message>
 </context>
 <context>
+    <name>Login</name>
+    <message>
+        <location filename="../../dialog/login.ui" line="+14"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Database</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="obsolete">新建</translation>
+    </message>
+    <message>
+        <location line="-33"/>
+        <source>Connect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>The password will be saved locally on this computer. Please choose carefully.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <location line="-30"/>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../dialog/login.cc" line="+26"/>
+        <source>Connection Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Unable to connect to the database. Please check if the PostgreSQL service is running, and verify the username, password, and database name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="../../mainwindow.ui" line="+85"/>
-        <location filename="../../mainwindow.cc" line="+193"/>
+        <location filename="../../mainwindow.cc" line="+199"/>
         <source>Finance</source>
         <translation>财务</translation>
     </message>

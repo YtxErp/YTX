@@ -5,38 +5,38 @@
 
 #include "component/constvalue.h"
 
-bool PgSqlYtx::NewFile(const QString& user, const QString& db_name, int timeout_ms)
+bool PgSqlYtx::NewFile(CString& user, CString& db_name, int timeout_ms)
 {
     QSqlDatabase db;
     AddDatabase(db, user, "abcd1234EFGH", db_name, "new_file", timeout_ms);
     if (!db.open())
         return false;
 
-    const QString finance { NodeFinance() };
-    const QString finance_path { Path(kFinance) };
-    const QString finance_trans { TransFinance() };
+    CString finance { NodeFinance() };
+    CString finance_path { Path(kFinance) };
+    CString finance_trans { TransFinance() };
 
-    const QString product { NodeProduct() };
-    const QString product_path { Path(kProduct) };
-    const QString product_trans { TransProduct() };
+    CString product { NodeProduct() };
+    CString product_path { Path(kProduct) };
+    CString product_trans { TransProduct() };
 
-    const QString task { NodeTask() };
-    const QString task_path { Path(kTask) };
-    const QString task_trans { TransTask() };
+    CString task { NodeTask() };
+    CString task_path { Path(kTask) };
+    CString task_trans { TransTask() };
 
-    const QString stakeholder { NodeStakeholder() };
-    const QString stakeholder_path { Path(kStakeholder) };
-    const QString stakeholder_trans { TransStakeholder() };
+    CString stakeholder { NodeStakeholder() };
+    CString stakeholder_path { Path(kStakeholder) };
+    CString stakeholder_trans { TransStakeholder() };
 
-    const QString purchase { NodeOrder(kPurchase) };
-    const QString purchase_path { Path(kPurchase) };
-    const QString purchase_trans { TransOrder(kPurchase) };
-    const QString purchase_settlement { SettlementOrder(kPurchase) };
+    CString purchase { NodeOrder(kPurchase) };
+    CString purchase_path { Path(kPurchase) };
+    CString purchase_trans { TransOrder(kPurchase) };
+    CString purchase_settlement { SettlementOrder(kPurchase) };
 
-    const QString sales { NodeOrder(kSales) };
-    const QString sales_path { Path(kSales) };
-    const QString sales_trans { TransOrder(kSales) };
-    const QString sales_settlement { SettlementOrder(kSales) };
+    CString sales { NodeOrder(kSales) };
+    CString sales_path { Path(kSales) };
+    CString sales_trans { TransOrder(kSales) };
+    CString sales_settlement { SettlementOrder(kSales) };
 
     QSqlQuery query {};
     if (db.transaction()) {
@@ -157,7 +157,7 @@ QString PgSqlYtx::NodeTask()
     )");
 }
 
-QString PgSqlYtx::NodeOrder(const QString& order)
+QString PgSqlYtx::NodeOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -183,7 +183,7 @@ QString PgSqlYtx::NodeOrder(const QString& order)
         .arg(order);
 }
 
-QString PgSqlYtx::Path(const QString& table_name)
+QString PgSqlYtx::Path(CString& table_name)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_path (
@@ -219,7 +219,7 @@ QString PgSqlYtx::TransFinance()
     )");
 }
 
-QString PgSqlYtx::TransOrder(const QString& order)
+QString PgSqlYtx::TransOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_transaction (
@@ -307,7 +307,7 @@ QString PgSqlYtx::TransProduct()
     )");
 }
 
-QString PgSqlYtx::SettlementOrder(const QString& order)
+QString PgSqlYtx::SettlementOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_settlement (
@@ -323,8 +323,7 @@ QString PgSqlYtx::SettlementOrder(const QString& order)
         .arg(order);
 }
 
-bool PgSqlYtx::AddDatabase(
-    QSqlDatabase& db, const QString& user, const QString& password, const QString& db_name, const QString& connection_name, int timeout_ms)
+bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
 {
     if (QSqlDatabase::contains(connection_name)) {
         db = QSqlDatabase::database(connection_name);
@@ -357,7 +356,7 @@ bool PgSqlYtx::AddDatabase(
     return true;
 }
 
-void PgSqlYtx::RemoveDatabase(const QString& connection_name)
+void PgSqlYtx::RemoveDatabase(CString& connection_name)
 {
     {
         QSqlDatabase db = QSqlDatabase::database(connection_name);
@@ -367,12 +366,4 @@ void PgSqlYtx::RemoveDatabase(const QString& connection_name)
     }
 
     QSqlDatabase::removeDatabase(connection_name);
-}
-
-bool PgSqlYtx::IsPGServerAvailable(const QString& user, const QString& db_name, int timeout_ms)
-{
-    QSqlDatabase db;
-    const bool is_available { AddDatabase(db, user, "abcd1234EFGH", db_name, "pg_check", timeout_ms) };
-    RemoveDatabase("pg_check");
-    return is_available;
 }

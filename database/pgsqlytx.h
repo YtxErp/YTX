@@ -27,31 +27,29 @@
 class PgSqlYtx {
 public:
     static bool NewFile(CString& user, CString& db_name, int timeout_ms);
-    static bool IsPGServerAvailable(const QString& user, const QString& db_name, int timeout_ms);
 
 private:
     static QString NodeFinance();
     static QString NodeStakeholder();
     static QString NodeProduct();
     static QString NodeTask();
-    static QString NodeOrder(const QString& order);
+    static QString NodeOrder(CString& order);
 
-    static QString Path(const QString& table_name);
+    static QString Path(CString& table_name);
 
     static QString TransFinance();
     static QString TransTask();
     static QString TransProduct();
     static QString TransStakeholder();
-    static QString TransOrder(const QString& order);
+    static QString TransOrder(CString& order);
 
     static bool NodeIndex(QSqlQuery& query);
     // bool TransIndex(QSqlQuery& query);
 
-    static QString SettlementOrder(const QString& order);
+    static QString SettlementOrder(CString& order);
 
-    static bool AddDatabase(
-        QSqlDatabase& db, const QString& user, const QString& password, const QString& db_name, const QString& connection_name, int timeout_ms);
-    static void RemoveDatabase(const QString& connection_name);
+    static bool AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
+    static void RemoveDatabase(CString& connection_name);
 };
 
 #endif // PGSQLYTX_H

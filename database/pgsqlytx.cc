@@ -75,17 +75,17 @@ QString PgSqlYtx::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        id               BIGSERIAL PRIMARY KEY,
         name             TEXT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
         type             INTEGER,
-        rule             BOOLEAN    DEFAULT 0,
+        rule             BOOLEAN DEFAULT FALSE,
         unit             INTEGER,
-        foreign_total    NUMERIC,
-        local_total      NUMERIC,
-        removed          BOOLEAN    DEFAULT 0
+        foreign_total    NUMERIC(19,6),
+        local_total      NUMERIC(19,6),
+        removed          BOOLEAN DEFAULT FALSE
     );
     )");
 }
@@ -94,7 +94,7 @@ QString PgSqlYtx::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
+        id                BIGSERIAL PRIMARY KEY,
         name              TEXT,
         code              TEXT,
         description       TEXT,
@@ -102,11 +102,11 @@ QString PgSqlYtx::NodeStakeholder()
         type              INTEGER,
         payment_term      INTEGER,
         unit              INTEGER,
-        deadline          TEXT,
+        deadline          INTEGER CHECK (deadline >= 1 AND deadline <= 31),
         employee          INTEGER,
-        tax_rate          NUMERIC,
-        amount            NUMERIC,
-        removed           BOOLEAN    DEFAULT 0
+        tax_rate          NUMERIC(19,6),
+        amount            NUMERIC(19,6),
+        removed           BOOLEAN DEFAULT FALSE
     );
     )");
 }
@@ -115,44 +115,44 @@ QString PgSqlYtx::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        id               BIGSERIAL PRIMARY KEY,
         name             TEXT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
         type             INTEGER,
-        rule             BOOLEAN    DEFAULT 0,
+        rule             BOOLEAN DEFAULT FALSE,
         unit             INTEGER,
         color            TEXT,
-        unit_price       NUMERIC,
-        commission       NUMERIC,
-        quantity         NUMERIC,
-        amount           NUMERIC,
-        removed          BOOLEAN    DEFAULT 0
+        unit_price       NUMERIC(19,6),
+        commission       NUMERIC(19,6),
+        quantity         NUMERIC(19,6),
+        amount           NUMERIC(19,6),
+        removed          BOOLEAN DEFAULT FALSE
     );
-)");
+    )");
 }
 
 QString PgSqlYtx::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        id               BIGSERIAL PRIMARY KEY,
         name             TEXT,
         code             TEXT,
         description      TEXT,
         note             TEXT,
         type             INTEGER,
-        rule             BOOLEAN    DEFAULT 0,
+        rule             BOOLEAN DEFAULT FALSE,
         unit             INTEGER,
-        date_time        TEXT,
+        date_time        TIMESTAMPTZ(0),
         color            TEXT,
         document         TEXT,
-        finished         BOOLEAN    DEFAULT 0,
-        unit_cost        NUMERIC,
-        quantity         NUMERIC,
-        amount           NUMERIC,
-        removed          BOOLEAN    DEFAULT 0
+        finished         BOOLEAN DEFAULT FALSE,
+        unit_cost        NUMERIC(19,6),
+        quantity         NUMERIC(19,6),
+        amount           NUMERIC(19,6),
+        removed          BOOLEAN DEFAULT FALSE
     );
     )");
 }
@@ -161,23 +161,23 @@ QString PgSqlYtx::NodeOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
+        id                BIGSERIAL PRIMARY KEY,
         name              TEXT,
         party             INTEGER,
         description       TEXT,
         employee          INTEGER,
         type              INTEGER,
-        rule              BOOLEAN    DEFAULT 0,
+        rule              BOOLEAN DEFAULT FALSE,
         unit              INTEGER,
-        date_time         TEXT,
-        first             NUMERIC,
-        second            NUMERIC,
-        finished          BOOLEAN    DEFAULT 0,
-        gross_amount      NUMERIC,
-        discount          NUMERIC,
-        settlement        NUMERIC,
-        settlement_id     INTEGER    DEFAULT 0,
-        removed           BOOLEAN    DEFAULT 0
+        date_time         TIMESTAMPTZ(0),
+        first             NUMERIC(19,6),
+        second            NUMERIC(19,6),
+        finished          BOOLEAN DEFAULT FALSE,
+        gross_amount      NUMERIC(19,6),
+        discount          NUMERIC(19,6),
+        settlement        NUMERIC(19,6),
+        settlement_id     INTEGER DEFAULT 0,
+        removed           BOOLEAN DEFAULT FALSE
     );
     )")
         .arg(order);
@@ -199,22 +199,22 @@ QString PgSqlYtx::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             BIGSERIAL PRIMARY KEY,
         date_time      TEXT,
         code           TEXT,
         lhs_node       INTEGER,
-        lhs_ratio      NUMERIC                   CHECK (lhs_ratio   > 0),
-        lhs_debit      NUMERIC                   CHECK (lhs_debit  >= 0),
-        lhs_credit     NUMERIC                   CHECK (lhs_credit >= 0),
+        lhs_ratio      NUMERIC(19,6) CHECK (lhs_ratio > 0),
+        lhs_debit      NUMERIC(19,6) CHECK (lhs_debit >= 0),
+        lhs_credit     NUMERIC(19,6) CHECK (lhs_credit >= 0),
         description    TEXT,
         support_id     INTEGER,
         document       TEXT,
-        state          BOOLEAN    DEFAULT 0,
-        rhs_credit     NUMERIC                   CHECK (rhs_credit >= 0),
-        rhs_debit      NUMERIC                   CHECK (rhs_debit  >= 0),
-        rhs_ratio      NUMERIC                   CHECK (rhs_ratio   > 0),
+        state          BOOLEAN DEFAULT FALSE,
+        rhs_credit     NUMERIC(19,6) CHECK (rhs_credit >= 0),
+        rhs_debit      NUMERIC(19,6) CHECK (rhs_debit >= 0),
+        rhs_ratio      NUMERIC(19,6) CHECK (rhs_ratio > 0),
         rhs_node       INTEGER,
-        removed        BOOLEAN    DEFAULT 0
+        removed        BOOLEAN DEFAULT FALSE
     );
     )");
 }
@@ -223,20 +223,20 @@ QString PgSqlYtx::TransOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_transaction (
-        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+        id                  BIGSERIAL PRIMARY KEY,
         code                TEXT,
         lhs_node            INTEGER,
-        unit_price          NUMERIC,
-        first               NUMERIC,
-        second              NUMERIC,
+        unit_price          NUMERIC(19,6),
+        first               NUMERIC(19,6),
+        second              NUMERIC(19,6),
         description         TEXT,
         outside_product     INTEGER,
-        discount            NUMERIC,
-        net_amount          NUMERIC,
-        gross_amount        NUMERIC,
-        discount_price      NUMERIC,
+        discount            NUMERIC(19,6),
+        net_amount          NUMERIC(19,6),
+        gross_amount        NUMERIC(19,6),
+        discount_price      NUMERIC(19,6),
         inside_product      INTEGER,
-        removed             BOOLEAN    DEFAULT 0
+        removed             BOOLEAN DEFAULT FALSE
     );
     )")
         .arg(order);
@@ -246,15 +246,15 @@ QString PgSqlYtx::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
-        id                 INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time          TEXT,
+        id                 BIGSERIAL PRIMARY KEY,
+        date_time          TIMESTAMPTZ(0),
         code               TEXT,
         lhs_node           INTEGER,
-        unit_price         NUMERIC,
+        unit_price         NUMERIC(19,6),
         description        TEXT,
         outside_product    INTEGER,
         document           TEXT,
-        state              BOOLEAN    DEFAULT 0,
+        state              BOOLEAN DEFAULT FALSE,
         inside_product     INTEGER,
         UNIQUE(lhs_node, inside_product)
     );
@@ -265,21 +265,21 @@ QString PgSqlYtx::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time      TEXT,
+        id             BIGSERIAL PRIMARY KEY,
+        date_time      TIMESTAMPTZ(0),
         code           TEXT,
         lhs_node       INTEGER,
-        unit_cost      NUMERIC,
-        lhs_debit      NUMERIC                  CHECK (lhs_debit  >= 0),
-        lhs_credit     NUMERIC                  CHECK (lhs_credit >= 0),
+        unit_cost      NUMERIC(19,6),
+        lhs_debit      NUMERIC(19,6) CHECK (lhs_debit >= 0),
+        lhs_credit     NUMERIC(19,6) CHECK (lhs_credit >= 0),
         description    TEXT,
         support_id     INTEGER,
         document       TEXT,
-        state          BOOLEAN    DEFAULT 0,
-        rhs_credit     NUMERIC                  CHECK (rhs_credit >= 0),
-        rhs_debit      NUMERIC                  CHECK (rhs_debit  >= 0),
+        state          BOOLEAN DEFAULT FALSE,
+        rhs_credit     NUMERIC(19,6) CHECK (rhs_credit >= 0),
+        rhs_debit      NUMERIC(19,6) CHECK (rhs_debit >= 0),
         rhs_node       INTEGER,
-        removed        BOOLEAN    DEFAULT 0
+        removed        BOOLEAN DEFAULT FALSE
     );
     )");
 }
@@ -288,21 +288,21 @@ QString PgSqlYtx::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_time      TEXT,
+        id             BIGSERIAL PRIMARY KEY,
+        date_time      TIMESTAMPTZ(0),
         code           TEXT,
         lhs_node       INTEGER,
-        unit_cost      NUMERIC,
-        lhs_debit      NUMERIC                  CHECK (lhs_debit  >= 0),
-        lhs_credit     NUMERIC                  CHECK (lhs_credit >= 0),
+        unit_cost      NUMERIC(19,6),
+        lhs_debit      NUMERIC(19,6) CHECK (lhs_debit  >= 0),
+        lhs_credit     NUMERIC(19,6) CHECK (lhs_credit >= 0),
         description    TEXT,
         support_id     INTEGER,
         document       TEXT,
-        state          BOOLEAN    DEFAULT 0,
-        rhs_credit     NUMERIC                  CHECK (rhs_credit >= 0),
-        rhs_debit      NUMERIC                  CHECK (rhs_debit  >= 0),
+        state          BOOLEAN DEFAULT FALSE,
+        rhs_credit     NUMERIC(19,6) CHECK (rhs_credit >= 0),
+        rhs_debit      NUMERIC(19,6) CHECK (rhs_debit  >= 0),
         rhs_node       INTEGER,
-        removed        BOOLEAN    DEFAULT 0
+        removed        BOOLEAN DEFAULT FALSE
     );
     )");
 }
@@ -311,13 +311,13 @@ QString PgSqlYtx::SettlementOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_settlement (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             BIGSERIAL PRIMARY KEY,
         party          INTEGER,
-        date_time      TEXT,
+        date_time      TIMESTAMPTZ(0),
         description    TEXT,
-        finished       BOOLEAN    DEFAULT 0,
-        gross_amount   NUMERIC,
-        removed        BOOLEAN    DEFAULT 0
+        finished       BOOLEAN DEFAULT FALSE,
+        gross_amount   NUMERIC(19,6),
+        removed        BOOLEAN DEFAULT FALSE
     );
     )")
         .arg(order);

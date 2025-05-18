@@ -357,16 +357,8 @@ void PgSqlYtx::RemoveConnection(CString& connection_name)
     QSqlDatabase::removeDatabase(connection_name);
 }
 
-bool PgSqlYtx::IniRoleDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
+bool PgSqlYtx::InitRole(QSqlDatabase& db, CString new_user, CString new_password)
 {
-    QSqlDatabase db;
-    CString connection_name { "IniRoleAndDatabase" };
-    InitConnection(db, super_user, super_password, "postgres", connection_name, timeout_ms);
-    if (!db.open()) {
-        qDebug() << "Failed to connect with superuser:" << db.lastError().text();
-        return false;
-    }
-
     QSqlQuery query(db);
 
     if (!query.prepare(R"(
@@ -393,6 +385,13 @@ bool PgSqlYtx::IniRoleDatabase(CString super_user, CString super_password, CStri
         return false;
     }
 
+    return true;
+}
+
+bool PgSqlYtx::InitDatabase(QSqlDatabase& db, CString db_name, CString owner)
+{
+    QSqlQuery query(db);
+
     if (!query.prepare(R"(
         DO $$
         DECLARE
@@ -410,15 +409,29 @@ bool PgSqlYtx::IniRoleDatabase(CString super_user, CString super_password, CStri
     }
 
     query.bindValue(":dbname", db_name);
-    query.bindValue(":owner", new_user);
+    query.bindValue(":owner", owner);
 
     if (!query.exec()) {
         qDebug() << "Error creating database:" << query.lastError().text();
         return false;
     }
 
-    RemoveConnection(connection_name);
     return true;
+}
+
+bool PgSqlYtx::InitRoleDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
+{
+    QSqlDatabase db;
+    CString connection_name { "IniRoleAndDatabase" };
+    InitConnection(db, super_user, super_password, "postgres", connection_name, timeout_ms);
+    if (!db.open()) {
+        qDebug() << "Failed to connect with superuser:" << db.lastError().text();
+        return false;
+    }
+
+    const bool ok { InitRole(db, new_user, new_password) && InitDatabase(db, db_name, new_user) };
+    RemoveConnection(connection_name);
+    return ok;
 }
 
 #if 0

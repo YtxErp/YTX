@@ -357,29 +357,18 @@ bool PgSqlYtx::CreateRole(QSqlDatabase& db, CString role_name, CString password)
     }
 
     QSqlQuery query(db);
+    query.prepare(R"(
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = $1) THEN
+                    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', $1, $2);
+                END IF;
+            END
+            $$;
+        )");
 
-    const QString sql = R"(
-        DO $$
-        DECLARE
-            _exists BOOLEAN;
-            _role TEXT := :role_name;
-            _password TEXT := :password;
-        BEGIN
-            SELECT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = _role) INTO _exists;
-            IF NOT _exists THEN
-                EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', _role, _password);
-            END IF;
-        END
-        $$;
-        )";
-
-    if (!query.prepare(sql)) {
-        qDebug() << "Prepare failed for role creation:" << query.lastError().text();
-        return false;
-    }
-
-    query.bindValue(":role_name", role_name);
-    query.bindValue(":password", password);
+    query.bindValue(0, role_name);
+    query.bindValue(1, password);
 
     if (!query.exec()) {
         qDebug() << "Error creating role:" << query.lastError().text();
@@ -402,28 +391,18 @@ bool PgSqlYtx::CreateDatabase(QSqlDatabase& db, CString db_name, CString owner)
     }
 
     QSqlQuery query(db);
-    const QString sql = R"(
-        DO $$
-        DECLARE
-            _exists BOOLEAN;
-            _dbname TEXT := :dbname;
-            _owner TEXT := :owner;
-        BEGIN
-            SELECT EXISTS (SELECT FROM pg_database WHERE datname = _dbname) INTO _exists;
-            IF NOT _exists THEN
-                EXECUTE format('CREATE DATABASE %I OWNER %I', _dbname, _owner);
-            END IF;
-        END
-        $$;
-        )";
+    query.prepare(R"(
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT FROM pg_database WHERE datname = $1) THEN
+                    EXECUTE format('CREATE DATABASE %I OWNER %I', $1, $2);
+                END IF;
+            END
+            $$;
+        )");
 
-    if (!query.prepare(sql)) {
-        qDebug() << "Prepare failed for database creation:" << query.lastError().text();
-        return false;
-    }
-
-    query.bindValue(":dbname", db_name);
-    query.bindValue(":owner", owner);
+    query.bindValue(0, db_name);
+    query.bindValue(1, owner);
 
     if (!query.exec()) {
         qDebug() << "Error creating database:" << query.lastError().text();

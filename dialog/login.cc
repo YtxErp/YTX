@@ -18,7 +18,7 @@ Login::~Login() { delete ui; }
 void Login::on_pushButtonConnect_clicked()
 {
     QSqlDatabase db;
-    const bool ok { PgSqlYtx::AddDatabase(db, ui->lineEditUser->text(), ui->lineEditPassword->text(), ui->lineEditDatabase->text(), 300000) };
+    const bool ok { PgSqlYtx::InitConnection(db, ui->lineEditUser->text(), ui->lineEditPassword->text(), ui->lineEditDatabase->text(), 300000) };
 
     if (ok) {
         this->close();

@@ -17,65 +17,45 @@ CString PgSqlYtx::kPgBinBasePath =
 #endif
 #endif
 
-bool PgSqlYtx::NewFile(CString& user, CString& db_name, int timeout_ms)
+bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, int timeout_ms)
 {
     QSqlDatabase db;
-    AddDatabase(db, user, "abcd1234EFGH", db_name, timeout_ms);
-    if (!db.open())
+    InitConnection(db, user, password, db_name, timeout_ms);
+
+    if (!db.open()) {
+        qDebug() << "Failed to open database:" << db.lastError().text();
         return false;
-
-    CString finance { NodeFinance() };
-    CString finance_path { Path(kFinance) };
-    CString finance_trans { TransFinance() };
-
-    CString product { NodeProduct() };
-    CString product_path { Path(kProduct) };
-    CString product_trans { TransProduct() };
-
-    CString task { NodeTask() };
-    CString task_path { Path(kTask) };
-    CString task_trans { TransTask() };
-
-    CString stakeholder { NodeStakeholder() };
-    CString stakeholder_path { Path(kStakeholder) };
-    CString stakeholder_trans { TransStakeholder() };
-
-    CString purchase { NodeOrder(kPurchase) };
-    CString purchase_path { Path(kPurchase) };
-    CString purchase_trans { TransOrder(kPurchase) };
-    CString purchase_settlement { SettlementOrder(kPurchase) };
-
-    CString sales { NodeOrder(kSales) };
-    CString sales_path { Path(kSales) };
-    CString sales_trans { TransOrder(kSales) };
-    CString sales_settlement { SettlementOrder(kSales) };
-
-    QSqlQuery query {};
-    if (db.transaction()) {
-        // Execute each table creation query
-        if (query.exec(finance) && query.exec(finance_path) && query.exec(finance_trans) && query.exec(product) && query.exec(product_path)
-            && query.exec(product_trans) && query.exec(stakeholder) && query.exec(stakeholder_path) && query.exec(stakeholder_trans) && query.exec(task)
-            && query.exec(task_path) && query.exec(task_trans) && query.exec(purchase) && query.exec(purchase_path) && query.exec(purchase_trans)
-            && query.exec(sales) && query.exec(sales_path) && query.exec(sales_trans) && query.exec(purchase_settlement) && query.exec(sales_settlement)) {
-            // Commit the transaction if all queries are successful
-            if (!db.commit()) {
-                // Handle commit failure
-                qDebug() << "Error committing transaction" << db.lastError().text();
-                // Rollback the transaction in case of failure
-                db.rollback();
-            }
-        } else {
-            // Handle query execution failure
-            qDebug() << "Error creating tables" << query.lastError().text();
-            // Rollback the transaction in case of failure
-            db.rollback();
-        }
-    } else {
-        // Handle transaction start failure
-        qDebug() << "Error starting transaction" << db.lastError().text();
     }
 
-    RemoveDatabase("new_file");
+    const std::vector<QString> tables { NodeFinance(), Path(kFinance), TransFinance(), NodeProduct(), Path(kProduct), TransProduct(), NodeStakeholder(),
+        Path(kStakeholder), TransStakeholder(), NodeTask(), Path(kTask), TransTask(), NodeOrder(kPurchase), Path(kPurchase), TransOrder(kPurchase),
+        SettlementOrder(kPurchase), NodeOrder(kSales), Path(kSales), TransOrder(kSales), SettlementOrder(kSales) };
+
+    QSqlQuery query { db };
+
+    if (!db.transaction()) {
+        qDebug() << "Error starting transaction:" << db.lastError().text();
+        RemoveConnection("new_file");
+        return false;
+    }
+
+    for (const auto& table : tables) {
+        if (!query.exec(table)) {
+            qDebug() << "Error executing query:" << query.lastError().text();
+            db.rollback();
+            RemoveConnection("new_file");
+            return false;
+        }
+    }
+
+    if (!db.commit()) {
+        qDebug() << "Error committing transaction:" << db.lastError().text();
+        db.rollback();
+        RemoveConnection("new_file");
+        return false;
+    }
+
+    RemoveConnection("new_file");
     return true;
 }
 
@@ -331,7 +311,7 @@ QString PgSqlYtx::SettlementOrder(CString& order)
         .arg(order);
 }
 
-bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms)
+bool PgSqlYtx::InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms)
 {
     CString connection_name { QSqlDatabase::defaultConnection };
 
@@ -366,7 +346,7 @@ bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, C
     return true;
 }
 
-void PgSqlYtx::RemoveDatabase(CString& connection_name)
+void PgSqlYtx::RemoveConnection(CString& connection_name)
 {
     {
         QSqlDatabase db = QSqlDatabase::database(connection_name);
@@ -377,6 +357,69 @@ void PgSqlYtx::RemoveDatabase(CString& connection_name)
 
     QSqlDatabase::removeDatabase(connection_name);
 }
+
+bool PgSqlYtx::IniRoleAndDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
+{
+    QSqlDatabase db;
+    InitConnection(db, super_user, super_password, "postgres", timeout_ms);
+    if (!db.open()) {
+        qDebug() << "Failed to connect with superuser:" << db.lastError().text();
+        return false;
+    }
+
+    QSqlQuery query(db);
+
+    if (!query.prepare(R"(
+        DO $$
+        DECLARE
+            _exists boolean;
+        BEGIN
+            SELECT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = :username) INTO _exists;
+            IF NOT _exists THEN
+                EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', :username, :password);
+            END IF;
+        END
+        $$;
+    )")) {
+        qDebug() << "Prepare failed for role creation:" << query.lastError().text();
+        return false;
+    }
+
+    query.bindValue(":username", new_user);
+    query.bindValue(":password", new_password);
+
+    if (!query.exec()) {
+        qDebug() << "Error creating role:" << query.lastError().text();
+        return false;
+    }
+
+    if (!query.prepare(R"(
+        DO $$
+        DECLARE
+            _exists boolean;
+        BEGIN
+            SELECT EXISTS (SELECT FROM pg_database WHERE datname = :dbname) INTO _exists;
+            IF NOT _exists THEN
+                EXECUTE format('CREATE DATABASE %I OWNER %I', :dbname, :owner);
+            END IF;
+        END
+        $$;
+    )")) {
+        qDebug() << "Prepare failed for database creation:" << query.lastError().text();
+        return false;
+    }
+
+    query.bindValue(":dbname", db_name);
+    query.bindValue(":owner", new_user);
+
+    if (!query.exec()) {
+        qDebug() << "Error creating database:" << query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
 #if 0
 bool PgSqlYtx::IniPGData()
 {

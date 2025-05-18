@@ -26,8 +26,10 @@
 
 class PgSqlYtx {
 public:
-    static bool NewFile(CString& user, CString& db_name, int timeout_ms);
-    static bool AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms);
+    static bool IniRoleAndDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms);
+    static bool InitSchema(CString& user, CString& password, CString& db_name, int timeout_ms);
+    static bool InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms);
+    static void RemoveConnection(CString& connection_name);
 
 private:
     static QString NodeFinance();
@@ -45,10 +47,8 @@ private:
     static QString TransOrder(CString& order);
 
     static bool NodeIndex(QSqlQuery& query);
-    // bool TransIndex(QSqlQuery& query);
 
     static QString SettlementOrder(CString& order);
-    static void RemoveDatabase(CString& connection_name);
 
 #if 0
     static bool IniPGData();

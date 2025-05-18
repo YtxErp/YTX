@@ -357,7 +357,7 @@ void PgSqlYtx::RemoveConnection(CString& connection_name)
     QSqlDatabase::removeDatabase(connection_name);
 }
 
-bool PgSqlYtx::IniRoleAndDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
+bool PgSqlYtx::IniRoleDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
 {
     QSqlDatabase db;
     CString connection_name { "IniRoleAndDatabase" };

@@ -17,17 +17,8 @@ CString PgSqlYtx::kPgBinBasePath =
 #endif
 #endif
 
-bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, int timeout_ms)
+bool PgSqlYtx::InitSchema(QSqlDatabase& db)
 {
-    QSqlDatabase db;
-    CString connection_name { "init_schema" };
-    InitConnection(db, user, password, db_name, connection_name, timeout_ms);
-
-    if (!db.open()) {
-        qDebug() << "Failed to open database:" << db.lastError().text();
-        return false;
-    }
-
     const std::vector<QString> tables { NodeFinance(), Path(kFinance), TransFinance(), NodeProduct(), Path(kProduct), TransProduct(), NodeStakeholder(),
         Path(kStakeholder), TransStakeholder(), NodeTask(), Path(kTask), TransTask(), NodeOrder(kPurchase), Path(kPurchase), TransOrder(kPurchase),
         SettlementOrder(kPurchase), NodeOrder(kSales), Path(kSales), TransOrder(kSales), SettlementOrder(kSales) };
@@ -36,7 +27,6 @@ bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, in
 
     if (!db.transaction()) {
         qDebug() << "Error starting transaction:" << db.lastError().text();
-        RemoveConnection(connection_name);
         return false;
     }
 
@@ -44,7 +34,6 @@ bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, in
         if (!query.exec(table)) {
             qDebug() << "Error executing query:" << query.lastError().text();
             db.rollback();
-            RemoveConnection(connection_name);
             return false;
         }
     }
@@ -52,11 +41,9 @@ bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, in
     if (!db.commit()) {
         qDebug() << "Error committing transaction:" << db.lastError().text();
         db.rollback();
-        RemoveConnection(connection_name);
         return false;
     }
 
-    RemoveConnection(connection_name);
     return true;
 }
 
@@ -417,21 +404,6 @@ bool PgSqlYtx::InitDatabase(QSqlDatabase& db, CString db_name, CString owner)
     }
 
     return true;
-}
-
-bool PgSqlYtx::InitRoleDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
-{
-    QSqlDatabase db;
-    CString connection_name { "IniRoleAndDatabase" };
-    InitConnection(db, super_user, super_password, "postgres", connection_name, timeout_ms);
-    if (!db.open()) {
-        qDebug() << "Failed to connect with superuser:" << db.lastError().text();
-        return false;
-    }
-
-    const bool ok { InitRole(db, new_user, new_password) && InitDatabase(db, db_name, new_user) };
-    RemoveConnection(connection_name);
-    return ok;
 }
 
 #if 0

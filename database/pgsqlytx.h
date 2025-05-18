@@ -26,13 +26,12 @@
 
 class PgSqlYtx {
 public:
-    static bool InitRoleDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms);
-    static bool InitSchema(CString& user, CString& password, CString& db_name, int timeout_ms);
     static bool InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
     static void RemoveConnection(CString& connection_name);
 
     static bool InitRole(QSqlDatabase& db, CString new_user, CString new_password);
     static bool InitDatabase(QSqlDatabase& db, CString db_name, CString owner);
+    static bool InitSchema(QSqlDatabase& db);
 
 private:
     static QString NodeFinance();

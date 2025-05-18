@@ -28,7 +28,7 @@ class PgSqlYtx {
 public:
     static bool IniRoleAndDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms);
     static bool InitSchema(CString& user, CString& password, CString& db_name, int timeout_ms);
-    static bool InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms);
+    static bool InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
     static void RemoveConnection(CString& connection_name);
 
 private:

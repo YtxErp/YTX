@@ -20,7 +20,8 @@ CString PgSqlYtx::kPgBinBasePath =
 bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, int timeout_ms)
 {
     QSqlDatabase db;
-    InitConnection(db, user, password, db_name, timeout_ms);
+    CString connection_name { "init_schema" };
+    InitConnection(db, user, password, db_name, connection_name, timeout_ms);
 
     if (!db.open()) {
         qDebug() << "Failed to open database:" << db.lastError().text();
@@ -35,7 +36,7 @@ bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, in
 
     if (!db.transaction()) {
         qDebug() << "Error starting transaction:" << db.lastError().text();
-        RemoveConnection("new_file");
+        RemoveConnection(connection_name);
         return false;
     }
 
@@ -43,7 +44,7 @@ bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, in
         if (!query.exec(table)) {
             qDebug() << "Error executing query:" << query.lastError().text();
             db.rollback();
-            RemoveConnection("new_file");
+            RemoveConnection(connection_name);
             return false;
         }
     }
@@ -51,11 +52,11 @@ bool PgSqlYtx::InitSchema(CString& user, CString& password, CString& db_name, in
     if (!db.commit()) {
         qDebug() << "Error committing transaction:" << db.lastError().text();
         db.rollback();
-        RemoveConnection("new_file");
+        RemoveConnection(connection_name);
         return false;
     }
 
-    RemoveConnection("new_file");
+    RemoveConnection(connection_name);
     return true;
 }
 
@@ -311,10 +312,8 @@ QString PgSqlYtx::SettlementOrder(CString& order)
         .arg(order);
 }
 
-bool PgSqlYtx::InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms)
+bool PgSqlYtx::InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
 {
-    CString connection_name { QSqlDatabase::defaultConnection };
-
     if (QSqlDatabase::contains(connection_name)) {
         db = QSqlDatabase::database(connection_name);
 
@@ -361,7 +360,8 @@ void PgSqlYtx::RemoveConnection(CString& connection_name)
 bool PgSqlYtx::IniRoleAndDatabase(CString super_user, CString super_password, CString new_user, CString new_password, CString db_name, int timeout_ms)
 {
     QSqlDatabase db;
-    InitConnection(db, super_user, super_password, "postgres", timeout_ms);
+    CString connection_name { "IniRoleAndDatabase" };
+    InitConnection(db, super_user, super_password, "postgres", connection_name, timeout_ms);
     if (!db.open()) {
         qDebug() << "Failed to connect with superuser:" << db.lastError().text();
         return false;
@@ -417,6 +417,7 @@ bool PgSqlYtx::IniRoleAndDatabase(CString super_user, CString super_password, CS
         return false;
     }
 
+    RemoveConnection(connection_name);
     return true;
 }
 

@@ -49,6 +49,19 @@ private:
 
     static QString SettlementOrder(CString& order);
     static void RemoveDatabase(CString& connection_name);
+
+#if 0
+    static bool IniPGData();
+    static bool StartPGServer();
+    static bool StopPGServer();
+
+    static bool RunProcess(CString& program, const QStringList& arguments, QString* std_output = nullptr, QString* std_error = nullptr, int timeout_ms = 30000);
+    static QString PgBinPath(CString& exe_name);
+
+private:
+    static CString kPgDataDir;
+    static CString kPgBinBasePath;
+#endif
 };
 
 #endif // PGSQLYTX_H

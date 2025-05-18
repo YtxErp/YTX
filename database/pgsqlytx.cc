@@ -4,6 +4,18 @@
 #include <QSqlQuery>
 
 #include "component/constvalue.h"
+#if 0
+CString PgSqlYtx::kPgDataDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("pg_data");
+
+CString PgSqlYtx::kPgBinBasePath =
+#ifdef Q_OS_WIN
+    QCoreApplication::applicationDirPath() + "/pgsql/bin/";
+#elif defined(Q_OS_MAC)
+    QCoreApplication::applicationDirPath() + "/../Resources/pgsql/bin/";
+#else
+    QString();
+#endif
+#endif
 
 bool PgSqlYtx::NewFile(CString& user, CString& db_name, int timeout_ms)
 {
@@ -321,7 +333,7 @@ QString PgSqlYtx::SettlementOrder(CString& order)
 
 bool PgSqlYtx::AddDatabase(QSqlDatabase& db, CString& user, CString& password, CString& db_name, int timeout_ms)
 {
-    const QString connection_name { QSqlDatabase::defaultConnection };
+    CString connection_name { QSqlDatabase::defaultConnection };
 
     if (QSqlDatabase::contains(connection_name)) {
         db = QSqlDatabase::database(connection_name);
@@ -365,3 +377,91 @@ void PgSqlYtx::RemoveDatabase(CString& connection_name)
 
     QSqlDatabase::removeDatabase(connection_name);
 }
+#if 0
+bool PgSqlYtx::IniPGData()
+{
+    QDir dir(kPgDataDir);
+    if (dir.exists()) {
+        qInfo() << "PostgreSQL data directory exists:" << kPgDataDir;
+        return true;
+    }
+
+    if (!dir.mkpath(".")) {
+        qWarning() << "Failed to create pg_data directory:" << kPgDataDir;
+        return false;
+    }
+
+    CString initdb_path { PgBinPath("initdb") };
+    if (!QFile::exists(initdb_path)) {
+        qWarning() << "initdb not found at:" << initdb_path;
+        return false;
+    }
+
+    const QStringList args { "-D", kPgDataDir, "-A", "trust", "--no-locale" };
+
+    QString output {};
+    if (!RunProcess(initdb_path, args, &output)) {
+        return false;
+    }
+
+    qInfo() << "PostgreSQL data directory initialized:\n" << output;
+    return true;
+}
+
+bool PgSqlYtx::StartPGServer()
+{
+    CString pg_ctl_path { PgBinPath("pg_ctl") };
+    if (!QFile::exists(pg_ctl_path)) {
+        qWarning() << "pg_ctl not found at:" << pg_ctl_path;
+        return false;
+    }
+
+    CString log_path = QDir(kPgDataDir).filePath("log.txt");
+    const QStringList args { "start", "-D", kPgDataDir, "-l", log_path };
+
+    return RunProcess(pg_ctl_path, args);
+}
+
+bool PgSqlYtx::StopPGServer()
+{
+    CString pg_ctl_path { PgBinPath("pg_ctl") };
+    if (!QFile::exists(pg_ctl_path)) {
+        qWarning() << "pg_ctl not found at:" << pg_ctl_path;
+        return false;
+    }
+
+    const QStringList args { "stop", "-D", kPgDataDir, "-m", "fast" };
+    return RunProcess(pg_ctl_path, args);
+}
+
+bool PgSqlYtx::RunProcess(CString& program, const QStringList& arguments, QString* std_output, QString* std_error, int timeout_ms)
+{
+    QProcess process {};
+    process.start(program, arguments);
+    if (!process.waitForFinished(timeout_ms)) {
+        qWarning() << program << "timed out.";
+        return false;
+    }
+
+    if (std_output)
+        *std_output = process.readAllStandardOutput();
+    if (std_error)
+        *std_error = process.readAllStandardError();
+
+    if (process.exitCode() != 0) {
+        qWarning() << program << "failed with error:\n" << (std_error ? *std_error : "");
+        return false;
+    }
+
+    return true;
+}
+
+QString PgSqlYtx::PgBinPath(CString& exe_name)
+{
+#ifdef Q_OS_WIN
+    return kPgBinBasePath + exe_name + ".exe";
+#else
+    return kPgBinBasePath + exe_name;
+#endif
+}
+#endif

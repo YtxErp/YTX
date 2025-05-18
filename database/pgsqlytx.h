@@ -20,6 +20,7 @@
 #ifndef PGSQLYTX_H
 #define PGSQLYTX_H
 
+#include <QRegularExpression>
 #include <QSqlDatabase>
 
 #include "component/using.h"
@@ -29,9 +30,21 @@ public:
     static bool InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
     static void RemoveConnection(CString& connection_name);
 
-    static bool InitRole(QSqlDatabase& db, CString new_user, CString new_password);
-    static bool InitDatabase(QSqlDatabase& db, CString db_name, CString owner);
+    static bool CreateRole(QSqlDatabase& db, CString new_user, CString new_password);
+    static bool CreateDatabase(QSqlDatabase& db, CString db_name, CString owner);
     static bool InitSchema(QSqlDatabase& db);
+
+    static bool IsValidPgIdentifier(const QString& identifier)
+    {
+        if (identifier.isEmpty()) {
+            return false;
+        }
+
+        static QRegularExpression re("^[a-zA-Z_][a-zA-Z0-9_]{0,62}$");
+        return re.match(identifier).hasMatch();
+    }
+
+    static bool IsValidPassword(const QString& password) { return !password.isEmpty() && password.length() >= 6; }
 
 private:
     static QString NodeFinance();

@@ -344,28 +344,42 @@ void PgSqlYtx::RemoveConnection(CString& connection_name)
     QSqlDatabase::removeDatabase(connection_name);
 }
 
-bool PgSqlYtx::InitRole(QSqlDatabase& db, CString new_user, CString new_password)
+bool PgSqlYtx::CreateRole(QSqlDatabase& db, CString role_name, CString password)
 {
+    if (!IsValidPgIdentifier(role_name)) {
+        qDebug() << "Invalid role name:" << role_name;
+        return false;
+    }
+
+    if (!IsValidPassword(password)) {
+        qDebug() << "Invalid password for role:" << password;
+        return false;
+    }
+
     QSqlQuery query(db);
 
-    if (!query.prepare(R"(
+    const QString sql = R"(
         DO $$
         DECLARE
-            _exists boolean;
+            _exists BOOLEAN;
+            _role TEXT := :role_name;
+            _password TEXT := :password;
         BEGIN
-            SELECT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = :username) INTO _exists;
+            SELECT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = _role) INTO _exists;
             IF NOT _exists THEN
-                EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', :username, :password);
+                EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', _role, _password);
             END IF;
         END
         $$;
-    )")) {
+        )";
+
+    if (!query.prepare(sql)) {
         qDebug() << "Prepare failed for role creation:" << query.lastError().text();
         return false;
     }
 
-    query.bindValue(":username", new_user);
-    query.bindValue(":password", new_password);
+    query.bindValue(":role_name", role_name);
+    query.bindValue(":password", password);
 
     if (!query.exec()) {
         qDebug() << "Error creating role:" << query.lastError().text();
@@ -375,22 +389,35 @@ bool PgSqlYtx::InitRole(QSqlDatabase& db, CString new_user, CString new_password
     return true;
 }
 
-bool PgSqlYtx::InitDatabase(QSqlDatabase& db, CString db_name, CString owner)
+bool PgSqlYtx::CreateDatabase(QSqlDatabase& db, CString db_name, CString owner)
 {
-    QSqlQuery query(db);
+    if (!IsValidPgIdentifier(db_name)) {
+        qDebug() << "Invalid db name:" << db_name;
+        return false;
+    }
 
-    if (!query.prepare(R"(
+    if (!IsValidPgIdentifier(owner)) {
+        qDebug() << "Invalid owner name:" << owner;
+        return false;
+    }
+
+    QSqlQuery query(db);
+    const QString sql = R"(
         DO $$
         DECLARE
-            _exists boolean;
+            _exists BOOLEAN;
+            _dbname TEXT := :dbname;
+            _owner TEXT := :owner;
         BEGIN
-            SELECT EXISTS (SELECT FROM pg_database WHERE datname = :dbname) INTO _exists;
+            SELECT EXISTS (SELECT FROM pg_database WHERE datname = _dbname) INTO _exists;
             IF NOT _exists THEN
-                EXECUTE format('CREATE DATABASE %I OWNER %I', :dbname, :owner);
+                EXECUTE format('CREATE DATABASE %I OWNER %I', _dbname, _owner);
             END IF;
         END
         $$;
-    )")) {
+        )";
+
+    if (!query.prepare(sql)) {
         qDebug() << "Prepare failed for database creation:" << query.lastError().text();
         return false;
     }

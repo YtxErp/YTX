@@ -29,6 +29,7 @@ class PGConnection {
 public:
     static PGConnection& Instance();
     bool InitConnection(CString& user, CString& password, CString& db_name);
+    bool ResetConnection();
     QSqlDatabase* GetConnection();
 
 private:

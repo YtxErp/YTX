@@ -11,6 +11,11 @@ PGConnection& PGConnection::Instance()
 
 bool PGConnection::InitConnection(CString& user, CString& password, CString& db_name)
 {
+    if (is_initialized_) {
+        ResetConnection();
+    }
+
+    db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection);
     db_.setHostName("localhost");
     db_.setPort(5432);
 
@@ -28,7 +33,24 @@ bool PGConnection::InitConnection(CString& user, CString& password, CString& db_
     return true;
 }
 
-PGConnection::PGConnection() { db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection); }
+bool PGConnection::ResetConnection()
+{
+    if (db_.isOpen()) {
+        db_.close();
+    }
+
+    const QString conn_name = db_.connectionName();
+    db_ = QSqlDatabase();
+
+    if (QSqlDatabase::contains(conn_name)) {
+        QSqlDatabase::removeDatabase(conn_name);
+    }
+
+    is_initialized_ = false;
+    return true;
+}
+
+PGConnection::PGConnection() { }
 
 PGConnection::~PGConnection()
 {

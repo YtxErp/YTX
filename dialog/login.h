@@ -30,8 +30,11 @@ namespace Ui {
 class Login;
 }
 
-class Login : public QDialog {
+class Login final : public QDialog {
     Q_OBJECT
+
+signals:
+    void SLoadDatabase();
 
 public:
     explicit Login(LoginConfig& login_config, QSharedPointer<QSettings> app_settings, QWidget* parent = nullptr);

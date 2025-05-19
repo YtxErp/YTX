@@ -129,6 +129,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     QTimer::singleShot(0, this, [this]() {
         auto* login { new Login(login_config_, app_settings_, this) };
+        connect(login, &Login::SLoadDatabase, this, &MainWindow::RLoadDatabase);
         login->exec();
     });
 }
@@ -160,12 +161,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::ROpenFile(CString& file_path)
+bool MainWindow::RLoadDatabase()
 {
     if (!license_config_.is_activated) {
         QMessageBox::critical(this, tr("Activation Required"), tr("The software is not activated. Please activate it first."));
         return false;
     }
+
+    ReadFileConfig(login_config_.database);
+    this->setWindowTitle(file_config_.company_name);
 
     SetFinanceData();
     SetTaskData();
@@ -186,7 +190,7 @@ bool MainWindow::ROpenFile(CString& file_path)
     EnableAction(true);
     on_tabWidget_currentChanged(0);
 
-    QTimer::singleShot(0, this, [this, file_path]() { MainWindowUtils::ReadPrintTmplate(print_template_); });
+    QTimer::singleShot(0, this, [this]() { MainWindowUtils::ReadPrintTmplate(print_template_); });
     return true;
 }
 
@@ -2519,10 +2523,10 @@ void MainWindow::ReadAppConfig()
     qApp->setStyleSheet(theme);
 }
 
-void MainWindow::ReadFileConfig(CString& complete_base_name)
+void MainWindow::ReadFileConfig(CString& db_name)
 {
     file_settings_ = QSharedPointer<QSettings>::create(
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + complete_base_name + kDotSuffixINI, QSettings::IniFormat);
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + db_name + kDotSuffixINI, QSettings::IniFormat);
 
     file_settings_->beginGroup(kCompany);
     file_config_.company_name = app_settings_->value(kName, {}).toString();
@@ -2789,7 +2793,7 @@ void MainWindow::on_actionAppendTrans_triggered()
 
 void MainWindow::on_actionExportExcel_triggered()
 {
-    CString& source { DatabaseManager::Instance().DatabaseName() };
+    CString& source { login_config_.database };
     if (source.isEmpty())
         return;
 

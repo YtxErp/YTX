@@ -26,7 +26,7 @@ namespace Ui {
 class NewDatabase;
 }
 
-class NewDatabase : public QDialog {
+class NewDatabase final : public QDialog {
     Q_OBJECT
 
 public:

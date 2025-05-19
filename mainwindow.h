@@ -53,7 +53,7 @@ public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-    bool ROpenFile(CString& file_path);
+    bool RLoadDatabase();
 
 public slots:
     void on_actionInsertNode_triggered();
@@ -185,7 +185,7 @@ private:
     void ResizeColumn(QHeaderView* header, int stretch_column) const;
 
     void ReadAppConfig();
-    void ReadFileConfig(CString& complete_base_name);
+    void ReadFileConfig(CString& db_name);
     void ReadSectionConfig(SectionConfig& settings, CString& section_name);
 
     void UpdateAppConfig(CAppConfig& app_config);

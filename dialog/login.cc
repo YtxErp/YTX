@@ -30,6 +30,7 @@ void Login::on_pushButtonConnect_clicked()
     const bool ok { PGConnectionPool::Instance().Initialize(host, port, user, password, database) };
 
     if (ok) {
+        emit SLoadDatabase();
         SaveLoginConfig(host, port, user, password, database);
         this->close();
     } else {

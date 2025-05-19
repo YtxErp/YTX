@@ -40,7 +40,6 @@ bool PGConnection::ResetConnection()
     }
 
     const QString conn_name = db_.connectionName();
-    db_ = QSqlDatabase();
 
     if (QSqlDatabase::contains(conn_name)) {
         QSqlDatabase::removeDatabase(conn_name);

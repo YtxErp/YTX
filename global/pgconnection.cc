@@ -15,7 +15,6 @@ bool PGConnection::InitConnection(CString& user, CString& password, CString& db_
         ResetConnection();
     }
 
-    db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection);
     db_.setHostName("localhost");
     db_.setPort(5432);
 
@@ -46,10 +45,12 @@ bool PGConnection::ResetConnection()
     }
 
     is_initialized_ = false;
+    db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection);
+
     return true;
 }
 
-PGConnection::PGConnection() { }
+PGConnection::PGConnection() { db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection); }
 
 PGConnection::~PGConnection()
 {
@@ -58,12 +59,12 @@ PGConnection::~PGConnection()
     }
 }
 
-QSqlDatabase* PGConnection::GetConnection()
+QSqlDatabase& PGConnection::GetConnection()
 {
     if (!is_initialized_) {
         qCritical() << ("❌ Database is not initialized yet, please call SetDatabaseName() first");
         throw std::runtime_error("Database is not initialized yet, please call SetDatabaseName() first");
     }
 
-    return &db_;
+    return db_;
 }

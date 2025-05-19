@@ -75,7 +75,7 @@ private slots:
     void on_actionLicence_triggered();
     void on_actionSearch_triggered();
 
-    void on_actionNewFile_triggered();
+    void on_actionNewDatabase_triggered();
 
     void on_actionExportYTX_triggered();
     void on_actionExportExcel_triggered();

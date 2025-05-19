@@ -17,39 +17,34 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PGCONNECTION
-#define PGCONNECTION
+#ifndef PGCONNECTIONPOOL_H
+#define PGCONNECTIONPOOL_H
 
 #include <QMutex>
 #include <QQueue>
 #include <QSqlDatabase>
 #include <QString>
 
-class PGConnection {
+class PGConnectionPool {
 public:
-    static PGConnection& Instance();
+    static PGConnectionPool& Instance();
 
-    bool Init(const QString& user, const QString& password, const QString& db_name, int pool_size = 5);
-    QSqlDatabase Acquire();
-    void Release(const QSqlDatabase& db);
-
-private:
-    PGConnection();
-    ~PGConnection();
-
-    PGConnection(const PGConnection&) = delete;
-    PGConnection& operator=(const PGConnection&) = delete;
+    bool Initialize(const QString& user, const QString& password, const QString& db_name, int pool_size = 5);
+    QSqlDatabase GetConnection();
+    void ReturnConnection(const QSqlDatabase& db);
+    void Reset();
 
 private:
-    QString user_ {};
-    QString password_ {};
-    QString db_name_ {};
+    PGConnectionPool() = default;
+    ~PGConnectionPool();
 
+    PGConnectionPool(const PGConnectionPool&) = delete;
+    PGConnectionPool& operator=(const PGConnectionPool&) = delete;
+
+private:
     QMutex mutex_ {};
     QQueue<QSqlDatabase> available_dbs_ {};
     QSet<QString> used_names_ {};
-
-    int connection_counter_ = 0;
 };
 
-#endif // PGCONNECTION
+#endif // PGCONNECTIONPOOL_H

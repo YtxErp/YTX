@@ -187,7 +187,7 @@
     <addaction name="actionAbout"/>
     <addaction name="actionLicence"/>
     <addaction name="separator"/>
-    <addaction name="actionNewFile"/>
+    <addaction name="actionNewDatabase"/>
     <addaction name="separator"/>
     <addaction name="menuExport_2"/>
     <addaction name="separator"/>
@@ -319,12 +319,12 @@
     <enum>QAction::MenuRole::AboutRole</enum>
    </property>
   </action>
-  <action name="actionNewFile">
+  <action name="actionNewDatabase">
    <property name="text">
-    <string>New File...</string>
+    <string>New Database...</string>
    </property>
    <property name="toolTip">
-    <string>New File</string>
+    <string>New Database</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+N</string>

@@ -1,5 +1,6 @@
 #include "newdatabase.h"
 
+#include "global/pgconnectionpool.h"
 #include "ui_newdatabase.h"
 
 NewDatabase::NewDatabase(QWidget* parent)
@@ -11,4 +12,4 @@ NewDatabase::NewDatabase(QWidget* parent)
 
 NewDatabase::~NewDatabase() { delete ui; }
 
-void NewDatabase::on_pushButtonCreate_clicked() { }
+void NewDatabase::on_pushButtonCreate_clicked() { auto db { PGConnectionPool::Instance().GetConnection() }; }

@@ -60,6 +60,7 @@
 #include "dialog/insertnode/insertnodestakeholder.h"
 #include "dialog/insertnode/insertnodetask.h"
 #include "dialog/login.h"
+#include "dialog/newdatabase.h"
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "document.h"
@@ -1805,7 +1806,7 @@ void MainWindow::SetAction() const
     ui->actionSupportJump->setIcon(QIcon(":/solarized_dark/solarized_dark/jump.png"));
     ui->actionPreferences->setIcon(QIcon(":/solarized_dark/solarized_dark/settings.png"));
     ui->actionSearch->setIcon(QIcon(":/solarized_dark/solarized_dark/search.png"));
-    ui->actionNewFile->setIcon(QIcon(":/solarized_dark/solarized_dark/new.png"));
+    ui->actionNewDatabase->setIcon(QIcon(":/solarized_dark/solarized_dark/new.png"));
     ui->actionCheckAll->setIcon(QIcon(":/solarized_dark/solarized_dark/check-all.png"));
     ui->actionCheckNone->setIcon(QIcon(":/solarized_dark/solarized_dark/check-none.png"));
     ui->actionCheckReverse->setIcon(QIcon(":/solarized_dark/solarized_dark/check-reverse.png"));
@@ -2746,14 +2747,10 @@ void MainWindow::on_actionLicence_triggered()
     dialog->activateWindow();
 }
 
-void MainWindow::on_actionNewFile_triggered()
+void MainWindow::on_actionNewDatabase_triggered()
 {
-    auto file_path { QFileDialog::getSaveFileName(this, tr("New File"), QDir::homePath(), QStringLiteral("*.ytx"), nullptr) };
-    if (!MainWindowUtils::PrepareNewFile(file_path, kDotSuffixYTX))
-        return;
-
-    if (SqliteYtx::NewFile(file_path))
-        ROpenFile(file_path);
+    auto* new_database_dlg { new NewDatabase(this) };
+    new_database_dlg->exec();
 }
 
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index) { RNodeLocation(ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id); }

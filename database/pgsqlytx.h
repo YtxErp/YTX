@@ -27,12 +27,12 @@
 
 class PgSqlYtx {
 public:
-    static bool InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
+    static QSqlDatabase SingleConnection(CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
     static void RemoveConnection(CString& connection_name);
 
     static bool CreateRole(QSqlDatabase& db, CString new_user, CString new_password);
     static bool CreateDatabase(QSqlDatabase& db, CString db_name, CString owner);
-    static bool InitSchema(QSqlDatabase& db);
+    static bool CreateSchema(QSqlDatabase& db);
 
     static bool IsValidPgIdentifier(const QString& identifier)
     {

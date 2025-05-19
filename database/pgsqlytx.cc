@@ -17,7 +17,7 @@ CString PgSqlYtx::kPgBinBasePath =
 #endif
 #endif
 
-bool PgSqlYtx::InitSchema(QSqlDatabase& db)
+bool PgSqlYtx::CreateSchema(QSqlDatabase& db)
 {
     const std::vector<QString> tables { NodeFinance(), Path(kFinance), TransFinance(), NodeProduct(), Path(kProduct), TransProduct(), NodeStakeholder(),
         Path(kStakeholder), TransStakeholder(), NodeTask(), Path(kTask), TransTask(), NodeOrder(kPurchase), Path(kPurchase), TransOrder(kPurchase),
@@ -299,23 +299,10 @@ QString PgSqlYtx::SettlementOrder(CString& order)
         .arg(order);
 }
 
-bool PgSqlYtx::InitConnection(QSqlDatabase& db, CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
+QSqlDatabase PgSqlYtx::SingleConnection(CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
 {
-    if (QSqlDatabase::contains(connection_name)) {
-        db = QSqlDatabase::database(connection_name);
+    auto db = QSqlDatabase::addDatabase("QPSQL", connection_name);
 
-        if (db.isOpen()) {
-            return true;
-        }
-
-        if (db.open()) {
-            return true;
-        }
-
-        QSqlDatabase::removeDatabase(connection_name);
-    }
-
-    db = QSqlDatabase::addDatabase("QPSQL", connection_name);
     db.setHostName("localhost");
     db.setPort(5432);
     db.setUserName(user);
@@ -326,10 +313,10 @@ bool PgSqlYtx::InitConnection(QSqlDatabase& db, CString& user, CString& password
     if (!db.open()) {
         qDebug() << "Failed to open connection to database" << db_name;
         QSqlDatabase::removeDatabase(connection_name);
-        return false;
+        return {};
     }
 
-    return true;
+    return db;
 }
 
 void PgSqlYtx::RemoveConnection(CString& connection_name)
@@ -356,21 +343,20 @@ bool PgSqlYtx::CreateRole(QSqlDatabase& db, CString role_name, CString password)
         return false;
     }
 
+    const QString sql { QString("CREATE ROLE %1 LOGIN PASSWORD '%2';").arg(role_name, password) };
+
     QSqlQuery query(db);
-    query.prepare(R"(
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = $1) THEN
-                    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', $1, $2);
-                END IF;
-            END
-            $$;
-        )");
 
-    query.bindValue(0, role_name);
-    query.bindValue(1, password);
+    if (!query.exec(QString("SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = '%1';").arg(role_name))) {
+        qDebug() << "Check role existence failed:" << query.lastError().text();
+        return false;
+    }
 
-    if (!query.exec()) {
+    if (query.next()) {
+        return true;
+    }
+
+    if (!query.exec(sql)) {
         qDebug() << "Error creating role:" << query.lastError().text();
         return false;
     }
@@ -390,21 +376,20 @@ bool PgSqlYtx::CreateDatabase(QSqlDatabase& db, CString db_name, CString owner)
         return false;
     }
 
+    QString sql = QString("CREATE DATABASE %1 OWNER %2;").arg(db_name).arg(owner);
+
     QSqlQuery query(db);
-    query.prepare(R"(
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT FROM pg_database WHERE datname = $1) THEN
-                    EXECUTE format('CREATE DATABASE %I OWNER %I', $1, $2);
-                END IF;
-            END
-            $$;
-        )");
 
-    query.bindValue(0, db_name);
-    query.bindValue(1, owner);
+    if (!query.exec(QString("SELECT 1 FROM pg_database WHERE datname = '%1';").arg(db_name))) {
+        qDebug() << "Check database existence failed:" << query.lastError().text();
+        return false;
+    }
 
-    if (!query.exec()) {
+    if (query.next()) {
+        return true;
+    }
+
+    if (!query.exec(sql)) {
         qDebug() << "Error creating database:" << query.lastError().text();
         return false;
     }

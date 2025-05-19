@@ -165,7 +165,7 @@ MainWindow::~MainWindow()
 
 bool MainWindow::ROpenFile(CString& file_path)
 {
-    if (!is_activated_) {
+    if (!license_config_.is_activated) {
         QMessageBox::critical(this, tr("Activation Required"), tr("The software is not activated. Please activate it first."));
         return false;
     }
@@ -2495,8 +2495,8 @@ void MainWindow::ResizeColumn(QHeaderView* header, int stretch_column) const
 void MainWindow::VerifyActivationOffline()
 {
     // Initialize hardware UUID
-    hardware_uuid_ = MainWindowUtils::GetHardwareUUID().toLower();
-    if (hardware_uuid_.isEmpty()) {
+    license_config_.hardware_uuid = MainWindowUtils::GetHardwareUUID().toLower();
+    if (license_config_.hardware_uuid.isEmpty()) {
         QMessageBox::critical(this, tr("Error"), tr("Failed to retrieve hardware UUID."));
         return;
     }
@@ -2506,8 +2506,8 @@ void MainWindow::VerifyActivationOffline()
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QDir::separator() + kLicense + kDotSuffixINI, QSettings::IniFormat);
 
     license_settings_->beginGroup(kLicense);
-    activation_code_ = license_settings_->value(kActivationCode, {}).toString();
-    activation_url_ = license_settings_->value(kActivationUrl, "https://ytxerp.cc").toString();
+    license_config_.activation_code = license_settings_->value(kActivationCode, {}).toString();
+    license_config_.activation_url = license_settings_->value(kActivationUrl, "https://ytxerp.cc").toString();
 
     const QByteArray ciphertext { QByteArray::fromBase64(license_settings_->value(kSignatureCiphertext).toByteArray()) };
     const QByteArray iv { QByteArray::fromBase64(license_settings_->value(kSignatureIV).toByteArray()) };
@@ -2515,7 +2515,7 @@ void MainWindow::VerifyActivationOffline()
     license_settings_->endGroup();
 
     // Construct encryption key from hardware UUID
-    const QByteArray key { QCryptographicHash::hash(hardware_uuid_.toUtf8(), QCryptographicHash::Sha256).left(32) };
+    const QByteArray key { QCryptographicHash::hash(license_config_.hardware_uuid.toUtf8(), QCryptographicHash::Sha256).left(32) };
     SignatureEncryptor encryptor(key);
 
     // Decrypt signature
@@ -2525,29 +2525,29 @@ void MainWindow::VerifyActivationOffline()
         return;
     }
 
-    const QString payload { QString("%1:%2:%3").arg(activation_code_, hardware_uuid_, "true") };
+    const QString payload { QString("%1:%2:%3").arg(license_config_.activation_code, license_config_.hardware_uuid, "true") };
     const QByteArray payload_bytes { payload.toUtf8() };
 
     const QString pub_key_path(":/keys/public.pem");
-    is_activated_ = Licence::VerifySignature(payload_bytes, decrypted_signature_bytes, pub_key_path);
+    license_config_.is_activated = Licence::VerifySignature(payload_bytes, decrypted_signature_bytes, pub_key_path);
 }
 
 void MainWindow::VerifyActivationOnline()
 {
     auto* network_manager_ { new QNetworkAccessManager(this) };
 
-    const QUrl url(activation_url_ + "/" + kActivate);
+    const QUrl url(license_config_.activation_url + "/" + kActivate);
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    const QJsonObject json { { "hardware_uuid", hardware_uuid_ }, { "activation_code", activation_code_ } };
+    const QJsonObject json { { "hardware_uuid", license_config_.hardware_uuid }, { "activation_code", license_config_.activation_code } };
     QNetworkReply* reply { network_manager_->post(request, QJsonDocument(json).toJson()) };
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
 
         auto fail = [this]() {
-            is_activated_ = false;
+            license_config_.is_activated = false;
             license_settings_->beginGroup(kLicense);
             license_settings_->setValue(kSignatureCiphertext, {});
             license_settings_->setValue(kSignatureIV, {});
@@ -2571,7 +2571,7 @@ void MainWindow::VerifyActivationOnline()
         const QString signature { obj["signature"].toString() };
 
         // Construct payload in the same format as server
-        const QString payload { QString("%1:%2:%3").arg(activation_code_, hardware_uuid_, success ? "true" : "false") };
+        const QString payload { QString("%1:%2:%3").arg(license_config_.activation_code, license_config_.hardware_uuid, success ? "true" : "false") };
         const QByteArray payload_bytes { payload.toUtf8() };
         const QByteArray signature_bytes { QByteArray::fromBase64(signature.toUtf8()) };
 
@@ -2790,7 +2790,7 @@ void MainWindow::on_actionLicence_triggered()
     static Licence* dialog = nullptr;
 
     if (!dialog) {
-        dialog = new Licence(license_settings_, hardware_uuid_, activation_url_, activation_code_, is_activated_, this);
+        dialog = new Licence(license_settings_, license_config_, this);
         dialog->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
         connect(dialog, &QDialog::finished, [=]() { dialog = nullptr; });
     }

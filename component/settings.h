@@ -22,6 +22,13 @@
 
 #include <QString>
 
+struct LicenseConfig {
+    QString hardware_uuid {};
+    QString activation_code {};
+    QString activation_url {};
+    bool is_activated {};
+};
+
 struct LoginConfig {
     QString user {};
     QString password {};

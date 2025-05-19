@@ -238,11 +238,8 @@ private:
     QPointer<SettlementWidget> settlement_widget_ {};
     QMap<QString, QString> print_template_ {};
 
+    LicenseConfig license_config_ {};
     QSharedPointer<QSettings> license_settings_ {};
-    QString hardware_uuid_ {};
-    QString activation_code_ {};
-    QString activation_url_ {};
-    bool is_activated_ { false };
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};

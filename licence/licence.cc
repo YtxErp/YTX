@@ -22,21 +22,17 @@
 #include "licence/signatureencryptor.h"
 #include "ui_licence.h"
 
-Licence::Licence(
-    QSharedPointer<QSettings> license_settings, CString& hardware_uuid, CString& activation_url, QString& activation_code, bool& is_activated, QWidget* parent)
+Licence::Licence(QSharedPointer<QSettings> license_settings, LicenseConfig& license_config, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Licence)
     , network_manager_(new QNetworkAccessManager(this))
     , license_settings_ { license_settings }
-    , hardware_uuid_ { hardware_uuid }
-    , activation_url_ { activation_url }
-    , activation_code_ { activation_code }
-    , is_activated_ { is_activated }
+    , license_config_ { license_config }
 {
     ui->setupUi(this);
     SignalBlocker blocker(this);
 
-    ui->lineEdit->setText(activation_code_);
+    ui->lineEdit->setText(license_config.activation_code);
     ui->pBtnActivate->setEnabled(false);
     UpdateActivationUI();
 }
@@ -51,12 +47,12 @@ void Licence::on_pBtnActivate_clicked()
     }
 
     // Prepare the request
-    const QUrl url(activation_url_ + "/" + kActivate);
+    const QUrl url(license_config_.activation_url + "/" + kActivate);
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     // Create JSON payload
-    const QJsonObject json { { "hardware_uuid", hardware_uuid_ }, { "activation_code", activation_code } };
+    const QJsonObject json { { "hardware_uuid", license_config_.hardware_uuid }, { "activation_code", license_config_.activation_code } };
 
     // Send the request
     QNetworkReply* reply { network_manager_->post(request, QJsonDocument(json).toJson()) };
@@ -81,7 +77,7 @@ void Licence::on_pBtnActivate_clicked()
         const QString signature { obj["signature"].toString() };
 
         // Construct payload in the same format as server
-        const QString payload { QString("%1:%2:%3").arg(activation_code, hardware_uuid_, success ? "true" : "false") };
+        const QString payload { QString("%1:%2:%3").arg(activation_code, license_config_.hardware_uuid, success ? "true" : "false") };
         const QByteArray payload_bytes { payload.toUtf8() };
         const QByteArray signature_bytes { QByteArray::fromBase64(signature.toUtf8()) };
 
@@ -111,10 +107,10 @@ bool Licence::IsActivationCodeValid(CString& activation_code)
 
 void Licence::SaveActivationCode(CString& activation_code, CString& signature)
 {
-    activation_code_ = activation_code;
-    is_activated_ = true;
+    license_config_.activation_code = activation_code;
+    license_config_.is_activated = true;
 
-    const QByteArray key { QCryptographicHash::hash(hardware_uuid_.toUtf8(), QCryptographicHash::Sha256).left(32) };
+    const QByteArray key { QCryptographicHash::hash(license_config_.hardware_uuid.toUtf8(), QCryptographicHash::Sha256).left(32) };
     SignatureEncryptor encryptor(key);
 
     const auto encrypted { encryptor.Encrypt(QByteArray::fromBase64(signature.toUtf8())) };
@@ -124,11 +120,11 @@ void Licence::SaveActivationCode(CString& activation_code, CString& signature)
     }
 
     license_settings_->beginGroup(kLicense);
-    license_settings_->setValue(kActivationCode, activation_code_);
+    license_settings_->setValue(kActivationCode, license_config_.activation_code);
     license_settings_->setValue(kSignatureCiphertext, encrypted.ciphertext.toBase64());
     license_settings_->setValue(kSignatureIV, encrypted.iv.toBase64());
     license_settings_->setValue(kSignatureTag, encrypted.tag.toBase64());
-    license_settings_->setValue(kActivationUrl, activation_url_);
+    license_settings_->setValue(kActivationUrl, license_config_.activation_url);
     license_settings_->endGroup();
 
     UpdateActivationUI();
@@ -136,7 +132,7 @@ void Licence::SaveActivationCode(CString& activation_code, CString& signature)
 
 void Licence::UpdateActivationUI() const
 {
-    if (is_activated_) {
+    if (license_config_.is_activated) {
         ui->lineEdit->setReadOnly(true);
         ui->pBtnActivate->setText(tr("Activated"));
         ui->pBtnActivate->setEnabled(false);

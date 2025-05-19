@@ -31,9 +31,6 @@ bool DatabaseManager::SetDatabaseName(const QString& file_path)
         return false;
     }
 
-    if (!MainWindowUtils::CheckFileValid(file_path))
-        return false;
-
     db_.setDatabaseName(file_path);
     if (!db_.open()) {
         LogError("❌ Failed to open SQLite database: " + db_.lastError().text());

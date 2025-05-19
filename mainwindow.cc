@@ -140,7 +140,7 @@ MainWindow::~MainWindow()
     MainWindowUtils::WriteSettings(this, &QMainWindow::saveGeometry, app_settings_, kMainwindow, kGeometry);
     MainWindowUtils::WriteSettings(app_settings_, std::to_underlying(start_), kStart, kSection);
 
-    if (lock_file_) {
+    if (login_config_.is_successful) {
         MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(finance_trans_wgt_hash_), kFinance, kTabID);
         MainWindowUtils::WriteSettings(finance_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kFinance, kHeaderState);
 
@@ -166,25 +166,6 @@ bool MainWindow::ROpenFile(CString& file_path)
         QMessageBox::critical(this, tr("Activation Required"), tr("The software is not activated. Please activate it first."));
         return false;
     }
-
-    if (!MainWindowUtils::CheckFileValid(file_path))
-        return false;
-
-    if (lock_file_) {
-        QProcess::startDetached(qApp->applicationFilePath(), QStringList { file_path });
-        return false;
-    }
-
-    const QFileInfo file_info(file_path);
-    if (!LockFile(file_info))
-        return false;
-
-    DatabaseManager::Instance().SetDatabaseName(file_path);
-
-    const auto& complete_base_name { file_info.completeBaseName() };
-
-    this->setWindowTitle(complete_base_name);
-    ReadFileConfig(complete_base_name);
 
     SetFinanceData();
     SetTaskData();
@@ -280,10 +261,8 @@ void MainWindow::RSectionGroup(int id)
 
     start_ = kSection;
 
-    if (!lock_file_) {
-        MainWindowUtils::Message(QMessageBox::Information, tr("File Required"), tr("Please open the file first."), kThreeThousand);
+    if (!login_config_.is_successful)
         return;
-    }
 
     MainWindowUtils::SwitchDialog(dialog_list_, false);
     UpdateLastTab();
@@ -1095,25 +1074,6 @@ void MainWindow::IniSectionGroup()
     section_group_->addButton(ui->rBtnStakeholder, 3);
     section_group_->addButton(ui->rBtnSales, 4);
     section_group_->addButton(ui->rBtnPurchase, 5);
-}
-
-bool MainWindow::LockFile(const QFileInfo& file_info)
-{
-    CString lock_file_path { file_info.absolutePath() + QDir::separator() + file_info.completeBaseName() + kDotSuffixLOCK };
-
-    lock_file_.reset(new QLockFile(lock_file_path));
-
-    if (!lock_file_->tryLock(100)) {
-        MainWindowUtils::Message(QMessageBox::Critical, tr("Lock Failed"),
-            tr("Unable to lock the file \"%1\". Please ensure no other instance of the application or process is accessing it and try again.")
-                .arg(file_info.absoluteFilePath()),
-            kThreeThousand);
-
-        lock_file_.reset();
-        return false;
-    }
-
-    return true;
 }
 
 void MainWindow::RemoveBranch(PNodeModel tree_model, const QModelIndex& index, int node_id)
@@ -2848,16 +2808,16 @@ void MainWindow::on_actionExportExcel_triggered()
             auto book1 { d.GetWorkbook() };
             book1->AppendSheet(data_->info.node);
             book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.excel_node_header);
-            MainWindowUtils::ExportExcel(source, data_->info.node, book1->GetCurrentWorksheet());
+            MainWindowUtils::ExportExcel(data_->info.node, book1->GetCurrentWorksheet());
 
             book1->AppendSheet(data_->info.path);
             book1->GetCurrentWorksheet()->WriteRow(1, 1, list);
-            MainWindowUtils::ExportExcel(source, data_->info.path, book1->GetCurrentWorksheet(), false);
+            MainWindowUtils::ExportExcel(data_->info.path, book1->GetCurrentWorksheet(), false);
 
             book1->AppendSheet(data_->info.trans);
             book1->GetCurrentWorksheet()->WriteRow(1, 1, data_->info.excel_trans_header);
             const bool where { start_ == Section::kStakeholder ? false : true };
-            MainWindowUtils::ExportExcel(source, data_->info.trans, book1->GetCurrentWorksheet(), where);
+            MainWindowUtils::ExportExcel(data_->info.trans, book1->GetCurrentWorksheet(), where);
 
             d.Save();
             MainWindowUtils::RemoveDatabase(kSourceConnection);

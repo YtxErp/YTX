@@ -21,7 +21,6 @@
 #define MAINWINDOW_H
 
 #include <QFileInfo>
-#include <QLockFile>
 #include <QMainWindow>
 #include <QPointer>
 #include <QSettings>
@@ -193,8 +192,6 @@ private:
     void UpdateFileConfig(CFileConfig& file_config);
     void UpdateSectionConfig(CSectionConfig& section_config);
 
-    bool LockFile(const QFileInfo& file_info);
-
     void RestoreTab(PNodeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSectionConfig& section_settings);
 
     void EnableAction(bool enable) const;
@@ -237,8 +234,6 @@ private:
     AppConfig app_config_ {};
     FileConfig file_config_ {};
     LoginConfig login_config_ {};
-
-    QScopedPointer<QLockFile> lock_file_ {};
 
     QSharedPointer<QSettings> app_settings_ {};
     QSharedPointer<QSettings> file_settings_ {};

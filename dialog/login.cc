@@ -35,6 +35,8 @@ void Login::on_pushButtonConnect_clicked()
             tr("Unable to connect to the database. Please check if the PostgreSQL service is running, "
                "and verify the username, password, and database name."));
     }
+
+    login_config_.is_successful = ok;
 }
 
 void Login::InitDialog()

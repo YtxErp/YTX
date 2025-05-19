@@ -25,7 +25,6 @@
 #include <QSettings>
 #include <QWidget>
 
-#include "component/constvalue.h"
 #include "table/widget/transwidget.h"
 #include "worksheet.h"
 
@@ -54,8 +53,8 @@ public:
     static QString GetHardwareUUID();
 
     static void WriteSettings(QSharedPointer<QSettings> settings, const QVariant& value, CString& section, CString& property);
-    static void ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns);
-    static void ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);
+
+    static void ExportExcel(CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where = true);
     static void Message(QMessageBox::Icon icon, CString& title, CString& text, int timeout);
 
     static bool IsNodeWidget(const QWidget* widget) { return widget && widget->inherits("NodeWidget"); }
@@ -64,7 +63,6 @@ public:
     static bool IsSupportWidget(const QWidget* widget) { return widget && widget->inherits("SupportWidget"); }
 
     static bool PrepareNewFile(QString& file_path, CString& suffix);
-    static bool CheckFileValid(CString& file_path, CString& suffix = kYTX);
 
     static bool AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name);
     static QSqlDatabase GetDatabase(CString& connection_name);

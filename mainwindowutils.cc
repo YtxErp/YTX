@@ -9,6 +9,8 @@
 #include <QSqlRecord>
 #include <QTimer>
 
+#include "component/constvalue.h"
+
 QString MainWindowUtils::ResourceFile()
 {
     QString path {};
@@ -203,34 +205,6 @@ void MainWindowUtils::RemoveDatabase(CString& connection_name)
     QSqlDatabase::removeDatabase(connection_name);
 }
 
-bool MainWindowUtils::CheckFileValid(CString& file_path, CString& suffix)
-{
-    if (file_path.isEmpty())
-        return false;
-
-    const QFileInfo file_info(file_path);
-
-    if (!file_info.exists() || !file_info.isFile()) {
-        Message(QMessageBox::Critical, QObject::tr("Invalid File"), QObject::tr("The specified file does not exist or is not a valid file:\n%1").arg(file_path),
-            kThreeThousand);
-        return false;
-    }
-
-    if (file_info.suffix().compare(suffix, Qt::CaseInsensitive) != 0) {
-        Message(QMessageBox::Critical, QObject::tr("Extension Mismatch"),
-            QObject::tr("The file extension does not match the expected type:\n%1").arg(file_path), kThreeThousand);
-        return false;
-    }
-
-    if (!CheckFileSQLite(file_path)) {
-        Message(
-            QMessageBox::Critical, QObject::tr("Invalid Database"), QObject::tr("The file is not a valid SQLite database:\n%1").arg(file_path), kThreeThousand);
-        return false;
-    }
-
-    return true;
-}
-
 bool MainWindowUtils::PrepareNewFile(QString& file_path, CString& suffix)
 {
     if (file_path.isEmpty())
@@ -314,57 +288,9 @@ QString MainWindowUtils::GetMacUUID()
     return QString();
 }
 
-void MainWindowUtils::ExportYTX(CString& source, CString& destination, CStringList& table_names, CStringList& columns)
+void MainWindowUtils::ExportExcel(CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where)
 {
-    if (!CheckFileValid(source) || !CheckFileValid(destination)) {
-        return;
-    }
-
-    QSqlDatabase source_db = GetDatabase(kSourceConnection);
-    if (!source_db.isValid())
-        return;
-
-    QSqlDatabase destination_db = GetDatabase(kDestinationConnection);
-    if (!destination_db.isValid())
-        return;
-
-    QSqlQuery source_query(source_db);
-    QSqlQuery destination_query(destination_db);
-
-    const QString column_names { columns.join(", ") };
-
-    for (CString& name : table_names) {
-        const auto select_query { QString("SELECT %1 FROM %2;").arg(column_names, name) };
-
-        if (!source_query.exec(select_query)) {
-            qDebug() << "Failed to execute SELECT query for table:" << name << source_query.lastError().text();
-            return;
-        }
-
-        destination_query.exec(QStringLiteral("BEGIN TRANSACTION;"));
-
-        while (source_query.next()) {
-            QVariantList values;
-            for (int i = 0; i < columns.size(); ++i) {
-                values.append(source_query.value(i).toString());
-            }
-
-            const auto insert_query { QString("INSERT INTO %1 (%2) VALUES (%3);").arg(name, column_names, GeneratePlaceholder(values)) };
-
-            if (!destination_query.exec(insert_query)) {
-                qDebug() << "Failed to insert data into destination database for table:" << name << destination_query.lastError().text();
-                destination_query.exec(QStringLiteral("ROLLBACK;"));
-                return;
-            }
-        }
-
-        destination_query.exec(QStringLiteral("COMMIT;"));
-    }
-}
-
-void MainWindowUtils::ExportExcel(CString& source, CString& table, QSharedPointer<YXlsx::Worksheet> worksheet, bool where)
-{
-    if (!CheckFileValid(source) || !worksheet) {
+    if (!worksheet) {
         return;
     }
 

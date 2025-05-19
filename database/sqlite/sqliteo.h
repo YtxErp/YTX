@@ -50,7 +50,7 @@ public:
 
     bool ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const;
     bool WriteSettlement(Node* node) const;
-    bool RemoveSettlement(int settlement_id) const;
+    bool RemoveSettlement(int settlement_id);
 
     bool ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished);
     bool AddSettlementPrimary(int node_id, int settlement_id) const;
@@ -64,7 +64,7 @@ public:
     bool ReadStatementPrimary(NodeList& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
     bool ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const;
 
-    bool WriteTransRange(const QList<TransShadow*>& list) const;
+    bool WriteTransRange(const QList<TransShadow*>& list);
 
 protected:
     // tree

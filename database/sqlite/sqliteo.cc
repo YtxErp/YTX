@@ -16,7 +16,7 @@ SqliteO::~SqliteO() { qDeleteAll(node_hash_); }
 
 bool SqliteO::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadNode() };
@@ -66,7 +66,7 @@ bool SqliteO::SearchNode(QList<const Node*>& node_list, const QList<int>& party_
     if (party_id_list.empty())
         return false;
 
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     const qsizetype batch_size { kBatchSize };
@@ -122,7 +122,7 @@ Node* SqliteO::ReadNode(int node_id)
 
     // if search order trans, will read node from sqlite3
 
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QString(R"(
@@ -161,7 +161,7 @@ bool SqliteO::SettlementReference(int settlement_id) const
     )")
             .arg(info_.node) };
 
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     query.prepare(string);
@@ -185,7 +185,7 @@ int SqliteO::SettlementID(int node_id) const
     )")
             .arg(info_.node) };
 
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     query.prepare(string);
@@ -241,7 +241,7 @@ void SqliteO::RSyncProduct(int old_node_id, int new_node_id) const
 
 bool SqliteO::ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     auto string { QSReadSettlement() };
@@ -263,7 +263,7 @@ bool SqliteO::WriteSettlement(Node* node) const
 {
     assert(node && "node should not be null");
 
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
 
     CString string { QSWriteSettlement() };
 
@@ -279,9 +279,9 @@ bool SqliteO::WriteSettlement(Node* node) const
     return true;
 }
 
-bool SqliteO::RemoveSettlement(int settlement_id) const
+bool SqliteO::RemoveSettlement(int settlement_id)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
 
     CString string_first { QSRemoveSettlementFirst() };
     CString string_second { QSRemoveSettlementSecond() };
@@ -307,7 +307,7 @@ bool SqliteO::RemoveSettlement(int settlement_id) const
 
 bool SqliteO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadSettlementPrimary(finished) };
@@ -327,7 +327,7 @@ bool SqliteO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settl
 
 bool SqliteO::AddSettlementPrimary(int node_id, int settlement_id) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QString("UPDATE %1 SET settlement_id = :settlement_id, settlement = gross_amount - discount WHERE id = :node_id").arg(info_.node) };
@@ -351,7 +351,7 @@ bool SqliteO::AddSettlementPrimary(int node_id, int settlement_id) const
 
 bool SqliteO::RemoveSettlementPrimary(int node_id) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QString("UPDATE %1 SET settlement_id = 0, settlement = 0 WHERE id = :node_id").arg(info_.node) };
@@ -374,7 +374,7 @@ bool SqliteO::RemoveSettlementPrimary(int node_id) const
 
 bool SqliteO::SyncPrice(int node_id)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSSyncPriceFirst() };
@@ -415,7 +415,7 @@ bool SqliteO::SyncPrice(int node_id)
 
 bool SqliteO::InvertTransValue(int node_id) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
 
     CString string { QSInvertTransValue() };
 
@@ -432,7 +432,7 @@ bool SqliteO::InvertTransValue(int node_id) const
 
 bool SqliteO::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadStatement(unit) };
@@ -453,7 +453,7 @@ bool SqliteO::ReadStatement(TransList& trans_list, int unit, const QDateTime& st
 
 bool SqliteO::ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadBalance(unit) };
@@ -478,7 +478,7 @@ bool SqliteO::ReadBalance(double& pbalance, double& cdelta, int party_id, int un
 
 bool SqliteO::ReadStatementPrimary(NodeList& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadStatementPrimary(unit) };
@@ -500,7 +500,7 @@ bool SqliteO::ReadStatementPrimary(NodeList& node_list, int party_id, int unit, 
 
 bool SqliteO::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadStatementSecondary(unit) };
@@ -520,18 +520,18 @@ bool SqliteO::ReadStatementSecondary(TransList& trans_list, int party_id, int un
     return true;
 }
 
-bool SqliteO::WriteTransRange(const QList<TransShadow*>& list) const
+bool SqliteO::WriteTransRange(const QList<TransShadow*>& list)
 {
     if (list.isEmpty())
         return false;
 
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
 
     query.exec(QStringLiteral("PRAGMA synchronous = OFF"));
     query.exec(QStringLiteral("PRAGMA journal_mode = MEMORY"));
 
-    if (!db_->transaction()) {
-        qDebug() << "Failed to start transaction" << db_->lastError();
+    if (!db_.transaction()) {
+        qDebug() << "Failed to start transaction" << db_.lastError();
         return false;
     }
 
@@ -544,14 +544,14 @@ bool SqliteO::WriteTransRange(const QList<TransShadow*>& list) const
     // 执行批量插入
     if (!query.execBatch()) {
         qDebug() << "Failed in WriteTransRange" << query.lastError();
-        db_->rollback();
+        db_.rollback();
         return false;
     }
 
     // 提交事务
-    if (!db_->commit()) {
-        qDebug() << "Failed to commit transaction" << db_->lastError();
-        db_->rollback();
+    if (!db_.commit()) {
+        qDebug() << "Failed to commit transaction" << db_.lastError();
+        db_.rollback();
         return false;
     }
 

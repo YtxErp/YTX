@@ -227,9 +227,9 @@ void SqliteP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
     }
 }
 
-bool SqliteP::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const
+bool SqliteP::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     QString string { QSReplaceLeaf() };
 
     return DBTransaction([&]() {

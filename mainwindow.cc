@@ -63,7 +63,6 @@
 #include "dialog/preferences.h"
 #include "dialog/removenode.h"
 #include "document.h"
-#include "global/databasemanager.h"
 #include "global/leafsstation.h"
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"

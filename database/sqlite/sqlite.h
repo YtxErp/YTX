@@ -75,9 +75,9 @@ public slots:
 public:
     // tree
     bool ReadNode(NodeHash& node_hash);
-    bool RemoveNode(int node_id, int node_type) const;
-    bool WriteNode(int parent_id, Node* node) const;
-    bool DragNode(int destination_node_id, int node_id) const;
+    bool RemoveNode(int node_id, int node_type);
+    bool WriteNode(int parent_id, Node* node);
+    bool DragNode(int destination_node_id, int node_id);
     bool InternalReference(int node_id) const;
     bool ExternalReference(int node_id) const;
     bool SupportReference(int support_id) const;
@@ -144,12 +144,12 @@ protected:
     QString QSFreeView() const;
 
     //
-    bool DBTransaction(std::function<bool()> function) const;
+    bool DBTransaction(std::function<bool()> function);
     bool ReadRelationship(const NodeHash& node_hash, QSqlQuery& query) const;
     bool WriteRelationship(int node_id, int parent_id, QSqlQuery& query) const;
-    bool RemoveNode(int old_node_id) const;
+    bool RemoveNode(int old_node_id);
 
-    virtual bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const;
+    virtual bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit);
     bool ReplaceSupport(int old_node_id, int new_node_id);
     void ReplaceLeafFunction(QSet<int>& trans_id_set, int old_node_id, int new_node_id) const;
 
@@ -197,7 +197,7 @@ protected:
     Trans* last_trans_ {};
     const Section section_ {};
 
-    QSqlDatabase* db_ {};
+    QSqlDatabase db_ {};
     CInfo& info_;
 };
 

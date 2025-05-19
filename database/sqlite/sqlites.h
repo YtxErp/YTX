@@ -58,7 +58,7 @@ protected:
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const override;
     void CalculateLeafTotal(Node* node, QSqlQuery& query) const override;
-    bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const override;
+    bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) override;
 
     void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;
 
@@ -79,9 +79,9 @@ private:
     void ReadTransS(QSqlQuery& query);
     bool ReadTransRange(const QSet<int>& set);
 
-    bool ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id) const;
-    bool ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id) const;
-    bool ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id) const;
+    bool ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id);
+    bool ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id);
+    bool ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id);
 
     QString QSReplaceLeafSE() const; // stakeholder employee
     QString QSReplaceLeafOSE() const; // order sales employee

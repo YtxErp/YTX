@@ -128,7 +128,7 @@ bool SqliteS::CrossSearch(TransShadow* order_trans_shadow, int party_id, int pro
 
 bool SqliteS::ReadTransRange(const QSet<int>& set)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString placeholder { QStringList(set.size(), "?").join(", ") };
@@ -175,7 +175,7 @@ bool SqliteS::ReadTransRange(const QSet<int>& set)
     return true;
 }
 
-bool SqliteS::ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id) const
+bool SqliteS::ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id)
 {
     CString string { QSReplaceLeafOSP() };
 
@@ -191,7 +191,7 @@ bool SqliteS::ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id) c
     return true;
 }
 
-bool SqliteS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id) const
+bool SqliteS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id)
 {
     CString stringse { QSReplaceLeafSE() };
     CString stringose { QSReplaceLeafOSE() };
@@ -229,7 +229,7 @@ bool SqliteS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id) c
     });
 }
 
-bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id) const
+bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id)
 {
     CString string { QSReplaceLeafOPP() };
 
@@ -245,9 +245,9 @@ bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id) c
     return true;
 }
 
-bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const
+bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
 
     switch (UnitS(node_unit)) {
     case UnitS::kCust:
@@ -268,7 +268,7 @@ bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const
 
 bool SqliteS::ReadTrans(int node_id)
 {
-    QSqlQuery query(*db_);
+    QSqlQuery query(db_);
     query.setForwardOnly(true);
 
     CString string { QSReadTrans() };

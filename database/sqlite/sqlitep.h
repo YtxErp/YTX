@@ -48,7 +48,7 @@ protected:
     void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
     void UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
     void ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const override;
-    bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) const override;
+    bool ReplaceLeaf(int old_node_id, int new_node_id, int node_unit) override;
 
     QString QSUpdateLeafValue() const override;
     void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;

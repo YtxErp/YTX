@@ -21,6 +21,9 @@
 #define LOGIN_H
 
 #include <QDialog>
+#include <QSettings>
+
+#include "component/settings.h"
 
 namespace Ui {
 class Login;
@@ -30,14 +33,20 @@ class Login : public QDialog {
     Q_OBJECT
 
 public:
-    explicit Login(QWidget* parent = nullptr);
+    explicit Login(LoginConfig& login_config, QSharedPointer<QSettings> app_settings, QWidget* parent = nullptr);
     ~Login();
 
 private slots:
     void on_pushButtonConnect_clicked();
 
 private:
+    void InitDialog();
+    void SaveLoginConfig(const QString& user, const QString& password, const QString& database);
+
+private:
     Ui::Login* ui;
+    LoginConfig& login_config_;
+    QSharedPointer<QSettings> app_settings_ {};
 };
 
 #endif // LOGIN_H

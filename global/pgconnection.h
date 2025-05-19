@@ -20,17 +20,18 @@
 #ifndef PGCONNECTION
 #define PGCONNECTION
 
+#include <QMutex>
+#include <QQueue>
 #include <QSqlDatabase>
 #include <QString>
-
-#include "component/using.h"
 
 class PGConnection {
 public:
     static PGConnection& Instance();
-    bool InitConnection(CString& user, CString& password, CString& db_name);
-    bool ResetConnection();
-    QSqlDatabase& GetConnection();
+
+    bool Init(const QString& user, const QString& password, const QString& db_name, int pool_size = 5);
+    QSqlDatabase Acquire();
+    void Release(const QSqlDatabase& db);
 
 private:
     PGConnection();
@@ -38,12 +39,17 @@ private:
 
     PGConnection(const PGConnection&) = delete;
     PGConnection& operator=(const PGConnection&) = delete;
-    PGConnection(PGConnection&&) = delete;
-    PGConnection& operator=(PGConnection&&) = delete;
 
 private:
-    QSqlDatabase db_;
-    bool is_initialized_ { false };
+    QString user_ {};
+    QString password_ {};
+    QString db_name_ {};
+
+    QMutex mutex_ {};
+    QQueue<QSqlDatabase> available_dbs_ {};
+    QSet<QString> used_names_ {};
+
+    int connection_counter_ = 0;
 };
 
 #endif // PGCONNECTION

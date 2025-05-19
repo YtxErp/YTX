@@ -167,6 +167,7 @@ inline constexpr char kLogin[] = "login";
 inline constexpr char kUser[] = "user";
 inline constexpr char kPassword[] = "password";
 inline constexpr char kDatabase[] = "database";
+inline constexpr char kIsSaved[] = "is_saved";
 
 // Constants for sections
 inline constexpr char kFinance[] = "finance";

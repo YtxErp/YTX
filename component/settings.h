@@ -33,6 +33,7 @@ struct LoginConfig {
     QString user {};
     QString password {};
     QString database {};
+    bool is_saved {};
 };
 
 struct AppConfig {

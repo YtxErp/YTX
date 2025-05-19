@@ -9,62 +9,74 @@ PGConnection& PGConnection::Instance()
     return instance;
 }
 
-bool PGConnection::InitConnection(CString& user, CString& password, CString& db_name)
-{
-    if (is_initialized_) {
-        ResetConnection();
-    }
-
-    db_.setHostName("localhost");
-    db_.setPort(5432);
-
-    db_.setUserName(user);
-    db_.setPassword(password);
-    db_.setDatabaseName(db_name);
-
-    if (!db_.open()) {
-        qDebug() << "Failed to open connection to database" << db_name;
-        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
-        return false;
-    }
-
-    is_initialized_ = true;
-    return true;
-}
-
-bool PGConnection::ResetConnection()
-{
-    if (db_.isOpen()) {
-        db_.close();
-    }
-
-    const QString conn_name = db_.connectionName();
-
-    if (QSqlDatabase::contains(conn_name)) {
-        QSqlDatabase::removeDatabase(conn_name);
-    }
-
-    is_initialized_ = false;
-    db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection);
-
-    return true;
-}
-
-PGConnection::PGConnection() { db_ = QSqlDatabase::addDatabase("QPSQL", QSqlDatabase::defaultConnection); }
+PGConnection::PGConnection() = default;
 
 PGConnection::~PGConnection()
 {
-    if (db_.isOpen()) {
-        db_.close();
+    QMutexLocker locker(&mutex_);
+
+    for (auto& name : std::as_const(used_names_)) {
+        QSqlDatabase db { QSqlDatabase::database(name) };
+        if (db.isOpen()) {
+            db.close();
+        }
     }
+
+    while (!available_dbs_.isEmpty()) {
+        QSqlDatabase db { available_dbs_.dequeue() };
+        if (db.isOpen()) {
+            db.close();
+        }
+    }
+
+    used_names_.clear();
 }
 
-QSqlDatabase& PGConnection::GetConnection()
+bool PGConnection::Init(const QString& user, const QString& password, const QString& db_name, int pool_size)
 {
-    if (!is_initialized_) {
-        qCritical() << ("❌ Database is not initialized yet, please call SetDatabaseName() first");
-        throw std::runtime_error("Database is not initialized yet, please call SetDatabaseName() first");
+    QMutexLocker locker(&mutex_);
+    user_ = user;
+    password_ = password;
+    db_name_ = db_name;
+
+    for (int i = 0; i != pool_size; ++i) {
+        QString conn_name = QString("ytx_pg_conn_%1").arg(++connection_counter_);
+        QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL", conn_name);
+        db.setHostName("localhost");
+        db.setPort(5432);
+        db.setUserName(user_);
+        db.setPassword(password_);
+        db.setDatabaseName(db_name_);
+
+        if (!db.open()) {
+            qCritical() << "❌ Failed to open connection:" << db.lastError().text();
+            return false;
+        }
+
+        available_dbs_.enqueue(db);
     }
 
-    return db_;
+    return true;
+}
+
+QSqlDatabase PGConnection::Acquire()
+{
+    QMutexLocker locker(&mutex_);
+    if (available_dbs_.isEmpty()) {
+        qCritical() << "❌ PGConnectionPool exhausted!";
+        return {};
+    }
+
+    QSqlDatabase db = available_dbs_.dequeue();
+    used_names_.insert(db.connectionName());
+    return db;
+}
+
+void PGConnection::Release(const QSqlDatabase& db)
+{
+    QMutexLocker locker(&mutex_);
+    const QString& name = db.connectionName();
+    if (used_names_.remove(name)) {
+        available_dbs_.enqueue(db);
+    }
 }

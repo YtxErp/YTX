@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget* parent)
 #endif
 
     QTimer::singleShot(0, this, [this]() {
-        auto* login { new Login(this) };
+        auto* login { new Login(login_config_, app_settings_, this) };
         login->exec();
     });
 }
@@ -2610,6 +2610,7 @@ void MainWindow::ReadAppConfig()
     login_config_.user = app_settings_->value(kUser, {}).toString();
     login_config_.password = app_settings_->value(kPassword, {}).toString();
     login_config_.database = app_settings_->value(kDatabase, {}).toString();
+    login_config_.is_saved = app_settings_->value(kIsSaved, {}).toBool();
     app_settings_->endGroup();
 
     LoadAndInstallTranslator(app_config_.language);

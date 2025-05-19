@@ -37,11 +37,11 @@ class Preferences final : public QDialog {
     Q_OBJECT
 
 public:
-    Preferences(CInfo& info, CNodeModel* model, AppSettings app, FileSettings file, SectionSettings section, QWidget* parent = nullptr);
+    Preferences(CInfo& info, CNodeModel* model, AppConfig app, FileConfig file, SectionConfig section, QWidget* parent = nullptr);
     ~Preferences();
 
 signals:
-    void SUpdateSettings(const AppSettings& app, const FileSettings& file, const SectionSettings& section);
+    void SUpdateSettings(const AppConfig& app, const FileConfig& file, const SectionConfig& section);
 
 private slots:
     void on_pBtnApply_clicked();
@@ -92,9 +92,9 @@ private:
 
     QStandardItemModel* leaf_path_branch_path_model_ {};
 
-    AppSettings app_ {};
-    FileSettings file_ {};
-    SectionSettings section_ {};
+    AppConfig app_ {};
+    FileConfig file_ {};
+    SectionConfig section_ {};
     CNodeModel* model_ {};
 };
 

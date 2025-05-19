@@ -4,7 +4,7 @@
 #include "component/signalblocker.h"
 #include "ui_nodewidgetpt.h"
 
-NodeWidgetPT::NodeWidgetPT(NodeModel* model, CSectionSettings& section_settings, QWidget* parent)
+NodeWidgetPT::NodeWidgetPT(NodeModel* model, CSectionConfig& section_settings, QWidget* parent)
     : NodeWidget(parent)
     , ui(new Ui::NodeWidgetPT)
     , model_ { model }

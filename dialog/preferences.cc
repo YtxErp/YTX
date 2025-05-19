@@ -11,7 +11,7 @@
 #include "component/signalblocker.h"
 #include "ui_preferences.h"
 
-Preferences::Preferences(CInfo& info, CNodeModel* model, AppSettings app, FileSettings file, SectionSettings section, QWidget* parent)
+Preferences::Preferences(CInfo& info, CNodeModel* model, AppConfig app, FileConfig file, SectionConfig section, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Preferences)
     , app_ { app }

@@ -36,7 +36,7 @@ public slots:
     void RSyncStatusValue() override;
 
 public:
-    NodeWidgetPT(NodeModel* model, CSectionSettings& section_settings, QWidget* parent = nullptr);
+    NodeWidgetPT(NodeModel* model, CSectionConfig& section_settings, QWidget* parent = nullptr);
     ~NodeWidgetPT() override;
 
     QPointer<QTreeView> View() const override;
@@ -55,7 +55,7 @@ private:
     Ui::NodeWidgetPT* ui;
     NodeModel* model_ {};
 
-    CSectionSettings& section_settings_ {};
+    CSectionConfig& section_settings_ {};
 };
 
 #endif // NODEWIDGETPT_H

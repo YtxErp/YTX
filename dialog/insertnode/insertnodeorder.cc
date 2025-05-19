@@ -126,7 +126,7 @@ void InsertNodeOrder::RSyncString(int node_id, int column, const QString& value)
 
 QPointer<QTableView> InsertNodeOrder::View() { return ui->tableViewO; }
 
-void InsertNodeOrder::IniDialog(CSectionSettings* section_settings)
+void InsertNodeOrder::IniDialog(CSectionConfig* section_settings)
 {
     pmodel_ = stakeholder_node_->IncludeUnitModel(party_unit_);
     ui->comboParty->setModel(pmodel_);

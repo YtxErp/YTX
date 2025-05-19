@@ -22,33 +22,39 @@
 
 #include <QString>
 
-struct AppSettings {
+struct LoginConfig {
+    QString user {};
+    QString password {};
+    QString database {};
+};
+
+struct AppConfig {
     QString theme {};
     QString language {};
     QString separator {};
     QString printer {};
 
-    // Equality operator overload to compare two AppSettings structs
-    bool operator==(const AppSettings& other) const noexcept
+    // Equality operator overload to compare two AppConfig structs
+    bool operator==(const AppConfig& other) const noexcept
     {
         return std::tie(theme, language, separator, printer) == std::tie(other.theme, other.language, other.separator, other.printer);
     }
 
-    // Inequality operator overload to compare two AppSettings structs
-    bool operator!=(const AppSettings& other) const noexcept { return !(*this == other); }
+    // Inequality operator overload to compare two AppConfig structs
+    bool operator!=(const AppConfig& other) const noexcept { return !(*this == other); }
 };
 
-struct FileSettings {
+struct FileConfig {
     QString company_name {};
 
-    // Equality operator overload to compare two FileSettings structs
-    bool operator==(const FileSettings& other) const noexcept { return std::tie(company_name) == std::tie(other.company_name); }
+    // Equality operator overload to compare two FileConfig structs
+    bool operator==(const FileConfig& other) const noexcept { return std::tie(company_name) == std::tie(other.company_name); }
 
-    // Inequality operator overload to compare two FileSettings structs
-    bool operator!=(const FileSettings& other) const noexcept { return !(*this == other); }
+    // Inequality operator overload to compare two FileConfig structs
+    bool operator!=(const FileConfig& other) const noexcept { return !(*this == other); }
 };
 
-struct SectionSettings {
+struct SectionConfig {
     QString static_label {};
     int static_node {};
     QString dynamic_label {};
@@ -61,8 +67,8 @@ struct SectionSettings {
     int amount_decimal {};
     int common_decimal {};
 
-    // Equality operator overload to compare two SectionSettings structs
-    bool operator==(const SectionSettings& other) const noexcept
+    // Equality operator overload to compare two SectionConfig structs
+    bool operator==(const SectionConfig& other) const noexcept
     {
         return std::tie(static_label, static_node, dynamic_label, dynamic_node_lhs, operation, dynamic_node_rhs, default_unit, document_path, date_format,
                    amount_decimal, common_decimal)
@@ -70,12 +76,12 @@ struct SectionSettings {
                 other.default_unit, other.document_path, other.date_format, other.amount_decimal, other.common_decimal);
     }
 
-    // Inequality operator overload to compare two SectionSettings structs
-    bool operator!=(const SectionSettings& other) const noexcept { return !(*this == other); }
+    // Inequality operator overload to compare two SectionConfig structs
+    bool operator!=(const SectionConfig& other) const noexcept { return !(*this == other); }
 };
 
-using CAppSettings = const AppSettings;
-using CFileSettings = const FileSettings;
-using CSectionSettings = const SectionSettings;
+using CAppConfig = const AppConfig;
+using CFileConfig = const FileConfig;
+using CSectionConfig = const SectionConfig;
 
 #endif // SETTINGS_H

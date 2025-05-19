@@ -33,7 +33,7 @@ struct InsertNodeArgO {
     Sqlite* sql {};
     TransModel* order_trans {};
     NodeModel* stakeholder_node {};
-    CSectionSettings* section_settings {};
+    CSectionConfig* section_settings {};
     Section section {};
 };
 

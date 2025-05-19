@@ -163,6 +163,11 @@ inline constexpr char kStaticNode[] = "static_node";
 inline constexpr char kQSQLITE[] = "QSQLITE";
 inline constexpr char kYTX[] = "ytx";
 
+inline constexpr char kLogin[] = "login";
+inline constexpr char kUser[] = "user";
+inline constexpr char kPassword[] = "password";
+inline constexpr char kDatabase[] = "database";
+
 // Constants for sections
 inline constexpr char kFinance[] = "finance";
 inline constexpr char kFinancePath[] = "finance_path";

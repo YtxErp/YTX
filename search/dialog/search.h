@@ -36,7 +36,7 @@ class Search final : public QDialog {
     Q_OBJECT
 
 public:
-    Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSectionSettings* settings, Sqlite* sql, CInfo& info,
+    Search(CNodeModel* tree, CNodeModel* stakeholder_tree, CNodeModel* product_tree, CSectionConfig* settings, Sqlite* sql, CInfo& info,
         QWidget* parent = nullptr);
     ~Search();
 
@@ -80,7 +80,7 @@ private:
     CNodeModel* product_tree_ {};
     QButtonGroup* content_group_ {};
 
-    CSectionSettings* settings_;
+    CSectionConfig* settings_;
     CInfo& info_;
     const Section section_ {};
 };

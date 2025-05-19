@@ -106,7 +106,7 @@ private:
     SqliteO* sql_ {};
     TransModelO* order_trans_ {};
     NodeModel* stakeholder_node_ {};
-    CSectionSettings* settings_ {};
+    CSectionConfig* settings_ {};
     QButtonGroup* rule_group_ {};
     QButtonGroup* unit_group_ {};
 

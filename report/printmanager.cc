@@ -8,7 +8,7 @@
 #include <QPrinterInfo>
 #include <QVariant>
 
-PrintManager::PrintManager(CAppSettings& app_settings, NodeModel* product, NodeModel* stakeholder)
+PrintManager::PrintManager(CAppConfig& app_settings, NodeModel* product, NodeModel* stakeholder)
     : app_settings_ { app_settings }
     , product_ { product }
     , stakeholder_ { stakeholder }

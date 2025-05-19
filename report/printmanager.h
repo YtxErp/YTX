@@ -43,7 +43,7 @@ struct PrintData {
 
 class PrintManager {
 public:
-    PrintManager(CAppSettings& app_settings, NodeModel* product, NodeModel* stakeholder);
+    PrintManager(CAppConfig& app_settings, NodeModel* product, NodeModel* stakeholder);
 
     bool LoadIni(const QString& file_path);
     void SetData(const PrintData& print_data, const QList<TransShadow*>& trans_shadow_list);
@@ -65,7 +65,7 @@ private:
 private:
     QHash<QString, QVariant> page_settings_ {};
     QHash<QString, FieldSettings> field_settings_ {};
-    CAppSettings& app_settings_ {};
+    CAppConfig& app_settings_ {};
 
     QList<TransShadow*> trans_shadow_list_ {};
     PrintData data_ {};

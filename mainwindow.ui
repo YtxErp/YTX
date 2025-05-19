@@ -177,11 +177,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuRecent">
-     <property name="title">
-      <string>Recent Files</string>
-     </property>
-    </widget>
     <widget class="QMenu" name="menuExport_2">
      <property name="title">
       <string>Export</string>
@@ -193,8 +188,6 @@
     <addaction name="actionLicence"/>
     <addaction name="separator"/>
     <addaction name="actionNewFile"/>
-    <addaction name="actionOpenFile"/>
-    <addaction name="menuRecent"/>
     <addaction name="separator"/>
     <addaction name="menuExport_2"/>
     <addaction name="separator"/>
@@ -338,30 +331,6 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
-   </property>
-  </action>
-  <action name="actionOpenFile">
-   <property name="text">
-    <string>Open File...</string>
-   </property>
-   <property name="toolTip">
-    <string>Open File</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
-   </property>
-  </action>
-  <action name="actionClearMenu">
-   <property name="text">
-    <string>Clear Menu</string>
-   </property>
-  </action>
-  <action name="actionSeparator">
-   <property name="text">
-    <string>Separator</string>
    </property>
   </action>
   <action name="actionCheckAll">

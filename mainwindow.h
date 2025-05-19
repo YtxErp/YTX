@@ -74,10 +74,8 @@ private slots:
     void on_actionPreferences_triggered();
     void on_actionLicence_triggered();
     void on_actionSearch_triggered();
-    void on_actionClearMenu_triggered();
 
     void on_actionNewFile_triggered();
-    void on_actionOpenFile_triggered();
 
     void on_actionExportYTX_triggered();
     void on_actionExportExcel_triggered();
@@ -115,7 +113,6 @@ private slots:
 
 private:
     void SetTabWidget();
-    void SetClearMenuAction();
 
     void SetConnect() const;
     void SetAction() const;
@@ -206,8 +203,6 @@ private:
     void RestoreTab(PNodeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSectionConfig& section_settings);
 
     void EnableAction(bool enable) const;
-    void RestoreRecentFile();
-    void AddRecentFile(CString& file_path);
 
     QStandardItemModel* CreateModelFromMap(CStringMap& map, QObject* parent = nullptr);
 

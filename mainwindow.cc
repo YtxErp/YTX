@@ -119,7 +119,6 @@ MainWindow::MainWindow(QWidget* parent)
     MainWindowUtils::ReadSettings(this, &QMainWindow::restoreState, app_settings_, kMainwindow, kState, 0);
     MainWindowUtils::ReadSettings(this, &QMainWindow::restoreGeometry, app_settings_, kMainwindow, kGeometry);
 
-    RestoreRecentFile();
     EnableAction(false);
 
 #ifdef Q_OS_WIN
@@ -208,11 +207,7 @@ bool MainWindow::ROpenFile(CString& file_path)
     EnableAction(true);
     on_tabWidget_currentChanged(0);
 
-    QTimer::singleShot(0, this, [this, file_path]() {
-        AddRecentFile(file_path);
-        MainWindowUtils::ReadPrintTmplate(print_template_);
-    });
-
+    QTimer::singleShot(0, this, [this, file_path]() { MainWindowUtils::ReadPrintTmplate(print_template_); });
     return true;
 }
 
@@ -1115,54 +1110,6 @@ void MainWindow::IniSectionGroup()
     section_group_->addButton(ui->rBtnPurchase, 5);
 }
 
-void MainWindow::RestoreRecentFile()
-{
-    recent_file_ = app_settings_->value(kRecentFile).toStringList();
-
-    auto* recent_menu { ui->menuRecent };
-    QStringList valid_recent_file {};
-
-    const long long count { std::min(kMaxRecentFile, recent_file_.size()) };
-    const auto mid_file { recent_file_.mid(recent_file_.size() - count, count) };
-
-    for (auto it = mid_file.rbegin(); it != mid_file.rend(); ++it) {
-        CString& file_path { *it };
-
-        if (!MainWindowUtils::CheckFileValid(file_path))
-            continue;
-
-        auto* action { recent_menu->addAction(file_path) };
-        connect(action, &QAction::triggered, this, [file_path, this]() { ROpenFile(file_path); });
-        valid_recent_file.prepend(file_path);
-    }
-
-    if (recent_file_ != valid_recent_file) {
-        recent_file_ = valid_recent_file;
-        MainWindowUtils::WriteSettings(app_settings_, recent_file_, kRecent, kFile);
-    }
-
-    SetClearMenuAction();
-}
-
-void MainWindow::AddRecentFile(CString& file_path)
-{
-    CString path { QDir::toNativeSeparators(file_path) };
-
-    if (!recent_file_.contains(path)) {
-        auto* menu { ui->menuRecent };
-        auto* action { new QAction(path, menu) };
-
-        if (menu->isEmpty()) {
-            menu->addAction(action);
-            SetClearMenuAction();
-        } else
-            ui->menuRecent->insertAction(ui->actionSeparator, action);
-
-        recent_file_.emplaceBack(path);
-        MainWindowUtils::WriteSettings(app_settings_, recent_file_, kRecent, kFile);
-    }
-}
-
 bool MainWindow::LockFile(const QFileInfo& file_info)
 {
     CString lock_file_path { file_info.absolutePath() + QDir::separator() + file_info.completeBaseName() + kDotSuffixLOCK };
@@ -1859,7 +1806,6 @@ void MainWindow::SetAction() const
     ui->actionPreferences->setIcon(QIcon(":/solarized_dark/solarized_dark/settings.png"));
     ui->actionSearch->setIcon(QIcon(":/solarized_dark/solarized_dark/search.png"));
     ui->actionNewFile->setIcon(QIcon(":/solarized_dark/solarized_dark/new.png"));
-    ui->actionOpenFile->setIcon(QIcon(":/solarized_dark/solarized_dark/open.png"));
     ui->actionCheckAll->setIcon(QIcon(":/solarized_dark/solarized_dark/check-all.png"));
     ui->actionCheckNone->setIcon(QIcon(":/solarized_dark/solarized_dark/check-none.png"));
     ui->actionCheckReverse->setIcon(QIcon(":/solarized_dark/solarized_dark/check-reverse.png"));
@@ -2808,32 +2754,6 @@ void MainWindow::on_actionNewFile_triggered()
 
     if (SqliteYtx::NewFile(file_path))
         ROpenFile(file_path);
-}
-
-void MainWindow::on_actionOpenFile_triggered()
-{
-    const auto file_path { QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), QStringLiteral("*.ytx"), nullptr) };
-    ROpenFile(file_path);
-}
-
-void MainWindow::SetClearMenuAction()
-{
-    auto* menu { ui->menuRecent };
-
-    if (!menu->isEmpty()) {
-        auto* separator { ui->actionSeparator };
-        menu->addAction(separator);
-        separator->setSeparator(true);
-
-        menu->addAction(ui->actionClearMenu);
-    }
-}
-
-void MainWindow::on_actionClearMenu_triggered()
-{
-    ui->menuRecent->clear();
-    recent_file_.clear();
-    MainWindowUtils::WriteSettings(app_settings_, recent_file_, kRecent, kFile);
 }
 
 void MainWindow::on_tabWidget_tabBarDoubleClicked(int index) { RNodeLocation(ui->tabWidget->tabBar()->tabData(index).value<Tab>().node_id); }

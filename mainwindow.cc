@@ -140,7 +140,7 @@ MainWindow::~MainWindow()
     MainWindowUtils::WriteSettings(this, &QMainWindow::saveGeometry, app_settings_, kMainwindow, kGeometry);
     MainWindowUtils::WriteSettings(app_settings_, std::to_underlying(start_), kStart, kSection);
 
-    if (login_config_.is_successful) {
+    if (file_settings_) {
         MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(finance_trans_wgt_hash_), kFinance, kTabID);
         MainWindowUtils::WriteSettings(finance_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kFinance, kHeaderState);
 
@@ -261,7 +261,7 @@ void MainWindow::RSectionGroup(int id)
 
     start_ = kSection;
 
-    if (!login_config_.is_successful)
+    if (!file_settings_)
         return;
 
     MainWindowUtils::SwitchDialog(dialog_list_, false);
@@ -2500,6 +2500,8 @@ void MainWindow::ReadAppConfig()
     app_settings_->endGroup();
 
     app_settings_->beginGroup(kLogin);
+    login_config_.host = app_settings_->value(kHost, "localhost").toString();
+    login_config_.port = app_settings_->value(kPort, 5432).toInt();
     login_config_.user = app_settings_->value(kUser, {}).toString();
     login_config_.password = app_settings_->value(kPassword, {}).toString();
     login_config_.database = app_settings_->value(kDatabase, {}).toString();

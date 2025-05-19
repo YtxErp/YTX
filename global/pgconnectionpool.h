@@ -25,11 +25,13 @@
 #include <QSqlDatabase>
 #include <QString>
 
+#include "component/using.h"
+
 class PGConnectionPool {
 public:
     static PGConnectionPool& Instance();
 
-    bool Initialize(const QString& user, const QString& password, const QString& db_name, int pool_size = 5);
+    bool Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size = 5);
     QSqlDatabase GetConnection();
     void ReturnConnection(const QSqlDatabase& db);
     void Reset();

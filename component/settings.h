@@ -30,11 +30,12 @@ struct LicenseConfig {
 };
 
 struct LoginConfig {
+    QString host {};
+    int port {};
     QString user {};
     QString password {};
     QString database {};
     bool is_saved {};
-    bool is_successful {};
 };
 
 struct AppConfig {

@@ -218,7 +218,6 @@ private:
 private:
     Ui::MainWindow* ui {};
 
-    QStringList recent_file_ {};
     Section start_ {};
     int report_id_ { -1 };
 

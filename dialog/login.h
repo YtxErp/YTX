@@ -24,6 +24,7 @@
 #include <QSettings>
 
 #include "component/settings.h"
+#include "component/using.h"
 
 namespace Ui {
 class Login;
@@ -41,7 +42,7 @@ private slots:
 
 private:
     void InitDialog();
-    void SaveLoginConfig(const QString& user, const QString& password, const QString& database);
+    void SaveLoginConfig(CString& host, int port, CString& user, CString& password, CString& database);
 
 private:
     Ui::Login* ui;

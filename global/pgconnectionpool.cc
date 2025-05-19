@@ -30,16 +30,16 @@ PGConnectionPool::~PGConnectionPool()
     used_names_.clear();
 }
 
-bool PGConnectionPool::Initialize(const QString& user, const QString& password, const QString& db_name, int pool_size)
+bool PGConnectionPool::Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size)
 {
     QMutexLocker locker(&mutex_);
     Reset();
 
     for (int i = 0; i != pool_size; ++i) {
-        const QString conn_name { QString("ytx_pg_conn_%1").arg(i) };
+        CString conn_name { QString("ytx_pg_conn_%1").arg(i) };
         QSqlDatabase db { QSqlDatabase::addDatabase("QPSQL", conn_name) };
-        db.setHostName("localhost");
-        db.setPort(5432);
+        db.setHostName(host);
+        db.setPort(port);
         db.setUserName(user);
         db.setPassword(password);
         db.setDatabaseName(db_name);
@@ -72,7 +72,7 @@ QSqlDatabase PGConnectionPool::GetConnection()
 void PGConnectionPool::ReturnConnection(const QSqlDatabase& db)
 {
     QMutexLocker locker(&mutex_);
-    const QString name { db.connectionName() };
+    CString name { db.connectionName() };
     if (used_names_.remove(name)) {
         available_dbs_.enqueue(db);
     }

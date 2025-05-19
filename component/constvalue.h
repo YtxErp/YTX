@@ -162,6 +162,8 @@ inline constexpr char kQSQLITE[] = "QSQLITE";
 inline constexpr char kYTX[] = "ytx";
 
 inline constexpr char kLogin[] = "login";
+inline constexpr char kHost[] = "host";
+inline constexpr char kPort[] = "port";
 inline constexpr char kUser[] = "user";
 inline constexpr char kPassword[] = "password";
 inline constexpr char kDatabase[] = "database";

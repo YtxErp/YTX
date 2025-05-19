@@ -113,9 +113,9 @@ MainWindow::MainWindow(QWidget* parent)
     SetAction();
     SetConnect();
 
-    MainWindowUtils::ReadSettings(ui->splitter, &QSplitter::restoreState, app_settings_, kSplitter, kState);
-    MainWindowUtils::ReadSettings(this, &QMainWindow::restoreState, app_settings_, kMainwindow, kState, 0);
-    MainWindowUtils::ReadSettings(this, &QMainWindow::restoreGeometry, app_settings_, kMainwindow, kGeometry);
+    MainWindowUtils::ReadConfig(ui->splitter, &QSplitter::restoreState, app_settings_, kSplitter, kState);
+    MainWindowUtils::ReadConfig(this, &QMainWindow::restoreState, app_settings_, kMainwindow, kState, 0);
+    MainWindowUtils::ReadConfig(this, &QMainWindow::restoreGeometry, app_settings_, kMainwindow, kGeometry);
 
     EnableAction(false);
 
@@ -135,26 +135,26 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    MainWindowUtils::WriteSettings(ui->splitter, &QSplitter::saveState, app_settings_, kSplitter, kState);
-    MainWindowUtils::WriteSettings(this, &QMainWindow::saveState, app_settings_, kMainwindow, kState, 0);
-    MainWindowUtils::WriteSettings(this, &QMainWindow::saveGeometry, app_settings_, kMainwindow, kGeometry);
-    MainWindowUtils::WriteSettings(app_settings_, std::to_underlying(start_), kStart, kSection);
+    MainWindowUtils::WriteConfig(ui->splitter, &QSplitter::saveState, app_settings_, kSplitter, kState);
+    MainWindowUtils::WriteConfig(this, &QMainWindow::saveState, app_settings_, kMainwindow, kState, 0);
+    MainWindowUtils::WriteConfig(this, &QMainWindow::saveGeometry, app_settings_, kMainwindow, kGeometry);
+    MainWindowUtils::WriteConfig(app_settings_, std::to_underlying(start_), kStart, kSection);
 
     if (file_settings_) {
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(finance_trans_wgt_hash_), kFinance, kTabID);
-        MainWindowUtils::WriteSettings(finance_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kFinance, kHeaderState);
+        MainWindowUtils::WriteConfig(file_settings_, MainWindowUtils::SaveTab(finance_trans_wgt_hash_), kFinance, kTabID);
+        MainWindowUtils::WriteConfig(finance_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kFinance, kHeaderState);
 
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(product_trans_wgt_hash_), kProduct, kTabID);
-        MainWindowUtils::WriteSettings(product_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kProduct, kHeaderState);
+        MainWindowUtils::WriteConfig(file_settings_, MainWindowUtils::SaveTab(product_trans_wgt_hash_), kProduct, kTabID);
+        MainWindowUtils::WriteConfig(product_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kProduct, kHeaderState);
 
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(stakeholder_trans_wgt_hash_), kStakeholder, kTabID);
-        MainWindowUtils::WriteSettings(stakeholder_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kStakeholder, kHeaderState);
+        MainWindowUtils::WriteConfig(file_settings_, MainWindowUtils::SaveTab(stakeholder_trans_wgt_hash_), kStakeholder, kTabID);
+        MainWindowUtils::WriteConfig(stakeholder_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kStakeholder, kHeaderState);
 
-        MainWindowUtils::WriteSettings(file_settings_, MainWindowUtils::SaveTab(task_trans_wgt_hash_), kTask, kTabID);
-        MainWindowUtils::WriteSettings(task_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kTask, kHeaderState);
+        MainWindowUtils::WriteConfig(file_settings_, MainWindowUtils::SaveTab(task_trans_wgt_hash_), kTask, kTabID);
+        MainWindowUtils::WriteConfig(task_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kTask, kHeaderState);
 
-        MainWindowUtils::WriteSettings(sales_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kSales, kHeaderState);
-        MainWindowUtils::WriteSettings(purchase_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kPurchase, kHeaderState);
+        MainWindowUtils::WriteConfig(sales_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kSales, kHeaderState);
+        MainWindowUtils::WriteConfig(purchase_tree_->View()->header(), &QHeaderView::saveState, file_settings_, kPurchase, kHeaderState);
     }
 
     delete ui;
@@ -709,7 +709,7 @@ void MainWindow::CreateSection(NodeWidget* node_widget, TransWgtHash& trans_wgt_
     auto model { node_widget->Model() };
 
     // ReadSettings must before SetTreeView
-    MainWindowUtils::ReadSettings(view->header(), &QHeaderView::restoreState, file_settings_, info.node, kHeaderState);
+    MainWindowUtils::ReadConfig(view->header(), &QHeaderView::restoreState, file_settings_, info.node, kHeaderState);
 
     SetTreeView(view, info);
     SetTreeDelegate(view, info, settings);

@@ -114,7 +114,7 @@ void MainWindowUtils::ReadPrintTmplate(QMap<QString, QString>& print_template)
     }
 }
 
-void MainWindowUtils::WriteSettings(QSharedPointer<QSettings> settings, const QVariant& value, CString& section, CString& property)
+void MainWindowUtils::WriteConfig(QSharedPointer<QSettings> settings, const QVariant& value, CString& section, CString& property)
 {
     assert(settings && "settings must be non-null");
     settings->setValue(QString("%1/%2").arg(section, property), value);

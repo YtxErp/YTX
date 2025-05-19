@@ -45,15 +45,16 @@ bool PGConnectionPool::Initialize(CString& host, int port, CString& user, CStrin
         db.setDatabaseName(db_name);
 
         if (!db.open()) {
-            qCritical() << "Failed to open connection:" << db.lastError().text();
-            Reset();
-            return false;
+            qWarning() << "Failed to open PG connection:" << db.lastError().text();
+            db = QSqlDatabase();
+            QSqlDatabase::removeDatabase(conn_name);
+            continue;
         }
 
         available_dbs_.enqueue(db);
     }
 
-    return true;
+    return available_dbs_.size() >= 1;
 }
 
 QSqlDatabase PGConnectionPool::GetConnection()

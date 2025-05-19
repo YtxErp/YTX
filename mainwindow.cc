@@ -23,7 +23,6 @@
 #include "database/sqlite/sqlitep.h"
 #include "database/sqlite/sqlites.h"
 #include "database/sqlite/sqlitet.h"
-#include "database/sqliteytx.h"
 #include "delegate/boolmap.h"
 #include "delegate/checkbox.h"
 #include "delegate/document.h"
@@ -103,7 +102,7 @@ MainWindow::MainWindow(QWidget* parent)
     QResource::registerResource(MainWindowUtils::ResourceFile());
     ReadAppConfig();
     VerifyActivationOffline();
-    QTimer::singleShot(5 * 60 * 1000, this, &MainWindow::VerifyActivationOnline);
+    // QTimer::singleShot(5 * 60 * 1000, this, &MainWindow::VerifyActivationOnline);
 
     ui->setupUi(this);
     SignalBlocker blocker(this);
@@ -113,8 +112,6 @@ MainWindow::MainWindow(QWidget* parent)
     StringInitializer::SetHeader(finance_data_.info, product_data_.info, stakeholder_data_.info, task_data_.info, sales_data_.info, purchase_data_.info);
     SetAction();
     SetConnect();
-
-    this->setAcceptDrops(true);
 
     MainWindowUtils::ReadSettings(ui->splitter, &QSplitter::restoreState, app_settings_, kSplitter, kState);
     MainWindowUtils::ReadSettings(this, &QMainWindow::restoreState, app_settings_, kMainwindow, kState, 0);
@@ -211,17 +208,6 @@ bool MainWindow::ROpenFile(CString& file_path)
     QTimer::singleShot(0, this, [this, file_path]() { MainWindowUtils::ReadPrintTmplate(print_template_); });
     return true;
 }
-
-void MainWindow::dragEnterEvent(QDragEnterEvent* event)
-{
-    if (event->mimeData()->hasUrls()) {
-        return event->acceptProposedAction();
-    }
-
-    event->ignore();
-}
-
-void MainWindow::dropEvent(QDropEvent* event) { ROpenFile(event->mimeData()->urls().first().toLocalFile()); }
 
 void MainWindow::on_actionInsertNode_triggered()
 {
@@ -2837,66 +2823,6 @@ void MainWindow::on_actionAppendTrans_triggered()
     if (auto* leaf_widget = dynamic_cast<TransWidget*>(widget)) {
         MainWindowUtils::AppendTrans(leaf_widget, start_);
     }
-}
-
-void MainWindow::on_actionExportYTX_triggered()
-{
-    CString& source { DatabaseManager::Instance().DatabaseName() };
-    if (source.isEmpty())
-        return;
-
-    QString destination { QFileDialog::getSaveFileName(this, tr("Export Structure"), QDir::homePath(), QStringLiteral("*.ytx")) };
-    if (!MainWindowUtils::PrepareNewFile(destination, kDotSuffixYTX))
-        return;
-
-    if (!SqliteYtx::NewFile(destination))
-        return;
-
-    auto future = QtConcurrent::run([source, destination]() {
-        QSqlDatabase source_db;
-        if (!MainWindowUtils::AddDatabase(source_db, source, kSourceConnection))
-            return false;
-
-        QSqlDatabase destination_db;
-        if (!MainWindowUtils::AddDatabase(destination_db, destination, kDestinationConnection)) {
-            MainWindowUtils::RemoveDatabase(kSourceConnection);
-            return false;
-        }
-
-        try {
-            QStringList tables { kFinance, kStakeholder, kTask, kProduct };
-            QStringList columns { kName, kRule, kType, kUnit, kRemoved };
-            MainWindowUtils::ExportYTX(source, destination, tables, columns);
-
-            tables = { kFinancePath, kStakeholderPath, kTaskPath, kProductPath };
-            columns = { kAncestor, kDescendant, kDistance };
-            MainWindowUtils::ExportYTX(source, destination, tables, columns);
-
-            MainWindowUtils::RemoveDatabase(kSourceConnection);
-            MainWindowUtils::RemoveDatabase(kDestinationConnection);
-            return true;
-        } catch (...) {
-            qWarning() << "Export failed due to an unknown exception.";
-            MainWindowUtils::RemoveDatabase(kSourceConnection);
-            MainWindowUtils::RemoveDatabase(kDestinationConnection);
-            return false;
-        }
-    });
-
-    auto* watcher = new QFutureWatcher<bool>(this);
-    connect(watcher, &QFutureWatcher<bool>::finished, this, [watcher, destination]() {
-        watcher->deleteLater();
-
-        bool success { watcher->future().result() };
-        if (success) {
-            MainWindowUtils::Message(QMessageBox::Information, tr("Export Completed"), tr("Export completed successfully."), kThreeThousand);
-        } else {
-            QFile::remove(destination);
-            MainWindowUtils::Message(QMessageBox::Critical, tr("Export Failed"), tr("Export failed. The file has been deleted."), kThreeThousand);
-        }
-    });
-
-    watcher->setFuture(future);
 }
 
 void MainWindow::on_actionExportExcel_triggered()

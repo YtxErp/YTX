@@ -61,10 +61,6 @@ public slots:
     void on_actionAppendTrans_triggered();
     void on_actionRemove_triggered();
 
-protected:
-    void dragEnterEvent(QDragEnterEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
-
 private slots:
     void on_actionAppendNode_triggered();
     void on_actionEditNode_triggered();
@@ -77,7 +73,6 @@ private slots:
 
     void on_actionNewDatabase_triggered();
 
-    void on_actionExportYTX_triggered();
     void on_actionExportExcel_triggered();
 
     void on_actionStatement_triggered();

@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include <QSqlDatabase>
 
-#include "database/pgsqlytx.h"
+#include "global/pgconnection.h"
 #include "ui_login.h"
 
 Login::Login(QWidget* parent)
@@ -18,7 +18,7 @@ Login::~Login() { delete ui; }
 void Login::on_pushButtonConnect_clicked()
 {
     QSqlDatabase db;
-    const bool ok { PgSqlYtx::InitConnection(db, ui->lineEditUser->text(), ui->lineEditPassword->text(), ui->lineEditDatabase->text(), 300000) };
+    const bool ok { PGConnection::Instance().InitConnection(ui->lineEditUser->text(), ui->lineEditPassword->text(), ui->lineEditDatabase->text()) };
 
     if (ok) {
         this->close();

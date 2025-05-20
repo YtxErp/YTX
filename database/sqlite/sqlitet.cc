@@ -30,7 +30,7 @@ QString SqliteT::QSRemoveNodeSecond() const
 {
     return QStringLiteral(R"(
     UPDATE task_transaction SET
-        removed = 1
+        removed = true
     WHERE (lhs_node = :node_id OR rhs_node = :node_id) AND removed = 0
     )");
 }

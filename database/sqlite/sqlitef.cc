@@ -106,7 +106,7 @@ QString SqliteF::QSRemoveNodeSecond() const
 {
     return QStringLiteral(R"(
     UPDATE finance_transaction SET
-        removed = 1
+        removed = true
     WHERE (lhs_node = :node_id OR rhs_node = :node_id) AND removed = 0
     )");
 }

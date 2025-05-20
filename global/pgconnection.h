@@ -31,7 +31,7 @@ class PGConnection {
 public:
     static PGConnection& Instance();
 
-    bool Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size = 5);
+    bool Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size = 8);
     QSqlDatabase GetConnection();
     void ReturnConnection(const QSqlDatabase& db);
     void Reset();

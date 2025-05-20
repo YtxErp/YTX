@@ -588,7 +588,7 @@ QString SqliteO::QSReadNode() const
     return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
     FROM %1
-    WHERE ((date_time BETWEEN :start AND :end) OR type = 1 OR finished = 0 OR unit = 2) AND removed = 0
+    WHERE ((date_time BETWEEN :start AND :end) OR type = 1 OR finished = false OR unit = 2) AND removed = false
     )")
         .arg(info_.node);
 }
@@ -606,7 +606,7 @@ QString SqliteO::QSRemoveNodeSecond() const
 {
     return QString(R"(
     UPDATE %1 SET
-        removed = 1
+        removed = true
     WHERE lhs_node = :node_id
     )")
         .arg(info_.trans);
@@ -949,7 +949,7 @@ QString SqliteO::QSRemoveSettlementFirst() const
 {
     return QString(R"(
     UPDATE %1 SET
-        removed = 1
+        removed = true
     WHERE id = :node_id
     )")
         .arg(info_.settlement);

@@ -393,7 +393,7 @@ QString Sqlite::QSRemoveNodeFirst() const
 {
     return QString(R"(
             UPDATE %1
-            SET removed = 1
+            SET removed = true
             WHERE id = :node_id
             )")
         .arg(info_.node);
@@ -908,7 +908,7 @@ QString Sqlite::QSRemoveTrans() const
 {
     return QString(R"(
     UPDATE %1
-    SET removed = 1
+    SET removed = true
     WHERE id = :trans_id
     )")
         .arg(info_.trans);

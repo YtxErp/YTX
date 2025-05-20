@@ -14,7 +14,7 @@ QString SqliteT::QSReadNode() const
     return QStringLiteral(R"(
     SELECT name, id, code, description, note, rule, type, unit, color, document, date_time, finished, unit_cost, quantity, amount
     FROM task
-    WHERE removed = 0
+    WHERE removed = false
     )");
 }
 

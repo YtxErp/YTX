@@ -4,7 +4,7 @@
 #include <QSqlDatabase>
 
 #include "component/constvalue.h"
-#include "global/pgconnectionpool.h"
+#include "global/pgconnection.h"
 #include "ui_login.h"
 
 Login::Login(LoginConfig& login_config, QSharedPointer<QSettings> app_settings, QWidget* parent)
@@ -27,7 +27,7 @@ void Login::on_pushButtonConnect_clicked()
     const auto password { ui->lineEditPassword->text() };
     const auto database { ui->lineEditDatabase->text() };
 
-    const bool ok { PGConnectionPool::Instance().Initialize(host, port, user, password, database) };
+    const bool ok { PGConnection::Instance().Initialize(host, port, user, password, database) };
 
     if (ok) {
         emit SLoadDatabase();

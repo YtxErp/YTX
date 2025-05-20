@@ -16,7 +16,7 @@ QString SqliteP::QSReadNode() const
     return QStringLiteral(R"(
     SELECT name, id, code, description, note, rule, type, unit, color, commission, unit_price, quantity, amount
     FROM product
-    WHERE removed = 0
+    WHERE removed = false
     )");
 }
 

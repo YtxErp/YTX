@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PGCONNECTIONPOOL_H
-#define PGCONNECTIONPOOL_H
+#ifndef PGCONNECTION_H
+#define PGCONNECTION_H
 
 #include <QMutex>
 #include <QQueue>
@@ -27,9 +27,9 @@
 
 #include "component/using.h"
 
-class PGConnectionPool {
+class PGConnection {
 public:
-    static PGConnectionPool& Instance();
+    static PGConnection& Instance();
 
     bool Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size = 5);
     QSqlDatabase GetConnection();
@@ -37,11 +37,13 @@ public:
     void Reset();
 
 private:
-    PGConnectionPool() = default;
-    ~PGConnectionPool();
+    PGConnection() = default;
+    ~PGConnection();
 
-    PGConnectionPool(const PGConnectionPool&) = delete;
-    PGConnectionPool& operator=(const PGConnectionPool&) = delete;
+    PGConnection(const PGConnection&) = delete;
+    PGConnection& operator=(const PGConnection&) = delete;
+    PGConnection(PGConnection&&) = delete;
+    PGConnection& operator=(PGConnection&&) = delete;
 
 private:
     QMutex mutex_ {};
@@ -49,4 +51,4 @@ private:
     QSet<QString> used_names_ {};
 };
 
-#endif // PGCONNECTIONPOOL_H
+#endif // PGCONNECTION_H

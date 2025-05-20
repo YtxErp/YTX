@@ -1,15 +1,15 @@
-#include "pgconnectionpool.h"
+#include "pgconnection.h"
 
 #include <QDebug>
 #include <QSqlError>
 
-PGConnectionPool& PGConnectionPool::Instance()
+PGConnection& PGConnection::Instance()
 {
-    static PGConnectionPool instance;
+    static PGConnection instance;
     return instance;
 }
 
-PGConnectionPool::~PGConnectionPool()
+PGConnection::~PGConnection()
 {
     QMutexLocker locker(&mutex_);
 
@@ -30,7 +30,7 @@ PGConnectionPool::~PGConnectionPool()
     used_names_.clear();
 }
 
-bool PGConnectionPool::Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size)
+bool PGConnection::Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size)
 {
     QMutexLocker locker(&mutex_);
     Reset();
@@ -57,7 +57,7 @@ bool PGConnectionPool::Initialize(CString& host, int port, CString& user, CStrin
     return available_dbs_.size() >= 1;
 }
 
-QSqlDatabase PGConnectionPool::GetConnection()
+QSqlDatabase PGConnection::GetConnection()
 {
     QMutexLocker locker(&mutex_);
     if (available_dbs_.isEmpty()) {
@@ -70,7 +70,7 @@ QSqlDatabase PGConnectionPool::GetConnection()
     return db;
 }
 
-void PGConnectionPool::ReturnConnection(const QSqlDatabase& db)
+void PGConnection::ReturnConnection(const QSqlDatabase& db)
 {
     QMutexLocker locker(&mutex_);
     CString name { db.connectionName() };
@@ -79,7 +79,7 @@ void PGConnectionPool::ReturnConnection(const QSqlDatabase& db)
     }
 }
 
-void PGConnectionPool::Reset()
+void PGConnection::Reset()
 {
     for (const auto& name : std::as_const(used_names_)) {
         {

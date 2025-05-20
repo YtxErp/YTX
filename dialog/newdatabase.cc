@@ -3,7 +3,7 @@
 #include <QMessageBox>
 
 #include "database/pgsqlytx.h"
-#include "global/pgconnectionpool.h"
+#include "global/pgconnection.h"
 #include "ui_newdatabase.h"
 
 NewDatabase::NewDatabase(QWidget* parent)
@@ -21,19 +21,19 @@ void NewDatabase::on_pushButtonCreate_clicked()
     const auto password { ui->lineEditPassword->text() };
     const auto database { ui->lineEditDatabase->text() };
 
-    auto db { PGConnectionPool::Instance().GetConnection() };
+    auto db { PGConnection::Instance().GetConnection() };
 
     // Step 1: Create role
     if (!PgSqlYtx::CreateRole(db, user, password)) {
         QMessageBox::warning(this, "Creation Failed", "Failed to create role. Please check permissions or role name validity.");
-        PGConnectionPool::Instance().ReturnConnection(db);
+        PGConnection::Instance().ReturnConnection(db);
         return;
     }
 
     // Step 2: Create database owned by the new role
     if (!PgSqlYtx::CreateDatabase(db, database, user)) {
         QMessageBox::warning(this, "Creation Failed", "Failed to create database. Please check permissions or database name validity.");
-        PGConnectionPool::Instance().ReturnConnection(db);
+        PGConnection::Instance().ReturnConnection(db);
         return;
     }
 
@@ -43,7 +43,7 @@ void NewDatabase::on_pushButtonCreate_clicked()
     PgSqlYtx::RemoveConnection(new_db.connectionName());
 
     // Return the original connection to the pool
-    PGConnectionPool::Instance().ReturnConnection(db);
+    PGConnection::Instance().ReturnConnection(db);
 
     // Step 4: Notify user
     QMessageBox::information(this, "Success", "Role and database were created successfully.");

@@ -299,7 +299,7 @@ void MainWindowUtils::ExportExcel(CString& table, QSharedPointer<YXlsx::Workshee
         return;
 
     QSqlQuery source_query(source_db);
-    QString select_query = QString("SELECT * FROM %1 WHERE removed = 0;").arg(table);
+    QString select_query = QString("SELECT * FROM %1 WHERE removed = false;").arg(table);
 
     if (!where)
         select_query = QString("SELECT * FROM %1;").arg(table);

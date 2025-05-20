@@ -5,13 +5,13 @@
 #include <QTimer>
 
 #include "component/constvalue.h"
-#include "global/pgconnectionpool.h"
+#include "global/pgconnection.h"
 #include "global/resourcepool.h"
 
 Sqlite::Sqlite(CInfo& info, QObject* parent)
     : QObject(parent)
     , section_ { info.section }
-    , db_ { PGConnectionPool::Instance().GetConnection() }
+    , db_ { PGConnection::Instance().GetConnection() }
     , info_ { info }
 {
 }
@@ -309,9 +309,9 @@ bool Sqlite::SearchNodeName(QSet<int>& node_id_set, CString& text) const
 
     QString string {};
     if (text.isEmpty())
-        string = QString("SELECT id FROM %1 WHERE removed = 0").arg(info_.node);
+        string = QString("SELECT id FROM %1 WHERE removed = false").arg(info_.node);
     else
-        string = QString("SELECT id FROM %1 WHERE removed = 0 AND name LIKE :text").arg(info_.node);
+        string = QString("SELECT id FROM %1 WHERE removed = false AND name LIKE :text").arg(info_.node);
 
     query.prepare(string);
 

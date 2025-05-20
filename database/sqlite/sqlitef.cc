@@ -90,7 +90,7 @@ QString SqliteF::QSReadNode() const
     return QStringLiteral(R"(
     SELECT name, id, code, description, note, rule, type, unit, foreign_total, local_total
     FROM finance
-    WHERE removed = 0
+    WHERE removed = false
     )");
 }
 

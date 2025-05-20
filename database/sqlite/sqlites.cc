@@ -289,7 +289,7 @@ QString SqliteS::QSReadNode() const
     return QStringLiteral(R"(
     SELECT name, id, code, description, note, type, unit, employee, deadline, payment_term, tax_rate, amount
     FROM stakeholder
-    WHERE removed = 0
+    WHERE removed = false
     )");
 }
 

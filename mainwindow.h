@@ -69,6 +69,7 @@ private slots:
     void on_actionSearch_triggered();
 
     void on_actionNewDatabase_triggered();
+    void on_actionLogin_triggered();
 
     void on_actionExportExcel_triggered();
 
@@ -190,6 +191,9 @@ private:
     void UpdateAppConfig(CAppConfig& app_config);
     void UpdateFileConfig(CFileConfig& file_config);
     void UpdateSectionConfig(CSectionConfig& section_config);
+
+    void UpdateAccountInfo(const QString& user, const QString& database);
+    void ClearAccountInfo();
 
     void RestoreTab(PNodeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSectionConfig& section_settings);
 

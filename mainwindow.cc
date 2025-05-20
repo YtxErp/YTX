@@ -127,11 +127,7 @@ MainWindow::MainWindow(QWidget* parent)
     qApp->setWindowIcon(QIcon(":/logo/logo/logo.icns"));
 #endif
 
-    QTimer::singleShot(0, this, [this]() {
-        auto* login { new Login(login_config_, app_settings_, this) };
-        connect(login, &Login::SLoadDatabase, this, &MainWindow::RLoadDatabase);
-        login->exec();
-    });
+    QTimer::singleShot(0, this, [this]() { on_actionLogin_triggered(); });
 }
 
 MainWindow::~MainWindow()
@@ -171,6 +167,7 @@ bool MainWindow::RLoadDatabase()
     }
 
     main_db_ = PGConnection::Instance().GetConnection();
+    UpdateAccountInfo(login_config_.user, login_config_.database);
 
     ReadFileConfig(login_config_.database);
     this->setWindowTitle(file_config_.company_name);
@@ -1054,7 +1051,6 @@ void MainWindow::EnableAction(bool enable) const
     ui->actionRemove->setEnabled(enable);
     ui->actionAppendTrans->setEnabled(enable);
     ui->actionExportExcel->setEnabled(enable);
-    ui->actionExportYTX->setEnabled(enable);
     ui->actionStatement->setEnabled(enable);
     ui->actionSettlement->setEnabled(enable);
 }
@@ -2309,6 +2305,22 @@ void MainWindow::UpdateSectionConfig(CSectionConfig& section_config)
     }
 }
 
+void MainWindow::UpdateAccountInfo(const QString& user, const QString& database)
+{
+    ui->actionUser->setText(tr("User") + ": " + user);
+    ui->actionDatabase->setText(tr("Database") + ": " + database);
+    ui->actionLogin->setEnabled(false);
+    ui->actionLogout->setEnabled(true);
+}
+
+void MainWindow::ClearAccountInfo()
+{
+    ui->actionUser->setText(tr("User"));
+    ui->actionDatabase->setText(tr("Database"));
+    ui->actionLogin->setEnabled(true);
+    ui->actionLogout->setEnabled(false);
+}
+
 void MainWindow::UpdateStakeholderReference(QSet<int> stakeholder_nodes, bool branch) const
 {
     auto* widget { ui->tabWidget };
@@ -2853,4 +2865,11 @@ void MainWindow::on_actionExportExcel_triggered()
     });
 
     watcher->setFuture(future);
+}
+
+void MainWindow::on_actionLogin_triggered()
+{
+    auto* login { new Login(login_config_, app_settings_, this) };
+    connect(login, &Login::SLoadDatabase, this, &MainWindow::RLoadDatabase);
+    login->exec();
 }

@@ -182,7 +182,6 @@
       <string>Export</string>
      </property>
      <addaction name="actionExportExcel"/>
-     <addaction name="actionExportYTX"/>
     </widget>
     <addaction name="actionAbout"/>
     <addaction name="actionLicence"/>
@@ -210,8 +209,25 @@
     <addaction name="actionSupportJump"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_Account">
+    <property name="title">
+     <string>&amp;Account</string>
+    </property>
+    <addaction name="actionLogin"/>
+    <addaction name="actionLogout"/>
+    <addaction name="separator"/>
+    <addaction name="actionUser"/>
+    <addaction name="actionDatabase"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menu_Help"/>
+   <addaction name="menu_Account"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -384,15 +400,7 @@
     <string>Export Excel...</string>
    </property>
    <property name="toolTip">
-    <string>Export Excel...</string>
-   </property>
-  </action>
-  <action name="actionExportYTX">
-   <property name="text">
-    <string>Export YTX...</string>
-   </property>
-   <property name="toolTip">
-    <string>Export YTX...</string>
+    <string>Export Excel</string>
    </property>
   </action>
   <action name="actionStatement">
@@ -419,10 +427,51 @@
     <string>Licence...</string>
    </property>
    <property name="toolTip">
-    <string>Licence...</string>
+    <string>Licence</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::ApplicationSpecificRole</enum>
+   </property>
+  </action>
+  <action name="actionLogin">
+   <property name="text">
+    <string>Login...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionLogout">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Logout</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionUser">
+   <property name="text">
+    <string>User</string>
+   </property>
+   <property name="toolTip">
+    <string>User</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionDatabase">
+   <property name="text">
+    <string>Database</string>
+   </property>
+   <property name="toolTip">
+    <string>Database</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
  </widget>

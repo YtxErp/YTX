@@ -1,4 +1,4 @@
-#include "pgsqlytx.h"
+#include "postgresql.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -17,7 +17,7 @@ CString PgSqlYtx::kPgBinBasePath =
 #endif
 #endif
 
-bool PgSqlYtx::CreateSchema(QSqlDatabase& db)
+bool PostgreSql::CreateSchema(QSqlDatabase& db)
 {
     const std::vector<QString> tables { NodeFinance(), Path(kFinance), TransFinance(), NodeProduct(), Path(kProduct), TransProduct(), NodeStakeholder(),
         Path(kStakeholder), TransStakeholder(), NodeTask(), Path(kTask), TransTask(), NodeOrder(kPurchase), Path(kPurchase), TransOrder(kPurchase),
@@ -47,7 +47,7 @@ bool PgSqlYtx::CreateSchema(QSqlDatabase& db)
     return true;
 }
 
-QString PgSqlYtx::NodeFinance()
+QString PostgreSql::NodeFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance (
@@ -66,7 +66,7 @@ QString PgSqlYtx::NodeFinance()
     )");
 }
 
-QString PgSqlYtx::NodeStakeholder()
+QString PostgreSql::NodeStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder (
@@ -87,7 +87,7 @@ QString PgSqlYtx::NodeStakeholder()
     )");
 }
 
-QString PgSqlYtx::NodeProduct()
+QString PostgreSql::NodeProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product (
@@ -109,7 +109,7 @@ QString PgSqlYtx::NodeProduct()
     )");
 }
 
-QString PgSqlYtx::NodeTask()
+QString PostgreSql::NodeTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task (
@@ -133,7 +133,7 @@ QString PgSqlYtx::NodeTask()
     )");
 }
 
-QString PgSqlYtx::NodeOrder(CString& order)
+QString PostgreSql::NodeOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1 (
@@ -159,7 +159,7 @@ QString PgSqlYtx::NodeOrder(CString& order)
         .arg(order);
 }
 
-QString PgSqlYtx::Path(CString& table_name)
+QString PostgreSql::Path(CString& table_name)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_path (
@@ -171,7 +171,7 @@ QString PgSqlYtx::Path(CString& table_name)
         .arg(table_name);
 }
 
-QString PgSqlYtx::TransFinance()
+QString PostgreSql::TransFinance()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
@@ -195,7 +195,7 @@ QString PgSqlYtx::TransFinance()
     )");
 }
 
-QString PgSqlYtx::TransOrder(CString& order)
+QString PostgreSql::TransOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_transaction (
@@ -218,7 +218,7 @@ QString PgSqlYtx::TransOrder(CString& order)
         .arg(order);
 }
 
-QString PgSqlYtx::TransStakeholder()
+QString PostgreSql::TransStakeholder()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
@@ -237,7 +237,7 @@ QString PgSqlYtx::TransStakeholder()
     )");
 }
 
-QString PgSqlYtx::TransTask()
+QString PostgreSql::TransTask()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
@@ -260,7 +260,7 @@ QString PgSqlYtx::TransTask()
     )");
 }
 
-QString PgSqlYtx::TransProduct()
+QString PostgreSql::TransProduct()
 {
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
@@ -283,7 +283,7 @@ QString PgSqlYtx::TransProduct()
     )");
 }
 
-QString PgSqlYtx::SettlementOrder(CString& order)
+QString PostgreSql::SettlementOrder(CString& order)
 {
     return QString(R"(
     CREATE TABLE IF NOT EXISTS %1_settlement (
@@ -299,7 +299,7 @@ QString PgSqlYtx::SettlementOrder(CString& order)
         .arg(order);
 }
 
-QSqlDatabase PgSqlYtx::SingleConnection(CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
+QSqlDatabase PostgreSql::SingleConnection(CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms)
 {
     auto db = QSqlDatabase::addDatabase("QPSQL", connection_name);
 
@@ -319,7 +319,7 @@ QSqlDatabase PgSqlYtx::SingleConnection(CString& user, CString& password, CStrin
     return db;
 }
 
-void PgSqlYtx::RemoveConnection(CString& connection_name)
+void PostgreSql::RemoveConnection(CString& connection_name)
 {
     {
         QSqlDatabase db = QSqlDatabase::database(connection_name);
@@ -331,10 +331,10 @@ void PgSqlYtx::RemoveConnection(CString& connection_name)
     QSqlDatabase::removeDatabase(connection_name);
 }
 
-bool PgSqlYtx::CreateRole(QSqlDatabase& db, CString role_name, CString password)
+bool PostgreSql::CreateRole(QSqlDatabase& db, CString role, CString password)
 {
-    if (!IsValidPgIdentifier(role_name)) {
-        qDebug() << "Invalid role name:" << role_name;
+    if (!IsValidPgIdentifier(role)) {
+        qDebug() << "Invalid role name:" << role;
         return false;
     }
 
@@ -343,11 +343,11 @@ bool PgSqlYtx::CreateRole(QSqlDatabase& db, CString role_name, CString password)
         return false;
     }
 
-    const QString sql { QString("CREATE ROLE %1 LOGIN PASSWORD '%2';").arg(role_name, password) };
+    const QString sql { QString("CREATE ROLE %1 LOGIN PASSWORD '%2';").arg(role, password) };
 
     QSqlQuery query(db);
 
-    if (!query.exec(QString("SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = '%1';").arg(role_name))) {
+    if (!query.exec(QString("SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = '%1';").arg(role))) {
         qDebug() << "Check role existence failed:" << query.lastError().text();
         return false;
     }
@@ -364,10 +364,10 @@ bool PgSqlYtx::CreateRole(QSqlDatabase& db, CString role_name, CString password)
     return true;
 }
 
-bool PgSqlYtx::CreateDatabase(QSqlDatabase& db, CString db_name, CString owner)
+bool PostgreSql::CreateDatabase(QSqlDatabase& db, CString database, CString owner)
 {
-    if (!IsValidPgIdentifier(db_name)) {
-        qDebug() << "Invalid db name:" << db_name;
+    if (!IsValidPgIdentifier(database)) {
+        qDebug() << "Invalid database name:" << database;
         return false;
     }
 
@@ -376,11 +376,11 @@ bool PgSqlYtx::CreateDatabase(QSqlDatabase& db, CString db_name, CString owner)
         return false;
     }
 
-    QString sql = QString("CREATE DATABASE %1 OWNER %2;").arg(db_name).arg(owner);
+    QString sql = QString("CREATE DATABASE %1 OWNER %2;").arg(database, owner);
 
     QSqlQuery query(db);
 
-    if (!query.exec(QString("SELECT 1 FROM pg_database WHERE datname = '%1';").arg(db_name))) {
+    if (!query.exec(QString("SELECT 1 FROM pg_database WHERE datname = '%1';").arg(database))) {
         qDebug() << "Check database existence failed:" << query.lastError().text();
         return false;
     }

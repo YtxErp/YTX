@@ -17,21 +17,21 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PGSQLYTX_H
-#define PGSQLYTX_H
+#ifndef POSTGRESQL_H
+#define POSTGRESQL_H
 
 #include <QRegularExpression>
 #include <QSqlDatabase>
 
 #include "component/using.h"
 
-class PgSqlYtx {
+class PostgreSql {
 public:
     static QSqlDatabase SingleConnection(CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
     static void RemoveConnection(CString& connection_name);
 
-    static bool CreateRole(QSqlDatabase& db, CString new_user, CString new_password);
-    static bool CreateDatabase(QSqlDatabase& db, CString db_name, CString owner);
+    static bool CreateRole(QSqlDatabase& db, CString role, CString password);
+    static bool CreateDatabase(QSqlDatabase& db, CString database, CString owner);
     static bool CreateSchema(QSqlDatabase& db);
 
     static bool IsValidPgIdentifier(const QString& identifier)
@@ -79,4 +79,4 @@ private:
 #endif
 };
 
-#endif // PGSQLYTX_H
+#endif // POSTGRESQL_H

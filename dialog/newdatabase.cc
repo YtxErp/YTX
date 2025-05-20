@@ -2,8 +2,8 @@
 
 #include <QMessageBox>
 
+#include "database/pgsql/scopedconnection.h"
 #include "database/postgresql.h"
-#include "global/pgconnection.h"
 #include "ui_newdatabase.h"
 
 NewDatabase::NewDatabase(QWidget* parent)
@@ -21,29 +21,32 @@ void NewDatabase::on_pushButtonCreate_clicked()
     const auto password { ui->lineEditPassword->text() };
     const auto database { ui->lineEditDatabase->text() };
 
-    auto db { PGConnection::Instance().GetConnection() };
+    ScopedConnection conn {};
+    if (!conn.IsValid()) {
+        qCritical() << "No PostgreSQL connection available.";
+        return;
+    }
+
+    auto db { conn.Database() };
 
     // Step 1: Create role
     if (!PostgreSql::CreateRole(db, user, password)) {
         QMessageBox::warning(this, "Creation Failed", "Failed to create role. Please check permissions or role name validity.");
-        PGConnection::Instance().ReturnConnection(db);
         return;
     }
 
     // Step 2: Create database owned by the new role
     if (!PostgreSql::CreateDatabase(db, database, user)) {
         QMessageBox::warning(this, "Creation Failed", "Failed to create database. Please check permissions or database name validity.");
-        PGConnection::Instance().ReturnConnection(db);
         return;
     }
 
     // Step 3: Connect to the new database and initialize schema
     auto new_db { PostgreSql::SingleConnection(user, password, database, "on_pushButtonCreate_clicked", 3000) };
-    PostgreSql::CreateSchema(new_db);
-    PostgreSql::RemoveConnection(new_db.connectionName());
-
-    // Return the original connection to the pool
-    PGConnection::Instance().ReturnConnection(db);
+    if (new_db.isValid()) {
+        PostgreSql::CreateSchema(new_db);
+        PostgreSql::RemoveConnection("on_pushButtonCreate_clicked");
+    }
 
     // Step 4: Notify user
     QMessageBox::information(this, "Success", "Role and database were created successfully.");

@@ -6,8 +6,8 @@
 #include "component/constvalue.h"
 #include "global/resourcepool.h"
 
-SqliteS::SqliteS(CInfo& info, QObject* parent)
-    : Sqlite(info, parent)
+SqliteS::SqliteS(QSqlDatabase& main_db, CInfo& info, QObject* parent)
+    : Sqlite(main_db, info, parent)
 {
 }
 
@@ -128,7 +128,7 @@ bool SqliteS::CrossSearch(TransShadow* order_trans_shadow, int party_id, int pro
 
 bool SqliteS::ReadTransRange(const QSet<int>& set)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     CString placeholder { QStringList(set.size(), "?").join(", ") };
@@ -247,7 +247,7 @@ bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id)
 
 bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     switch (UnitS(node_unit)) {
     case UnitS::kCust:
@@ -268,7 +268,7 @@ bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
 
 bool SqliteS::ReadTrans(int node_id)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     CString string { QSReadTrans() };

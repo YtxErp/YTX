@@ -5,13 +5,12 @@
 #include <QTimer>
 
 #include "component/constvalue.h"
-#include "global/pgconnection.h"
 #include "global/resourcepool.h"
 
-Sqlite::Sqlite(CInfo& info, QObject* parent)
+Sqlite::Sqlite(QSqlDatabase& main_db, CInfo& info, QObject* parent)
     : QObject(parent)
     , section_ { info.section }
-    , db_ { PGConnection::Instance().GetConnection() }
+    , main_db_ { main_db }
     , info_ { info }
 {
 }
@@ -55,7 +54,7 @@ void Sqlite::TransToRemove(QMultiHash<int, int>& leaf_trans, QMultiHash<int, int
 {
     assert(node_type == kTypeLeaf && "node_type must be kTypeLeaf");
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     CString string { QSTransToRemove() };
@@ -100,7 +99,7 @@ void Sqlite::RemoveLeafFunction(const QMultiHash<int, int>& leaf_trans)
 
 bool Sqlite::FreeView(int old_node_id, int new_node_id) const
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     CString string { QSFreeView() };
 
     query.prepare(string);
@@ -153,7 +152,7 @@ void Sqlite::RReplaceNode(int old_node_id, int new_node_id, int node_type, int n
 
 bool Sqlite::ReplaceLeaf(int old_node_id, int new_node_id, int /*node_unit*/)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     QString string { QSReplaceLeaf() };
 
     query.prepare(string);
@@ -170,7 +169,7 @@ bool Sqlite::ReplaceLeaf(int old_node_id, int new_node_id, int /*node_unit*/)
 
 bool Sqlite::ReplaceSupport(int old_node_id, int new_node_id)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     CString string { QSReplaceSupport() };
     query.prepare(string);
@@ -189,7 +188,7 @@ bool Sqlite::ReplaceSupport(int old_node_id, int new_node_id)
 bool Sqlite::RemoveNode(int old_node_id)
 {
     // Remove node and path, ignore trans
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     CString string_frist { QSRemoveNodeFirst() };
     CString string_third { QSRemoveNodeThird() };
@@ -219,7 +218,7 @@ bool Sqlite::ReadNode(NodeHash& node_hash)
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
     query.prepare(string);
 
@@ -245,7 +244,7 @@ bool Sqlite::WriteNode(int parent_id, Node* node)
     if (string.isEmpty() || !node)
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     return DBTransaction([&]() {
         // 插入节点记录
         query.prepare(string);
@@ -287,7 +286,7 @@ bool Sqlite::ReadLeafTotal(Node* node) const
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     query.prepare(string);
@@ -304,7 +303,7 @@ bool Sqlite::ReadLeafTotal(Node* node) const
 
 bool Sqlite::SearchNodeName(QSet<int>& node_id_set, CString& text) const
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     QString string {};
@@ -333,7 +332,7 @@ bool Sqlite::SearchNodeName(QSet<int>& node_id_set, CString& text) const
 
 bool Sqlite::RemoveNode(int node_id, int node_type)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     CString string_first { QSRemoveNodeFirst() };
     QString string_second {};
@@ -451,7 +450,7 @@ QString Sqlite::QSDragNodeSecond() const
 
 bool Sqlite::DragNode(int destination_node_id, int node_id)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     CString string_first { QSDragNodeFirst() };
     CString string_second { QSDragNodeSecond() };
@@ -486,7 +485,7 @@ bool Sqlite::InternalReference(int node_id) const
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     query.prepare(string);
@@ -511,7 +510,7 @@ bool Sqlite::ExternalReference(int node_id) const
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     query.prepare(string);
@@ -536,7 +535,7 @@ bool Sqlite::SupportReference(int support_id) const
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     query.prepare(string);
@@ -552,7 +551,7 @@ bool Sqlite::SupportReference(int support_id) const
 
 bool Sqlite::ReadTrans(TransShadowList& trans_shadow_list, int node_id)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     CString string { QSReadTrans() };
@@ -592,7 +591,7 @@ void Sqlite::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) co
 
 bool Sqlite::WriteTrans(TransShadow* trans_shadow)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     CString string { QSWriteTrans() };
 
     query.prepare(string);
@@ -610,7 +609,7 @@ bool Sqlite::WriteTrans(TransShadow* trans_shadow)
 
 bool Sqlite::RemoveTrans(int trans_id)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     CString part { QSRemoveTrans() };
 
     query.prepare(part);
@@ -633,7 +632,7 @@ bool Sqlite::UpdateLeafValue(const Node* node) const
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     query.prepare(string);
     UpdateLeafValueBind(node, query);
@@ -652,7 +651,7 @@ bool Sqlite::UpdateTransValue(const TransShadow* trans_shadow) const
     if (string.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     query.prepare(string);
     UpdateTransValueBind(trans_shadow, query);
@@ -667,7 +666,7 @@ bool Sqlite::UpdateTransValue(const TransShadow* trans_shadow) const
 
 bool Sqlite::WriteField(CString& table, CString& field, CVariant& value, int id) const
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     auto part = QString(R"(
     UPDATE %1
@@ -690,7 +689,7 @@ bool Sqlite::WriteField(CString& table, CString& field, CVariant& value, int id)
 
 bool Sqlite::WriteState(Check state) const
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
 
     // 使用 is_not_reverse 表示 state != Check::kReverse，避免重复计算
     const bool is_not_reverse { state != Check::kReverse };
@@ -720,7 +719,7 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text)
     if (text.isEmpty())
         return false;
 
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     query.prepare(QSSearchTransText());
@@ -755,7 +754,7 @@ bool Sqlite::SearchTrans(TransList& trans_list, CString& text)
 
 bool Sqlite::ReadTransRef(TransList& trans_list, int node_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     auto string { QSReadTransRef(unit) };
@@ -808,7 +807,7 @@ bool Sqlite::RetrieveTransRange(TransList& trans_shadow_list, const QSet<int>& t
 
 bool Sqlite::ReadSupportTrans(TransList& trans_list, int support_id)
 {
-    QSqlQuery query(db_);
+    QSqlQuery query(main_db_);
     query.setForwardOnly(true);
 
     CString string { QSReadSupportTrans() };
@@ -838,10 +837,10 @@ TransShadow* Sqlite::AllocateTransShadow()
 
 bool Sqlite::DBTransaction(std::function<bool()> function)
 {
-    if (db_.transaction() && function() && db_.commit()) {
+    if (main_db_.transaction() && function() && main_db_.commit()) {
         return true;
     } else {
-        db_.rollback();
+        main_db_.rollback();
         return false;
     }
 }

@@ -36,7 +36,7 @@ public:
     virtual ~Sqlite();
 
 protected:
-    Sqlite(CInfo& info, QObject* parent = nullptr);
+    Sqlite(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 signals:
     // send to TreeModel
@@ -197,7 +197,7 @@ protected:
     Trans* last_trans_ {};
     const Section section_ {};
 
-    QSqlDatabase db_ {};
+    QSqlDatabase& main_db_;
     CInfo& info_;
 };
 

@@ -64,6 +64,7 @@
 #include "dialog/removenode.h"
 #include "document.h"
 #include "global/leafsstation.h"
+#include "global/pgconnection.h"
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"
 #include "licence/licence.h"
@@ -135,6 +136,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    PGConnection::Instance().ReturnConnection(main_db_);
+
     MainWindowUtils::WriteConfig(ui->splitter, &QSplitter::saveState, app_settings_, kSplitter, kState);
     MainWindowUtils::WriteConfig(this, &QMainWindow::saveState, app_settings_, kMainwindow, kState, 0);
     MainWindowUtils::WriteConfig(this, &QMainWindow::saveGeometry, app_settings_, kMainwindow, kGeometry);
@@ -166,6 +169,8 @@ bool MainWindow::RLoadDatabase()
         QMessageBox::critical(this, tr("Activation Required"), tr("The software is not activated. Please activate it first."));
         return false;
     }
+
+    main_db_ = PGConnection::Instance().GetConnection();
 
     ReadFileConfig(login_config_.database);
     this->setWindowTitle(file_config_.company_name);
@@ -1538,7 +1543,7 @@ void MainWindow::SetFinanceData()
 
     ReadSectionConfig(finance_config_, kFinance);
 
-    sql = new SqliteF(info, this);
+    sql = new SqliteF(main_db_, info, this);
 
     NodeModelArg arg { sql, info, finance_trans_wgt_hash_, app_config_.separator, finance_config_.default_unit };
     auto* model { new NodeModelF(arg, this) };
@@ -1577,7 +1582,7 @@ void MainWindow::SetProductData()
 
     ReadSectionConfig(product_config_, kProduct);
 
-    sql = new SqliteP(info, this);
+    sql = new SqliteP(main_db_, info, this);
 
     NodeModelArg arg { sql, info, product_trans_wgt_hash_, app_config_.separator, product_config_.default_unit };
     auto* model { new NodeModelP(arg, this) };
@@ -1611,7 +1616,7 @@ void MainWindow::SetStakeholderData()
 
     ReadSectionConfig(stakeholder_config_, kStakeholder);
 
-    sql = new SqliteS(info, this);
+    sql = new SqliteS(main_db_, info, this);
 
     NodeModelArg arg { sql, info, stakeholder_trans_wgt_hash_, app_config_.separator, stakeholder_config_.default_unit };
     auto* model { new NodeModelS(arg, this) };
@@ -1650,7 +1655,7 @@ void MainWindow::SetTaskData()
 
     ReadSectionConfig(task_config_, kTask);
 
-    sql = new SqliteT(info, this);
+    sql = new SqliteT(main_db_, info, this);
 
     NodeModelArg arg { sql, info, task_trans_wgt_hash_, app_config_.separator, task_config_.default_unit };
     auto* model { new NodeModelT(arg, this) };
@@ -1691,7 +1696,7 @@ void MainWindow::SetSalesData()
 
     ReadSectionConfig(sales_config_, kSales);
 
-    sql = new SqliteO(info, this);
+    sql = new SqliteO(main_db_, info, this);
 
     NodeModelArg arg { sql, info, sales_trans_wgt_hash_, app_config_.separator, sales_config_.default_unit };
     auto* model { new NodeModelO(arg, this) };
@@ -1734,7 +1739,7 @@ void MainWindow::SetPurchaseData()
 
     ReadSectionConfig(purchase_config_, kPurchase);
 
-    sql = new SqliteO(info, this);
+    sql = new SqliteO(main_db_, info, this);
 
     NodeModelArg arg { sql, info, purchase_trans_wgt_hash_, app_config_.separator, purchase_config_.default_unit };
     auto* model { new NodeModelO(arg, this) };

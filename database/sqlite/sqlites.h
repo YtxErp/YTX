@@ -27,7 +27,7 @@ class SqliteS final : public Sqlite {
     Q_OBJECT
 
 public:
-    SqliteS(CInfo& info, QObject* parent = nullptr);
+    SqliteS(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 public slots:
     void RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit) override;

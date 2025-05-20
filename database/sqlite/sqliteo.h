@@ -27,7 +27,7 @@ class SqliteO final : public Sqlite {
     Q_OBJECT
 
 public:
-    SqliteO(CInfo& info, QObject* parent = nullptr);
+    SqliteO(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
     ~SqliteO();
 
 signals:

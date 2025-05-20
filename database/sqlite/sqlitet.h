@@ -24,7 +24,7 @@
 
 class SqliteT final : public Sqlite {
 public:
-    SqliteT(CInfo& info, QObject* parent = nullptr);
+    SqliteT(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 protected:
     QString QSReadNode() const override;

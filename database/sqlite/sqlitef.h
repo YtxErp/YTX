@@ -24,7 +24,7 @@
 
 class SqliteF final : public Sqlite {
 public:
-    SqliteF(CInfo& info, QObject* parent = nullptr);
+    SqliteF(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 protected:
     void WriteNodeBind(Node* node, QSqlQuery& query) const override;

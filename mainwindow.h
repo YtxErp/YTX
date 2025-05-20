@@ -220,6 +220,7 @@ private:
 
     Section start_ {};
     int report_id_ { -1 };
+    QSqlDatabase main_db_ {};
 
     QPointer<SettlementWidget> settlement_widget_ {};
     QMap<QString, QString> print_template_ {};

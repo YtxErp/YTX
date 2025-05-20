@@ -24,7 +24,7 @@
 
 class SqliteP final : public Sqlite {
 public:
-    SqliteP(CInfo& info, QObject* parent = nullptr);
+    SqliteP(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 protected:
     // tree

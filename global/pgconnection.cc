@@ -13,21 +13,12 @@ PGConnection::~PGConnection()
 {
     QMutexLocker locker(&mutex_);
 
-    for (auto& name : std::as_const(used_names_)) {
-        QSqlDatabase db { QSqlDatabase::database(name) };
-        if (db.isOpen()) {
-            db.close();
-        }
-    }
-
     while (!available_dbs_.isEmpty()) {
         QSqlDatabase db { available_dbs_.dequeue() };
         if (db.isOpen()) {
             db.close();
         }
     }
-
-    used_names_.clear();
 }
 
 bool PGConnection::Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size)

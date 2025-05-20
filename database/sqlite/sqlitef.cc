@@ -4,8 +4,8 @@
 
 #include "component/constvalue.h"
 
-SqliteF::SqliteF(CInfo& info, QObject* parent)
-    : Sqlite(info, parent)
+SqliteF::SqliteF(QSqlDatabase& main_db, CInfo& info, QObject* parent)
+    : Sqlite(main_db, info, parent)
 {
 }
 

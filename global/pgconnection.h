@@ -31,19 +31,19 @@ class PGConnection {
 public:
     static PGConnection& Instance();
 
-    bool Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size = 8);
+    bool Initialize(CString& host, int port, CString& user, CString& password, CString& db_name, int pool_size = 2);
     QSqlDatabase GetConnection();
     void ReturnConnection(const QSqlDatabase& db);
     void Reset();
-
-private:
-    PGConnection() = default;
-    ~PGConnection();
 
     PGConnection(const PGConnection&) = delete;
     PGConnection& operator=(const PGConnection&) = delete;
     PGConnection(PGConnection&&) = delete;
     PGConnection& operator=(PGConnection&&) = delete;
+
+private:
+    PGConnection() = default;
+    ~PGConnection();
 
 private:
     QMutex mutex_ {};

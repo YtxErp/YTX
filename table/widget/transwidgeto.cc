@@ -8,7 +8,7 @@ TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& p
     : TransWidget(parent)
     , ui(new Ui::TransWidgetO)
     , node_ { arg.node }
-    , sql_ { qobject_cast<SqliteO*>(arg.sql) }
+    , sql_ { qobject_cast<SqlO*>(arg.sql) }
     , order_trans_ { qobject_cast<TransModelO*>(arg.order_trans) }
     , stakeholder_node_ { arg.stakeholder_node }
     , settings_ { arg.section_settings }

@@ -22,7 +22,7 @@
 
 #include <QDoubleSpinBox>
 
-#include "component/settings.h"
+#include "component/config.h"
 #include "nodewidget.h"
 
 namespace Ui {

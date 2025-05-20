@@ -17,17 +17,17 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITES_H
-#define SQLITES_H
+#ifndef SQLS_H
+#define SQLS_H
 
-#include "database/sqlite/prices.h"
-#include "sqlite.h"
+#include "database/sql/prices.h"
+#include "sql.h"
 
-class SqliteS final : public Sqlite {
+class SqlS final : public Sql {
     Q_OBJECT
 
 public:
-    SqliteS(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
+    SqlS(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 public slots:
     void RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit) override;
@@ -91,4 +91,4 @@ private:
     QString QSReplaceLeafOPP() const; // order purchase party
 };
 
-#endif // SQLITES_H
+#endif // SQLS_H

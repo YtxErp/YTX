@@ -3,7 +3,7 @@
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
 
-TransRefModel::TransRefModel(Sqlite* sql, CInfo& info, int unit, QObject* parent)
+TransRefModel::TransRefModel(Sql* sql, CInfo& info, int unit, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }

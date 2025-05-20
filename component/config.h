@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <QString>
 
@@ -94,4 +94,4 @@ using CAppConfig = const AppConfig;
 using CFileConfig = const FileConfig;
 using CSectionConfig = const SectionConfig;
 
-#endif // SETTINGS_H
+#endif // CONFIG_H

@@ -25,7 +25,7 @@
 #include <QShortcut>
 
 #include "component/arg/insertnodeargo.h"
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 #include "report/printmanager.h"
 #include "table/model/transmodelo.h"
 
@@ -108,7 +108,7 @@ private:
     Ui::InsertNodeOrder* ui;
 
     Node* node_ {};
-    SqliteO* sql_ {};
+    SqlO* sql_ {};
     NodeModel* stakeholder_node_ {};
     TransModelO* order_trans_ {};
     QButtonGroup* rule_group_ {};

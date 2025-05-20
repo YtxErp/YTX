@@ -23,12 +23,12 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 
 class StatementModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    StatementModel(Sqlite* sql, CInfo& info, QObject* parent = nullptr);
+    StatementModel(Sql* sql, CInfo& info, QObject* parent = nullptr);
     ~StatementModel();
 
 public slots:
@@ -47,7 +47,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
-    SqliteO* sql_ {};
+    SqlO* sql_ {};
     CInfo& info_;
 
     TransList trans_list_ {};

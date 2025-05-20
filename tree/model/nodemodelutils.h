@@ -30,7 +30,7 @@
 class NodeModelUtils {
 public:
     template <typename T>
-    static bool UpdateField(Sqlite* sql, Node* node, CString& table, CString& field, const T& value, T Node::* member, bool allow_leaf_only = false)
+    static bool UpdateField(Sql* sql, Node* node, CString& table, CString& field, const T& value, T Node::* member, bool allow_leaf_only = false)
     {
         assert(sql && "Sqlite pointer is null");
         assert(node && "Node pointer is null");
@@ -96,9 +96,9 @@ public:
 
     static void UpdateBranchUnit(const Node* root, Node* node);
 
-    static bool IsInternalReferenced(Sqlite* sql, int node_id, CString& message);
-    static bool IsSupportReferenced(Sqlite* sql, int node_id, CString& message);
-    static bool IsExternalReferenced(Sqlite* sql, int node_id, CString& message);
+    static bool IsInternalReferenced(Sql* sql, int node_id, CString& message);
+    static bool IsSupportReferenced(Sql* sql, int node_id, CString& message);
+    static bool IsExternalReferenced(Sql* sql, int node_id, CString& message);
 
 private:
     static void UpdateModelFunction(QStandardItemModel* model, CIntSet& update_range, CStringHash& source_path);

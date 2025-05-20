@@ -24,7 +24,7 @@
 #include <QMutex>
 
 #include "component/arg/transmodelarg.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 
 class TransModel : public QAbstractItemModel {
     Q_OBJECT
@@ -114,7 +114,7 @@ protected:
     }
 
 protected:
-    Sqlite* sql_ {};
+    Sql* sql_ {};
     CInfo& info_;
     bool node_rule_ {};
     int node_id_ {};

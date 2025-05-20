@@ -20,8 +20,8 @@
 #ifndef TRANSMODELO_H
 #define TRANSMODELO_H
 
-#include "database/sqlite/sqliteo.h"
-#include "database/sqlite/sqlites.h"
+#include "database/sql/sqlo.h"
+#include "database/sql/sqls.h"
 #include "transmodel.h"
 #include "tree/model/nodemodel.h"
 #include "tree/model/nodemodelp.h"
@@ -30,7 +30,7 @@ class TransModelO final : public TransModel {
     Q_OBJECT
 
 public:
-    TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent = nullptr);
+    TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sql* sqlite_stakeholder, QObject* parent = nullptr);
     ~TransModelO() override = default;
 
 public slots:
@@ -65,8 +65,8 @@ private:
 
 private:
     const NodeModelP* product_tree_ {};
-    SqliteS* sqlite_stakeholder_ {};
-    SqliteO* sqlite_order_ {};
+    SqlS* sqlite_stakeholder_ {};
+    SqlO* sqlite_order_ {};
     const Node* node_ {};
     int party_id_ {};
 };

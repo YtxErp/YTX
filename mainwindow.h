@@ -27,8 +27,8 @@
 #include <QTableView>
 #include <QTranslator>
 
+#include "component/config.h"
 #include "component/data.h"
-#include "component/settings.h"
 #include "component/using.h"
 #include "report/widget/reportwidget.h"
 #include "report/widget/settlementwidget.h"
@@ -52,8 +52,6 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
-
-    bool RLoadDatabase();
 
 public slots:
     void on_actionInsertNode_triggered();
@@ -81,6 +79,7 @@ private slots:
     void on_tabWidget_tabBarDoubleClicked(int index);
     void on_tabWidget_tabCloseRequested(int index);
 
+    bool RLoadDatabase();
     void RNodeLocation(int node_id);
     void RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id);
 
@@ -164,10 +163,10 @@ private:
     void TreeDelegateO(PTreeView tree_view, CSectionConfig& settings) const;
 
     void SetTreeView(PTreeView tree_view, CInfo& info) const;
-    void TreeConnect(NodeWidget* node_widget, const Sqlite* sql) const;
-    void TreeConnectFPT(PNodeModel node_model, const Sqlite* sql) const;
-    void TreeConnectS(PNodeModel node_model, const Sqlite* sql) const;
-    void TreeConnectPSO(PNodeModel node_order, const Sqlite* sql_order) const;
+    void TreeConnect(NodeWidget* node_widget, const Sql* sql) const;
+    void TreeConnectFPT(PNodeModel node_model, const Sql* sql) const;
+    void TreeConnectS(PNodeModel node_model, const Sql* sql) const;
+    void TreeConnectPSO(PNodeModel node_order, const Sql* sql_order) const;
 
     void InsertNodeFunction(const QModelIndex& parent, int parent_id, int row);
     void InsertNodeFPTS(Node* node, const QModelIndex& parent, int parent_id, int row); // Finance Product Stakeholder Task

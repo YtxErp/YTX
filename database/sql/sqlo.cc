@@ -1,4 +1,4 @@
-#include "sqliteo.h"
+#include "sqlo.h"
 
 #include <QDate>
 #include <QSqlError>
@@ -7,14 +7,14 @@
 #include "component/constvalue.h"
 #include "global/resourcepool.h"
 
-SqliteO::SqliteO(QSqlDatabase& main_db, CInfo& info, QObject* parent)
-    : Sqlite(main_db, info, parent)
+SqlO::SqlO(QSqlDatabase& main_db, CInfo& info, QObject* parent)
+    : Sql(main_db, info, parent)
 {
 }
 
-SqliteO::~SqliteO() { qDeleteAll(node_hash_); }
+SqlO::~SqlO() { qDeleteAll(node_hash_); }
 
-bool SqliteO::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end)
+bool SqlO::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateTime& end)
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -34,7 +34,7 @@ bool SqliteO::ReadNode(NodeHash& node_hash, const QDateTime& start, const QDateT
     return true;
 }
 
-void SqliteO::ReadNodeFunction(NodeHash& node_hash, QSqlQuery& query)
+void SqlO::ReadNodeFunction(NodeHash& node_hash, QSqlQuery& query)
 {
     for (auto* node : node_hash) {
         node->parent = nullptr;
@@ -61,7 +61,7 @@ void SqliteO::ReadNodeFunction(NodeHash& node_hash, QSqlQuery& query)
         ReadRelationship(node_hash, query);
 }
 
-bool SqliteO::SearchNode(QList<const Node*>& node_list, const QList<int>& party_id_list)
+bool SqlO::SearchNode(QList<const Node*>& node_list, const QList<int>& party_id_list)
 {
     if (party_id_list.empty())
         return false;
@@ -97,7 +97,7 @@ bool SqliteO::SearchNode(QList<const Node*>& node_list, const QList<int>& party_
     return true;
 }
 
-void SqliteO::SearchNodeFunction(QList<const Node*>& node_list, QSqlQuery& query)
+void SqlO::SearchNodeFunction(QList<const Node*>& node_list, QSqlQuery& query)
 {
     while (query.next()) {
         const int kID { query.value(QStringLiteral("id")).toInt() };
@@ -114,7 +114,7 @@ void SqliteO::SearchNodeFunction(QList<const Node*>& node_list, QSqlQuery& query
     }
 }
 
-Node* SqliteO::ReadNode(int node_id)
+Node* SqlO::ReadNode(int node_id)
 {
     if (auto it = node_hash_.constFind(node_id); it != node_hash_.constEnd()) {
         return it.value();
@@ -150,7 +150,7 @@ Node* SqliteO::ReadNode(int node_id)
     return node;
 }
 
-bool SqliteO::SettlementReference(int settlement_id) const
+bool SqlO::SettlementReference(int settlement_id) const
 {
     assert(settlement_id >= 1 && "settlement_id must be positive");
 
@@ -175,7 +175,7 @@ bool SqliteO::SettlementReference(int settlement_id) const
     return query.next();
 }
 
-int SqliteO::SettlementID(int node_id) const
+int SqlO::SettlementID(int node_id) const
 {
     assert(node_id >= 1 && "node_id must be positive");
 
@@ -202,7 +202,7 @@ int SqliteO::SettlementID(int node_id) const
     return 0;
 }
 
-void SqliteO::RRemoveNode(int node_id, int node_type)
+void SqlO::RRemoveNode(int node_id, int node_type)
 {
     // This function is triggered when removing a node that has internal references.
 
@@ -220,7 +220,7 @@ void SqliteO::RRemoveNode(int node_id, int node_type)
     RemoveNode(node_id, kTypeLeaf);
 }
 
-void SqliteO::RSyncStakeholder(int old_node_id, int new_node_id) const
+void SqlO::RSyncStakeholder(int old_node_id, int new_node_id) const
 {
     for (auto* node : std::as_const(node_hash_)) {
         if (node->party == old_node_id)
@@ -231,7 +231,7 @@ void SqliteO::RSyncStakeholder(int old_node_id, int new_node_id) const
     }
 }
 
-void SqliteO::RSyncProduct(int old_node_id, int new_node_id) const
+void SqlO::RSyncProduct(int old_node_id, int new_node_id) const
 {
     for (auto* trans : std::as_const(trans_hash_)) {
         if (trans->rhs_node == old_node_id)
@@ -239,7 +239,7 @@ void SqliteO::RSyncProduct(int old_node_id, int new_node_id) const
     }
 }
 
-bool SqliteO::ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const
+bool SqlO::ReadSettlement(NodeList& node_list, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -259,7 +259,7 @@ bool SqliteO::ReadSettlement(NodeList& node_list, const QDateTime& start, const 
     return true;
 }
 
-bool SqliteO::WriteSettlement(Node* node) const
+bool SqlO::WriteSettlement(Node* node) const
 {
     assert(node && "node should not be null");
 
@@ -279,7 +279,7 @@ bool SqliteO::WriteSettlement(Node* node) const
     return true;
 }
 
-bool SqliteO::RemoveSettlement(int settlement_id)
+bool SqlO::RemoveSettlement(int settlement_id)
 {
     QSqlQuery query(main_db_);
 
@@ -305,7 +305,7 @@ bool SqliteO::RemoveSettlement(int settlement_id)
     });
 }
 
-bool SqliteO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished)
+bool SqlO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settlement_id, bool finished)
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -325,7 +325,7 @@ bool SqliteO::ReadSettlementPrimary(NodeList& node_list, int party_id, int settl
     return true;
 }
 
-bool SqliteO::AddSettlementPrimary(int node_id, int settlement_id) const
+bool SqlO::AddSettlementPrimary(int node_id, int settlement_id) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -349,7 +349,7 @@ bool SqliteO::AddSettlementPrimary(int node_id, int settlement_id) const
     return true;
 }
 
-bool SqliteO::RemoveSettlementPrimary(int node_id) const
+bool SqlO::RemoveSettlementPrimary(int node_id) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -372,7 +372,7 @@ bool SqliteO::RemoveSettlementPrimary(int node_id) const
     return true;
 }
 
-bool SqliteO::SyncPrice(int node_id)
+bool SqlO::SyncPrice(int node_id)
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -413,7 +413,7 @@ bool SqliteO::SyncPrice(int node_id)
     return true;
 }
 
-bool SqliteO::InvertTransValue(int node_id) const
+bool SqlO::InvertTransValue(int node_id) const
 {
     QSqlQuery query(main_db_);
 
@@ -430,7 +430,7 @@ bool SqliteO::InvertTransValue(int node_id) const
     return true;
 }
 
-bool SqliteO::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
+bool SqlO::ReadStatement(TransList& trans_list, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -451,7 +451,7 @@ bool SqliteO::ReadStatement(TransList& trans_list, int unit, const QDateTime& st
     return true;
 }
 
-bool SqliteO::ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+bool SqlO::ReadBalance(double& pbalance, double& cdelta, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -476,7 +476,7 @@ bool SqliteO::ReadBalance(double& pbalance, double& cdelta, int party_id, int un
     return true;
 }
 
-bool SqliteO::ReadStatementPrimary(NodeList& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+bool SqlO::ReadStatementPrimary(NodeList& node_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -498,7 +498,7 @@ bool SqliteO::ReadStatementPrimary(NodeList& node_list, int party_id, int unit, 
     return true;
 }
 
-bool SqliteO::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
+bool SqlO::ReadStatementSecondary(TransList& trans_list, int party_id, int unit, const QDateTime& start, const QDateTime& end) const
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -520,7 +520,7 @@ bool SqliteO::ReadStatementSecondary(TransList& trans_list, int party_id, int un
     return true;
 }
 
-bool SqliteO::WriteTransRange(const QList<TransShadow*>& list)
+bool SqlO::WriteTransRange(const QList<TransShadow*>& list)
 {
     if (list.isEmpty())
         return false;
@@ -583,7 +583,7 @@ bool SqliteO::WriteTransRange(const QList<TransShadow*>& list)
  *
  * @return A SQL query string for node selection.
  */
-QString SqliteO::QSReadNode() const
+QString SqlO::QSReadNode() const
 {
     return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
@@ -593,7 +593,7 @@ QString SqliteO::QSReadNode() const
         .arg(info_.node);
 }
 
-QString SqliteO::QSWriteNode() const
+QString SqlO::QSWriteNode() const
 {
     return QString(R"(
     INSERT INTO %1 (name, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement)
@@ -602,7 +602,7 @@ QString SqliteO::QSWriteNode() const
         .arg(info_.node);
 }
 
-QString SqliteO::QSRemoveNodeSecond() const
+QString SqlO::QSRemoveNodeSecond() const
 {
     return QString(R"(
     UPDATE %1 SET
@@ -612,7 +612,7 @@ QString SqliteO::QSRemoveNodeSecond() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSInternalReference() const
+QString SqlO::QSInternalReference() const
 {
     return QString(R"(
     SELECT EXISTS(
@@ -623,7 +623,7 @@ QString SqliteO::QSInternalReference() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSExternalReference() const
+QString SqlO::QSExternalReference() const
 {
     return QString(R"(
     SELECT EXISTS(
@@ -634,7 +634,7 @@ QString SqliteO::QSExternalReference() const
         .arg(info_.node);
 }
 
-QString SqliteO::QSReadTrans() const
+QString SqlO::QSReadTrans() const
 {
     return QString(R"(
     SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
@@ -644,7 +644,7 @@ QString SqliteO::QSReadTrans() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSWriteTrans() const
+QString SqlO::QSWriteTrans() const
 {
     return QString(R"(
     INSERT INTO %1 (code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price)
@@ -653,7 +653,7 @@ QString SqliteO::QSWriteTrans() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSSearchTransValue() const
+QString SqlO::QSSearchTransValue() const
 {
     return QString(R"(
     SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
@@ -665,7 +665,7 @@ QString SqliteO::QSSearchTransValue() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSSearchTransText() const
+QString SqlO::QSSearchTransText() const
 {
     return QString(R"(
     SELECT id, code, inside_product, unit_price, second, description, lhs_node, first, gross_amount, discount, net_amount, outside_product, discount_price
@@ -675,7 +675,7 @@ QString SqliteO::QSSearchTransText() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSUpdateTransValue() const
+QString SqlO::QSUpdateTransValue() const
 {
     return QString(R"(
     UPDATE %1 SET
@@ -685,7 +685,7 @@ QString SqliteO::QSUpdateTransValue() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSTransToRemove() const
+QString SqlO::QSTransToRemove() const
 {
     return QString(R"(
     SELECT lhs_node AS node_id, id AS trans_id FROM %1
@@ -694,7 +694,7 @@ QString SqliteO::QSTransToRemove() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSReadStatement(int unit) const
+QString SqlO::QSReadStatement(int unit) const
 {
     switch (UnitO(unit)) {
     case UnitO::kIS:
@@ -779,7 +779,7 @@ QString SqliteO::QSReadStatement(int unit) const
     }
 }
 
-QString SqliteO::QSReadBalance(int unit) const
+QString SqlO::QSReadBalance(int unit) const
 {
     switch (UnitO(unit)) {
     case UnitO::kMS:
@@ -813,7 +813,7 @@ QString SqliteO::QSReadBalance(int unit) const
     }
 }
 
-QString SqliteO::QSReadStatementPrimary(int unit) const
+QString SqlO::QSReadStatementPrimary(int unit) const
 {
     static const QString kBaseQuery = R"(
         SELECT description, employee, date_time, first, second, gross_amount, %1 AS settlement
@@ -844,7 +844,7 @@ QString SqliteO::QSReadStatementPrimary(int unit) const
     return kBaseQuery.arg(settlement_expr, info_.node, finished_condition);
 }
 
-QString SqliteO::QSReadStatementSecondary(int unit) const
+QString SqlO::QSReadStatementSecondary(int unit) const
 {
     static const QString kBaseQuery = R"(
         SELECT
@@ -885,7 +885,7 @@ QString SqliteO::QSReadStatementSecondary(int unit) const
     return kBaseQuery.arg(settlement_expr, info_.node, info_.trans, finished_condition);
 }
 
-QString SqliteO::QSInvertTransValue() const
+QString SqlO::QSInvertTransValue() const
 {
     return QString(R"(
         UPDATE %1
@@ -900,7 +900,7 @@ QString SqliteO::QSInvertTransValue() const
         .arg(info_.trans);
 }
 
-QString SqliteO::QSSyncPriceFirst() const
+QString SqlO::QSSyncPriceFirst() const
 {
     return QString(R"(
         INSERT INTO stakeholder_transaction(date_time, lhs_node, inside_product, unit_price)
@@ -920,7 +920,7 @@ QString SqliteO::QSSyncPriceFirst() const
         .arg(info_.node, info_.trans);
 }
 
-QString SqliteO::QSSyncPriceSecond() const
+QString SqlO::QSSyncPriceSecond() const
 {
     return QString(R"(
         SELECT
@@ -936,7 +936,7 @@ QString SqliteO::QSSyncPriceSecond() const
         .arg(info_.node, info_.trans);
 }
 
-QString SqliteO::QSWriteSettlement() const
+QString SqlO::QSWriteSettlement() const
 {
     return QString(R"(
     INSERT INTO %1 (date_time)
@@ -945,7 +945,7 @@ QString SqliteO::QSWriteSettlement() const
         .arg(info_.settlement);
 }
 
-QString SqliteO::QSRemoveSettlementFirst() const
+QString SqlO::QSRemoveSettlementFirst() const
 {
     return QString(R"(
     UPDATE %1 SET
@@ -955,7 +955,7 @@ QString SqliteO::QSRemoveSettlementFirst() const
         .arg(info_.settlement);
 }
 
-QString SqliteO::QSRemoveSettlementSecond() const
+QString SqlO::QSRemoveSettlementSecond() const
 {
     return QString(R"(
     UPDATE %1 SET
@@ -966,7 +966,7 @@ QString SqliteO::QSRemoveSettlementSecond() const
         .arg(info_.node);
 }
 
-QString SqliteO::QSReadSettlementPrimary(bool finished) const
+QString SqlO::QSReadSettlementPrimary(bool finished) const
 {
     CString finished_string { finished ? QString() : "OR settlement_id = 0" };
 
@@ -978,7 +978,7 @@ QString SqliteO::QSReadSettlementPrimary(bool finished) const
         .arg(info_.node, finished_string);
 }
 
-void SqliteO::ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query)
+void SqlO::ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query)
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -995,7 +995,7 @@ void SqliteO::ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query)
     }
 }
 
-void SqliteO::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
+void SqlO::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -1013,7 +1013,7 @@ void SqliteO::ReadStatementQuery(TransList& trans_list, QSqlQuery& query) const
     }
 }
 
-void SqliteO::ReadStatementPrimaryQuery(NodeList& node_list, QSqlQuery& query) const
+void SqlO::ReadStatementPrimaryQuery(NodeList& node_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -1031,7 +1031,7 @@ void SqliteO::ReadStatementPrimaryQuery(NodeList& node_list, QSqlQuery& query) c
     }
 }
 
-void SqliteO::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const
+void SqlO::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -1051,7 +1051,7 @@ void SqliteO::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& quer
     }
 }
 
-QString SqliteO::QSReadSettlement() const
+QString SqlO::QSReadSettlement() const
 {
     return QString(R"(
     SELECT id, date_time, description, finished, gross_amount, party
@@ -1061,7 +1061,7 @@ QString SqliteO::QSReadSettlement() const
         .arg(info_.settlement);
 }
 
-void SqliteO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
+void SqlO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
 {
     // remind to recycle these Node
     while (query.next()) {
@@ -1078,9 +1078,9 @@ void SqliteO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
     }
 }
 
-void SqliteO::WriteSettlementBind(Node* node, QSqlQuery& query) const { query.bindValue(QStringLiteral(":date_time"), node->date_time); }
+void SqlO::WriteSettlementBind(Node* node, QSqlQuery& query) const { query.bindValue(QStringLiteral(":date_time"), node->date_time); }
 
-QString SqliteO::QSSearchNode(CString& in_list) const
+QString SqlO::QSSearchNode(CString& in_list) const
 {
     return QString(R"(
     SELECT name, id, description, rule, type, unit, party, employee, date_time, first, second, discount, finished, gross_amount, settlement
@@ -1090,7 +1090,7 @@ QString SqliteO::QSSearchNode(CString& in_list) const
         .arg(info_.node, in_list);
 }
 
-void SqliteO::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
+void SqlO::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":code"), *trans_shadow->code);
     query.bindValue(QStringLiteral(":inside_product"), *trans_shadow->rhs_node);
@@ -1106,7 +1106,7 @@ void SqliteO::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":discount_price"), *trans_shadow->rhs_ratio);
 }
 
-void SqliteO::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
+void SqlO::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
 {
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
@@ -1122,7 +1122,7 @@ void SqliteO::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
 }
 
-void SqliteO::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_id*/, QSqlQuery& query)
+void SqlO::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_id*/, QSqlQuery& query)
 {
     while (query.next()) {
         const int kID { query.value(QStringLiteral("id")).toInt() };
@@ -1140,7 +1140,7 @@ void SqliteO::ReadTransFunction(TransShadowList& trans_shadow_list, int /*node_i
     }
 }
 
-void SqliteO::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqlO::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":second"), *trans_shadow->lhs_credit);
     query.bindValue(QStringLiteral(":first"), *trans_shadow->lhs_debit);
@@ -1150,7 +1150,7 @@ void SqliteO::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& q
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
-void SqliteO::WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const
+void SqlO::WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery& query) const
 {
     const int size = list.size();
 
@@ -1213,7 +1213,7 @@ void SqliteO::WriteTransRangeFunction(const QList<TransShadow*>& list, QSqlQuery
     query.bindValue(QStringLiteral(":discount_price"), discount_price_list);
 }
 
-QString SqliteO::QSUpdateLeafValue() const
+QString SqlO::QSUpdateLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE %1 SET
@@ -1223,7 +1223,7 @@ QString SqliteO::QSUpdateLeafValue() const
         .arg(info_.node);
 }
 
-void SqliteO::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
+void SqlO::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":gross_amount"), node->initial_total);
     query.bindValue(QStringLiteral(":second"), node->second);
@@ -1233,7 +1233,7 @@ void SqliteO::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":node_id"), node->id);
 }
 
-void SqliteO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
+void SqlO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
 {
     node->id = query.value(QStringLiteral("id")).toInt();
     node->name = query.value(QStringLiteral("name")).toString();
@@ -1252,7 +1252,7 @@ void SqliteO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->final_total = query.value(QStringLiteral("settlement")).toDouble();
 }
 
-void SqliteO::WriteNodeBind(Node* node, QSqlQuery& query) const
+void SqlO::WriteNodeBind(Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":name"), node->name);
     query.bindValue(QStringLiteral(":description"), node->description);

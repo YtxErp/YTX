@@ -18,11 +18,11 @@
 #include "component/enumclass.h"
 #include "component/signalblocker.h"
 #include "component/stringinitializer.h"
-#include "database/sqlite/sqlitef.h"
-#include "database/sqlite/sqliteo.h"
-#include "database/sqlite/sqlitep.h"
-#include "database/sqlite/sqlites.h"
-#include "database/sqlite/sqlitet.h"
+#include "database/sql/sqlf.h"
+#include "database/sql/sqlo.h"
+#include "database/sql/sqlp.h"
+#include "database/sql/sqls.h"
+#include "database/sql/sqlt.h"
 #include "delegate/boolmap.h"
 #include "delegate/checkbox.h"
 #include "delegate/document.h"
@@ -886,7 +886,7 @@ void MainWindow::TreeDelegateO(PTreeView tree_view, CSectionConfig& settings) co
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kFinished), finished);
 }
 
-void MainWindow::TreeConnect(NodeWidget* node_widget, const Sqlite* sql) const
+void MainWindow::TreeConnect(NodeWidget* node_widget, const Sql* sql) const
 {
     auto view { node_widget->View() };
     auto model { node_widget->Model() };
@@ -900,44 +900,44 @@ void MainWindow::TreeConnect(NodeWidget* node_widget, const Sqlite* sql) const
 
     connect(model, &NodeModel::SResizeColumnToContents, view, &QTreeView::resizeColumnToContents, Qt::UniqueConnection);
 
-    connect(sql, &Sqlite::SRemoveNode, model, &NodeModel::RRemoveNode, Qt::UniqueConnection);
-    connect(sql, &Sqlite::SSyncMultiLeafValue, model, &NodeModel::RSyncMultiLeafValue, Qt::UniqueConnection);
+    connect(sql, &Sql::SRemoveNode, model, &NodeModel::RRemoveNode, Qt::UniqueConnection);
+    connect(sql, &Sql::SSyncMultiLeafValue, model, &NodeModel::RSyncMultiLeafValue, Qt::UniqueConnection);
 
-    connect(sql, &Sqlite::SFreeWidget, this, &MainWindow::RFreeWidget, Qt::UniqueConnection);
+    connect(sql, &Sql::SFreeWidget, this, &MainWindow::RFreeWidget, Qt::UniqueConnection);
 }
 
-void MainWindow::TreeConnectFPT(PNodeModel node_model, const Sqlite* sql) const
+void MainWindow::TreeConnectFPT(PNodeModel node_model, const Sql* sql) const
 {
-    connect(sql, &Sqlite::SRemoveMultiTransL, &LeafSStation::Instance(), &LeafSStation::RRemoveMultiTransL, Qt::UniqueConnection);
-    connect(sql, &Sqlite::SMoveMultiTransL, &LeafSStation::Instance(), &LeafSStation::RMoveMultiTransL, Qt::UniqueConnection);
+    connect(sql, &Sql::SRemoveMultiTransL, &LeafSStation::Instance(), &LeafSStation::RRemoveMultiTransL, Qt::UniqueConnection);
+    connect(sql, &Sql::SMoveMultiTransL, &LeafSStation::Instance(), &LeafSStation::RMoveMultiTransL, Qt::UniqueConnection);
 
-    connect(sql, &Sqlite::SRemoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RRemoveMultiTransS, Qt::UniqueConnection);
-    connect(sql, &Sqlite::SMoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RMoveMultiTransS, Qt::UniqueConnection);
+    connect(sql, &Sql::SRemoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RRemoveMultiTransS, Qt::UniqueConnection);
+    connect(sql, &Sql::SMoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RMoveMultiTransS, Qt::UniqueConnection);
 
     connect(node_model, &NodeModel::SSyncRule, &LeafSStation::Instance(), &LeafSStation::RSyncRule, Qt::UniqueConnection);
 }
 
-void MainWindow::TreeConnectS(PNodeModel node_model, const Sqlite* sql) const
+void MainWindow::TreeConnectS(PNodeModel node_model, const Sql* sql) const
 {
-    connect(sql, &Sqlite::SSyncStakeholder, node_model, &NodeModel::RSyncStakeholder, Qt::UniqueConnection);
-    connect(product_data_.sql, &Sqlite::SSyncProduct, sql, &Sqlite::RSyncProduct, Qt::UniqueConnection);
+    connect(sql, &Sql::SSyncStakeholder, node_model, &NodeModel::RSyncStakeholder, Qt::UniqueConnection);
+    connect(product_data_.sql, &Sql::SSyncProduct, sql, &Sql::RSyncProduct, Qt::UniqueConnection);
 
-    connect(sql, &Sqlite::SAppendMultiTrans, &LeafSStation::Instance(), &LeafSStation::RAppendMultiTrans, Qt::UniqueConnection);
+    connect(sql, &Sql::SAppendMultiTrans, &LeafSStation::Instance(), &LeafSStation::RAppendMultiTrans, Qt::UniqueConnection);
 
-    connect(sql, &Sqlite::SRemoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RRemoveMultiTransS, Qt::UniqueConnection);
-    connect(sql, &Sqlite::SMoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RMoveMultiTransS, Qt::UniqueConnection);
+    connect(sql, &Sql::SRemoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RRemoveMultiTransS, Qt::UniqueConnection);
+    connect(sql, &Sql::SMoveMultiTransS, &SupportSStation::Instance(), &SupportSStation::RMoveMultiTransS, Qt::UniqueConnection);
 }
 
-void MainWindow::TreeConnectPSO(PNodeModel node_order, const Sqlite* sql_order) const
+void MainWindow::TreeConnectPSO(PNodeModel node_order, const Sql* sql_order) const
 {
-    auto* sqlite_stakeholder { qobject_cast<SqliteS*>(stakeholder_data_.sql) };
-    auto* sqlite_order { qobject_cast<const SqliteO*>(sql_order) };
+    auto* sqlite_stakeholder { qobject_cast<SqlS*>(stakeholder_data_.sql) };
+    auto* sqlite_order { qobject_cast<const SqlO*>(sql_order) };
 
-    connect(sqlite_stakeholder, &Sqlite::SSyncStakeholder, sql_order, &Sqlite::RSyncStakeholder, Qt::UniqueConnection);
-    connect(product_data_.sql, &Sqlite::SSyncProduct, sql_order, &Sqlite::RSyncProduct, Qt::UniqueConnection);
+    connect(sqlite_stakeholder, &Sql::SSyncStakeholder, sql_order, &Sql::RSyncStakeholder, Qt::UniqueConnection);
+    connect(product_data_.sql, &Sql::SSyncProduct, sql_order, &Sql::RSyncProduct, Qt::UniqueConnection);
 
     connect(node_order, &NodeModel::SSyncDouble, stakeholder_tree_->Model(), &NodeModel::RSyncDouble, Qt::UniqueConnection);
-    connect(sqlite_order, &SqliteO::SSyncPrice, sqlite_stakeholder, &SqliteS::RPriceSList, Qt::UniqueConnection);
+    connect(sqlite_order, &SqlO::SSyncPrice, sqlite_stakeholder, &SqlS::RPriceSList, Qt::UniqueConnection);
 }
 
 void MainWindow::InsertNodeFunction(const QModelIndex& parent, int parent_id, int row)
@@ -1013,8 +1013,8 @@ void MainWindow::RemoveNode(NodeWidget* node_widget)
     const int unit { index.siblingAtColumn(std::to_underlying(NodeEnum::kUnit)).data().toInt() };
 
     auto* dialog { new class RemoveNode(model, start_, node_id, node_type, unit, exteral_reference, this) };
-    connect(dialog, &RemoveNode::SRemoveNode, sql, &Sqlite::RRemoveNode);
-    connect(dialog, &RemoveNode::SReplaceNode, sql, &Sqlite::RReplaceNode);
+    connect(dialog, &RemoveNode::SRemoveNode, sql, &Sql::RRemoveNode);
+    connect(dialog, &RemoveNode::SReplaceNode, sql, &Sql::RReplaceNode);
     dialog->exec();
 }
 
@@ -1543,7 +1543,7 @@ void MainWindow::SetFinanceData()
 
     ReadSectionConfig(finance_config_, kFinance);
 
-    sql = new SqliteF(main_db_, info, this);
+    sql = new SqlF(main_db_, info, this);
 
     NodeModelArg arg { sql, info, finance_trans_wgt_hash_, app_config_.separator, finance_config_.default_unit };
     auto* model { new NodeModelF(arg, this) };
@@ -1582,7 +1582,7 @@ void MainWindow::SetProductData()
 
     ReadSectionConfig(product_config_, kProduct);
 
-    sql = new SqliteP(main_db_, info, this);
+    sql = new SqlP(main_db_, info, this);
 
     NodeModelArg arg { sql, info, product_trans_wgt_hash_, app_config_.separator, product_config_.default_unit };
     auto* model { new NodeModelP(arg, this) };
@@ -1616,7 +1616,7 @@ void MainWindow::SetStakeholderData()
 
     ReadSectionConfig(stakeholder_config_, kStakeholder);
 
-    sql = new SqliteS(main_db_, info, this);
+    sql = new SqlS(main_db_, info, this);
 
     NodeModelArg arg { sql, info, stakeholder_trans_wgt_hash_, app_config_.separator, stakeholder_config_.default_unit };
     auto* model { new NodeModelS(arg, this) };
@@ -1655,7 +1655,7 @@ void MainWindow::SetTaskData()
 
     ReadSectionConfig(task_config_, kTask);
 
-    sql = new SqliteT(main_db_, info, this);
+    sql = new SqlT(main_db_, info, this);
 
     NodeModelArg arg { sql, info, task_trans_wgt_hash_, app_config_.separator, task_config_.default_unit };
     auto* model { new NodeModelT(arg, this) };
@@ -1696,7 +1696,7 @@ void MainWindow::SetSalesData()
 
     ReadSectionConfig(sales_config_, kSales);
 
-    sql = new SqliteO(main_db_, info, this);
+    sql = new SqlO(main_db_, info, this);
 
     NodeModelArg arg { sql, info, sales_trans_wgt_hash_, app_config_.separator, sales_config_.default_unit };
     auto* model { new NodeModelO(arg, this) };
@@ -1739,7 +1739,7 @@ void MainWindow::SetPurchaseData()
 
     ReadSectionConfig(purchase_config_, kPurchase);
 
-    sql = new SqliteO(main_db_, info, this);
+    sql = new SqlO(main_db_, info, this);
 
     NodeModelArg arg { sql, info, purchase_trans_wgt_hash_, app_config_.separator, purchase_config_.default_unit };
     auto* model { new NodeModelO(arg, this) };

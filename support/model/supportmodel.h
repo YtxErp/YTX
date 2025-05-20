@@ -22,14 +22,14 @@
 
 #include <QAbstractItemModel>
 
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 #include "table/trans.h"
 
 class SupportModel final : public QAbstractItemModel {
     Q_OBJECT
 
 public:
-    SupportModel(Sqlite* sql, int support_id, CInfo& info, QObject* parent = nullptr);
+    SupportModel(Sql* sql, int support_id, CInfo& info, QObject* parent = nullptr);
     ~SupportModel() = default;
 
 public slots:
@@ -54,7 +54,7 @@ public:
     QModelIndex GetIndex(int trans_id) const;
 
 private:
-    Sqlite* sql_ {};
+    Sql* sql_ {};
     CInfo& info_;
     int support_id_ {};
 

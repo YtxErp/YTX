@@ -1,4 +1,4 @@
-#include "sqlitep.h"
+#include "sqlp.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -6,12 +6,12 @@
 #include "component/constvalue.h"
 #include "global/resourcepool.h"
 
-SqliteP::SqliteP(QSqlDatabase& main_db, CInfo& info, QObject* parent)
-    : Sqlite(main_db, info, parent)
+SqlP::SqlP(QSqlDatabase& main_db, CInfo& info, QObject* parent)
+    : Sql(main_db, info, parent)
 {
 }
 
-QString SqliteP::QSReadNode() const
+QString SqlP::QSReadNode() const
 {
     return QStringLiteral(R"(
     SELECT name, id, code, description, note, rule, type, unit, color, commission, unit_price, quantity, amount
@@ -20,7 +20,7 @@ QString SqliteP::QSReadNode() const
     )");
 }
 
-QString SqliteP::QSWriteNode() const
+QString SqlP::QSWriteNode() const
 {
     return QStringLiteral(R"(
     INSERT INTO product (name, code, description, note, rule, type, unit, color, commission, unit_price)
@@ -28,7 +28,7 @@ QString SqliteP::QSWriteNode() const
     )");
 }
 
-QString SqliteP::QSRemoveNodeSecond() const
+QString SqlP::QSRemoveNodeSecond() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -37,7 +37,7 @@ QString SqliteP::QSRemoveNodeSecond() const
     )");
 }
 
-QString SqliteP::QSInternalReference() const
+QString SqlP::QSInternalReference() const
 {
     return QStringLiteral(R"(
     SELECT EXISTS(
@@ -47,7 +47,7 @@ QString SqliteP::QSInternalReference() const
     )");
 }
 
-QString SqliteP::QSExternalReference() const
+QString SqlP::QSExternalReference() const
 {
     return QStringLiteral(R"(
    SELECT
@@ -58,7 +58,7 @@ QString SqliteP::QSExternalReference() const
     )");
 }
 
-QString SqliteP::QSSupportReference() const
+QString SqlP::QSSupportReference() const
 {
     return QStringLiteral(R"(
     SELECT 1 FROM product_transaction
@@ -67,7 +67,7 @@ QString SqliteP::QSSupportReference() const
     )");
 }
 
-QString SqliteP::QSReplaceSupport() const
+QString SqlP::QSReplaceSupport() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -76,7 +76,7 @@ QString SqliteP::QSReplaceSupport() const
     )");
 }
 
-QString SqliteP::QSRemoveSupport() const
+QString SqlP::QSRemoveSupport() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -85,7 +85,7 @@ QString SqliteP::QSRemoveSupport() const
     )");
 }
 
-QString SqliteP::QSTransToRemove() const
+QString SqlP::QSTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT rhs_node AS node_id, id AS trans_id, support_id FROM product_transaction
@@ -96,7 +96,7 @@ QString SqliteP::QSTransToRemove() const
     )");
 }
 
-QString SqliteP::QSLeafTotal(int /*unit*/) const
+QString SqlP::QSLeafTotal(int /*unit*/) const
 {
     return QStringLiteral(R"(
     WITH node_balance AS (
@@ -125,7 +125,7 @@ QString SqliteP::QSLeafTotal(int /*unit*/) const
     )");
 }
 
-void SqliteP::WriteNodeBind(Node* node, QSqlQuery& query) const
+void SqlP::WriteNodeBind(Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":name"), node->name);
     query.bindValue(QStringLiteral(":code"), node->code);
@@ -139,7 +139,7 @@ void SqliteP::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":unit_price"), node->first);
 }
 
-void SqliteP::ReadNodeQuery(Node* node, const QSqlQuery& query) const
+void SqlP::ReadNodeQuery(Node* node, const QSqlQuery& query) const
 {
     node->id = query.value(QStringLiteral("id")).toInt();
     node->name = query.value(QStringLiteral("name")).toString();
@@ -156,7 +156,7 @@ void SqliteP::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->final_total = query.value(QStringLiteral("amount")).toDouble();
 }
 
-void SqliteP::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
+void SqlP::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
 {
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
     trans->lhs_debit = query.value(QStringLiteral("lhs_debit")).toDouble();
@@ -176,7 +176,7 @@ void SqliteP::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->support_id = query.value(QStringLiteral("support_id")).toInt();
 }
 
-void SqliteP::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
+void SqlP::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
     query.bindValue(QStringLiteral(":unit_cost"), *trans_shadow->lhs_ratio);
@@ -195,7 +195,7 @@ void SqliteP::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":rhs_credit"), *trans_shadow->rhs_credit);
 }
 
-void SqliteP::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
+void SqlP::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_debit"), *trans_shadow->lhs_debit);
@@ -206,7 +206,7 @@ void SqliteP::UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& q
     query.bindValue(QStringLiteral(":trans_id"), *trans_shadow->id);
 }
 
-void SqliteP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
+void SqlP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -227,7 +227,7 @@ void SqliteP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
     }
 }
 
-bool SqliteP::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
+bool SqlP::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
 {
     QSqlQuery query(main_db_);
     QString string { QSReplaceLeaf() };
@@ -279,7 +279,7 @@ bool SqliteP::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
     });
 }
 
-QString SqliteP::QSReadTrans() const
+QString SqlP::QSReadTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, unit_cost, lhs_debit, lhs_credit, rhs_node, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -288,7 +288,7 @@ QString SqliteP::QSReadTrans() const
     )");
 }
 
-QString SqliteP::QSUpdateLeafValue() const
+QString SqlP::QSUpdateLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE product SET
@@ -297,14 +297,14 @@ QString SqliteP::QSUpdateLeafValue() const
     )");
 }
 
-void SqliteP::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
+void SqlP::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":quantity"), node->initial_total);
     query.bindValue(QStringLiteral(":amount"), node->final_total);
     query.bindValue(QStringLiteral(":node_id"), node->id);
 }
 
-QString SqliteP::QSWriteTrans() const
+QString SqlP::QSWriteTrans() const
 {
     return QStringLiteral(R"(
     INSERT INTO product_transaction
@@ -314,7 +314,7 @@ QString SqliteP::QSWriteTrans() const
     )");
 }
 
-QString SqliteP::QSReadSupportTrans() const
+QString SqlP::QSReadSupportTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, unit_cost, lhs_debit, lhs_credit, rhs_node, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -323,7 +323,7 @@ QString SqliteP::QSReadSupportTrans() const
     )");
 }
 
-QString SqliteP::QSReplaceLeaf() const
+QString SqlP::QSReplaceLeaf() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -333,7 +333,7 @@ QString SqliteP::QSReplaceLeaf() const
     )");
 }
 
-QString SqliteP::QSUpdateTransValue() const
+QString SqlP::QSUpdateTransValue() const
 {
     return QStringLiteral(R"(
     UPDATE product_transaction SET
@@ -343,7 +343,7 @@ QString SqliteP::QSUpdateTransValue() const
     )");
 }
 
-QString SqliteP::QSSearchTransValue() const
+QString SqlP::QSSearchTransValue() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, unit_cost, lhs_debit, lhs_credit, rhs_node, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -356,7 +356,7 @@ QString SqliteP::QSSearchTransValue() const
     )");
 }
 
-QString SqliteP::QSSearchTransText() const
+QString SqlP::QSSearchTransText() const
 {
     return QStringLiteral(R"(
     SELECT id, lhs_node, unit_cost, lhs_debit, lhs_credit, rhs_node, rhs_debit, rhs_credit, state, description, support_id, code, document, date_time
@@ -365,7 +365,7 @@ QString SqliteP::QSSearchTransText() const
     )");
 }
 
-QString SqliteP::QSReadTransRef(int /*unit*/) const
+QString SqlP::QSReadTransRef(int /*unit*/) const
 {
     return QStringLiteral(R"(
     SELECT
@@ -408,7 +408,7 @@ QString SqliteP::QSReadTransRef(int /*unit*/) const
     )");
 }
 
-QString SqliteP::QSReplaceLeafSP() const
+QString SqlP::QSReplaceLeafSP() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder_transaction
@@ -417,7 +417,7 @@ QString SqliteP::QSReplaceLeafSP() const
     )");
 }
 
-QString SqliteP::QSReplaceLeafOSP() const
+QString SqlP::QSReplaceLeafOSP() const
 {
     return QStringLiteral(R"(
     UPDATE sales_transaction
@@ -426,7 +426,7 @@ QString SqliteP::QSReplaceLeafOSP() const
     )");
 }
 
-QString SqliteP::QSReplaceLeafOPP() const
+QString SqlP::QSReplaceLeafOPP() const
 {
     return QStringLiteral(R"(
     UPDATE purchase_transaction

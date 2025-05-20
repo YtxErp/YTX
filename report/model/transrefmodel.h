@@ -26,12 +26,12 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 
 class TransRefModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    TransRefModel(Sqlite* sql, CInfo& info, int unit, QObject* parent = nullptr);
+    TransRefModel(Sql* sql, CInfo& info, int unit, QObject* parent = nullptr);
     ~TransRefModel();
 
 public slots:
@@ -50,7 +50,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
-    Sqlite* sql_ {};
+    Sql* sql_ {};
     CInfo& info_;
     const int unit_ {};
 

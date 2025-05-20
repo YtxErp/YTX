@@ -3,11 +3,11 @@
 #include "global/resourcepool.h"
 #include "transmodelutils.h"
 
-TransModelO::TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sqlite* sqlite_stakeholder, QObject* parent)
+TransModelO::TransModelO(CTransModelArg& arg, const Node* node, CNodeModel* product_tree, Sql* sqlite_stakeholder, QObject* parent)
     : TransModel { arg, parent }
     , product_tree_ { static_cast<const NodeModelP*>(product_tree) }
-    , sqlite_stakeholder_ { static_cast<SqliteS*>(sqlite_stakeholder) }
-    , sqlite_order_ { qobject_cast<SqliteO*>(arg.sql) }
+    , sqlite_stakeholder_ { static_cast<SqlS*>(sqlite_stakeholder) }
+    , sqlite_order_ { qobject_cast<SqlO*>(arg.sql) }
     , node_ { node }
     , party_id_ { node->party }
 {

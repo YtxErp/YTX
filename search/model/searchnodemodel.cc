@@ -1,10 +1,10 @@
 #include "searchnodemodel.h"
 
 #include "component/enumclass.h"
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 #include "tree/model/nodemodels.h"
 
-SearchNodeModel::SearchNodeModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent)
+SearchNodeModel::SearchNodeModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sql* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }
@@ -162,10 +162,10 @@ void SearchNodeModel::Query(const QString& text)
     beginResetModel();
     switch (info_.section) {
     case Section::kSales:
-        static_cast<SqliteO*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kCust)));
+        static_cast<SqlO*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kCust)));
         break;
     case Section::kPurchase:
-        static_cast<SqliteO*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kVend)));
+        static_cast<SqlO*>(sql_)->SearchNode(node_list_, stakeholder_tree->PartyList(text, std::to_underlying(UnitS::kVend)));
         break;
     case Section::kFinance:
     case Section::kProduct:

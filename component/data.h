@@ -22,12 +22,12 @@
 
 #include "component/info.h"
 #include "component/tab.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 
 struct Data {
     Tab tab {};
     Info info {};
-    Sqlite* sql {};
+    Sql* sql {};
 };
 
 using CData = const Data;

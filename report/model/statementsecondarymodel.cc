@@ -11,9 +11,9 @@
 #include "mainwindowutils.h"
 
 StatementSecondaryModel::StatementSecondaryModel(
-    Sqlite* sql, CInfo& info, int party_id, CStringHash& product_leaf, PNodeModel stakeholder, CString& company_name, QObject* parent)
+    Sql* sql, CInfo& info, int party_id, CStringHash& product_leaf, PNodeModel stakeholder, CString& company_name, QObject* parent)
     : QAbstractItemModel { parent }
-    , sql_ { qobject_cast<SqliteO*>(sql) }
+    , sql_ { qobject_cast<SqlO*>(sql) }
     , info_ { info }
     , party_id_ { party_id }
     , product_leaf_ { product_leaf }

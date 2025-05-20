@@ -23,12 +23,12 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 
 class SearchTransModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    SearchTransModel(CInfo& info, Sqlite* sql, QObject* parent = nullptr);
+    SearchTransModel(CInfo& info, Sql* sql, QObject* parent = nullptr);
     ~SearchTransModel() = default;
 
 public:
@@ -47,7 +47,7 @@ public:
     void Query(const QString& text);
 
 private:
-    Sqlite* sql_ {};
+    Sql* sql_ {};
 
     TransList trans_list_ {};
     CInfo& info_;

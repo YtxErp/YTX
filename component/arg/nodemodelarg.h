@@ -20,11 +20,11 @@
 #ifndef NODEMODELARG_H
 #define NODEMODELARG_H
 
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 #include "table/widget/transwidget.h"
 
 struct NodeModelArg {
-    Sqlite* sql {};
+    Sql* sql {};
     const Info& info {};
     const QHash<int, QPointer<TransWidget>>& leaf_wgt_hash {};
     const QString& separator {};

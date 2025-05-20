@@ -2,8 +2,8 @@
 
 #include <QMessageBox>
 
-#include "database/pgsql/scopedconnection.h"
 #include "database/postgresql.h"
+#include "database/scopedconnection.h"
 #include "ui_newdatabase.h"
 
 NewDatabase::NewDatabase(QWidget* parent)

@@ -1,4 +1,4 @@
-#include "sqlites.h"
+#include "sqls.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -6,12 +6,12 @@
 #include "component/constvalue.h"
 #include "global/resourcepool.h"
 
-SqliteS::SqliteS(QSqlDatabase& main_db, CInfo& info, QObject* parent)
-    : Sqlite(main_db, info, parent)
+SqlS::SqlS(QSqlDatabase& main_db, CInfo& info, QObject* parent)
+    : Sql(main_db, info, parent)
 {
 }
 
-void SqliteS::RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit)
+void SqlS::RReplaceNode(int old_node_id, int new_node_id, int node_type, int node_unit)
 {
     emit SFreeWidget(old_node_id, node_type);
     emit SRemoveNode(old_node_id);
@@ -33,7 +33,7 @@ void SqliteS::RReplaceNode(int old_node_id, int new_node_id, int node_type, int 
     RemoveNode(old_node_id, node_type);
 }
 
-void SqliteS::RRemoveNode(int node_id, int node_type)
+void SqlS::RRemoveNode(int node_id, int node_type)
 {
     // This function is triggered when removing a node that has internal/support references.
     emit SFreeWidget(node_id, node_type);
@@ -61,7 +61,7 @@ void SqliteS::RRemoveNode(int node_id, int node_type)
     RemoveNode(node_id, node_type);
 }
 
-void SqliteS::RPriceSList(const QList<PriceS>& list)
+void SqlS::RPriceSList(const QList<PriceS>& list)
 {
     for (int i = 0; i != list.size(); ++i) {
         Trans* latest_trans { nullptr };
@@ -88,14 +88,14 @@ void SqliteS::RPriceSList(const QList<PriceS>& list)
     ReadTransRange(set);
 }
 
-void SqliteS::RSyncProduct(int old_node_id, int new_node_id) const
+void SqlS::RSyncProduct(int old_node_id, int new_node_id) const
 {
     for (auto* trans : std::as_const(trans_hash_))
         if (trans->rhs_node == old_node_id)
             trans->rhs_node = new_node_id;
 }
 
-bool SqliteS::CrossSearch(TransShadow* order_trans_shadow, int party_id, int product_id, bool is_inside) const
+bool SqlS::CrossSearch(TransShadow* order_trans_shadow, int party_id, int product_id, bool is_inside) const
 {
     const Trans* latest_trans { nullptr };
 
@@ -126,7 +126,7 @@ bool SqliteS::CrossSearch(TransShadow* order_trans_shadow, int party_id, int pro
     return true;
 }
 
-bool SqliteS::ReadTransRange(const QSet<int>& set)
+bool SqlS::ReadTransRange(const QSet<int>& set)
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -175,7 +175,7 @@ bool SqliteS::ReadTransRange(const QSet<int>& set)
     return true;
 }
 
-bool SqliteS::ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id)
+bool SqlS::ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id)
 {
     CString string { QSReplaceLeafOSP() };
 
@@ -191,7 +191,7 @@ bool SqliteS::ReplaceLeafC(QSqlQuery& query, int old_node_id, int new_node_id)
     return true;
 }
 
-bool SqliteS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id)
+bool SqlS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id)
 {
     CString stringse { QSReplaceLeafSE() };
     CString stringose { QSReplaceLeafOSE() };
@@ -229,7 +229,7 @@ bool SqliteS::ReplaceLeafE(QSqlQuery& query, int old_node_id, int new_node_id)
     });
 }
 
-bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id)
+bool SqlS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id)
 {
     CString string { QSReplaceLeafOPP() };
 
@@ -245,7 +245,7 @@ bool SqliteS::ReplaceLeafV(QSqlQuery& query, int old_node_id, int new_node_id)
     return true;
 }
 
-bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
+bool SqlS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
 {
     QSqlQuery query(main_db_);
 
@@ -266,7 +266,7 @@ bool SqliteS::ReplaceLeaf(int old_node_id, int new_node_id, int node_unit)
     return true;
 }
 
-bool SqliteS::ReadTrans(int node_id)
+bool SqlS::ReadTrans(int node_id)
 {
     QSqlQuery query(main_db_);
     query.setForwardOnly(true);
@@ -284,7 +284,7 @@ bool SqliteS::ReadTrans(int node_id)
     return true;
 }
 
-QString SqliteS::QSReadNode() const
+QString SqlS::QSReadNode() const
 {
     return QStringLiteral(R"(
     SELECT name, id, code, description, note, type, unit, employee, deadline, payment_term, tax_rate, amount
@@ -293,7 +293,7 @@ QString SqliteS::QSReadNode() const
     )");
 }
 
-QString SqliteS::QSWriteNode() const
+QString SqlS::QSWriteNode() const
 {
     return QStringLiteral(R"(
     INSERT INTO stakeholder (name, code, description, note, type, unit, employee, deadline, payment_term, tax_rate, amount)
@@ -301,7 +301,7 @@ QString SqliteS::QSWriteNode() const
     )");
 }
 
-void SqliteS::WriteNodeBind(Node* node, QSqlQuery& query) const
+void SqlS::WriteNodeBind(Node* node, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":name"), node->name);
     query.bindValue(QStringLiteral(":code"), node->code);
@@ -316,7 +316,7 @@ void SqliteS::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":amount"), node->final_total);
 }
 
-QString SqliteS::QSRemoveNodeSecond() const
+QString SqlS::QSRemoveNodeSecond() const
 {
     return QStringLiteral(R"(
     DELETE FROM stakeholder_transaction
@@ -324,7 +324,7 @@ QString SqliteS::QSRemoveNodeSecond() const
     )");
 }
 
-QString SqliteS::QSInternalReference() const
+QString SqlS::QSInternalReference() const
 {
     return QStringLiteral(R"(
     SELECT
@@ -334,7 +334,7 @@ QString SqliteS::QSInternalReference() const
     )");
 }
 
-QString SqliteS::QSExternalReference() const
+QString SqlS::QSExternalReference() const
 {
     return QStringLiteral(R"(
     SELECT
@@ -346,7 +346,7 @@ QString SqliteS::QSExternalReference() const
     )");
 }
 
-QString SqliteS::QSSupportReference() const
+QString SqlS::QSSupportReference() const
 {
     return QStringLiteral(R"(
     SELECT 1 FROM stakeholder_transaction
@@ -355,7 +355,7 @@ QString SqliteS::QSSupportReference() const
     )");
 }
 
-QString SqliteS::QSReplaceSupport() const
+QString SqlS::QSReplaceSupport() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder_transaction SET
@@ -364,7 +364,7 @@ QString SqliteS::QSReplaceSupport() const
     )");
 }
 
-QString SqliteS::QSUpdateLeafValue() const
+QString SqlS::QSUpdateLeafValue() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder SET
@@ -373,13 +373,13 @@ QString SqliteS::QSUpdateLeafValue() const
     )");
 }
 
-void SqliteS::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
+void SqlS::UpdateLeafValueBind(const Node* node, QSqlQuery& query) const
 {
     query.bindValue(":amount", node->final_total);
     query.bindValue(":node_id", node->id);
 }
 
-QString SqliteS::QSRemoveSupport() const
+QString SqlS::QSRemoveSupport() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder_transaction SET
@@ -388,7 +388,7 @@ QString SqliteS::QSRemoveSupport() const
     )");
 }
 
-QString SqliteS::QSReadTrans() const
+QString SqlS::QSReadTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, date_time, code, outside_product, lhs_node, unit_price, description, document, state, inside_product
@@ -397,7 +397,7 @@ QString SqliteS::QSReadTrans() const
     )");
 }
 
-QString SqliteS::QSReadSupportTrans() const
+QString SqlS::QSReadSupportTrans() const
 {
     return QStringLiteral(R"(
     SELECT id, date_time, code, outside_product, lhs_node, unit_price, description, document, state, inside_product
@@ -406,7 +406,7 @@ QString SqliteS::QSReadSupportTrans() const
     )");
 }
 
-QString SqliteS::QSWriteTrans() const
+QString SqlS::QSWriteTrans() const
 {
     return QStringLiteral(R"(
     INSERT INTO stakeholder_transaction
@@ -416,7 +416,7 @@ QString SqliteS::QSWriteTrans() const
     )");
 }
 
-QString SqliteS::QSReplaceLeafSE() const
+QString SqlS::QSReplaceLeafSE() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder
@@ -425,7 +425,7 @@ QString SqliteS::QSReplaceLeafSE() const
     )");
 }
 
-QString SqliteS::QSReplaceLeafOSE() const
+QString SqlS::QSReplaceLeafOSE() const
 {
     return QStringLiteral(R"(
     UPDATE sales
@@ -434,7 +434,7 @@ QString SqliteS::QSReplaceLeafOSE() const
     )");
 }
 
-QString SqliteS::QSReplaceLeafOPE() const
+QString SqlS::QSReplaceLeafOPE() const
 {
     return QStringLiteral(R"(
     UPDATE purchase
@@ -443,7 +443,7 @@ QString SqliteS::QSReplaceLeafOPE() const
     )");
 }
 
-QString SqliteS::QSReplaceLeafOSP() const
+QString SqlS::QSReplaceLeafOSP() const
 {
     return QStringLiteral(R"(
     UPDATE sales
@@ -452,7 +452,7 @@ QString SqliteS::QSReplaceLeafOSP() const
     )");
 }
 
-QString SqliteS::QSReplaceLeafOPP() const
+QString SqlS::QSReplaceLeafOPP() const
 {
     return QStringLiteral(R"(
     UPDATE purchase
@@ -461,7 +461,7 @@ QString SqliteS::QSReplaceLeafOPP() const
     )");
 }
 
-QString SqliteS::QSSearchTransValue() const
+QString SqlS::QSSearchTransValue() const
 {
     return QStringLiteral(R"(
     SELECT id, date_time, code, outside_product, lhs_node, unit_price, description, document, state, inside_product
@@ -470,7 +470,7 @@ QString SqliteS::QSSearchTransValue() const
     )");
 }
 
-QString SqliteS::QSSearchTransText() const
+QString SqlS::QSSearchTransText() const
 {
     return QStringLiteral(R"(
     SELECT id, date_time, code, outside_product, lhs_node, unit_price, description, document, state, inside_product
@@ -479,7 +479,7 @@ QString SqliteS::QSSearchTransText() const
     )");
 }
 
-QString SqliteS::QSRemoveNodeFirst() const
+QString SqlS::QSRemoveNodeFirst() const
 {
     return QStringLiteral(R"(
     UPDATE stakeholder
@@ -490,7 +490,7 @@ QString SqliteS::QSRemoveNodeFirst() const
     )");
 }
 
-QString SqliteS::QSTransToRemove() const
+QString SqlS::QSTransToRemove() const
 {
     return QStringLiteral(R"(
     SELECT lhs_node AS node_id, id AS trans_id, outside_product AS support_id FROM stakeholder_transaction
@@ -498,7 +498,7 @@ QString SqliteS::QSTransToRemove() const
     )");
 }
 
-QString SqliteS::QSReadTransRef(int unit) const
+QString SqlS::QSReadTransRef(int unit) const
 {
     QString base_query = QStringLiteral(R"(
         SELECT
@@ -581,7 +581,7 @@ QString SqliteS::QSReadTransRef(int unit) const
     return base_query.arg(node_trans, node, column, section);
 }
 
-QString SqliteS::QSRemoveTrans() const
+QString SqlS::QSRemoveTrans() const
 {
     return QStringLiteral(R"(
     DELETE FROM stakeholder_transaction
@@ -589,7 +589,7 @@ QString SqliteS::QSRemoveTrans() const
     )");
 }
 
-QString SqliteS::QSLeafTotal(int unit) const
+QString SqlS::QSLeafTotal(int unit) const
 {
     switch (UnitS(unit)) {
     case UnitS::kCust:
@@ -613,7 +613,7 @@ QString SqliteS::QSLeafTotal(int unit) const
     return {};
 }
 
-void SqliteS::ReadTransS(QSqlQuery& query)
+void SqlS::ReadTransS(QSqlQuery& query)
 {
     Trans* trans {};
 
@@ -631,7 +631,7 @@ void SqliteS::ReadTransS(QSqlQuery& query)
     }
 }
 
-void SqliteS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
+void SqlS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
 {
     // remind to recycle these trans
     while (query.next()) {
@@ -653,13 +653,13 @@ void SqliteS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
     }
 }
 
-void SqliteS::CalculateLeafTotal(Node* node, QSqlQuery& query) const
+void SqlS::CalculateLeafTotal(Node* node, QSqlQuery& query) const
 {
     if (query.next())
         node->final_total = query.value(QStringLiteral("final_balance")).toDouble();
 }
 
-void SqliteS::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
+void SqlS::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
     query.bindValue(QStringLiteral(":code"), *trans_shadow->code);
@@ -672,7 +672,7 @@ void SqliteS::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":outside_product"), *trans_shadow->support_id);
 }
 
-void SqliteS::ReadNodeQuery(Node* node, const QSqlQuery& query) const
+void SqlS::ReadNodeQuery(Node* node, const QSqlQuery& query) const
 {
     node->id = query.value(QStringLiteral("id")).toInt();
     node->name = query.value(QStringLiteral("name")).toString();
@@ -688,7 +688,7 @@ void SqliteS::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->final_total = query.value(QStringLiteral("amount")).toDouble();
 }
 
-void SqliteS::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
+void SqlS::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
 {
     trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
     trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();

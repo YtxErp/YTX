@@ -17,18 +17,18 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITEO_H
-#define SQLITEO_H
+#ifndef SQLO_H
+#define SQLO_H
 
-#include "database/sqlite/prices.h"
-#include "sqlite.h"
+#include "database/sql/prices.h"
+#include "sql.h"
 
-class SqliteO final : public Sqlite {
+class SqlO final : public Sql {
     Q_OBJECT
 
 public:
-    SqliteO(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
-    ~SqliteO();
+    SqlO(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
+    ~SqlO();
 
 signals:
     // send to sqlite stakeholder
@@ -130,4 +130,4 @@ private:
     NodeHash node_hash_ {};
 };
 
-#endif // SQLITEO_H
+#endif // SQLO_H

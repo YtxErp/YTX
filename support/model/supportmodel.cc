@@ -2,7 +2,7 @@
 
 #include "component/enumclass.h"
 
-SupportModel::SupportModel(Sqlite* sql, int support_id, CInfo& info, QObject* parent)
+SupportModel::SupportModel(Sql* sql, int support_id, CInfo& info, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }

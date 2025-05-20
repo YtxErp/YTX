@@ -17,8 +17,8 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITE_H
-#define SQLITE_H
+#ifndef SQL_H
+#define SQL_H
 
 #include <QObject>
 #include <QSqlDatabase>
@@ -29,14 +29,14 @@
 #include "table/trans.h"
 #include "tree/node.h"
 
-class Sqlite : public QObject {
+class Sql : public QObject {
     Q_OBJECT
 
 public:
-    virtual ~Sqlite();
+    virtual ~Sql();
 
 protected:
-    Sqlite(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
+    Sql(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 signals:
     // send to TreeModel
@@ -201,4 +201,4 @@ protected:
     CInfo& info_;
 };
 
-#endif // SQLITE_H
+#endif // SQL_H

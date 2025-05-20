@@ -23,7 +23,7 @@
 #include <QDialog>
 #include <QSettings>
 
-#include "component/settings.h"
+#include "component/config.h"
 #include "component/using.h"
 
 namespace Ui {

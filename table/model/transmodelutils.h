@@ -23,14 +23,14 @@
 #include <QMutex>
 
 #include "component/using.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 #include "table/trans.h"
 
 class TransModelUtils {
 public:
     template <typename T>
-    static bool UpdateField(Sqlite* sql, TransShadow* trans_shadow, CString& table, CString& field, const T& value, T* TransShadow::* member,
-        const std::function<void()>& action = {})
+    static bool UpdateField(
+        Sql* sql, TransShadow* trans_shadow, CString& table, CString& field, const T& value, T* TransShadow::* member, const std::function<void()>& action = {})
     {
         if (!sql || !trans_shadow || !member) {
             qWarning() << "Invalid input parameters: Sqlite, TransShadow or Member pointer is null.";

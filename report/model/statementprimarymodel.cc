@@ -3,9 +3,9 @@
 #include "component/enumclass.h"
 #include "global/resourcepool.h"
 
-StatementPrimaryModel::StatementPrimaryModel(Sqlite* sql, CInfo& info, int party_id, QObject* parent)
+StatementPrimaryModel::StatementPrimaryModel(Sql* sql, CInfo& info, int party_id, QObject* parent)
     : QAbstractItemModel { parent }
-    , sql_ { qobject_cast<SqliteO*>(sql) }
+    , sql_ { qobject_cast<SqlO*>(sql) }
     , info_ { info }
     , party_id_ { party_id }
 {

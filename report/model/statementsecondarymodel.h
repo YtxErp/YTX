@@ -23,14 +23,14 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 #include "tree/model/nodemodel.h"
 
 class StatementSecondaryModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
     StatementSecondaryModel(
-        Sqlite* sql, CInfo& info, int party_id, CStringHash& product_leaf, PNodeModel stakeholder, CString& company_name, QObject* parent = nullptr);
+        Sql* sql, CInfo& info, int party_id, CStringHash& product_leaf, PNodeModel stakeholder, CString& company_name, QObject* parent = nullptr);
     ~StatementSecondaryModel();
 
 public slots:
@@ -52,7 +52,7 @@ public:
     void sort(int column, Qt::SortOrder order) override;
 
 private:
-    SqliteO* sql_ {};
+    SqlO* sql_ {};
     CInfo& info_;
     const int party_id_ {};
     CStringHash& product_leaf_ {};

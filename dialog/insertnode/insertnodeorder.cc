@@ -10,7 +10,7 @@ InsertNodeOrder::InsertNodeOrder(
     : QDialog(parent)
     , ui(new Ui::InsertNodeOrder)
     , node_ { arg.node }
-    , sql_ { qobject_cast<SqliteO*>(arg.sql) }
+    , sql_ { qobject_cast<SqlO*>(arg.sql) }
     , stakeholder_node_ { arg.stakeholder_node }
     , order_trans_ { qobject_cast<TransModelO*>(arg.order_trans) }
     , party_info_ { arg.section == Section::kSales ? kSales : kPurchase }

@@ -4,7 +4,7 @@
 
 NodeModelO::NodeModelO(CNodeModelArg& arg, QObject* parent)
     : NodeModel(arg, parent)
-    , sql_ { static_cast<SqliteO*>(arg.sql) }
+    , sql_ { static_cast<SqlO*>(arg.sql) }
 {
     ConstructTree();
 }

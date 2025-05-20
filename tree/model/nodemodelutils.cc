@@ -135,7 +135,7 @@ QString NodeModelUtils::ConstructPath(const Node* root, const Node* node, CStrin
     return tmp.join(separator);
 }
 
-bool NodeModelUtils::IsInternalReferenced(Sqlite* sql, int node_id, CString& message)
+bool NodeModelUtils::IsInternalReferenced(Sql* sql, int node_id, CString& message)
 {
     if (sql->InternalReference(node_id)) {
         MainWindowUtils::Message(
@@ -147,7 +147,7 @@ bool NodeModelUtils::IsInternalReferenced(Sqlite* sql, int node_id, CString& mes
     return false;
 }
 
-bool NodeModelUtils::IsSupportReferenced(Sqlite* sql, int node_id, CString& message)
+bool NodeModelUtils::IsSupportReferenced(Sql* sql, int node_id, CString& message)
 {
     if (sql->SupportReference(node_id)) {
         MainWindowUtils::Message(
@@ -158,7 +158,7 @@ bool NodeModelUtils::IsSupportReferenced(Sqlite* sql, int node_id, CString& mess
     return false;
 }
 
-bool NodeModelUtils::IsExternalReferenced(Sqlite* sql, int node_id, CString& message)
+bool NodeModelUtils::IsExternalReferenced(Sql* sql, int node_id, CString& message)
 {
     if (sql->ExternalReference(node_id)) {
         MainWindowUtils::Message(

@@ -22,7 +22,7 @@
 
 #include <QDate>
 
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 #include "tree/model/nodemodel.h"
 
 class NodeModelO final : public NodeModel {
@@ -62,7 +62,7 @@ private:
     bool UpdateFinished(Node* node, bool value);
 
 private:
-    SqliteO* sql_ {};
+    SqlO* sql_ {};
 };
 
 #endif // NODEMODELO_H

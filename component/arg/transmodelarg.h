@@ -20,10 +20,10 @@
 #ifndef TRANSMODELARG_H
 #define TRANSMODELARG_H
 
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 
 struct TransModelArg {
-    Sqlite* sql {};
+    Sql* sql {};
     const Info& info {};
     int node_id {};
     bool rule {};

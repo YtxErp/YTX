@@ -22,15 +22,15 @@
 
 #include <QStandardItemModel>
 
-#include "component/settings.h"
-#include "database/sqlite/sqlite.h"
+#include "component/config.h"
+#include "database/sql/sql.h"
 #include "table/model/transmodel.h"
 #include "tree/model/nodemodel.h"
 #include "tree/node.h"
 
 struct InsertNodeArgO {
     Node* node {};
-    Sqlite* sql {};
+    Sql* sql {};
     TransModel* order_trans {};
     NodeModel* stakeholder_node {};
     CSectionConfig* section_settings {};

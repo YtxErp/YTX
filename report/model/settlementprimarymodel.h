@@ -23,12 +23,12 @@
 #include <QAbstractItemModel>
 
 #include "component/info.h"
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 
 class SettlementPrimaryModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    SettlementPrimaryModel(Sqlite* sql, CInfo& info, QObject* parent = nullptr);
+    SettlementPrimaryModel(Sql* sql, CInfo& info, QObject* parent = nullptr);
     ~SettlementPrimaryModel();
 
 signals:
@@ -57,7 +57,7 @@ private:
     void UpdateSettlementInfo(int party_id, int settlement_id, bool settlement_finished);
 
 private:
-    SqliteO* sql_ {};
+    SqlO* sql_ {};
     CInfo& info_;
 
     int party_id_ {};

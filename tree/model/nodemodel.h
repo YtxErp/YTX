@@ -244,7 +244,7 @@ protected:
 
 protected:
     Node* root_ {};
-    Sqlite* sql_ {};
+    Sql* sql_ {};
 
     NodeHash node_hash_ {};
     StringHash leaf_path_ {};

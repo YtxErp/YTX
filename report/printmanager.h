@@ -24,7 +24,7 @@
 #include <QSettings>
 #include <QString>
 
-#include "component/settings.h"
+#include "component/config.h"
 #include "table/trans.h"
 #include "tree/model/nodemodel.h"
 

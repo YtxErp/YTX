@@ -23,7 +23,7 @@
 #include <QButtonGroup>
 
 #include "component/arg/insertnodeargo.h"
-#include "database/sqlite/sqliteo.h"
+#include "database/sql/sqlo.h"
 #include "report/printmanager.h"
 #include "table/model/transmodelo.h"
 
@@ -103,7 +103,7 @@ private:
 private:
     Ui::TransWidgetO* ui;
     Node* node_ {};
-    SqliteO* sql_ {};
+    SqlO* sql_ {};
     TransModelO* order_trans_ {};
     NodeModel* stakeholder_node_ {};
     CSectionConfig* settings_ {};

@@ -5,9 +5,9 @@
 #include "global/resourcepool.h"
 #include "tree/model/nodemodelutils.h"
 
-SettlementModel::SettlementModel(Sqlite* sql, CInfo& info, QObject* parent)
+SettlementModel::SettlementModel(Sql* sql, CInfo& info, QObject* parent)
     : QAbstractItemModel { parent }
-    , sql_ { qobject_cast<SqliteO*>(sql) }
+    , sql_ { qobject_cast<SqlO*>(sql) }
     , info_ { info }
 {
 }

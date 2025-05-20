@@ -17,23 +17,16 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLITEF_H
-#define SQLITEF_H
+#ifndef SQLT_H
+#define SQLT_H
 
-#include "sqlite.h"
+#include "sql.h"
 
-class SqliteF final : public Sqlite {
+class SqlT final : public Sql {
 public:
-    SqliteF(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
+    SqlT(QSqlDatabase& main_db, CInfo& info, QObject* parent = nullptr);
 
 protected:
-    void WriteNodeBind(Node* node, QSqlQuery& query) const override;
-    void ReadNodeQuery(Node* node, const QSqlQuery& query) const override;
-
-    void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
-    void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
-    void UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
-
     QString QSReadNode() const override;
     QString QSWriteNode() const override;
     QString QSRemoveNodeSecond() const override;
@@ -42,10 +35,8 @@ protected:
     QString QSReplaceSupport() const override;
     QString QSRemoveSupport() const override;
     QString QSLeafTotal(int unit) const override;
-    QString QSTransToRemove() const override;
 
-    QString QSUpdateLeafValue() const override;
-    void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;
+    QString QSTransToRemove() const override;
 
     QString QSReadTrans() const override;
     QString QSReadSupportTrans() const override;
@@ -54,6 +45,16 @@ protected:
     QString QSUpdateTransValue() const override;
     QString QSSearchTransValue() const override;
     QString QSSearchTransText() const override;
+
+    void ReadTransQuery(Trans* trans, const QSqlQuery& query) const override;
+    void WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const override;
+    void UpdateTransValueBind(const TransShadow* trans_shadow, QSqlQuery& query) const override;
+
+    QString QSUpdateLeafValue() const override;
+    void UpdateLeafValueBind(const Node* node, QSqlQuery& query) const override;
+
+    void WriteNodeBind(Node* node, QSqlQuery& query) const override;
+    void ReadNodeQuery(Node* node, const QSqlQuery& query) const override;
 };
 
-#endif // SQLITEF_H
+#endif // SQLT_H

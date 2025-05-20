@@ -24,13 +24,13 @@
 
 #include "component/info.h"
 #include "component/using.h"
-#include "database/sqlite/sqlite.h"
+#include "database/sql/sql.h"
 #include "tree/model/nodemodel.h"
 
 class SearchNodeModel final : public QAbstractItemModel {
     Q_OBJECT
 public:
-    SearchNodeModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sqlite* sql, QObject* parent = nullptr);
+    SearchNodeModel(CInfo& info, CNodeModel* tree_model, CNodeModel* stakeholder_tree_model, Sql* sql, QObject* parent = nullptr);
     ~SearchNodeModel() = default;
 
 public:
@@ -49,7 +49,7 @@ public:
     void Query(CString& text);
 
 private:
-    Sqlite* sql_ {};
+    Sql* sql_ {};
 
     CInfo& info_;
     CNodeModel* tree_model_ {};

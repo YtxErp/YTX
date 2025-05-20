@@ -2,7 +2,7 @@
 
 #include "component/enumclass.h"
 
-SearchTransModel::SearchTransModel(CInfo& info, Sqlite* sql, QObject* parent)
+SearchTransModel::SearchTransModel(CInfo& info, Sql* sql, QObject* parent)
     : QAbstractItemModel { parent }
     , sql_ { sql }
     , info_ { info }

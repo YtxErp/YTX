@@ -29,15 +29,6 @@ struct LicenseConfig {
     bool is_activated {};
 };
 
-struct LoginConfig {
-    QString host {};
-    int port {};
-    QString user {};
-    QString password {};
-    QString database {};
-    bool is_saved {};
-};
-
 struct AppConfig {
     QString theme {};
     QString language {};

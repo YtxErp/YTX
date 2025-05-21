@@ -236,7 +236,7 @@ private:
 
     AppConfig app_config_ {};
     FileConfig file_config_ {};
-    LoginConfig login_config_ {};
+    LoginInfo login_info_ {};
 
     QSharedPointer<QSettings> app_settings_ {};
     QSharedPointer<QSettings> file_settings_ {};

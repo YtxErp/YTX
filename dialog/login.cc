@@ -4,34 +4,27 @@
 #include <QSqlDatabase>
 
 #include "component/constvalue.h"
-#include "global/pgconnection.h"
+#include "database/websocket.h"
 #include "ui_login.h"
 
-Login::Login(LoginConfig& login_config, QSharedPointer<QSettings> app_settings, QWidget* parent)
+Login::Login(LoginInfo& login_info, QSharedPointer<QSettings> app_settings, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Login)
-    , login_config_ { login_config }
+    , login_info_ { login_info }
     , app_settings_ { app_settings }
 {
     ui->setupUi(this);
     InitDialog();
+    connect(&WebSocket::Instance(), &WebSocket::SLoginResult, this, &Login::RLoginResult);
 }
 
 Login::~Login() { delete ui; }
 
-void Login::on_pushButtonConnect_clicked()
+void Login::RLoginResult(bool success)
 {
-    const auto host { ui->lineEditHost->text() };
-    const int port { ui->lineEditPort->text().toInt() };
-    const auto user { ui->lineEditUser->text() };
-    const auto password { ui->lineEditPassword->text() };
-    const auto database { ui->lineEditDatabase->text() };
-
-    const bool ok { PGConnection::Instance().Initialize(host, port, user, password, database) };
-
-    if (ok) {
+    if (success) {
         emit SLoadDatabase();
-        SaveLoginConfig(host, port, user, password, database);
+        SaveLoginConfig();
         this->close();
     } else {
         QMessageBox::critical(this, tr("Connection Failed"),
@@ -40,31 +33,41 @@ void Login::on_pushButtonConnect_clicked()
     }
 }
 
-void Login::InitDialog()
+void Login::on_pushButtonConnect_clicked()
 {
-    ui->lineEditUser->setText(login_config_.user);
-    ui->lineEditDatabase->setText(login_config_.database);
-    ui->lineEditPassword->setText(login_config_.password);
-    ui->chkBoxSave->setChecked(login_config_.is_saved);
-    ui->lineEditHost->setText(login_config_.host);
-    ui->lineEditPort->setText(QString::number(login_config_.port));
+    login_info_.host = ui->lineEditHost->text();
+    login_info_.port = ui->lineEditPort->text().toInt();
+    login_info_.user = ui->lineEditUser->text();
+    login_info_.password = ui->lineEditPassword->text();
+    login_info_.database = ui->lineEditDatabase->text();
+
+    WebSocket::Instance().Connect(login_info_.host, login_info_.port, login_info_.user, login_info_.password, login_info_.database);
 }
 
-void Login::SaveLoginConfig(CString& host, int port, CString& user, CString& password, CString& database)
+void Login::InitDialog()
 {
-    login_config_.host = host;
-    login_config_.port = port;
-    login_config_.user = user;
-    login_config_.database = database;
-    login_config_.is_saved = ui->chkBoxSave->isChecked();
-    login_config_.password = login_config_.is_saved ? password : QString();
+    ui->lineEditUser->setText(login_info_.user);
+    ui->lineEditDatabase->setText(login_info_.database);
+    ui->lineEditPassword->setText(login_info_.password);
+    ui->chkBoxSave->setChecked(login_info_.is_saved);
+    ui->lineEditHost->setText(login_info_.host);
+    ui->lineEditPort->setText(QString::number(login_info_.port));
+}
+
+void Login::SaveLoginConfig()
+{
+    const bool is_saved { ui->chkBoxSave->isChecked() };
+
+    login_info_.is_saved = is_saved;
+    if (!is_saved)
+        login_info_.password = QString();
 
     app_settings_->beginGroup(kLogin);
-    app_settings_->setValue(kHost, host);
-    app_settings_->setValue(kPort, port);
-    app_settings_->setValue(kUser, user);
-    app_settings_->setValue(kPassword, password);
-    app_settings_->setValue(kDatabase, database);
-    app_settings_->setValue(kIsSaved, login_config_.is_saved);
+    app_settings_->setValue(kHost, login_info_.host);
+    app_settings_->setValue(kPort, login_info_.port);
+    app_settings_->setValue(kUser, login_info_.user);
+    app_settings_->setValue(kPassword, login_info_.password);
+    app_settings_->setValue(kDatabase, login_info_.database);
+    app_settings_->setValue(kIsSaved, is_saved);
     app_settings_->endGroup();
 }

@@ -23,8 +23,7 @@
 #include <QDialog>
 #include <QSettings>
 
-#include "component/config.h"
-#include "component/using.h"
+#include "component/info.h"
 
 namespace Ui {
 class Login;
@@ -37,19 +36,22 @@ signals:
     void SLoadDatabase();
 
 public:
-    explicit Login(LoginConfig& login_config, QSharedPointer<QSettings> app_settings, QWidget* parent = nullptr);
+    explicit Login(LoginInfo& login_info, QSharedPointer<QSettings> app_settings, QWidget* parent = nullptr);
     ~Login();
+
+public slots:
+    void RLoginResult(bool success);
 
 private slots:
     void on_pushButtonConnect_clicked();
 
 private:
     void InitDialog();
-    void SaveLoginConfig(CString& host, int port, CString& user, CString& password, CString& database);
+    void SaveLoginConfig();
 
 private:
     Ui::Login* ui;
-    LoginConfig& login_config_;
+    LoginInfo& login_info_;
     QSharedPointer<QSettings> app_settings_ {};
 };
 

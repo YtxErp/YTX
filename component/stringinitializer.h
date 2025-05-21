@@ -5,7 +5,7 @@
 
 class StringInitializer {
 public:
-    static void SetHeader(Info& finance, Info& product, Info& stakeholder, Info& task, Info& sales, Info& purchase);
+    static void SetHeader(SectionInfo& finance, SectionInfo& product, SectionInfo& stakeholder, SectionInfo& task, SectionInfo& sales, SectionInfo& purchase);
 };
 
 #endif // STRINGINITIALIZER_H

@@ -1,6 +1,6 @@
 #include "stringinitializer.h"
 
-void StringInitializer::SetHeader(Info& finance, Info& product, Info& stakeholder, Info& task, Info& sales, Info& purchase)
+void StringInitializer::SetHeader(SectionInfo& finance, SectionInfo& product, SectionInfo& stakeholder, SectionInfo& task, SectionInfo& sales, SectionInfo& purchase)
 {
     finance.node_header = {
         QObject::tr("Name"),

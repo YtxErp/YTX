@@ -5,7 +5,7 @@ project(YTX VERSION 0.2.3 LANGUAGES CXX)
 set(CMAKE_AUTOMOC ON)
 
 # Required Qt6 modules
-find_package(Qt6 REQUIRED COMPONENTS LinguistTools Widgets Sql Gui Concurrent PrintSupport Network)
+find_package(Qt6 REQUIRED COMPONENTS LinguistTools Widgets Sql Gui Concurrent PrintSupport Network WebSockets)
 
 if(WIN32)
     set(OPENSSL_ROOT_DIR "D:/msys64/mingw64")
@@ -107,6 +107,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   Qt6::Concurrent
   Qt6::PrintSupport
   Qt6::Network
+  Qt6::WebSockets
   YXlsx::YXlsx
   OpenSSL::SSL
   OpenSSL::Crypto

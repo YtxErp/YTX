@@ -90,6 +90,9 @@ inline constexpr char kLanguage[] = "language";
 inline constexpr char kEnUS[] = "en_US";
 inline constexpr char kZhCN[] = "zh_CN";
 
+inline constexpr char kMsgType[] = "msg_type";
+inline constexpr char kMsgData[] = "msg_data";
+
 // Constants for tree and table's column
 inline constexpr char kAmount[] = "amount";
 inline constexpr char kAncestor[] = "ancestor";

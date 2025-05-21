@@ -24,7 +24,7 @@
 
 struct TransModelArg {
     Sql* sql {};
-    const Info& info {};
+    const SectionInfo& info {};
     int node_id {};
     bool rule {};
 };

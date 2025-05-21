@@ -64,7 +64,6 @@
 #include "dialog/removenode.h"
 #include "document.h"
 #include "global/leafsstation.h"
-#include "global/pgconnection.h"
 #include "global/resourcepool.h"
 #include "global/supportsstation.h"
 #include "licence/licence.h"
@@ -132,8 +131,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    PGConnection::Instance().ReturnConnection(main_db_);
-
     MainWindowUtils::WriteConfig(ui->splitter, &QSplitter::saveState, app_settings_, kSplitter, kState);
     MainWindowUtils::WriteConfig(this, &QMainWindow::saveState, app_settings_, kMainwindow, kState, 0);
     MainWindowUtils::WriteConfig(this, &QMainWindow::saveGeometry, app_settings_, kMainwindow, kGeometry);
@@ -166,10 +163,9 @@ bool MainWindow::RLoadDatabase()
         return false;
     }
 
-    main_db_ = PGConnection::Instance().GetConnection();
-    UpdateAccountInfo(login_config_.user, login_config_.database);
+    UpdateAccountInfo(login_info_.user, login_info_.database);
 
-    ReadFileConfig(login_config_.database);
+    ReadFileConfig(login_info_.database);
     this->setWindowTitle(file_config_.company_name);
 
     SetFinanceData();
@@ -445,7 +441,7 @@ void MainWindow::CreateLeafFPTS(PNodeModel tree_model, TransWgtHash* trans_wgt_h
 
     CString name { tree_model->Name(node_id) };
     auto* sql { data->sql };
-    const Info& info { data->info };
+    const SectionInfo& info { data->info };
     const Section section { info.section };
     const bool rule { tree_model->Rule(node_id) };
 
@@ -511,7 +507,7 @@ void MainWindow::CreateSupport(PNodeModel tree_model, SupWgtHash* sup_wgt_hash, 
 
     CString name { tree_model->Name(node_id) };
     auto* sql { data->sql };
-    const Info& info { data->info };
+    const SectionInfo& info { data->info };
     const Section section { info.section };
 
     auto* model { new SupportModel(sql, node_id, info, this) };
@@ -1296,7 +1292,7 @@ void MainWindow::CreateTransRef(PNodeModel tree_model, CData* data, int node_id,
 
     CString name { tr("Record-") + tree_model->Name(node_id) };
     auto* sql { data->sql };
-    const Info& info { data->info };
+    const SectionInfo& info { data->info };
     const Section section { info.section };
 
     auto* model { new TransRefModel(sql, info, unit, this) };
@@ -2520,12 +2516,12 @@ void MainWindow::ReadAppConfig()
     app_settings_->endGroup();
 
     app_settings_->beginGroup(kLogin);
-    login_config_.host = app_settings_->value(kHost, "localhost").toString();
-    login_config_.port = app_settings_->value(kPort, 5432).toInt();
-    login_config_.user = app_settings_->value(kUser, {}).toString();
-    login_config_.password = app_settings_->value(kPassword, {}).toString();
-    login_config_.database = app_settings_->value(kDatabase, {}).toString();
-    login_config_.is_saved = app_settings_->value(kIsSaved, {}).toBool();
+    login_info_.host = app_settings_->value(kHost, "localhost").toString();
+    login_info_.port = app_settings_->value(kPort, 5432).toInt();
+    login_info_.user = app_settings_->value(kUser, {}).toString();
+    login_info_.password = app_settings_->value(kPassword, {}).toString();
+    login_info_.database = app_settings_->value(kDatabase, {}).toString();
+    login_info_.is_saved = app_settings_->value(kIsSaved, {}).toBool();
     app_settings_->endGroup();
 
     LoadAndInstallTranslator(app_config_.language);
@@ -2809,7 +2805,7 @@ void MainWindow::on_actionAppendTrans_triggered()
 
 void MainWindow::on_actionExportExcel_triggered()
 {
-    CString& source { login_config_.database };
+    CString& source { login_info_.database };
     if (source.isEmpty())
         return;
 
@@ -2869,7 +2865,7 @@ void MainWindow::on_actionExportExcel_triggered()
 
 void MainWindow::on_actionLogin_triggered()
 {
-    auto* login { new Login(login_config_, app_settings_, this) };
+    auto* login { new Login(login_info_, app_settings_, this) };
     connect(login, &Login::SLoadDatabase, this, &MainWindow::RLoadDatabase);
     login->exec();
 }

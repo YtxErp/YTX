@@ -26,7 +26,16 @@
 
 #include "enumclass.h"
 
-struct Info {
+struct LoginInfo {
+    QString host {};
+    int port {};
+    QString user {};
+    QString password {};
+    QString database {};
+    bool is_saved {};
+};
+
+struct SectionInfo {
     Section section {};
 
     QString node {}; // SQL database node table name, also used as QSettings section name, be carefull with it
@@ -61,6 +70,6 @@ struct Info {
     QStandardItemModel* type_model {};
 };
 
-using CInfo = const Info;
+using CInfo = const SectionInfo;
 
 #endif // INFO_H

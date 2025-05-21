@@ -17,22 +17,18 @@
  * along with YTX. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef POSTGRESQL_H
-#define POSTGRESQL_H
+#ifndef SQLITE_H
+#define SQLITE_H
 
 #include <QRegularExpression>
 #include <QSqlDatabase>
 
 #include "component/using.h"
 
-class PostgreSql {
+class Sqlite {
 public:
-    static QSqlDatabase SingleConnection(CString& user, CString& password, CString& db_name, CString& connection_name, int timeout_ms);
-    static void RemoveConnection(CString& connection_name);
-
-    static bool CreateRole(QSqlDatabase& db, CString role, CString password);
+    static bool CreateTable(QSqlDatabase& db);
     static bool CreateDatabase(QSqlDatabase& db, CString database, CString owner);
-    static bool CreateSchema(QSqlDatabase& db);
 
     static bool IsValidPgIdentifier(const QString& identifier)
     {
@@ -61,22 +57,7 @@ private:
     static QString TransStakeholder();
     static QString TransOrder(CString& order);
 
-    static bool NodeIndex(QSqlQuery& query);
-
     static QString SettlementOrder(CString& order);
-
-#if 0
-    static bool IniPGData();
-    static bool StartPGServer();
-    static bool StopPGServer();
-
-    static bool RunProcess(CString& program, const QStringList& arguments, QString* std_output = nullptr, QString* std_error = nullptr, int timeout_ms = 30000);
-    static QString PgBinPath(CString& exe_name);
-
-private:
-    static CString kPgDataDir;
-    static CString kPgBinBasePath;
-#endif
 };
 
-#endif // POSTGRESQL_H
+#endif // SQLITE_H

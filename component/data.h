@@ -26,7 +26,7 @@
 
 struct Data {
     Tab tab {};
-    Info info {};
+    SectionInfo info {};
     Sql* sql {};
 };
 

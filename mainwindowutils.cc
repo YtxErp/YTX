@@ -221,6 +221,34 @@ bool MainWindowUtils::PrepareNewFile(QString& file_path, CString& suffix)
     return true;
 }
 
+bool MainWindowUtils::CheckFileValid(CString& file_path, CString& suffix)
+{
+    if (file_path.isEmpty())
+        return false;
+
+    const QFileInfo file_info(file_path);
+
+    if (!file_info.exists() || !file_info.isFile()) {
+        Message(QMessageBox::Critical, QObject::tr("Invalid File"), QObject::tr("The specified file does not exist or is not a valid file:\n%1").arg(file_path),
+            kThreeThousand);
+        return false;
+    }
+
+    if (file_info.suffix().compare(suffix, Qt::CaseInsensitive) != 0) {
+        Message(QMessageBox::Critical, QObject::tr("Extension Mismatch"),
+            QObject::tr("The file extension does not match the expected type:\n%1").arg(file_path), kThreeThousand);
+        return false;
+    }
+
+    if (!CheckFileSQLite(file_path)) {
+        Message(
+            QMessageBox::Critical, QObject::tr("Invalid Database"), QObject::tr("The file is not a valid SQLite database:\n%1").arg(file_path), kThreeThousand);
+        return false;
+    }
+
+    return true;
+}
+
 bool MainWindowUtils::CheckFileSQLite(CString& file_path)
 {
     if (file_path.isEmpty())

@@ -6,7 +6,7 @@
 #include <QPointer>
 #include <QSettings>
 
-#include "component/config.h"
+#include "component/info.h"
 #include "component/using.h"
 
 namespace Ui {
@@ -17,7 +17,7 @@ class Licence : public QDialog {
     Q_OBJECT
 
 public:
-    explicit Licence(QSharedPointer<QSettings> license_settings, LicenseConfig& license_config, QWidget* parent = nullptr);
+    explicit Licence(QSharedPointer<QSettings> license_settings, LicenseInfo& license_info, QWidget* parent = nullptr);
     ~Licence();
 
     static bool VerifySignature(const QByteArray& payload, const QByteArray& signature, const QString& public_key_path);
@@ -37,7 +37,7 @@ private:
 
     QNetworkAccessManager* network_manager_ {};
     QSharedPointer<QSettings> license_settings_ {};
-    LicenseConfig& license_config_;
+    LicenseInfo& license_info_;
 };
 
 #endif // LICENCE_H

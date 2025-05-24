@@ -63,6 +63,7 @@ public:
     static bool IsSupportWidget(const QWidget* widget) { return widget && widget->inherits("SupportWidget"); }
 
     static bool PrepareNewFile(QString& file_path, CString& suffix);
+    static bool CheckFileValid(CString& file_path, CString& suffix);
 
     static bool AddDatabase(QSqlDatabase& db, CString& db_path, CString& connection_name);
     static QSqlDatabase GetDatabase(CString& connection_name);

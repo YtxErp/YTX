@@ -26,6 +26,13 @@
 
 #include "enumclass.h"
 
+struct LicenseInfo {
+    QString hardware_uuid {};
+    QString activation_code {};
+    QString activation_url {};
+    bool is_activated {};
+};
+
 struct LoginInfo {
     QString host {};
     int port {};

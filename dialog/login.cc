@@ -1,21 +1,27 @@
 #include "login.h"
 
+#include <QDir>
 #include <QMessageBox>
 #include <QSqlDatabase>
+#include <QStandardPaths>
 
 #include "component/constvalue.h"
+#include "component/signalblocker.h"
 #include "database/websocket.h"
 #include "ui_login.h"
 
-Login::Login(LoginInfo& login_info, QSharedPointer<QSettings> app_settings, QWidget* parent)
+Login::Login(LoginInfo& login_info, LicenseInfo& license_info, QSharedPointer<QSettings> app_settings, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::Login)
     , login_info_ { login_info }
+    , license_info_ { license_info }
     , app_settings_ { app_settings }
 {
     ui->setupUi(this);
-    InitDialog();
-    connect(&WebSocket::Instance(), &WebSocket::SLoginResult, this, &Login::RLoginResult);
+    SignalBlocker blocker(this);
+
+    IniDialog();
+    IniConnect();
 }
 
 Login::~Login() { delete ui; }
@@ -23,7 +29,7 @@ Login::~Login() { delete ui; }
 void Login::RLoginResult(bool success)
 {
     if (success) {
-        emit SLoadDatabase();
+        emit SLoadDatabase(GetCacheFilePath(login_info_.user, login_info_.database));
         SaveLoginConfig();
         this->close();
     } else {
@@ -41,10 +47,15 @@ void Login::on_pushButtonConnect_clicked()
     login_info_.password = ui->lineEditPassword->text();
     login_info_.database = ui->lineEditDatabase->text();
 
+    if (!license_info_.is_activated) {
+        QMessageBox::critical(this, tr("Activation Required"), tr("The software is not activated. Please activate it first."));
+        return;
+    }
+
     WebSocket::Instance().Connect(login_info_.host, login_info_.port, login_info_.user, login_info_.password, login_info_.database);
 }
 
-void Login::InitDialog()
+void Login::IniDialog()
 {
     ui->lineEditUser->setText(login_info_.user);
     ui->lineEditDatabase->setText(login_info_.database);
@@ -53,6 +64,8 @@ void Login::InitDialog()
     ui->lineEditHost->setText(login_info_.host);
     ui->lineEditPort->setText(QString::number(login_info_.port));
 }
+
+void Login::IniConnect() { connect(&WebSocket::Instance(), &WebSocket::SLoginResult, this, &Login::RLoginResult); }
 
 void Login::SaveLoginConfig()
 {
@@ -70,4 +83,14 @@ void Login::SaveLoginConfig()
     app_settings_->setValue(kDatabase, login_info_.database);
     app_settings_->setValue(kIsSaved, is_saved);
     app_settings_->endGroup();
+}
+
+QString Login::GetCacheFilePath(const QString& user, const QString& database)
+{
+    const QString file_name { QString("%1@%2.cache").arg(user, database) };
+    const QString base_path { QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) };
+    const QString cache_path { QDir(base_path).filePath("cache") };
+
+    QDir().mkpath(cache_path);
+    return QDir(cache_path).filePath(file_name);
 }

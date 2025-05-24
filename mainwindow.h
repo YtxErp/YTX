@@ -21,6 +21,7 @@
 #define MAINWINDOW_H
 
 #include <QFileInfo>
+#include <QLockFile>
 #include <QMainWindow>
 #include <QPointer>
 #include <QSettings>
@@ -80,7 +81,7 @@ private slots:
     void on_tabWidget_tabBarDoubleClicked(int index);
     void on_tabWidget_tabCloseRequested(int index);
 
-    bool RLoadDatabase();
+    bool RLoadDatabase(const QString& cache_file);
     void RNodeLocation(int node_id);
     void RTransLocation(int trans_id, int lhs_node_id, int rhs_node_id);
 
@@ -196,6 +197,7 @@ private:
     void ClearAccountInfo();
 
     void RestoreTab(PNodeModel tree_model, TransWgtHash& trans_wgt_hash, CIntSet& set, CData& data, CSectionConfig& section_settings);
+    bool LockFile(const QFileInfo& file_info);
 
     void EnableAction(bool enable) const;
 
@@ -228,18 +230,20 @@ private:
     QPointer<SettlementWidget> settlement_widget_ {};
     QMap<QString, QString> print_template_ {};
 
-    LicenseConfig license_config_ {};
-    QSharedPointer<QSettings> license_settings_ {};
+    LicenseInfo license_info_ {};
+    LoginInfo login_info_ {};
 
     QTranslator qt_translator_ {};
     QTranslator ytx_translator_ {};
 
     AppConfig app_config_ {};
     FileConfig file_config_ {};
-    LoginInfo login_info_ {};
+
+    QScopedPointer<QLockFile> lock_file_ {};
 
     QSharedPointer<QSettings> app_settings_ {};
     QSharedPointer<QSettings> file_settings_ {};
+    QSharedPointer<QSettings> license_settings_ {};
 
     QButtonGroup* section_group_ {};
 

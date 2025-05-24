@@ -27,7 +27,7 @@
 
 class Sqlite {
 public:
-    static bool CreateTable(QSqlDatabase& db);
+    static bool NewFile(const QString& file_path);
     static bool CreateDatabase(QSqlDatabase& db, CString database, CString owner);
 
     static bool IsValidPgIdentifier(const QString& identifier)

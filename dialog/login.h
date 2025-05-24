@@ -33,10 +33,10 @@ class Login final : public QDialog {
     Q_OBJECT
 
 signals:
-    void SLoadDatabase();
+    void SLoadDatabase(const QString& cache_file);
 
 public:
-    explicit Login(LoginInfo& login_info, QSharedPointer<QSettings> app_settings, QWidget* parent = nullptr);
+    explicit Login(LoginInfo& login_info, LicenseInfo& license_info, QSharedPointer<QSettings> app_settings, QWidget* parent = nullptr);
     ~Login();
 
 public slots:
@@ -46,12 +46,16 @@ private slots:
     void on_pushButtonConnect_clicked();
 
 private:
-    void InitDialog();
+    void IniDialog();
+    void IniConnect();
     void SaveLoginConfig();
+
+    QString GetCacheFilePath(const QString& user, const QString& database);
 
 private:
     Ui::Login* ui;
     LoginInfo& login_info_;
+    LicenseInfo& license_info_;
     QSharedPointer<QSettings> app_settings_ {};
 };
 

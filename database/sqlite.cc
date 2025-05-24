@@ -38,8 +38,13 @@ bool Sqlite::CreateDatabase(QSqlDatabase& db, CString database, CString owner)
     return true;
 }
 
-bool Sqlite::CreateTable(QSqlDatabase& db)
+bool Sqlite::NewFile(const QString& file_path)
 {
+    QSqlDatabase db { QSqlDatabase::addDatabase(kQSQLITE) };
+    db.setDatabaseName(file_path);
+    if (!db.open())
+        return false;
+
     const std::vector<QString> tables { NodeFinance(), Path(kFinance), TransFinance(), NodeProduct(), Path(kProduct), TransProduct(), NodeStakeholder(),
         Path(kStakeholder), TransStakeholder(), NodeTask(), Path(kTask), TransTask(), NodeOrder(kPurchase), Path(kPurchase), TransOrder(kPurchase),
         SettlementOrder(kPurchase), NodeOrder(kSales), Path(kSales), TransOrder(kSales), SettlementOrder(kSales) };
@@ -65,8 +70,27 @@ bool Sqlite::CreateTable(QSqlDatabase& db)
         return false;
     }
 
+    db.close();
     return true;
 }
+
+/**
+ * Server-Generated Fields Notice
+ *
+ * The following fields are strictly generated and managed by the server:
+ *
+ * - created_at, updated_at
+ *   Ensures consistent timestamps across clients and enables proper auditing.
+ *
+ * - created_by, updated_by
+ *   Prevents identity spoofing; reflects authenticated user context on the server.
+ *
+ * - user_id
+ *   Tied to the authenticated session; recommended to be consistent with created_by.
+ *
+ * Clients MUST NOT generate or override these fields.
+ * They are returned by the server and should only be stored or displayed locally.
+ */
 
 QString Sqlite::NodeFinance()
 {
@@ -83,9 +107,9 @@ QString Sqlite::NodeFinance()
         foreign_total    NUMERIC(19,6),
         local_total      NUMERIC(19,6),
         user_id          TEXT NOT NULL,
-        created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at       TEXT NOT NULL,
         created_by       TEXT NOT NULL,
-        updated_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at       TEXT NOT NULL,
         updated_by       TEXT NOT NULL,
         version          INTEGER NOT NULL DEFAULT 1,
         is_valid         BOOLEAN NOT NULL DEFAULT TRUE
@@ -111,9 +135,9 @@ QString Sqlite::NodeProduct()
         quantity         NUMERIC(19,6),
         amount           NUMERIC(19,6),
         user_id          TEXT NOT NULL,
-        created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at       TEXT NOT NULL,
         created_by       TEXT NOT NULL,
-        updated_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at       TEXT NOT NULL,
         updated_by       TEXT NOT NULL,
         version          INTEGER NOT NULL DEFAULT 1,
         is_valid         BOOLEAN NOT NULL DEFAULT TRUE
@@ -133,7 +157,7 @@ QString Sqlite::NodeTask()
         node_type        INTEGER NOT NULL,
         direction_rule   BOOLEAN NOT NULL DEFAULT false,
         unit             INTEGER NOT NULL,
-        date_time        TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at        TEXT NOT NULL,
         color            TEXT,
         document         TEXT,
         is_finished      BOOLEAN NOT NULL DEFAULT false,
@@ -141,9 +165,9 @@ QString Sqlite::NodeTask()
         quantity         NUMERIC(19,6),
         amount           NUMERIC(19,6),
         user_id          TEXT NOT NULL,
-        created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at       TEXT NOT NULL,
         created_by       TEXT NOT NULL,
-        updated_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at       TEXT NOT NULL,
         updated_by       TEXT NOT NULL,
         version          INTEGER NOT NULL DEFAULT 1,
         is_valid         BOOLEAN NOT NULL DEFAULT TRUE
@@ -168,9 +192,9 @@ QString Sqlite::NodeStakeholder()
         tax_rate          NUMERIC(19,6),
         amount            NUMERIC(19,6),
         user_id           TEXT NOT NULL,
-        created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at        TEXT NOT NULL,
         created_by        TEXT NOT NULL,
-        updated_at        TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at        TEXT NOT NULL,
         updated_by        TEXT NOT NULL,
         version           INTEGER NOT NULL DEFAULT 1,
         is_valid          BOOLEAN NOT NULL DEFAULT TRUE
@@ -190,7 +214,7 @@ QString Sqlite::NodeOrder(const QString& order)
         node_type         INTEGER NOT NULL,
         direction_rule    BOOLEAN NOT NULL DEFAULT FALSE,
         unit              INTEGER NOT NULL,
-        date_time         TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at         TEXT NOT NULL,
         first             NUMERIC(19,6),
         second            NUMERIC(19,6),
         is_finished       BOOLEAN NOT NULL DEFAULT FALSE,
@@ -199,9 +223,9 @@ QString Sqlite::NodeOrder(const QString& order)
         settlement        NUMERIC(19,6),
         settlement_id     TEXT NOT NULL,
         user_id           TEXT NOT NULL,
-        created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at        TEXT NOT NULL,
         created_by        TEXT NOT NULL,
-        updated_at        TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at        TEXT NOT NULL,
         updated_by        TEXT NOT NULL,
         version           INTEGER NOT NULL DEFAULT 1,
         is_valid          BOOLEAN NOT NULL DEFAULT TRUE
@@ -229,7 +253,7 @@ QString Sqlite::TransFinance()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS finance_transaction (
         id             TEXT PRIMARY KEY,
-        date_time      TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at      TEXT NOT NULL,
         code           TEXT,
         lhs_node       TEXT NOT NULL,
         lhs_ratio      NUMERIC(19,6) CHECK (lhs_ratio   > 0),
@@ -244,9 +268,9 @@ QString Sqlite::TransFinance()
         rhs_ratio      NUMERIC(19,6) CHECK (rhs_ratio   > 0),
         rhs_node       TEXT NOT NULL,
         user_id        TEXT NOT NULL,
-        created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at     TEXT NOT NULL,
         created_by     TEXT NOT NULL,
-        updated_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at     TEXT NOT NULL,
         updated_by     TEXT NOT NULL,
         version        INTEGER NOT NULL DEFAULT 1,
         is_valid       BOOLEAN NOT NULL DEFAULT TRUE
@@ -259,7 +283,7 @@ QString Sqlite::TransProduct()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS product_transaction (
         id             TEXT PRIMARY KEY,
-        date_time      TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at      TEXT NOT NULL,
         code           TEXT,
         lhs_node       TEXT NOT NULL,
         unit_cost      NUMERIC(19,6),
@@ -273,9 +297,9 @@ QString Sqlite::TransProduct()
         rhs_debit      NUMERIC(19,6) CHECK (rhs_debit  >= 0),
         rhs_node       TEXT NOT NULL,
         user_id        TEXT NOT NULL,
-        created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at     TEXT NOT NULL,
         created_by     TEXT NOT NULL,
-        updated_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at     TEXT NOT NULL,
         updated_by     TEXT NOT NULL,
         version        INTEGER NOT NULL DEFAULT 1,
         is_valid       BOOLEAN NOT NULL DEFAULT TRUE
@@ -288,7 +312,7 @@ QString Sqlite::TransTask()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS task_transaction (
         id             TEXT PRIMARY KEY,
-        date_time      TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at      TEXT NOT NULL,
         code           TEXT,
         lhs_node       TEXT NOT NULL,
         unit_cost      NUMERIC(19,6),
@@ -302,9 +326,9 @@ QString Sqlite::TransTask()
         rhs_debit      NUMERIC(19,6) CHECK (rhs_debit  >= 0),
         rhs_node       TEXT NOT NULL,
         user_id        TEXT NOT NULL,
-        created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at     TEXT NOT NULL,
         created_by     TEXT NOT NULL,
-        updated_at     TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at     TEXT NOT NULL,
         updated_by     TEXT NOT NULL,
         version        INTEGER NOT NULL DEFAULT 1,
         is_valid       BOOLEAN NOT NULL DEFAULT TRUE
@@ -317,7 +341,7 @@ QString Sqlite::TransStakeholder()
     return QStringLiteral(R"(
     CREATE TABLE IF NOT EXISTS stakeholder_transaction (
         id                 TEXT PRIMARY KEY,
-        date_time          TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at          TEXT NOT NULL,
         code               TEXT,
         lhs_node           TEXT NOT NULL,
         unit_price         NUMERIC(19,6),
@@ -327,9 +351,9 @@ QString Sqlite::TransStakeholder()
         is_checked         BOOLEAN DEFAULT FALSE,
         inside_product     TEXT NOT NULL,
         user_id            TEXT NOT NULL,
-        created_at         TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at         TEXT NOT NULL,
         created_by         TEXT NOT NULL,
-        updated_at         TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at         TEXT NOT NULL,
         updated_by         TEXT NOT NULL,
         version            INTEGER NOT NULL DEFAULT 1,
         UNIQUE(lhs_node, inside_product)
@@ -355,9 +379,9 @@ QString Sqlite::TransOrder(const QString& order)
         discount_price      NUMERIC(19,6),
         inside_product      TEXT NOT NULL,
         user_id             TEXT NOT NULL,
-        created_at          TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at          TEXT NOT NULL,
         created_by          TEXT NOT NULL,
-        updated_at          TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at          TEXT NOT NULL,
         updated_by          TEXT NOT NULL,
         version             INTEGER NOT NULL DEFAULT 1,
         is_valid            BOOLEAN NOT NULL DEFAULT TRUE
@@ -372,14 +396,14 @@ QString Sqlite::SettlementOrder(const QString& order)
     CREATE TABLE IF NOT EXISTS %1_settlement (
         id               TEXT PRIMARY KEY,
         party            TEXT NOT NULL,
-        date_time        TEXT NOT NULL DEFAULT (datetime('now')),
+        issued_at        TEXT NOT NULL,
         description      TEXT,
         is_finished      BOOLEAN DEFAULT FALSE,
         gross_amount     NUMERIC(19,6),
         user_id          TEXT NOT NULL,
-        created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        created_at       TEXT NOT NULL,
         created_by       TEXT NOT NULL,
-        updated_at       TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at       TEXT NOT NULL,
         updated_by       TEXT NOT NULL,
         version          INTEGER NOT NULL DEFAULT 1,
         is_valid         BOOLEAN NOT NULL DEFAULT TRUE

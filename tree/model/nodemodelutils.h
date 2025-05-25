@@ -35,7 +35,7 @@ public:
         assert(sql && "Sqlite pointer is null");
         assert(node && "Node pointer is null");
 
-        if (allow_leaf_only && node->type != kTypeLeaf) {
+        if (allow_leaf_only && node->node_type != kTypeLeaf) {
             return false;
         }
 

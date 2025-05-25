@@ -280,7 +280,7 @@ bool Sql::ReadLeafTotal(Node* node) const
 {
     assert(node && "Node is null");
     assert(node->id >= 1 && "Node ID must be positive");
-    assert(node->type == kTypeLeaf && "Node type must be kTypeLeaf");
+    assert(node->node_type == kTypeLeaf && "Node type must be kTypeLeaf");
 
     CString string { QSLeafTotal() };
     if (string.isEmpty())
@@ -625,7 +625,7 @@ bool Sql::RemoveTrans(int trans_id)
 
 bool Sql::UpdateLeafValue(const Node* node) const
 {
-    if (node->type != kTypeLeaf)
+    if (node->node_type != kTypeLeaf)
         return false;
 
     CString string { QSUpdateLeafValue() };

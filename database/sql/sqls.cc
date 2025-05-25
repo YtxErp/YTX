@@ -307,7 +307,7 @@ void SqlS::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":code"), node->code);
     query.bindValue(QStringLiteral(":description"), node->description);
     query.bindValue(QStringLiteral(":note"), node->note);
-    query.bindValue(QStringLiteral(":type"), node->type);
+    query.bindValue(QStringLiteral(":node_type"), node->node_type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":employee"), node->employee);
     query.bindValue(QStringLiteral(":deadline"), node->date_time);
@@ -679,7 +679,7 @@ void SqlS::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->code = query.value(QStringLiteral("code")).toString();
     node->description = query.value(QStringLiteral("description")).toString();
     node->note = query.value(QStringLiteral("note")).toString();
-    node->type = query.value(QStringLiteral("type")).toInt();
+    node->node_type = query.value(QStringLiteral("node_type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();
     node->date_time = query.value(QStringLiteral("deadline")).toString();

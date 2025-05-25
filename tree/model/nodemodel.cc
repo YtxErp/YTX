@@ -31,7 +31,7 @@ void NodeModel::RSyncMultiLeafValue(const QList<int>& node_list)
     for (int node_id : node_list) {
         auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
 
-        assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
+        assert(node && node->node_type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
         const double old_final_total { node->final_total };
         const double old_initial_total { node->initial_total };
@@ -126,7 +126,7 @@ bool NodeModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int r
         return false;
 
     auto* destination_parent { GetNodeByIndex(parent) };
-    if (destination_parent->type != kTypeBranch)
+    if (destination_parent->node_type != kTypeBranch)
         return false;
 
     int node_id {};
@@ -173,7 +173,7 @@ bool NodeModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int /*c
     NodeModelUtils::UpdatePath(leaf_path_, branch_path_, support_path_, root_, node, separator_);
     NodeModelUtils::UpdateModel(leaf_path_, leaf_model_, support_path_, support_model_, node);
 
-    emit SSyncName(node->id, node->name, node->type == kTypeBranch);
+    emit SSyncName(node->id, node->name, node->node_type == kTypeBranch);
     emit SResizeColumnToContents(std::to_underlying(NodeEnum::kName));
 
     return true;
@@ -258,7 +258,7 @@ void NodeModel::UpdateName(int node_id, CString& new_name)
     assert(node && "Node must be non-null");
 
     UpdateNameFunction(node, new_name);
-    emit SSyncName(node->id, node->name, node->type == kTypeBranch);
+    emit SSyncName(node->id, node->name, node->node_type == kTypeBranch);
 }
 
 QString NodeModel::Path(int node_id) const
@@ -296,7 +296,7 @@ bool NodeModel::InsertNode(int row, const QModelIndex& parent, Node* node)
     node_hash_.insert(node->id, node);
 
     InsertPath(node);
-    SortModel(node->type);
+    SortModel(node->node_type);
 
     emit SSearch();
     return true;
@@ -306,7 +306,7 @@ void NodeModel::RemovePath(Node* node, Node* parent_node)
 {
     const int node_id { node->id };
 
-    switch (node->type) {
+    switch (node->node_type) {
     case kTypeBranch: {
         for (auto* child : std::as_const(node->children)) {
             child->parent = parent_node;
@@ -376,7 +376,7 @@ bool NodeModel::UpdateUnit(Node* node, int value)
     if (NodeModelUtils::IsSupportReferenced(sql_, node_id, message))
         return false;
 
-    if (node->type == kTypeLeaf) {
+    if (node->node_type == kTypeLeaf) {
         RemoveUnitSet(node_id, node->unit);
         InsertUnitSet(node_id, value);
         emit SSyncFilterModel();
@@ -405,7 +405,7 @@ void NodeModel::ConstructTree()
         for (auto* node : std::as_const(node_hash_)) {
             InsertPath(node);
 
-            if (node->type == kTypeLeaf)
+            if (node->node_type == kTypeLeaf)
                 UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
         }
     });
@@ -443,7 +443,7 @@ bool NodeModel::UpdateRule(Node* node, bool value)
     node->final_total = -node->final_total;
     node->initial_total = -node->initial_total;
     node->first = -node->first;
-    if (node->type == kTypeLeaf) {
+    if (node->node_type == kTypeLeaf) {
         emit SSyncRule(info_.section, node->id, value);
         sql_->UpdateLeafValue(node);
     }
@@ -454,7 +454,7 @@ bool NodeModel::UpdateRule(Node* node, bool value)
 
 bool NodeModel::UpdateType(Node* node, int value)
 {
-    if (node->type == value)
+    if (node->node_type == value)
         return false;
 
     const int node_id { node->id };
@@ -472,7 +472,7 @@ bool NodeModel::UpdateType(Node* node, int value)
     if (NodeModelUtils::IsExternalReferenced(sql_, node_id, message))
         return false;
 
-    switch (node->type) {
+    switch (node->node_type) {
     case kTypeBranch:
         branch_path_.remove(node_id);
         break;
@@ -489,11 +489,11 @@ bool NodeModel::UpdateType(Node* node, int value)
         break;
     }
 
-    node->type = value;
-    sql_->WriteField(info_.node, kType, value, node_id);
+    node->node_type = value;
+    sql_->WriteField(info_.node, kNodeType, value, node_id);
 
     InsertPath(node);
-    SortModel(node->type);
+    SortModel(node->node_type);
 
     return true;
 }
@@ -520,7 +520,7 @@ void NodeModel::InsertPath(Node* node)
 {
     CString path { NodeModelUtils::ConstructPath(root_, node, separator_) };
 
-    switch (node->type) {
+    switch (node->node_type) {
     case kTypeBranch:
         branch_path_.insert(node->id, path);
         break;
@@ -547,7 +547,7 @@ QSet<int> NodeModel::ChildrenID(int node_id) const
         return {};
 
     auto* node { it.value() };
-    if (node->type != kTypeBranch || node->children.isEmpty())
+    if (node->node_type != kTypeBranch || node->children.isEmpty())
         return {};
 
     QQueue<const Node*> queue {};
@@ -557,7 +557,7 @@ QSet<int> NodeModel::ChildrenID(int node_id) const
     while (!queue.isEmpty()) {
         auto* queue_node = queue.dequeue();
 
-        switch (queue_node->type) {
+        switch (queue_node->node_type) {
         case kTypeBranch: {
             for (const auto* child : queue_node->children)
                 queue.enqueue(child);

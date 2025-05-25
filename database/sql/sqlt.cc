@@ -217,7 +217,7 @@ void SqlT::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":description"), node->description);
     query.bindValue(QStringLiteral(":note"), node->note);
     query.bindValue(QStringLiteral(":rule"), node->rule);
-    query.bindValue(QStringLiteral(":type"), node->type);
+    query.bindValue(QStringLiteral(":node_type"), node->node_type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":color"), node->color);
     query.bindValue(QStringLiteral(":date_time"), node->date_time);
@@ -234,7 +234,7 @@ void SqlT::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->description = query.value(QStringLiteral("description")).toString();
     node->note = query.value(QStringLiteral("note")).toString();
     node->rule = query.value(QStringLiteral("rule")).toBool();
-    node->type = query.value(QStringLiteral("type")).toInt();
+    node->node_type = query.value(QStringLiteral("node_type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->initial_total = query.value(QStringLiteral("quantity")).toDouble();
     node->final_total = query.value(QStringLiteral("amount")).toDouble();

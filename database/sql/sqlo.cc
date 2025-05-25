@@ -1239,7 +1239,7 @@ void SqlO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->name = query.value(QStringLiteral("name")).toString();
     node->description = query.value(QStringLiteral("description")).toString();
     node->rule = query.value(QStringLiteral("rule")).toBool();
-    node->type = query.value(QStringLiteral("type")).toInt();
+    node->node_type = query.value(QStringLiteral("node_type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->party = query.value(QStringLiteral("party")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();
@@ -1257,7 +1257,7 @@ void SqlO::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":name"), node->name);
     query.bindValue(QStringLiteral(":description"), node->description);
     query.bindValue(QStringLiteral(":rule"), node->rule);
-    query.bindValue(QStringLiteral(":type"), node->type);
+    query.bindValue(QStringLiteral(":node_type"), node->node_type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":party"), node->party);
     query.bindValue(QStringLiteral(":employee"), node->employee);

@@ -13,7 +13,7 @@ void NodeModelF::RSyncLeafValue(
     int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled*/)
 {
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
+    assert(node && node->node_type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
     if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
@@ -39,7 +39,7 @@ void NodeModelF::UpdateDefaultUnit(int default_unit)
     root_->unit = default_unit;
 
     for (auto* node : std::as_const(node_hash_))
-        if (node->type == kTypeBranch && node->unit != default_unit)
+        if (node->node_type == kTypeBranch && node->unit != default_unit)
             NodeModelUtils::UpdateBranchUnit(root_, node);
 }
 
@@ -68,7 +68,7 @@ QVariant NodeModelF::data(const QModelIndex& index, int role) const
     case NodeEnumF::kRule:
         return node->rule;
     case NodeEnumF::kType:
-        return node->type;
+        return node->node_type;
     case NodeEnumF::kUnit:
         return node->unit;
     case NodeEnumF::kForeignTotal:
@@ -138,7 +138,7 @@ void NodeModelF::sort(int column, Qt::SortOrder order)
         case NodeEnumF::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
         case NodeEnumF::kType:
-            return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
+            return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumF::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
         case NodeEnumF::kForeignTotal:
@@ -197,7 +197,7 @@ bool NodeModelF::UpdateUnit(Node* node, int value)
     node->unit = value;
     sql_->WriteField(info_.node, kUnit, value, node_id);
 
-    if (node->type == kTypeBranch)
+    if (node->node_type == kTypeBranch)
         NodeModelUtils::UpdateBranchUnit(root_, node);
 
     return true;

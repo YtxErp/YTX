@@ -15,7 +15,7 @@ void NodeModelP::RSyncLeafValue(
     int node_id, double initial_debit_delta, double initial_credit_delta, double final_debit_delta, double final_credit_delta, double /*settled_delta*/)
 {
     auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
-    assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
+    assert(node && node->node_type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
     if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
@@ -86,7 +86,7 @@ void NodeModelP::sort(int column, Qt::SortOrder order)
         case NodeEnumP::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
         case NodeEnumP::kType:
-            return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
+            return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumP::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
         case NodeEnumP::kColor:
@@ -119,7 +119,7 @@ QVariant NodeModelP::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const NodeEnumP kColumn { index.column() };
-    const bool kIsLeaf { node->type == kTypeLeaf };
+    const bool kIsLeaf { node->node_type == kTypeLeaf };
 
     switch (kColumn) {
     case NodeEnumP::kName:
@@ -135,7 +135,7 @@ QVariant NodeModelP::data(const QModelIndex& index, int role) const
     case NodeEnumP::kRule:
         return node->rule;
     case NodeEnumP::kType:
-        return node->type;
+        return node->node_type;
     case NodeEnumP::kUnit:
         return node->unit;
     case NodeEnumP::kColor:

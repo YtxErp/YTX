@@ -28,7 +28,7 @@ void NodeModelS::RSyncDouble(int node_id, int column, double value)
         return;
 
     auto* node { node_hash_.value(node_id) };
-    if (!node || node == root_ || node->type != kTypeLeaf)
+    if (!node || node == root_ || node->node_type != kTypeLeaf)
         return;
 
     node->final_total += value;
@@ -42,7 +42,7 @@ void NodeModelS::RSyncMultiLeafValue(const QList<int>& node_list)
     for (int node_id : node_list) {
         auto* node { NodeModelUtils::GetNode(node_hash_, node_id) };
 
-        assert(node && node->type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
+        assert(node && node->node_type == kTypeLeaf && "Node must be non-null and of type kTypeLeaf");
 
         const double old_final_total { node->final_total };
 
@@ -166,7 +166,7 @@ void NodeModelS::sort(int column, Qt::SortOrder order)
         case NodeEnumS::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
         case NodeEnumS::kType:
-            return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
+            return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumS::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
         case NodeEnumS::kDeadline:
@@ -199,7 +199,7 @@ QVariant NodeModelS::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const NodeEnumS kColumn { index.column() };
-    const bool kIsLeaf { node->type == kTypeLeaf };
+    const bool kIsLeaf { node->node_type == kTypeLeaf };
 
     switch (kColumn) {
     case NodeEnumS::kName:
@@ -213,7 +213,7 @@ QVariant NodeModelS::data(const QModelIndex& index, int role) const
     case NodeEnumS::kNote:
         return node->note;
     case NodeEnumS::kType:
-        return node->type;
+        return node->node_type;
     case NodeEnumS::kUnit:
         return node->unit;
     case NodeEnumS::kDeadline:

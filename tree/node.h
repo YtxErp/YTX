@@ -33,7 +33,7 @@ struct Node {
     QString color {};
     QStringList document {};
     bool rule { false };
-    int type {};
+    int node_type {};
     int unit {};
 
     double first {};
@@ -69,7 +69,7 @@ struct Node {
         color.clear();
         document.clear();
         rule = false;
-        type = 0;
+        node_type = 0;
         unit = 0;
         final_total = 0.0;
         initial_total = 0.0;

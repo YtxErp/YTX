@@ -139,4 +139,4 @@ void InsertNodeProduct::on_pBtnColor_clicked()
 
 void InsertNodeProduct::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
-void InsertNodeProduct::RTypeGroupClicked(int id) { node_->type = id; }
+void InsertNodeProduct::RTypeGroupClicked(int id) { node_->node_type = id; }

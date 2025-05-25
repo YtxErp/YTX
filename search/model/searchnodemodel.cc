@@ -61,7 +61,7 @@ QVariant SearchNodeModel::data(const QModelIndex& index, int role) const
     case NodeSearchEnum::kRule:
         return node->rule;
     case NodeSearchEnum::kType:
-        return node->type;
+        return node->node_type;
     case NodeSearchEnum::kUnit:
         return node->unit;
     case NodeSearchEnum::kParty:
@@ -119,7 +119,7 @@ void SearchNodeModel::sort(int column, Qt::SortOrder order)
         case NodeSearchEnum::kRule:
             return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
         case NodeSearchEnum::kType:
-            return (order == Qt::AscendingOrder) ? (lhs->type < rhs->type) : (lhs->type > rhs->type);
+            return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeSearchEnum::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
         case NodeSearchEnum::kParty:

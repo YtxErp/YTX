@@ -145,7 +145,7 @@ public:
     // Default implementations
     double InitialTotal(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::initial_total); }
     double FinalTotal(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::final_total); }
-    int Type(int node_id) { return NodeModelUtils::Value(node_hash_, node_id, &Node::type); }
+    int Type(int node_id) { return NodeModelUtils::Value(node_hash_, node_id, &Node::node_type); }
     int Unit(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::unit); }
     bool Rule(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::rule); }
     bool Finished(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::finished); }

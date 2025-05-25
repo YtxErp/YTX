@@ -145,4 +145,4 @@ void InsertNodeTask::on_dateTime_editingFinished() { node_->date_time = ui->date
 
 void InsertNodeTask::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
-void InsertNodeTask::RTypeGroupClicked(int id) { node_->type = id; }
+void InsertNodeTask::RTypeGroupClicked(int id) { node_->node_type = id; }

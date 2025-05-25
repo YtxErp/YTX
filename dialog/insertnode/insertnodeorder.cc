@@ -72,7 +72,7 @@ void InsertNodeOrder::RSyncBoolNode(int node_id, int column, bool value)
         break;
     case NodeEnumO::kFinished: {
         IniFinished(value);
-        LockWidgets(value, node_->type == kTypeBranch);
+        LockWidgets(value, node_->node_type == kTypeBranch);
         break;
     }
     default:
@@ -177,7 +177,7 @@ void InsertNodeOrder::accept()
         emit QDialog::accepted();
         node_id_ = node_->id;
 
-        if (node_->type == kTypeLeaf) {
+        if (node_->node_type == kTypeLeaf) {
             emit SSyncInt(node_id_, std::to_underlying(NodeEnumO::kID), node_id_);
             emit SSyncLeafValue(node_id_, node_->initial_total, node_->final_total, node_->first, node_->second, node_->discount);
         }
@@ -395,7 +395,7 @@ void InsertNodeOrder::IniUnitGroup()
 
 void InsertNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 {
-    if (node_->type != kTypeBranch || arg1.isEmpty())
+    if (node_->node_type != kTypeBranch || arg1.isEmpty())
         return;
 
     node_->name = arg1;
@@ -410,7 +410,7 @@ void InsertNodeOrder::on_comboParty_editTextChanged(const QString& arg1)
 
 void InsertNodeOrder::on_comboParty_currentIndexChanged(int /*index*/)
 {
-    if (node_->type != kTypeLeaf)
+    if (node_->node_type != kTypeLeaf)
         return;
 
     static const QString title { windowTitle() };
@@ -449,7 +449,7 @@ void InsertNodeOrder::on_comboEmployee_currentIndexChanged(int /*index*/)
 void InsertNodeOrder::on_pBtnInsert_clicked()
 {
     const auto& name { ui->comboParty->currentText() };
-    if (node_->type == kTypeBranch || name.isEmpty() || ui->comboParty->currentIndex() != -1)
+    if (node_->node_type == kTypeBranch || name.isEmpty() || ui->comboParty->currentIndex() != -1)
         return;
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
@@ -480,13 +480,13 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
     node_->finished = checked;
 
     sql_->WriteField(party_info_, kFinished, checked, node_id_);
-    if (node_->type == kTypeLeaf) {
+    if (node_->node_type == kTypeLeaf) {
         emit SSyncBoolNode(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
         emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
     }
 
     IniFinished(checked);
-    LockWidgets(checked, node_->type == kTypeBranch);
+    LockWidgets(checked, node_->node_type == kTypeBranch);
 
     if (checked)
         sql_->SyncPrice(node_id_);
@@ -495,7 +495,7 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& arg1)
 {
     bool enable { arg1 == Qt::Checked };
-    node_->type = enable;
+    node_->node_type = enable;
     LockWidgets(false, enable);
 
     ui->comboEmployee->setCurrentIndex(-1);

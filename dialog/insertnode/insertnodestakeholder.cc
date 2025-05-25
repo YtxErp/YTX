@@ -101,4 +101,4 @@ void InsertNodeStakeholder::on_deadline_editingFinished() { node_->date_time = u
 
 void InsertNodeStakeholder::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
-void InsertNodeStakeholder::RTypeGroupClicked(int id) { node_->type = id; }
+void InsertNodeStakeholder::RTypeGroupClicked(int id) { node_->node_type = id; }

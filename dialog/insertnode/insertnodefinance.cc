@@ -103,6 +103,6 @@ void InsertNodeFinance::on_comboUnit_currentIndexChanged(int index)
 
 void InsertNodeFinance::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
 
-void InsertNodeFinance::RTypeGroupClicked(int id) { node_->type = id; }
+void InsertNodeFinance::RTypeGroupClicked(int id) { node_->node_type = id; }
 
 void InsertNodeFinance::on_plainNote_textChanged() { node_->note = ui->plainNote->toPlainText(); }

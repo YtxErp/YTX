@@ -52,7 +52,7 @@ void InsertNodeProduct::IniData(Node* node)
     int unit_index { ui->comboUnit->findData(node->unit) };
     ui->comboUnit->setCurrentIndex(unit_index);
 
-    IniRule(node->rule);
+    IniDirectionRule(node->direction_rule);
     ui->rBtnLeaf->setChecked(true);
 
     ui->pBtnOk->setEnabled(false);
@@ -83,7 +83,7 @@ void InsertNodeProduct::IniRuleGroup()
     rule_group_->addButton(ui->rBtnDDCI, 1);
 }
 
-void InsertNodeProduct::IniRule(bool rule)
+void InsertNodeProduct::IniDirectionRule(bool rule)
 {
     const int kRule { static_cast<int>(rule) };
 
@@ -137,6 +137,6 @@ void InsertNodeProduct::on_pBtnColor_clicked()
     }
 }
 
-void InsertNodeProduct::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
+void InsertNodeProduct::RRuleGroupClicked(int id) { node_->direction_rule = static_cast<bool>(id); }
 
 void InsertNodeProduct::RTypeGroupClicked(int id) { node_->node_type = id; }

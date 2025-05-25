@@ -264,8 +264,8 @@ bool Sql::WriteNode(int parent_id, Node* node)
 
 void Sql::CalculateLeafTotal(Node* node, QSqlQuery& query) const
 {
-    bool rule { node->rule };
-    int sign = rule ? 1 : -1;
+    bool direction_rule { node->direction_rule };
+    int sign = direction_rule ? 1 : -1;
 
     if (query.next()) {
         const double initial_balance { query.value(QStringLiteral("initial_balance")).toDouble() };

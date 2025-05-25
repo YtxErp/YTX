@@ -32,7 +32,7 @@ struct Node {
     QString date_time {};
     QString color {};
     QStringList document {};
-    bool rule { false };
+    bool direction_rule { false };
     int node_type {};
     int unit {};
 
@@ -68,7 +68,7 @@ struct Node {
         note.clear();
         color.clear();
         document.clear();
-        rule = false;
+        direction_rule = false;
         node_type = 0;
         unit = 0;
         final_total = 0.0;

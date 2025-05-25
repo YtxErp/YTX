@@ -217,7 +217,7 @@ QVariant NodeModelS::data(const QModelIndex& index, int role) const
     case NodeEnumS::kUnit:
         return node->unit;
     case NodeEnumS::kDeadline:
-        return kIsLeaf && node->rule == kRuleMS ? node->date_time : QVariant();
+        return kIsLeaf && node->direction_rule == kRuleMS ? node->date_time : QVariant();
     case NodeEnumS::kEmployee:
         return kIsLeaf && node->employee != 0 ? node->employee : QVariant();
     case NodeEnumS::kPaymentTerm:

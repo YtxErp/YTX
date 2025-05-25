@@ -18,7 +18,7 @@ void NodeModelF::RSyncLeafValue(
     if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
 
-    bool rule { node->rule };
+    bool rule { node->direction_rule };
 
     double initial_delta { (rule ? 1 : -1) * (initial_credit_delta - initial_debit_delta) };
     double final_delta { (rule ? 1 : -1) * (final_credit_delta - final_debit_delta) };
@@ -66,7 +66,7 @@ QVariant NodeModelF::data(const QModelIndex& index, int role) const
     case NodeEnumF::kNote:
         return node->note;
     case NodeEnumF::kRule:
-        return node->rule;
+        return node->direction_rule;
     case NodeEnumF::kType:
         return node->node_type;
     case NodeEnumF::kUnit:
@@ -136,7 +136,7 @@ void NodeModelF::sort(int column, Qt::SortOrder order)
         case NodeEnumF::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
         case NodeEnumF::kRule:
-            return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
+            return (order == Qt::AscendingOrder) ? (lhs->direction_rule < rhs->direction_rule) : (lhs->direction_rule > rhs->direction_rule);
         case NodeEnumF::kType:
             return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumF::kUnit:
@@ -214,10 +214,10 @@ bool NodeModelF::UpdateAncestorValue(Node* node, double initial_delta, double fi
         return false;
 
     const int kUnit { node->unit };
-    const bool kRule { node->rule };
+    const bool kRule { node->direction_rule };
 
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
-        bool equal { current->rule == kRule };
+        bool equal { current->direction_rule == kRule };
         current->final_total += (equal ? 1 : -1) * final_delta;
 
         if (current->unit == kUnit) {

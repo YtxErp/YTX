@@ -566,7 +566,7 @@ void MainWindow::CreateLeafO(PNodeModel tree_model, TransWgtHash* trans_wgt_hash
 
     auto* sql { data->sql };
 
-    TransModelArg model_arg { sql, info, node_id, node->rule };
+    TransModelArg model_arg { sql, info, node_id, node->direction_rule };
     TransModelO* model { new TransModelO(model_arg, node, product_tree_->Model(), stakeholder_data_.sql, this) };
 
     auto print_manager = QSharedPointer<PrintManager>::create(app_config_, product_tree_->Model(), stakeholder_tree_->Model());
@@ -951,7 +951,7 @@ void MainWindow::InsertNodeFunction(const QModelIndex& parent, int parent_id, in
     auto model { node_widget_->Model() };
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
-    node->rule = model->Rule(parent_id);
+    node->direction_rule = model->Rule(parent_id);
     node->unit = parent_id == -1 ? section_config_->default_unit : model->Unit(parent_id);
     model->SetParent(node, parent_id);
 

@@ -26,7 +26,7 @@ TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& p
     IniUnit(arg.node->unit);
     IniRuleGroup();
     IniUnitGroup();
-    IniRule(arg.node->rule);
+    IniRule(arg.node->direction_rule);
     IniData();
     IniDataCombo(arg.node->party, arg.node->employee);
     IniConnect();
@@ -345,7 +345,7 @@ void TransWidgetO::on_pBtnInsert_clicked()
         return;
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
-    node->rule = stakeholder_node_->Rule(-1);
+    node->direction_rule = stakeholder_node_->Rule(-1);
     stakeholder_node_->SetParent(node, -1);
     node->name = name;
 
@@ -371,7 +371,7 @@ void TransWidgetO::on_lineDescription_editingFinished()
 
 void TransWidgetO::RRuleGroupClicked(int id)
 {
-    node_->rule = static_cast<bool>(id);
+    node_->direction_rule = static_cast<bool>(id);
 
     node_->first *= -1;
     node_->second *= -1;
@@ -381,11 +381,11 @@ void TransWidgetO::RRuleGroupClicked(int id)
 
     IniLeafValue();
 
-    sql_->WriteField(party_info_, kRule, node_->rule, node_id_);
+    sql_->WriteField(party_info_, kDirectionRule, node_->direction_rule, node_id_);
     sql_->UpdateLeafValue(node_);
     sql_->InvertTransValue(node_id_);
 
-    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->rule);
+    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->direction_rule);
 }
 
 void TransWidgetO::RUnitGroupClicked(int id)

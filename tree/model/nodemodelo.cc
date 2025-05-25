@@ -103,11 +103,11 @@ Node* NodeModelO::GetNode(int node_id) const { return NodeModelUtils::GetNode(no
 
 bool NodeModelO::UpdateRule(Node* node, bool value)
 {
-    if (node->rule == value || node->node_type != kTypeLeaf)
+    if (node->direction_rule == value || node->node_type != kTypeLeaf)
         return false;
 
-    node->rule = value;
-    sql_->WriteField(info_.node, kRule, value, node->id);
+    node->direction_rule = value;
+    sql_->WriteField(info_.node, kDirectionRule, value, node->id);
 
     node->first = -node->first;
     node->second = -node->second;
@@ -280,7 +280,7 @@ void NodeModelO::sort(int column, Qt::SortOrder order)
         case NodeEnumO::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case NodeEnumO::kRule:
-            return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
+            return (order == Qt::AscendingOrder) ? (lhs->direction_rule < rhs->direction_rule) : (lhs->direction_rule > rhs->direction_rule);
         case NodeEnumO::kType:
             return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumO::kUnit:
@@ -333,7 +333,7 @@ QVariant NodeModelO::data(const QModelIndex& index, int role) const
     case NodeEnumO::kDescription:
         return node->description;
     case NodeEnumO::kRule:
-        return branch ? -1 : node->rule;
+        return branch ? -1 : node->direction_rule;
     case NodeEnumO::kType:
         return branch ? node->node_type : QVariant();
     case NodeEnumO::kUnit:

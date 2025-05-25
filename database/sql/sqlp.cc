@@ -131,7 +131,7 @@ void SqlP::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":code"), node->code);
     query.bindValue(QStringLiteral(":description"), node->description);
     query.bindValue(QStringLiteral(":note"), node->note);
-    query.bindValue(QStringLiteral(":rule"), node->rule);
+    query.bindValue(QStringLiteral(":direction_rule"), node->direction_rule);
     query.bindValue(QStringLiteral(":node_type"), node->node_type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":color"), node->color);
@@ -146,7 +146,7 @@ void SqlP::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->code = query.value(QStringLiteral("code")).toString();
     node->description = query.value(QStringLiteral("description")).toString();
     node->note = query.value(QStringLiteral("note")).toString();
-    node->rule = query.value(QStringLiteral("rule")).toBool();
+    node->direction_rule = query.value(QStringLiteral("direction_rule")).toBool();
     node->node_type = query.value(QStringLiteral("node_type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->color = query.value(QStringLiteral("color")).toString();

@@ -47,7 +47,7 @@ void InsertNodeTask::IniData(Node* node)
     int item_index { ui->comboUnit->findData(node->unit) };
     ui->comboUnit->setCurrentIndex(item_index);
 
-    IniRule(node->rule);
+    IniRule(node->direction_rule);
     ui->rBtnLeaf->setChecked(true);
 
     ui->dateTime->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
@@ -143,6 +143,6 @@ void InsertNodeTask::on_chkBoxFinished_checkStateChanged(const Qt::CheckState& a
 
 void InsertNodeTask::on_dateTime_editingFinished() { node_->date_time = ui->dateTime->dateTime().toString(kDateTimeFST); }
 
-void InsertNodeTask::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
+void InsertNodeTask::RRuleGroupClicked(int id) { node_->direction_rule = static_cast<bool>(id); }
 
 void InsertNodeTask::RTypeGroupClicked(int id) { node_->node_type = id; }

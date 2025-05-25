@@ -18,7 +18,7 @@ void NodeModelUtils::UpdateBranchUnit(const Node* root, Node* node)
 
     double initial_total { 0.0 };
     const int unit { node->unit };
-    const bool rule { node->rule };
+    const bool direction_rule { node->direction_rule };
 
     while (!queue.isEmpty()) {
         const auto* current { queue.dequeue() };
@@ -30,7 +30,7 @@ void NodeModelUtils::UpdateBranchUnit(const Node* root, Node* node)
         } break;
         case kTypeLeaf: {
             if (current->unit == unit)
-                initial_total += (current->rule == rule ? 1 : -1) * current->initial_total;
+                initial_total += (current->direction_rule == direction_rule ? 1 : -1) * current->initial_total;
         } break;
         default:
             break;

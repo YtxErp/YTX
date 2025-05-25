@@ -99,6 +99,6 @@ void InsertNodeStakeholder::on_comboEmployee_currentIndexChanged(int index)
 
 void InsertNodeStakeholder::on_deadline_editingFinished() { node_->date_time = ui->deadline->dateTime().toString(kDateTimeFST); }
 
-void InsertNodeStakeholder::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
+void InsertNodeStakeholder::RRuleGroupClicked(int id) { node_->direction_rule = static_cast<bool>(id); }
 
 void InsertNodeStakeholder::RTypeGroupClicked(int id) { node_->node_type = id; }

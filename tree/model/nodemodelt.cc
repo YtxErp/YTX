@@ -18,10 +18,10 @@ void NodeModelT::RSyncLeafValue(
     if (initial_credit_delta == 0.0 && initial_debit_delta == 0.0 && final_debit_delta == 0.0 && final_credit_delta == 0.0)
         return;
 
-    bool rule { node->rule };
+    bool direction_rule { node->direction_rule };
 
-    double initial_delta { (rule ? 1 : -1) * (initial_credit_delta - initial_debit_delta) };
-    double final_delta { (rule ? 1 : -1) * (final_credit_delta - final_debit_delta) };
+    double initial_delta { (direction_rule ? 1 : -1) * (initial_credit_delta - initial_debit_delta) };
+    double final_delta { (direction_rule ? 1 : -1) * (final_credit_delta - final_debit_delta) };
 
     node->initial_total += initial_delta;
     node->final_total += final_delta;
@@ -73,7 +73,7 @@ QVariant NodeModelT::data(const QModelIndex& index, int role) const
     case NodeEnumT::kNote:
         return node->note;
     case NodeEnumT::kRule:
-        return node->rule;
+        return node->direction_rule;
     case NodeEnumT::kType:
         return node->node_type;
     case NodeEnumT::kUnit:
@@ -161,7 +161,7 @@ void NodeModelT::sort(int column, Qt::SortOrder order)
         case NodeEnumT::kNote:
             return (order == Qt::AscendingOrder) ? (lhs->note < rhs->note) : (lhs->note > rhs->note);
         case NodeEnumT::kRule:
-            return (order == Qt::AscendingOrder) ? (lhs->rule < rhs->rule) : (lhs->rule > rhs->rule);
+            return (order == Qt::AscendingOrder) ? (lhs->direction_rule < rhs->direction_rule) : (lhs->direction_rule > rhs->direction_rule);
         case NodeEnumT::kType:
             return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumT::kFinished:
@@ -255,10 +255,10 @@ bool NodeModelT::UpdateAncestorValue(Node* node, double initial_delta, double fi
     if (initial_delta == 0.0 && final_delta == 0.0)
         return false;
 
-    const bool kRule { node->rule };
+    const bool direction_rule { node->direction_rule };
 
     for (Node* current = node->parent; current && current != root_; current = current->parent) {
-        bool equal { current->rule == kRule };
+        bool equal { current->direction_rule == direction_rule };
 
         current->final_total += (equal ? 1 : -1) * final_delta;
         current->initial_total += (equal ? 1 : -1) * initial_delta;

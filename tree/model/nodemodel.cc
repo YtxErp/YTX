@@ -434,11 +434,11 @@ void NodeModel::IniModel()
 
 bool NodeModel::UpdateRule(Node* node, bool value)
 {
-    if (node->rule == value)
+    if (node->direction_rule == value)
         return false;
 
-    node->rule = value;
-    sql_->WriteField(info_.node, kRule, value, node->id);
+    node->direction_rule = value;
+    sql_->WriteField(info_.node, kDirectionRule, value, node->id);
 
     node->final_total = -node->final_total;
     node->initial_total = -node->initial_total;

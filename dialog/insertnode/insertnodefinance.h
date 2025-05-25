@@ -39,7 +39,7 @@ public:
 
 private slots:
     void RNameEdited(const QString& arg1);
-    void RRuleGroupClicked(int id);
+    void RDirectionRuleGroupClicked(int id);
     void RTypeGroupClicked(int id);
 
     void on_lineName_editingFinished();
@@ -56,7 +56,7 @@ private:
     void IniConnect();
     void IniTypeGroup();
     void IniRuleGroup();
-    void IniRule(bool rule);
+    void IniDirectionRule(bool rule);
 
 private:
     Ui::InsertNodeFinance* ui;

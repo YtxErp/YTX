@@ -38,7 +38,7 @@ void InsertNodeFinance::IniData(Node* node)
     int unit_index { ui->comboUnit->findData(node->unit) };
     ui->comboUnit->setCurrentIndex(unit_index);
 
-    IniRule(node->rule);
+    IniDirectionRule(node->direction_rule);
     ui->rBtnLeaf->setChecked(true);
 
     ui->pBtnOk->setEnabled(false);
@@ -47,7 +47,7 @@ void InsertNodeFinance::IniData(Node* node)
 void InsertNodeFinance::IniConnect()
 {
     connect(ui->lineName, &QLineEdit::textEdited, this, &InsertNodeFinance::RNameEdited);
-    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeFinance::RRuleGroupClicked);
+    connect(rule_group_, &QButtonGroup::idClicked, this, &InsertNodeFinance::RDirectionRuleGroupClicked);
     connect(type_group_, &QButtonGroup::idClicked, this, &InsertNodeFinance::RTypeGroupClicked);
 }
 
@@ -66,7 +66,7 @@ void InsertNodeFinance::IniRuleGroup()
     rule_group_->addButton(ui->rBtnDDCI, 1);
 }
 
-void InsertNodeFinance::IniRule(bool rule)
+void InsertNodeFinance::IniDirectionRule(bool rule)
 {
     const int kRule { static_cast<int>(rule) };
 
@@ -101,7 +101,7 @@ void InsertNodeFinance::on_comboUnit_currentIndexChanged(int index)
     node_->unit = ui->comboUnit->currentData().toInt();
 }
 
-void InsertNodeFinance::RRuleGroupClicked(int id) { node_->rule = static_cast<bool>(id); }
+void InsertNodeFinance::RDirectionRuleGroupClicked(int id) { node_->direction_rule = static_cast<bool>(id); }
 
 void InsertNodeFinance::RTypeGroupClicked(int id) { node_->node_type = id; }
 

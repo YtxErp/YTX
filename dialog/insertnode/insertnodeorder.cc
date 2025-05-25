@@ -453,7 +453,7 @@ void InsertNodeOrder::on_pBtnInsert_clicked()
         return;
 
     auto* node { ResourcePool<Node>::Instance().Allocate() };
-    node->rule = stakeholder_node_->Rule(-1);
+    node->direction_rule = stakeholder_node_->Rule(-1);
     stakeholder_node_->SetParent(node, -1);
     node->name = name;
 
@@ -518,7 +518,7 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
 
 void InsertNodeOrder::RRuleGroupClicked(int id)
 {
-    node_->rule = static_cast<bool>(id);
+    node_->direction_rule = static_cast<bool>(id);
 
     node_->first *= -1;
     node_->second *= -1;
@@ -529,12 +529,12 @@ void InsertNodeOrder::RRuleGroupClicked(int id)
     IniLeafValue();
 
     if (node_id_ != 0) {
-        sql_->WriteField(party_info_, kRule, node_->rule, node_id_);
+        sql_->WriteField(party_info_, kDirectionRule, node_->direction_rule, node_id_);
         sql_->UpdateLeafValue(node_);
         sql_->InvertTransValue(node_id_);
     }
 
-    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->rule);
+    emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kRule), node_->direction_rule);
 }
 
 void InsertNodeOrder::RUnitGroupClicked(int id)

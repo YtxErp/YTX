@@ -147,7 +147,7 @@ public:
     double FinalTotal(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::final_total); }
     int Type(int node_id) { return NodeModelUtils::Value(node_hash_, node_id, &Node::node_type); }
     int Unit(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::unit); }
-    bool Rule(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::rule); }
+    bool Rule(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::direction_rule); }
     bool Finished(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::finished); }
     int Party(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::party); };
     int Employee(int node_id) const { return NodeModelUtils::Value(node_hash_, node_id, &Node::employee); }

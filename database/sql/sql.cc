@@ -571,7 +571,7 @@ void Sql::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) const
 {
     trans_shadow->id = &trans->id;
     trans_shadow->state = &trans->state;
-    trans_shadow->date_time = &trans->date_time;
+    trans_shadow->issued_at = &trans->issued_at;
     trans_shadow->code = &trans->code;
     trans_shadow->document = &trans->document;
     trans_shadow->description = &trans->description;

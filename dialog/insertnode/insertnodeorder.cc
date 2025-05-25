@@ -138,7 +138,7 @@ void InsertNodeOrder::IniDialog(CSectionConfig* section_settings)
 
     ui->dateTimeEdit->setDisplayFormat(kDateTimeFST);
     ui->dateTimeEdit->setDateTime(QDateTime::currentDateTime());
-    node_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
+    node_->issued_at = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
     ui->comboParty->lineEdit()->setValidator(&LineEdit::kInputValidator);
 
     ui->dSpinDiscount->setRange(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
@@ -253,7 +253,7 @@ void InsertNodeOrder::PreparePrint()
         break;
     }
 
-    PrintData data { stakeholder_node_->Name(node_->party), node_->date_time, stakeholder_node_->Name(node_->employee), unit, node_->initial_total };
+    PrintData data { stakeholder_node_->Name(node_->party), node_->issued_at, stakeholder_node_->Name(node_->employee), unit, node_->initial_total };
     print_manager_->SetData(data, order_trans_->GetTransShadowList());
 }
 
@@ -467,10 +467,10 @@ void InsertNodeOrder::on_pBtnInsert_clicked()
 
 void InsertNodeOrder::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
-    node_->date_time = date_time.toString(kDateTimeFST);
+    node_->issued_at = date_time.toString(kDateTimeFST);
 
     if (node_id_ != 0)
-        sql_->WriteField(party_info_, kDateTime, node_->date_time, node_id_);
+        sql_->WriteField(party_info_, kIssuedAt, node_->issued_at, node_id_);
 }
 
 void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
@@ -507,9 +507,9 @@ void InsertNodeOrder::on_chkBoxBranch_checkStateChanged(const Qt::CheckState& ar
     node_->party = 0;
     node_->employee = 0;
     if (enable)
-        node_->date_time.clear();
+        node_->issued_at.clear();
     else
-        node_->date_time = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
+        node_->issued_at = ui->dateTimeEdit->dateTime().toString(kDateTimeFST);
 
     ui->rBtnRefund->setChecked(false);
     ui->tableViewO->clearSelection();

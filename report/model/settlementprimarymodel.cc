@@ -50,7 +50,7 @@ QVariant SettlementPrimaryModel::data(const QModelIndex& index, int role) const
     case SettlementEnum::kID:
         return node->id;
     case SettlementEnum::kDateTime:
-        return node->date_time;
+        return node->issued_at;
     case SettlementEnum::kDescription:
         return node->description;
     case SettlementEnum::kFinished:
@@ -100,7 +100,7 @@ void SettlementPrimaryModel::sort(int column, Qt::SortOrder order)
         case SettlementEnum::kParty:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
         case SettlementEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case SettlementEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case SettlementEnum::kFinished:

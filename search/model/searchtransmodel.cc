@@ -43,7 +43,7 @@ QVariant SearchTransModel::data(const QModelIndex& index, int role) const
     case TransSearchEnum::kID:
         return trans->id;
     case TransSearchEnum::kDateTime:
-        return trans->date_time;
+        return trans->issued_at;
     case TransSearchEnum::kCode:
         return trans->code;
     case TransSearchEnum::kLhsNode:
@@ -95,7 +95,7 @@ void SearchTransModel::sort(int column, Qt::SortOrder order)
 
         switch (kColumn) {
         case TransSearchEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case TransSearchEnum::kCode:
             return (order == Qt::AscendingOrder) ? (lhs->code < rhs->code) : (lhs->code > rhs->code);
         case TransSearchEnum::kLhsNode:

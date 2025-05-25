@@ -49,14 +49,14 @@ void SqlF::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
-    trans->date_time = query.value(QStringLiteral("date_time")).toString();
+    trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
     trans->state = query.value(QStringLiteral("state")).toBool();
     trans->support_id = query.value(QStringLiteral("support_id")).toInt();
 }
 
 void SqlF::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
-    query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
+    query.bindValue(QStringLiteral(":issued_at"), *trans_shadow->issued_at);
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":lhs_ratio"), *trans_shadow->lhs_ratio);
     query.bindValue(QStringLiteral(":lhs_debit"), *trans_shadow->lhs_debit);

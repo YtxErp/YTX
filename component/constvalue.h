@@ -115,6 +115,7 @@ inline constexpr char kName[] = "name";
 inline constexpr char kNetAmount[] = "net_amount";
 inline constexpr char kNodeID[] = "node/id";
 inline constexpr char kNote[] = "note";
+inline constexpr char kIssuedAt[] = "issued_at";
 inline constexpr char kOutsideProduct[] = "outside_product";
 inline constexpr char kParty[] = "party";
 inline constexpr char kPaymentTerm[] = "payment_term";

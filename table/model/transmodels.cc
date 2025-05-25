@@ -85,7 +85,7 @@ QVariant TransModelS::data(const QModelIndex& index, int role) const
     case TransEnumS::kID:
         return *trans_shadow->id;
     case TransEnumS::kDateTime:
-        return *trans_shadow->date_time;
+        return *trans_shadow->issued_at;
     case TransEnumS::kCode:
         return *trans_shadow->code;
     case TransEnumS::kUnitPrice:
@@ -122,7 +122,7 @@ bool TransModelS::setData(const QModelIndex& index, const QVariant& value, int r
 
     switch (kColumn) {
     case TransEnumS::kDateTime:
-        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDateTime, value.toString(), &TransShadow::date_time);
+        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kIssuedAt, value.toString(), &TransShadow::issued_at);
         break;
     case TransEnumS::kCode:
         TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
@@ -181,7 +181,7 @@ void TransModelS::sort(int column, Qt::SortOrder order)
 
         switch (kColumn) {
         case TransEnumS::kDateTime:
-            return (order == Qt::AscendingOrder) ? (*lhs->date_time < *rhs->date_time) : (*lhs->date_time > *rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (*lhs->issued_at < *rhs->issued_at) : (*lhs->issued_at > *rhs->issued_at);
         case TransEnumS::kCode:
             return (order == Qt::AscendingOrder) ? (*lhs->code < *rhs->code) : (*lhs->code > *rhs->code);
         case TransEnumS::kUnitPrice:

@@ -29,7 +29,7 @@ struct Node {
     QString code {};
     QString description {};
     QString note {};
-    QString date_time {};
+    QString issued_at {};
     QString color {};
     QStringList document {};
     bool direction_rule { false };
@@ -63,7 +63,7 @@ struct Node {
         discount = 0.0;
         is_finished = false;
         first = 0.0;
-        date_time.clear();
+        issued_at.clear();
         description.clear();
         note.clear();
         color.clear();

@@ -2032,11 +2032,11 @@ void MainWindow::InsertNodeFPTS(Node* node, const QModelIndex& parent, int paren
         dialog = new InsertNodeFinance(arg, this);
         break;
     case Section::kTask:
-        node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
+        node->issued_at = QDateTime::currentDateTime().toString(kDateTimeFST);
         dialog = new InsertNodeTask(arg, section_config_->amount_decimal, section_config_->date_format, this);
         break;
     case Section::kStakeholder:
-        node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
+        node->issued_at = QDateTime::currentDateTime().toString(kDateTimeFST);
         employee_model = tree_model->IncludeUnitModel(std::to_underlying(UnitS::kEmp));
         dialog = new InsertNodeStakeholder(arg, employee_model, section_config_->amount_decimal, this);
         break;

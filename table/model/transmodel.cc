@@ -33,7 +33,7 @@ void TransModel::RAppendOneTransL(const TransShadow* trans_shadow)
     assert(node_id_ == *trans_shadow->rhs_node && "node_id_ must match *trans_shadow->rhs_node");
 
     auto* new_trans_shadow { ResourcePool<TransShadow>::Instance().Allocate() };
-    new_trans_shadow->date_time = trans_shadow->date_time;
+    new_trans_shadow->issued_at = trans_shadow->issued_at;
     new_trans_shadow->id = trans_shadow->id;
     new_trans_shadow->description = trans_shadow->description;
     new_trans_shadow->code = trans_shadow->code;

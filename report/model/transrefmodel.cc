@@ -45,7 +45,7 @@ QVariant TransRefModel::data(const QModelIndex& index, int role) const
 
     switch (kColumn) {
     case TransRefEnum::kDateTime:
-        return trans->date_time;
+        return trans->issued_at;
     case TransRefEnum::kPP:
         return trans->rhs_node;
     case TransRefEnum::kSection:
@@ -91,7 +91,7 @@ void TransRefModel::sort(int column, Qt::SortOrder order)
         case TransRefEnum::kOutsideProduct:
             return (order == Qt::AscendingOrder) ? (lhs->support_id < rhs->support_id) : (lhs->support_id > rhs->support_id);
         case TransRefEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case TransRefEnum::kPP:
             return (order == Qt::AscendingOrder) ? (lhs->id < rhs->id) : (lhs->id > rhs->id);
         case TransRefEnum::kUnitPrice:

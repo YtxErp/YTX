@@ -172,7 +172,7 @@ void TransWidgetO::IniData()
 
     ui->chkBoxBranch->setChecked(false);
     ui->lineDescription->setText(node_->description);
-    ui->dateTimeEdit->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
+    ui->dateTimeEdit->setDateTime(QDateTime::fromString(node_->issued_at, kDateTimeFST));
 
     ui->tableViewO->setModel(order_trans_);
 }
@@ -359,8 +359,8 @@ void TransWidgetO::on_pBtnInsert_clicked()
 
 void TransWidgetO::on_dateTimeEdit_dateTimeChanged(const QDateTime& date_time)
 {
-    node_->date_time = date_time.toString(kDateTimeFST);
-    sql_->WriteField(party_info_, kDateTime, node_->date_time, node_id_);
+    node_->issued_at = date_time.toString(kDateTimeFST);
+    sql_->WriteField(party_info_, kIssuedAt, node_->issued_at, node_id_);
 }
 
 void TransWidgetO::on_lineDescription_editingFinished()
@@ -460,6 +460,6 @@ void TransWidgetO::PreparePrint()
         break;
     }
 
-    PrintData data { stakeholder_node_->Name(node_->party), node_->date_time, stakeholder_node_->Name(node_->employee), unit, node_->initial_total };
+    PrintData data { stakeholder_node_->Name(node_->party), node_->issued_at, stakeholder_node_->Name(node_->employee), unit, node_->initial_total };
     print_manager_->SetData(data, order_trans_->GetTransShadowList());
 }

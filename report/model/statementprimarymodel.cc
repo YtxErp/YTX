@@ -53,7 +53,7 @@ QVariant StatementPrimaryModel::data(const QModelIndex& index, int role) const
     case StatementPrimaryEnum::kEmployee:
         return node->employee == 0 ? QVariant() : node->employee;
     case StatementPrimaryEnum::kDateTime:
-        return node->date_time;
+        return node->issued_at;
     case StatementPrimaryEnum::kFirst:
         return node->first == 0 ? QVariant() : node->first;
     case StatementPrimaryEnum::kSecond:
@@ -112,7 +112,7 @@ void StatementPrimaryModel::sort(int column, Qt::SortOrder order)
         case StatementPrimaryEnum::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
         case StatementPrimaryEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case StatementPrimaryEnum::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
         case StatementPrimaryEnum::kSecond:

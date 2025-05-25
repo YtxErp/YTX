@@ -74,7 +74,7 @@ QVariant SettlementModel::data(const QModelIndex& index, int role) const
     case SettlementEnum::kID:
         return node->id;
     case SettlementEnum::kDateTime:
-        return node->date_time;
+        return node->issued_at;
     case SettlementEnum::kDescription:
         return node->description;
     case SettlementEnum::kFinished:
@@ -100,7 +100,7 @@ bool SettlementModel::setData(const QModelIndex& index, const QVariant& value, i
 
     switch (kColumn) {
     case SettlementEnum::kDateTime:
-        NodeModelUtils::UpdateField(sql_, node, info_.settlement, kDateTime, value.toString(), &Node::date_time);
+        NodeModelUtils::UpdateField(sql_, node, info_.settlement, kIssuedAt, value.toString(), &Node::issued_at);
         break;
     case SettlementEnum::kDescription:
         NodeModelUtils::UpdateField(sql_, node, info_.settlement, kDescription, value.toString(), &Node::description);
@@ -165,7 +165,7 @@ void SettlementModel::sort(int column, Qt::SortOrder order)
         case SettlementEnum::kParty:
             return (order == Qt::AscendingOrder) ? (lhs->party < rhs->party) : (lhs->party > rhs->party);
         case SettlementEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case SettlementEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case SettlementEnum::kFinished:
@@ -203,7 +203,7 @@ bool SettlementModel::insertRows(int row, int /*count*/, const QModelIndex& pare
     auto* node { ResourcePool<Node>::Instance().Allocate() };
     const bool is_empty { node_list_.isEmpty() };
 
-    node->date_time = QDateTime::currentDateTime().toString(kDateTimeFST);
+    node->issued_at = QDateTime::currentDateTime().toString(kDateTimeFST);
 
     beginInsertRows(parent, row, row);
     node_list_.emplaceBack(node);

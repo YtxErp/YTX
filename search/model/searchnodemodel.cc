@@ -69,7 +69,7 @@ QVariant SearchNodeModel::data(const QModelIndex& index, int role) const
     case NodeSearchEnum::kEmployee:
         return node->employee == 0 ? QVariant() : node->employee;
     case NodeSearchEnum::kDateTime:
-        return node->date_time;
+        return node->issued_at;
     case NodeSearchEnum::kColor:
         return node->color;
     case NodeSearchEnum::kDocument:
@@ -127,7 +127,7 @@ void SearchNodeModel::sort(int column, Qt::SortOrder order)
         case NodeSearchEnum::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
         case NodeSearchEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case NodeSearchEnum::kColor:
             return (order == Qt::AscendingOrder) ? (lhs->color < rhs->color) : (lhs->color > rhs->color);
         case NodeSearchEnum::kDocument:

@@ -24,7 +24,7 @@
 
 struct Trans {
     int id {};
-    QString date_time {};
+    QString issued_at {};
     QString code {};
     int lhs_node {};
     double lhs_ratio {};
@@ -45,7 +45,7 @@ struct Trans {
     void Reset()
     {
         id = 0;
-        date_time.clear();
+        issued_at.clear();
         code.clear();
         lhs_node = 0;
         lhs_ratio = 0.0;
@@ -65,7 +65,7 @@ struct Trans {
 
 struct TransShadow {
     int* id {};
-    QString* date_time {};
+    QString* issued_at {};
     QString* code {};
     int* lhs_node {};
     double* lhs_ratio {};
@@ -86,7 +86,7 @@ struct TransShadow {
     void Reset()
     {
         id = nullptr;
-        date_time = nullptr;
+        issued_at = nullptr;
         code = nullptr;
         lhs_node = nullptr;
         lhs_ratio = nullptr;

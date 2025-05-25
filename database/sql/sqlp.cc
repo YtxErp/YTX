@@ -171,14 +171,14 @@ void SqlP::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
-    trans->date_time = query.value(QStringLiteral("date_time")).toString();
+    trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
     trans->state = query.value(QStringLiteral("state")).toBool();
     trans->support_id = query.value(QStringLiteral("support_id")).toInt();
 }
 
 void SqlP::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
-    query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
+    query.bindValue(QStringLiteral(":issued_at"), *trans_shadow->issued_at);
     query.bindValue(QStringLiteral(":unit_cost"), *trans_shadow->lhs_ratio);
     query.bindValue(QStringLiteral(":state"), *trans_shadow->state);
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
@@ -220,7 +220,7 @@ void SqlP::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
-        trans->date_time = query.value(QStringLiteral("date_time")).toString();
+        trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
         trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
 
         trans_list.emplaceBack(trans);

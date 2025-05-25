@@ -38,7 +38,7 @@ void InsertNodeStakeholder::IniDialog(QStandardItemModel* unit_model, QAbstractI
     ui->dSpinTaxRate->setRange(0.0, std::numeric_limits<double>::max());
     ui->dSpinTaxRate->setDecimals(amount_decimal);
 
-    ui->deadline->setDateTime(QDateTime::fromString(node_->date_time, kDateTimeFST));
+    ui->deadline->setDateTime(QDateTime::fromString(node_->issued_at, kDateTimeFST));
     ui->deadline->setDisplayFormat(kDD);
     ui->deadline->setCalendarPopup(true);
 }
@@ -97,7 +97,7 @@ void InsertNodeStakeholder::on_comboEmployee_currentIndexChanged(int index)
     node_->employee = ui->comboEmployee->currentData().toInt();
 }
 
-void InsertNodeStakeholder::on_deadline_editingFinished() { node_->date_time = ui->deadline->dateTime().toString(kDateTimeFST); }
+void InsertNodeStakeholder::on_deadline_editingFinished() { node_->issued_at = ui->deadline->dateTime().toString(kDateTimeFST); }
 
 void InsertNodeStakeholder::RRuleGroupClicked(int id) { node_->direction_rule = static_cast<bool>(id); }
 

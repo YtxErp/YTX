@@ -987,7 +987,7 @@ void SqlO::ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query)
         node->id = query.value(QStringLiteral("id")).toInt();
         node->employee = query.value(QStringLiteral("employee")).toInt();
         node->description = query.value(QStringLiteral("description")).toString();
-        node->date_time = query.value(QStringLiteral("date_time")).toString();
+        node->issued_at = query.value(QStringLiteral("issued_at")).toString();
         node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
         node->is_finished = query.value(QStringLiteral("settlement_id")).toInt() != 0;
 
@@ -1021,7 +1021,7 @@ void SqlO::ReadStatementPrimaryQuery(NodeList& node_list, QSqlQuery& query) cons
 
         node->description = query.value(QStringLiteral("description")).toString();
         node->employee = query.value(QStringLiteral("employee")).toInt();
-        node->date_time = query.value(QStringLiteral("date_time")).toString();
+        node->issued_at = query.value(QStringLiteral("issued_at")).toString();
         node->first = query.value(QStringLiteral("first")).toDouble();
         node->second = query.value(QStringLiteral("second")).toDouble();
         node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
@@ -1045,7 +1045,7 @@ void SqlO::ReadStatementSecondaryQuery(TransList& trans_list, QSqlQuery& query) 
         trans->rhs_credit = query.value(QStringLiteral("settlement")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_node = query.value(QStringLiteral("inside_product")).toInt();
-        trans->date_time = query.value(QStringLiteral("date_time")).toString();
+        trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
 
         trans_list.emplaceBack(trans);
     }
@@ -1070,7 +1070,7 @@ void SqlO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
         node->id = query.value(QStringLiteral("id")).toInt();
         node->party = query.value(QStringLiteral("party")).toInt();
         node->description = query.value(QStringLiteral("description")).toString();
-        node->date_time = query.value(QStringLiteral("date_time")).toString();
+        node->issued_at = query.value(QStringLiteral("issued_at")).toString();
         node->is_finished = query.value(QStringLiteral("is_finished")).toBool();
         node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
 
@@ -1078,7 +1078,7 @@ void SqlO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
     }
 }
 
-void SqlO::WriteSettlementBind(Node* node, QSqlQuery& query) const { query.bindValue(QStringLiteral(":date_time"), node->date_time); }
+void SqlO::WriteSettlementBind(Node* node, QSqlQuery& query) const { query.bindValue(QStringLiteral(":issued_at"), node->issued_at); }
 
 QString SqlO::QSSearchNode(CString& in_list) const
 {
@@ -1243,7 +1243,7 @@ void SqlO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->party = query.value(QStringLiteral("party")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();
-    node->date_time = query.value(QStringLiteral("date_time")).toString();
+    node->issued_at = query.value(QStringLiteral("issued_at")).toString();
     node->first = query.value(QStringLiteral("first")).toDouble();
     node->second = query.value(QStringLiteral("second")).toDouble();
     node->discount = query.value(QStringLiteral("discount")).toDouble();
@@ -1261,7 +1261,7 @@ void SqlO::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":party"), node->party);
     query.bindValue(QStringLiteral(":employee"), node->employee);
-    query.bindValue(QStringLiteral(":date_time"), node->date_time);
+    query.bindValue(QStringLiteral(":issued_at"), node->issued_at);
     query.bindValue(QStringLiteral(":first"), node->first);
     query.bindValue(QStringLiteral(":second"), node->second);
     query.bindValue(QStringLiteral(":discount"), node->discount);

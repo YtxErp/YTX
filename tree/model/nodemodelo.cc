@@ -290,7 +290,7 @@ void NodeModelO::sort(int column, Qt::SortOrder order)
         case NodeEnumO::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
         case NodeEnumO::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case NodeEnumO::kFirst:
             return (order == Qt::AscendingOrder) ? (lhs->first < rhs->first) : (lhs->first > rhs->first);
         case NodeEnumO::kSecond:
@@ -343,7 +343,7 @@ QVariant NodeModelO::data(const QModelIndex& index, int role) const
     case NodeEnumO::kEmployee:
         return node->employee == 0 ? QVariant() : node->employee;
     case NodeEnumO::kDateTime:
-        return branch || node->date_time.isEmpty() ? QVariant() : node->date_time;
+        return branch || node->issued_at.isEmpty() ? QVariant() : node->issued_at;
     case NodeEnumO::kFirst:
         return node->first == 0 ? QVariant() : node->first;
     case NodeEnumO::kSecond:
@@ -393,7 +393,7 @@ bool NodeModelO::setData(const QModelIndex& index, const QVariant& value, int ro
         emit SSyncInt(node->id, index.column(), value.toInt());
         break;
     case NodeEnumO::kDateTime:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, kDateTime, value.toString(), &Node::date_time);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kIssuedAt, value.toString(), &Node::issued_at);
         emit SSyncString(node->id, index.column(), value.toString());
         break;
     case NodeEnumO::kFinished:

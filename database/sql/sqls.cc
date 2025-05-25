@@ -76,7 +76,7 @@ void SqlS::RPriceSList(const QList<PriceS>& list)
         if (latest_trans) {
             latest_trans->lhs_ratio = list[i].unit_price;
             latest_trans->rhs_ratio = list[i].unit_price;
-            latest_trans->date_time = list[i].date_time;
+            latest_trans->issued_at = list[i].date_time;
         }
     }
 
@@ -310,7 +310,7 @@ void SqlS::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":node_type"), node->node_type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":employee"), node->employee);
-    query.bindValue(QStringLiteral(":deadline"), node->date_time);
+    query.bindValue(QStringLiteral(":deadline"), node->issued_at);
     query.bindValue(QStringLiteral(":payment_term"), node->first);
     query.bindValue(QStringLiteral(":tax_rate"), node->second);
     query.bindValue(QStringLiteral(":amount"), node->final_total);
@@ -646,7 +646,7 @@ void SqlS::ReadTransRefQuery(TransList& trans_list, QSqlQuery& query) const
         trans->rhs_debit = query.value(QStringLiteral("gross_amount")).toDouble();
         trans->support_id = query.value(QStringLiteral("outside_product")).toInt();
         trans->rhs_ratio = query.value(QStringLiteral("discount_price")).toDouble();
-        trans->date_time = query.value(QStringLiteral("date_time")).toString();
+        trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
         trans->lhs_node = query.value(QStringLiteral("lhs_node")).toInt();
 
         trans_list.emplaceBack(trans);
@@ -661,7 +661,7 @@ void SqlS::CalculateLeafTotal(Node* node, QSqlQuery& query) const
 
 void SqlS::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
-    query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
+    query.bindValue(QStringLiteral(":issued_at"), *trans_shadow->issued_at);
     query.bindValue(QStringLiteral(":code"), *trans_shadow->code);
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":unit_price"), *trans_shadow->lhs_ratio);
@@ -682,7 +682,7 @@ void SqlS::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->node_type = query.value(QStringLiteral("node_type")).toInt();
     node->unit = query.value(QStringLiteral("unit")).toInt();
     node->employee = query.value(QStringLiteral("employee")).toInt();
-    node->date_time = query.value(QStringLiteral("deadline")).toString();
+    node->issued_at = query.value(QStringLiteral("deadline")).toString();
     node->first = query.value(QStringLiteral("payment_term")).toDouble();
     node->second = query.value(QStringLiteral("tax_rate")).toDouble();
     node->final_total = query.value(QStringLiteral("amount")).toDouble();
@@ -699,5 +699,5 @@ void SqlS::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->state = query.value(QStringLiteral("state")).toBool();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
-    trans->date_time = query.value(QStringLiteral("date_time")).toString();
+    trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
 }

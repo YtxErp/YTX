@@ -57,7 +57,7 @@ QVariant StatementSecondaryModel::data(const QModelIndex& index, int role) const
 
     switch (kColumn) {
     case StatementSecondaryEnum::kDateTime:
-        return trans->date_time;
+        return trans->issued_at;
     case StatementSecondaryEnum::kInsideProduct:
         return trans->rhs_node;
     case StatementSecondaryEnum::kOutsideProduct:
@@ -120,7 +120,7 @@ void StatementSecondaryModel::sort(int column, Qt::SortOrder order)
 
         switch (kColumn) {
         case StatementSecondaryEnum::kDateTime:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case StatementSecondaryEnum::kInsideProduct:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_node < rhs->rhs_node) : (lhs->rhs_node > rhs->rhs_node);
         case StatementSecondaryEnum::kOutsideProduct:
@@ -208,7 +208,7 @@ void StatementSecondaryModel::RExport(int unit, const QDateTime& start, const QD
 
             qsizetype row_index { 0 };
             for (const auto* trans : std::as_const(trans_list_)) {
-                list[row_index] << trans->date_time << product_leaf_.value(trans->rhs_node) << stakeholder_leaf_.value(trans->support_id) << trans->lhs_debit
+                list[row_index] << trans->issued_at << product_leaf_.value(trans->rhs_node) << stakeholder_leaf_.value(trans->support_id) << trans->lhs_debit
                                 << trans->lhs_credit << trans->lhs_ratio << trans->description << trans->rhs_debit;
                 ++row_index;
             }

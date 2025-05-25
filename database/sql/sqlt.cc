@@ -145,7 +145,7 @@ void SqlT::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
-    trans->date_time = query.value(QStringLiteral("date_time")).toString();
+    trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
     trans->state = query.value(QStringLiteral("state")).toBool();
     trans->support_id = query.value(QStringLiteral("support_id")).toInt();
 }
@@ -182,7 +182,7 @@ QString SqlT::QSUpdateTransValue() const
 
 void SqlT::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
-    query.bindValue(QStringLiteral(":date_time"), *trans_shadow->date_time);
+    query.bindValue(QStringLiteral(":issued_at"), *trans_shadow->issued_at);
     query.bindValue(QStringLiteral(":unit_cost"), *trans_shadow->lhs_ratio);
     query.bindValue(QStringLiteral(":state"), *trans_shadow->state);
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
@@ -220,7 +220,7 @@ void SqlT::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":node_type"), node->node_type);
     query.bindValue(QStringLiteral(":unit"), node->unit);
     query.bindValue(QStringLiteral(":color"), node->color);
-    query.bindValue(QStringLiteral(":date_time"), node->date_time);
+    query.bindValue(QStringLiteral(":issued_at"), node->issued_at);
     query.bindValue(QStringLiteral(":unit_cost"), node->first);
     query.bindValue(QStringLiteral(":is_finished"), node->is_finished);
     query.bindValue(QStringLiteral(":document"), node->document.join(kSemicolon));
@@ -240,7 +240,7 @@ void SqlT::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->final_total = query.value(QStringLiteral("amount")).toDouble();
     node->color = query.value(QStringLiteral("color")).toString();
     node->first = query.value(QStringLiteral("unit_cost")).toDouble();
-    node->date_time = query.value(QStringLiteral("date_time")).toString();
+    node->issued_at = query.value(QStringLiteral("issued_at")).toString();
     node->is_finished = query.value(QStringLiteral("is_finished")).toBool();
     node->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
 }

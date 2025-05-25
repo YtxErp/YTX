@@ -170,7 +170,7 @@ void NodeModelS::sort(int column, Qt::SortOrder order)
         case NodeEnumS::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
         case NodeEnumS::kDeadline:
-            return (order == Qt::AscendingOrder) ? (lhs->date_time < rhs->date_time) : (lhs->date_time > rhs->date_time);
+            return (order == Qt::AscendingOrder) ? (lhs->issued_at < rhs->issued_at) : (lhs->issued_at > rhs->issued_at);
         case NodeEnumS::kEmployee:
             return (order == Qt::AscendingOrder) ? (lhs->employee < rhs->employee) : (lhs->employee > rhs->employee);
         case NodeEnumS::kPaymentTerm:
@@ -217,7 +217,7 @@ QVariant NodeModelS::data(const QModelIndex& index, int role) const
     case NodeEnumS::kUnit:
         return node->unit;
     case NodeEnumS::kDeadline:
-        return kIsLeaf && node->direction_rule == kRuleMS ? node->date_time : QVariant();
+        return kIsLeaf && node->direction_rule == kRuleMS ? node->issued_at : QVariant();
     case NodeEnumS::kEmployee:
         return kIsLeaf && node->employee != 0 ? node->employee : QVariant();
     case NodeEnumS::kPaymentTerm:
@@ -259,7 +259,7 @@ bool NodeModelS::setData(const QModelIndex& index, const QVariant& value, int ro
         UpdateUnit(node, value.toInt());
         break;
     case NodeEnumS::kDeadline:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, kDeadline, value.toString(), &Node::date_time, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kDeadline, value.toString(), &Node::issued_at, true);
         break;
     case NodeEnumS::kEmployee:
         NodeModelUtils::UpdateField(sql_, node, info_.node, kEmployee, value.toInt(), &Node::employee, true);

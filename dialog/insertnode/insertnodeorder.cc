@@ -477,9 +477,9 @@ void InsertNodeOrder::on_pBtnFinishOrder_toggled(bool checked)
 {
     accept();
 
-    node_->finished = checked;
+    node_->is_finished = checked;
 
-    sql_->WriteField(party_info_, kFinished, checked, node_id_);
+    sql_->WriteField(party_info_, kIsFinished, checked, node_id_);
     if (node_->node_type == kTypeLeaf) {
         emit SSyncBoolNode(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
         emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);

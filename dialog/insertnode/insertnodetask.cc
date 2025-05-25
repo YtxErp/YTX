@@ -139,7 +139,7 @@ void InsertNodeTask::on_pBtnColor_clicked()
     }
 }
 
-void InsertNodeTask::on_chkBoxFinished_checkStateChanged(const Qt::CheckState& arg1) { node_->finished = arg1 == Qt::Checked; }
+void InsertNodeTask::on_chkBoxFinished_checkStateChanged(const Qt::CheckState& arg1) { node_->is_finished = arg1 == Qt::Checked; }
 
 void InsertNodeTask::on_dateTime_editingFinished() { node_->date_time = ui->dateTime->dateTime().toString(kDateTimeFST); }
 

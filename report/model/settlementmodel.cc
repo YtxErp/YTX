@@ -78,7 +78,7 @@ QVariant SettlementModel::data(const QModelIndex& index, int role) const
     case SettlementEnum::kDescription:
         return node->description;
     case SettlementEnum::kFinished:
-        return node->finished ? node->finished : QVariant();
+        return node->is_finished ? node->is_finished : QVariant();
     case SettlementEnum::kGrossAmount:
         return node->initial_total == 0 ? QVariant() : node->initial_total;
     case SettlementEnum::kParty:
@@ -169,7 +169,7 @@ void SettlementModel::sort(int column, Qt::SortOrder order)
         case SettlementEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case SettlementEnum::kFinished:
-            return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
+            return (order == Qt::AscendingOrder) ? (lhs->is_finished < rhs->is_finished) : (lhs->is_finished > rhs->is_finished);
         case SettlementEnum::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
         default:
@@ -233,8 +233,8 @@ bool SettlementModel::UpdateFinished(Node* node, bool finished)
     if (node->party == 0)
         return false;
 
-    node->finished = finished;
-    sql_->WriteField(info_.settlement, kFinished, finished, node->id);
+    node->is_finished = finished;
+    sql_->WriteField(info_.settlement, kIsFinished, finished, node->id);
 
     emit SSyncFinished(node->party, node->id, finished);
     return true;

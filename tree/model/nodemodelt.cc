@@ -83,7 +83,7 @@ QVariant NodeModelT::data(const QModelIndex& index, int role) const
     case NodeEnumT::kDateTime:
         return kIsLeaf ? node->date_time : QVariant();
     case NodeEnumT::kFinished:
-        return kIsLeaf && node->finished ? node->finished : QVariant();
+        return kIsLeaf && node->is_finished ? node->is_finished : QVariant();
     case NodeEnumT::kUnitCost:
         return kIsLeaf && node->first != 0 ? node->first : QVariant();
     case NodeEnumT::kDocument:
@@ -135,7 +135,7 @@ bool NodeModelT::setData(const QModelIndex& index, const QVariant& value, int ro
         UpdateUnit(node, value.toInt());
         break;
     case NodeEnumT::kFinished:
-        NodeModelUtils::UpdateField(sql_, node, info_.node, kFinished, value.toBool(), &Node::finished, true);
+        NodeModelUtils::UpdateField(sql_, node, info_.node, kIsFinished, value.toBool(), &Node::is_finished, true);
         break;
     default:
         return false;
@@ -165,7 +165,7 @@ void NodeModelT::sort(int column, Qt::SortOrder order)
         case NodeEnumT::kType:
             return (order == Qt::AscendingOrder) ? (lhs->node_type < rhs->node_type) : (lhs->node_type > rhs->node_type);
         case NodeEnumT::kFinished:
-            return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
+            return (order == Qt::AscendingOrder) ? (lhs->is_finished < rhs->is_finished) : (lhs->is_finished > rhs->is_finished);
         case NodeEnumT::kUnit:
             return (order == Qt::AscendingOrder) ? (lhs->unit < rhs->unit) : (lhs->unit > rhs->unit);
         case NodeEnumT::kColor:

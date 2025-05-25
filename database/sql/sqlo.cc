@@ -989,7 +989,7 @@ void SqlO::ReadSettlementPrimaryQuery(NodeList& node_list, QSqlQuery& query)
         node->description = query.value(QStringLiteral("description")).toString();
         node->date_time = query.value(QStringLiteral("date_time")).toString();
         node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
-        node->finished = query.value(QStringLiteral("settlement_id")).toInt() != 0;
+        node->is_finished = query.value(QStringLiteral("settlement_id")).toInt() != 0;
 
         node_list.emplaceBack(node);
     }
@@ -1071,7 +1071,7 @@ void SqlO::ReadSettlementQuery(NodeList& node_list, QSqlQuery& query) const
         node->party = query.value(QStringLiteral("party")).toInt();
         node->description = query.value(QStringLiteral("description")).toString();
         node->date_time = query.value(QStringLiteral("date_time")).toString();
-        node->finished = query.value(QStringLiteral("finished")).toBool();
+        node->is_finished = query.value(QStringLiteral("is_finished")).toBool();
         node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
 
         node_list.emplaceBack(node);
@@ -1247,7 +1247,7 @@ void SqlO::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->first = query.value(QStringLiteral("first")).toDouble();
     node->second = query.value(QStringLiteral("second")).toDouble();
     node->discount = query.value(QStringLiteral("discount")).toDouble();
-    node->finished = query.value(QStringLiteral("finished")).toBool();
+    node->is_finished = query.value(QStringLiteral("is_finished")).toBool();
     node->initial_total = query.value(QStringLiteral("gross_amount")).toDouble();
     node->final_total = query.value(QStringLiteral("settlement")).toDouble();
 }
@@ -1265,7 +1265,7 @@ void SqlO::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":first"), node->first);
     query.bindValue(QStringLiteral(":second"), node->second);
     query.bindValue(QStringLiteral(":discount"), node->discount);
-    query.bindValue(QStringLiteral(":finished"), node->finished);
+    query.bindValue(QStringLiteral(":finished"), node->is_finished);
     query.bindValue(QStringLiteral(":gross_amount"), node->initial_total);
     query.bindValue(QStringLiteral(":settlement"), node->final_total);
 }

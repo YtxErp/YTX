@@ -39,7 +39,7 @@ struct Node {
     double first {};
     double second {};
     double discount {};
-    bool finished {};
+    bool is_finished {};
 
     // order and stakeholder
     int employee {};
@@ -61,7 +61,7 @@ struct Node {
         employee = 0;
         second = 0.0;
         discount = 0.0;
-        finished = false;
+        is_finished = false;
         first = 0.0;
         date_time.clear();
         description.clear();

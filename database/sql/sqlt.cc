@@ -222,7 +222,7 @@ void SqlT::WriteNodeBind(Node* node, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":color"), node->color);
     query.bindValue(QStringLiteral(":date_time"), node->date_time);
     query.bindValue(QStringLiteral(":unit_cost"), node->first);
-    query.bindValue(QStringLiteral(":finished"), node->finished);
+    query.bindValue(QStringLiteral(":is_finished"), node->is_finished);
     query.bindValue(QStringLiteral(":document"), node->document.join(kSemicolon));
 }
 
@@ -241,7 +241,7 @@ void SqlT::ReadNodeQuery(Node* node, const QSqlQuery& query) const
     node->color = query.value(QStringLiteral("color")).toString();
     node->first = query.value(QStringLiteral("unit_cost")).toDouble();
     node->date_time = query.value(QStringLiteral("date_time")).toString();
-    node->finished = query.value(QStringLiteral("finished")).toBool();
+    node->is_finished = query.value(QStringLiteral("is_finished")).toBool();
     node->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
 }
 

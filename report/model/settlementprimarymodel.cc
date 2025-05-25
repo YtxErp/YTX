@@ -54,7 +54,7 @@ QVariant SettlementPrimaryModel::data(const QModelIndex& index, int role) const
     case SettlementEnum::kDescription:
         return node->description;
     case SettlementEnum::kFinished:
-        return node->finished ? node->finished : QVariant();
+        return node->is_finished ? node->is_finished : QVariant();
     case SettlementEnum::kGrossAmount:
         return node->initial_total == 0 ? QVariant() : node->initial_total;
     case SettlementEnum::kParty:
@@ -74,7 +74,7 @@ bool SettlementPrimaryModel::setData(const QModelIndex& index, const QVariant& v
 
     check ? sql_->AddSettlementPrimary(node->id, settlement_id_) : sql_->RemoveSettlementPrimary(node->id);
 
-    node->finished = check;
+    node->is_finished = check;
 
     emit SSyncDouble(settlement_id_, std::to_underlying(SettlementEnum::kGrossAmount), check ? node->initial_total : -node->initial_total);
     return true;
@@ -104,7 +104,7 @@ void SettlementPrimaryModel::sort(int column, Qt::SortOrder order)
         case SettlementEnum::kDescription:
             return (order == Qt::AscendingOrder) ? (lhs->description < rhs->description) : (lhs->description > rhs->description);
         case SettlementEnum::kFinished:
-            return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
+            return (order == Qt::AscendingOrder) ? (lhs->is_finished < rhs->is_finished) : (lhs->is_finished > rhs->is_finished);
         case SettlementEnum::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
         default:
@@ -124,7 +124,7 @@ void SettlementPrimaryModel::RemoveUnfinishedNode()
     }
 
     for (int i = node_list_.size() - 1; i >= 0; --i) {
-        if (!node_list_[i]->finished) {
+        if (!node_list_[i]->is_finished) {
             beginRemoveRows(QModelIndex(), i, i);
             ResourcePool<Node>::Instance().Recycle(node_list_.takeAt(i));
             endRemoveRows();

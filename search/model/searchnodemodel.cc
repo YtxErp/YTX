@@ -81,7 +81,7 @@ QVariant SearchNodeModel::data(const QModelIndex& index, int role) const
     case NodeSearchEnum::kDiscount:
         return node->discount == 0 ? QVariant() : node->discount;
     case NodeSearchEnum::kFinished:
-        return node->finished ? node->finished : QVariant();
+        return node->is_finished ? node->is_finished : QVariant();
     case NodeSearchEnum::kInitialTotal:
         return node->initial_total == 0 ? QVariant() : node->initial_total;
     case NodeSearchEnum::kFinalTotal:
@@ -139,7 +139,7 @@ void SearchNodeModel::sort(int column, Qt::SortOrder order)
         case NodeSearchEnum::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
         case NodeSearchEnum::kFinished:
-            return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
+            return (order == Qt::AscendingOrder) ? (lhs->is_finished < rhs->is_finished) : (lhs->is_finished > rhs->is_finished);
         case NodeSearchEnum::kFinalTotal:
             return (order == Qt::AscendingOrder) ? (lhs->final_total < rhs->final_total) : (lhs->final_total > rhs->final_total);
         case NodeSearchEnum::kInitialTotal:

@@ -22,7 +22,7 @@ void NodeModelO::RSyncLeafValue(int node_id, double initial_delta, double final_
     auto index { GetIndex(node->id) };
     emit dataChanged(index.siblingAtColumn(std::to_underlying(NodeEnumO::kFirst)), index.siblingAtColumn(std::to_underlying(NodeEnumO::kSettlement)));
 
-    if (node->finished) {
+    if (node->is_finished) {
         UpdateAncestorValue(node, initial_delta, final_delta, first_delta, second_delta, discount_delta);
     }
 }
@@ -65,7 +65,7 @@ void NodeModelO::UpdateTree(const QDateTime& start, const QDateTime& end)
     }
 
     for (auto* node : std::as_const(node_hash_)) {
-        if (node->node_type == kTypeLeaf && node->finished)
+        if (node->node_type == kTypeLeaf && node->is_finished)
             UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
     }
     endResetModel();
@@ -155,7 +155,7 @@ bool NodeModelO::UpdateUnit(Node* node, int value)
 
 bool NodeModelO::UpdateFinished(Node* node, bool value)
 {
-    if (node->finished == value || node->unit == std::to_underlying(UnitO::kPEND) || node->node_type != kTypeLeaf)
+    if (node->is_finished == value || node->unit == std::to_underlying(UnitO::kPEND) || node->node_type != kTypeLeaf)
         return false;
 
     if (!value && sql_->SettlementID(node->id)) {
@@ -170,12 +170,12 @@ bool NodeModelO::UpdateFinished(Node* node, bool value)
     UpdateAncestorValue(node, coefficient * node->initial_total, coefficient * node->final_total, coefficient * node->first, coefficient * node->second,
         coefficient * node->discount);
 
-    node->finished = value;
+    node->is_finished = value;
     emit SSyncBoolWD(node->id, std::to_underlying(NodeEnumO::kFinished), value);
     if (node->unit == std::to_underlying(UnitO::kMS))
         emit SSyncDouble(node->party, std::to_underlying(NodeEnumS::kAmount), coefficient * node->initial_total);
 
-    sql_->WriteField(info_.node, kFinished, value, node->id);
+    sql_->WriteField(info_.node, kIsFinished, value, node->id);
     if (value)
         sql_->SyncPrice(node->id);
     return true;
@@ -204,7 +204,7 @@ void NodeModelO::ConstructTree()
     }
 
     for (auto* node : std::as_const(node_hash_))
-        if (node->node_type == kTypeLeaf && node->finished)
+        if (node->node_type == kTypeLeaf && node->is_finished)
             UpdateAncestorValue(node, node->initial_total, node->final_total, node->first, node->second, node->discount);
 }
 
@@ -218,7 +218,7 @@ void NodeModelO::RemovePath(Node* node, Node* parent_node)
         }
         break;
     case kTypeLeaf:
-        if (node->finished) {
+        if (node->is_finished) {
             UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);
 
             if (node->unit == std::to_underlying(UnitO::kMS))
@@ -298,7 +298,7 @@ void NodeModelO::sort(int column, Qt::SortOrder order)
         case NodeEnumO::kDiscount:
             return (order == Qt::AscendingOrder) ? (lhs->discount < rhs->discount) : (lhs->discount > rhs->discount);
         case NodeEnumO::kFinished:
-            return (order == Qt::AscendingOrder) ? (lhs->finished < rhs->finished) : (lhs->finished > rhs->finished);
+            return (order == Qt::AscendingOrder) ? (lhs->is_finished < rhs->is_finished) : (lhs->is_finished > rhs->is_finished);
         case NodeEnumO::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->initial_total < rhs->initial_total) : (lhs->initial_total > rhs->initial_total);
         case NodeEnumO::kSettlement:
@@ -351,7 +351,7 @@ QVariant NodeModelO::data(const QModelIndex& index, int role) const
     case NodeEnumO::kDiscount:
         return node->discount == 0 ? QVariant() : node->discount;
     case NodeEnumO::kFinished:
-        return !branch && node->finished ? node->finished : QVariant();
+        return !branch && node->is_finished ? node->is_finished : QVariant();
     case NodeEnumO::kGrossAmount:
         return node->initial_total;
     case NodeEnumO::kSettlement:
@@ -452,7 +452,7 @@ bool NodeModelO::moveRows(const QModelIndex& sourceParent, int sourceRow, int /*
     auto* node { source_parent->children.takeAt(sourceRow) };
     assert(node && "Node extraction failed!");
 
-    bool update_ancestor { node->node_type == kTypeBranch || node->finished };
+    bool update_ancestor { node->node_type == kTypeBranch || node->is_finished };
 
     if (update_ancestor) {
         UpdateAncestorValue(node, -node->initial_total, -node->final_total, -node->first, -node->second, -node->discount);

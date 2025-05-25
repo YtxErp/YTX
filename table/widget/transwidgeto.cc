@@ -31,7 +31,7 @@ TransWidgetO::TransWidgetO(CInsertNodeArgO& arg, const QMap<QString, QString>& p
     IniDataCombo(arg.node->party, arg.node->employee);
     IniConnect();
 
-    const bool finished { arg.node->finished };
+    const bool finished { arg.node->is_finished };
     IniFinished(finished);
     LockWidgets(finished);
 }
@@ -416,8 +416,8 @@ void TransWidgetO::RUnitGroupClicked(int id)
 
 void TransWidgetO::on_pBtnFinishOrder_toggled(bool checked)
 {
-    node_->finished = checked;
-    sql_->WriteField(party_info_, kFinished, checked, node_id_);
+    node_->is_finished = checked;
+    sql_->WriteField(party_info_, kIsFinished, checked, node_id_);
 
     emit SSyncBoolNode(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);
     emit SSyncBoolTrans(node_id_, std::to_underlying(NodeEnumO::kFinished), checked);

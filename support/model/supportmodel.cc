@@ -96,7 +96,7 @@ QVariant SupportModel::data(const QModelIndex& index, int role) const
     case TransSearchEnum::kRhsCredit:
         return trans_shadow->rhs_credit == 0 ? QVariant() : trans_shadow->rhs_credit;
     case TransSearchEnum::kState:
-        return trans_shadow->state ? trans_shadow->state : QVariant();
+        return trans_shadow->is_checked ? trans_shadow->is_checked : QVariant();
     case TransSearchEnum::kDocument:
         return trans_shadow->document.isEmpty() ? QVariant() : trans_shadow->document.size();
     default:
@@ -135,7 +135,7 @@ void SupportModel::sort(int column, Qt::SortOrder order)
         case TransSearchEnum::kRhsCredit:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
         case TransSearchEnum::kState:
-            return (order == Qt::AscendingOrder) ? (lhs->state < rhs->state) : (lhs->state > rhs->state);
+            return (order == Qt::AscendingOrder) ? (lhs->is_checked < rhs->is_checked) : (lhs->is_checked > rhs->is_checked);
         case TransSearchEnum::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
         default:

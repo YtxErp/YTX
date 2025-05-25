@@ -666,7 +666,7 @@ void SqlS::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
     query.bindValue(QStringLiteral(":lhs_node"), *trans_shadow->lhs_node);
     query.bindValue(QStringLiteral(":unit_price"), *trans_shadow->lhs_ratio);
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
-    query.bindValue(QStringLiteral(":state"), *trans_shadow->state);
+    query.bindValue(QStringLiteral(":is_checked"), *trans_shadow->is_checked);
     query.bindValue(QStringLiteral(":document"), trans_shadow->document->join(kSemicolon));
     query.bindValue(QStringLiteral(":inside_product"), *trans_shadow->rhs_node);
     query.bindValue(QStringLiteral(":outside_product"), *trans_shadow->support_id);
@@ -697,7 +697,7 @@ void SqlS::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->rhs_ratio = trans->lhs_ratio;
     trans->code = query.value(QStringLiteral("code")).toString();
     trans->description = query.value(QStringLiteral("description")).toString();
-    trans->state = query.value(QStringLiteral("state")).toBool();
+    trans->is_checked = query.value(QStringLiteral("is_checked")).toBool();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
     trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
 }

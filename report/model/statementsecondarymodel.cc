@@ -75,7 +75,7 @@ QVariant StatementSecondaryModel::data(const QModelIndex& index, int role) const
     case StatementSecondaryEnum::kSettlement:
         return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
     case StatementSecondaryEnum::kState:
-        return trans->state ? trans->state : QVariant();
+        return trans->is_checked ? trans->is_checked : QVariant();
     default:
         return QVariant();
     }
@@ -93,7 +93,7 @@ bool StatementSecondaryModel::setData(const QModelIndex& index, const QVariant& 
 
     switch (kColumn) {
     case StatementSecondaryEnum::kState:
-        trans->state = value.toBool();
+        trans->is_checked = value.toBool();
         break;
     default:
         return false;
@@ -138,7 +138,7 @@ void StatementSecondaryModel::sort(int column, Qt::SortOrder order)
         case StatementSecondaryEnum::kGrossAmount:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_debit < rhs->rhs_debit) : (lhs->rhs_debit > rhs->rhs_debit);
         case StatementSecondaryEnum::kState:
-            return (order == Qt::AscendingOrder) ? (lhs->state < rhs->state) : (lhs->state > rhs->state);
+            return (order == Qt::AscendingOrder) ? (lhs->is_checked < rhs->is_checked) : (lhs->is_checked > rhs->is_checked);
         default:
             return false;
         }

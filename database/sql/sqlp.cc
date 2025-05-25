@@ -172,7 +172,7 @@ void SqlP::ReadTransQuery(Trans* trans, const QSqlQuery& query) const
     trans->description = query.value(QStringLiteral("description")).toString();
     trans->document = query.value(QStringLiteral("document")).toString().split(kSemicolon, Qt::SkipEmptyParts);
     trans->issued_at = query.value(QStringLiteral("issued_at")).toString();
-    trans->state = query.value(QStringLiteral("state")).toBool();
+    trans->is_checked = query.value(QStringLiteral("is_checked")).toBool();
     trans->support_id = query.value(QStringLiteral("support_id")).toInt();
 }
 
@@ -180,7 +180,7 @@ void SqlP::WriteTransBind(TransShadow* trans_shadow, QSqlQuery& query) const
 {
     query.bindValue(QStringLiteral(":issued_at"), *trans_shadow->issued_at);
     query.bindValue(QStringLiteral(":unit_cost"), *trans_shadow->lhs_ratio);
-    query.bindValue(QStringLiteral(":state"), *trans_shadow->state);
+    query.bindValue(QStringLiteral(":is_checked"), *trans_shadow->is_checked);
     query.bindValue(QStringLiteral(":description"), *trans_shadow->description);
     query.bindValue(QStringLiteral(":support_id"), *trans_shadow->support_id);
     query.bindValue(QStringLiteral(":code"), *trans_shadow->code);

@@ -63,7 +63,7 @@ QVariant SearchTransModel::data(const QModelIndex& index, int role) const
     case TransSearchEnum::kDocument:
         return trans->document.isEmpty() ? QVariant() : trans->document.size();
     case TransSearchEnum::kState:
-        return trans->state ? trans->state : QVariant();
+        return trans->is_checked ? trans->is_checked : QVariant();
     case TransSearchEnum::kRhsCredit:
         return trans->rhs_credit == 0 ? QVariant() : trans->rhs_credit;
     case TransSearchEnum::kRhsDebit:
@@ -115,7 +115,7 @@ void SearchTransModel::sort(int column, Qt::SortOrder order)
         case TransSearchEnum::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
         case TransSearchEnum::kState:
-            return (order == Qt::AscendingOrder) ? (lhs->state < rhs->state) : (lhs->state > rhs->state);
+            return (order == Qt::AscendingOrder) ? (lhs->is_checked < rhs->is_checked) : (lhs->is_checked > rhs->is_checked);
         case TransSearchEnum::kRhsCredit:
             return (order == Qt::AscendingOrder) ? (lhs->rhs_credit < rhs->rhs_credit) : (lhs->rhs_credit > rhs->rhs_credit);
         case TransSearchEnum::kRhsDebit:

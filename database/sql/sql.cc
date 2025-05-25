@@ -570,7 +570,7 @@ bool Sql::ReadTrans(TransShadowList& trans_shadow_list, int node_id)
 void Sql::ConvertTrans(Trans* trans, TransShadow* trans_shadow, bool left) const
 {
     trans_shadow->id = &trans->id;
-    trans_shadow->state = &trans->state;
+    trans_shadow->is_checked = &trans->is_checked;
     trans_shadow->issued_at = &trans->issued_at;
     trans_shadow->code = &trans->code;
     trans_shadow->document = &trans->document;

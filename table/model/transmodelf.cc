@@ -34,7 +34,7 @@ QVariant TransModelF::data(const QModelIndex& index, int role) const
     case TransEnumF::kRhsNode:
         return *trans_shadow->rhs_node == 0 ? QVariant() : *trans_shadow->rhs_node;
     case TransEnumF::kState:
-        return *trans_shadow->state ? *trans_shadow->state : QVariant();
+        return *trans_shadow->is_checked ? *trans_shadow->is_checked : QVariant();
     case TransEnumF::kDocument:
         return trans_shadow->document->isEmpty() ? QVariant() : trans_shadow->document->size();
     case TransEnumF::kDebit:
@@ -74,7 +74,7 @@ bool TransModelF::setData(const QModelIndex& index, const QVariant& value, int r
         TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kCode, value.toString(), &TransShadow::code);
         break;
     case TransEnumF::kState:
-        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
+        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::is_checked);
         break;
     case TransEnumF::kDescription:
         TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
@@ -179,7 +179,7 @@ void TransModelF::sort(int column, Qt::SortOrder order)
         case TransEnumF::kRhsNode:
             return (order == Qt::AscendingOrder) ? (*lhs->rhs_node < *rhs->rhs_node) : (*lhs->rhs_node > *rhs->rhs_node);
         case TransEnumF::kState:
-            return (order == Qt::AscendingOrder) ? (*lhs->state < *rhs->state) : (*lhs->state > *rhs->state);
+            return (order == Qt::AscendingOrder) ? (*lhs->is_checked < *rhs->is_checked) : (*lhs->is_checked > *rhs->is_checked);
         case TransEnumF::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document->size() < rhs->document->size()) : (lhs->document->size() > rhs->document->size());
         case TransEnumF::kDebit:

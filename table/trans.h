@@ -32,7 +32,7 @@ struct Trans {
     double lhs_credit {};
     QString description {};
     QStringList document {};
-    bool state { false };
+    bool is_checked { false };
     double rhs_credit {};
     double rhs_debit {};
     double rhs_ratio {};
@@ -56,7 +56,7 @@ struct Trans {
         rhs_ratio = 0.0;
         rhs_debit = 0.0;
         rhs_credit = 0.0;
-        state = false;
+        is_checked = false;
         document.clear();
         support_id = 0;
         discount = 0.0;
@@ -73,7 +73,7 @@ struct TransShadow {
     double* lhs_credit {};
     QString* description {};
     QStringList* document {};
-    bool* state {};
+    bool* is_checked {};
     double* rhs_credit {};
     double* rhs_debit {};
     double* rhs_ratio {};
@@ -97,7 +97,7 @@ struct TransShadow {
         rhs_ratio = nullptr;
         rhs_debit = nullptr;
         rhs_credit = nullptr;
-        state = nullptr;
+        is_checked = nullptr;
         document = nullptr;
         support_id = nullptr;
         discount = nullptr;

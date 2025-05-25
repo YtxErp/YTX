@@ -38,7 +38,7 @@ void TransModel::RAppendOneTransL(const TransShadow* trans_shadow)
     new_trans_shadow->description = trans_shadow->description;
     new_trans_shadow->code = trans_shadow->code;
     new_trans_shadow->document = trans_shadow->document;
-    new_trans_shadow->state = trans_shadow->state;
+    new_trans_shadow->is_checked = trans_shadow->is_checked;
     new_trans_shadow->discount = trans_shadow->discount;
     new_trans_shadow->support_id = trans_shadow->support_id;
 
@@ -130,13 +130,13 @@ void TransModel::UpdateAllState(Check state)
     auto UpdateState = [state](TransShadow* trans_shadow) {
         switch (state) {
         case Check::kAll:
-            *trans_shadow->state = true;
+            *trans_shadow->is_checked = true;
             break;
         case Check::kNone:
-            *trans_shadow->state = false;
+            *trans_shadow->is_checked = false;
             break;
         case Check::kReverse:
-            *trans_shadow->state = !*trans_shadow->state;
+            *trans_shadow->is_checked = !*trans_shadow->is_checked;
             break;
         default:
             break;

@@ -29,17 +29,17 @@ struct Node {
     QString code {};
     QString description {};
     QString note {};
+    int node_type {};
+    bool direction_rule { false };
+    int unit {};
     QString issued_at {};
     QString color {};
     QStringList document {};
-    bool direction_rule { false };
-    int node_type {};
-    int unit {};
+    bool is_finished {};
 
     double first {};
     double second {};
     double discount {};
-    bool is_finished {};
 
     // order and stakeholder
     int employee {};

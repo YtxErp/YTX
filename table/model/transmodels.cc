@@ -95,7 +95,7 @@ QVariant TransModelS::data(const QModelIndex& index, int role) const
     case TransEnumS::kDocument:
         return trans_shadow->document->isEmpty() ? QVariant() : trans_shadow->document->size();
     case TransEnumS::kState:
-        return *trans_shadow->state ? *trans_shadow->state : QVariant();
+        return *trans_shadow->is_checked ? *trans_shadow->is_checked : QVariant();
     case TransEnumS::kInsideProduct:
         return *trans_shadow->rhs_node == 0 ? QVariant() : *trans_shadow->rhs_node;
     case TransEnumS::kOutsideProduct:
@@ -137,7 +137,7 @@ bool TransModelS::setData(const QModelIndex& index, const QVariant& value, int r
         TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kDescription, value.toString(), &TransShadow::description, [this]() { emit SSearch(); });
         break;
     case TransEnumS::kState:
-        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::state);
+        TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kState, value.toBool(), &TransShadow::is_checked);
         break;
     case TransEnumS::kOutsideProduct:
         sup_changed = TransModelUtils::UpdateField(sql_, trans_shadow, info_.trans, kOutsideProduct, value.toInt(), &TransShadow::support_id);
@@ -191,7 +191,7 @@ void TransModelS::sort(int column, Qt::SortOrder order)
         case TransEnumS::kDocument:
             return (order == Qt::AscendingOrder) ? (lhs->document->size() < rhs->document->size()) : (lhs->document->size() > rhs->document->size());
         case TransEnumS::kState:
-            return (order == Qt::AscendingOrder) ? (*lhs->state < *rhs->state) : (*lhs->state > *rhs->state);
+            return (order == Qt::AscendingOrder) ? (*lhs->is_checked < *rhs->is_checked) : (*lhs->is_checked > *rhs->is_checked);
         case TransEnumS::kOutsideProduct:
             return (order == Qt::AscendingOrder) ? (*lhs->support_id < *rhs->support_id) : (*lhs->support_id > *rhs->support_id);
         case TransEnumS::kInsideProduct:

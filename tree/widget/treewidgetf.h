@@ -40,7 +40,7 @@ public:
     ~TreeWidgetF() override;
 
     QTreeView* View() const override;
-    void Reset() const override;
+    void Reset() override;
 
 private:
     void InitStaticStatus() override;

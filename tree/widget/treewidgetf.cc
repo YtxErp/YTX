@@ -53,7 +53,7 @@ void TreeWidgetF::InitDynamicStatus()
 
 QTreeView* TreeWidgetF::View() const { return ui->treeView; }
 
-void TreeWidgetF::Reset() const
+void TreeWidgetF::Reset()
 {
     InitDoubleSpinBox(ui->dspin_box_dynamic_);
     InitDoubleSpinBox(ui->dspin_box_static_);

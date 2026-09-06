@@ -28,6 +28,14 @@ TreeWidgetO::~TreeWidgetO() { delete ui; }
 
 QTreeView* TreeWidgetO::View() const { return ui->treeViewO; }
 
+void TreeWidgetO::Reset()
+{
+    range_ = DefaultRange();
+
+    ui->start->setDate(range_.start);
+    ui->end->setDate(range_.end);
+}
+
 void TreeWidgetO::on_start_dateChanged(const QDate& date)
 {
     const bool valid { date <= range_.end };

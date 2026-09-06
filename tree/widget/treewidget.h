@@ -34,7 +34,7 @@ public:
     ~TreeWidget() override { };
 
     virtual QTreeView* View() const = 0;
-    virtual void Reset() const { }
+    virtual void Reset() { }
 
 protected:
     TreeWidget(QWidget* parent = nullptr)

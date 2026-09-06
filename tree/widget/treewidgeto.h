@@ -35,6 +35,7 @@ public:
     ~TreeWidgetO() override;
 
     QTreeView* View() const override;
+    void Reset() override;
 
 private slots:
     void on_start_dateChanged(const QDate& date);

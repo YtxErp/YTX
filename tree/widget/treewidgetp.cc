@@ -32,7 +32,7 @@ TreeWidgetP::~TreeWidgetP() { delete ui; }
 
 QTreeView* TreeWidgetP::View() const { return ui->treeView; }
 
-void TreeWidgetP::Reset() const
+void TreeWidgetP::Reset()
 {
     InitDoubleSpinBox(ui->dspin_box_dynamic_);
     InitDoubleSpinBox(ui->dspin_box_static_);

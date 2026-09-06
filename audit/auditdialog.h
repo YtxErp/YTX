@@ -25,6 +25,7 @@
 
 #include "auditmodel.h"
 #include "component/using.h"
+#include "enum/section.h"
 #include "utils/daterange.h"
 
 namespace Ui {
@@ -35,7 +36,7 @@ class AuditDialog final : public QDialog {
     Q_OBJECT
 
 public:
-    explicit AuditDialog(audit::Model* model, CUuid& widget_id, QWidget* parent = nullptr);
+    explicit AuditDialog(audit::Model* model, CUuid& widget_id, CString& title, Section seciton, QWidget* parent = nullptr);
     ~AuditDialog() override;
 
     QTableView* View();
@@ -59,6 +60,7 @@ private:
 private:
     Ui::AuditDialog* ui;
     audit::Model* model_ {};
+    const Section section_ {};
 
     utils::DateRange range_ {};
     QTimer* cooldown_timer_ { nullptr };

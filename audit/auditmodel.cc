@@ -7,8 +7,9 @@
 
 namespace audit {
 
-Model::Model(const Info& info, const QStringList& header, QObject* parent)
+Model::Model(const Info& info, const QStringList& header, Section section, QObject* parent)
     : QAbstractItemModel(parent)
+    , section_ { section }
     , info_ { info }
     , header_ { header }
 {
@@ -51,8 +52,6 @@ QVariant Model::data(const QModelIndex& index, int role) const
         return JsonValueToString(row->before);
     case RowField::kAfter:
         return JsonValueToString(row->after);
-    case RowField::kSection:
-        return info_.section_hash.value(row->section);
     case RowField::kTargetOperation:
         return info_.target_operation_hash.value(row->target_operation);
     case RowField::kLevel:
@@ -60,9 +59,9 @@ QVariant Model::data(const QModelIndex& index, int role) const
     case RowField::kTargetType:
         return info_.target_type_hash.value(row->target_type);
     case RowField::kLhsNode:
-        return ResolveNode(row, row->lhs_node);
+        return ResolveNode(row->lhs_node);
     case RowField::kRhsNode:
-        return ResolveNode(row, row->rhs_node);
+        return ResolveNode(row->rhs_node);
     case RowField::kTargetField:
         return info_.target_field_hash.value(row->target_field);
     }
@@ -86,8 +85,6 @@ void Model::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(lhs, rhs, &Row::rhs_node, order);
         case RowField::kTargetCode:
             return utils::CompareMember(lhs, rhs, &Row::target_code, order);
-        case RowField::kSection:
-            return utils::CompareMember(lhs, rhs, &Row::section, order);
         case RowField::kTargetOperation:
             return utils::CompareMember(lhs, rhs, &Row::target_operation, order);
         case RowField::kTargetType:
@@ -158,9 +155,9 @@ const QString Model::NodePath(const QHash<QUuid, QString>* leaf, const QHash<QUu
     return kEmpty;
 }
 
-QVariant Model::ResolveNode(const Row* row, const QUuid& node_id) const
+QVariant Model::ResolveNode(const QUuid& node_id) const
 {
-    switch (static_cast<Section>(row->section)) {
+    switch (section_) {
     case Section::kFinance:
         return NodePath(info_.f_leaf_path, info_.f_branch_path, node_id);
     case Section::kTask:

@@ -24,6 +24,7 @@
 
 #include "auditinfo.h"
 #include "auditrow.h"
+#include "enum/section.h"
 
 namespace audit {
 
@@ -31,7 +32,7 @@ class Model final : public QAbstractItemModel {
     Q_OBJECT
 
 public:
-    explicit Model(const Info& info, const QStringList& header, QObject* parent = nullptr);
+    explicit Model(const Info& info, const QStringList& header, Section section, QObject* parent = nullptr);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -57,11 +58,12 @@ public:
 
 private:
     const QString NodePath(const QHash<QUuid, QString>* leaf, const QHash<QUuid, QString>* branch, const QUuid& node_id) const;
-    QVariant ResolveNode(const Row* row, const QUuid& node_id) const;
+    QVariant ResolveNode(const QUuid& node_id) const;
     static QString JsonValueToString(const QJsonValue& value);
 
 private:
     QList<Row*> list_ {};
+    const Section section_ {};
 
     // owned by MainWindow, outlives model
     const Info& info_;

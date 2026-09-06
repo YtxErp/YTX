@@ -43,7 +43,6 @@ struct Row {
     QDateTime created_time {}; // UTC — maps to TIMESTAMPTZ
 
     // -- 3. Integers ------------------------------------------------------------
-    int section {}; // Audit section category
     int target_operation {}; // Workspace key
     int target_type {}; // Discriminator for the audited entity type
     int level {}; // Default: 0

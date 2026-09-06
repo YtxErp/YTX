@@ -8,7 +8,6 @@ void MainWindow::InitHeader()
         tr("LHS Node"),
         tr("RHS Node"),
         tr("Issued Time"),
-        tr("Section"),
         tr("Target Type"),
         tr("Target Code"),
         tr("Target Operation"),

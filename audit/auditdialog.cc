@@ -8,10 +8,11 @@
 #include "websocket/jsongen.h"
 #include "websocket/websocket.h"
 
-AuditDialog::AuditDialog(audit::Model* model, CUuid& widget_id, QWidget* parent)
+AuditDialog::AuditDialog(audit::Model* model, CUuid& widget_id, CString& title, Section section, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::AuditDialog)
     , model_ { model }
+    , section_ { section }
     , range_ { DefaultRange() }
     , widget_id_ { widget_id }
 {
@@ -23,6 +24,8 @@ AuditDialog::AuditDialog(audit::Model* model, CUuid& widget_id, QWidget* parent)
 
     InitDialog();
     InitTimer();
+
+    setWindowTitle(tr("Audit") + QStringLiteral(" - ") + title);
 
     QTimer::singleShot(0, this, &AuditDialog::on_pBtnFetch_clicked);
 }
@@ -49,7 +52,7 @@ void AuditDialog::on_pBtnFetch_clicked()
 
     qDebug() << Q_FUNC_INFO << "QueryRange:" << query_range.ToString();
 
-    const auto message { JsonGen::AuditLogAck(widget_id_, LoginInfo::Instance().Workspace(), query_range) };
+    const auto message { JsonGen::AuditLogAck(widget_id_, LoginInfo::Instance().Workspace(), query_range, section_) };
     WebSocket::Instance()->SendMessage(WsKey::kAuditLogAck, message);
 
     cooldown_timer_->start(time_const::kCooldownMs);

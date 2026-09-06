@@ -50,7 +50,6 @@ enum class RowField {
     kLhsNode,
     kRhsNode,
     kCreatedTime,
-    kSection,
     kTargetType,
     kTargetCode,
     kTargetOperation,

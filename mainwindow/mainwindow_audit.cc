@@ -1,26 +1,23 @@
 #include "audit/auditdialog.h"
 #include "audit/auditenum.h"
 #include "mainwindow.h"
-#include "websocket/jsongen.h"
 
 void MainWindow::on_actionAuditLog_triggered()
 {
     qInfo() << Q_FUNC_INFO;
 
-    static QPointer<AuditDialog> dialog {};
+    const QUuid widget_id { QUuid::createUuidV7() };
+    audit::Model* model { new audit::Model(audit_info_, header_info_.audit, start_, this) };
 
-    if (!dialog) {
-        const QUuid widget_id { QUuid::createUuidV7() };
-        audit::Model* model { new audit::Model(audit_info_, header_info_.audit, this) };
+    auto* dialog { new AuditDialog(model, widget_id, audit_info_.section_hash.value(std::to_underlying(start_)), start_, this) };
 
-        dialog = new AuditDialog(model, widget_id, this);
+    {
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        WidgetContext wc { dialog, widget_id, WidgetRole::kDialog };
+        widget_hash_.insert(widget_id, wc);
+    }
 
-        {
-            dialog->setAttribute(Qt::WA_DeleteOnClose);
-            WidgetContext wc { dialog, widget_id, WidgetRole::kDialog };
-            widget_hash_.insert(widget_id, wc);
-        }
-
+    {
         auto* view { dialog->View() };
         InitTableView(view, std::to_underlying(audit::RowField::kAfter));
 
@@ -30,8 +27,6 @@ void MainWindow::on_actionAuditLog_triggered()
     }
 
     dialog->show();
-    dialog->raise();
-    dialog->activateWindow();
 }
 
 void MainWindow::RAuditLogAck(const QUuid& widget_id, const QJsonArray& log_array)

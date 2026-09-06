@@ -264,9 +264,6 @@ Qt::ItemFlags TreeModelP::flags(const QModelIndex& index) const
         flags &= ~Qt::ItemIsEditable;
         break;
     case NodeEnumP::kStatus:
-        if (node->kind == NodeKind::kLeaf)
-            flags |= Qt::ItemIsEditable;
-        break;
     case NodeEnumP::kPaymentTerm:
     case NodeEnumP::kCode:
     case NodeEnumP::kDescription:

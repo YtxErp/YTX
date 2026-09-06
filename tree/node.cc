@@ -158,8 +158,7 @@ QJsonObject NodeP::WriteJson() const
     obj.insert(kTag, utils::WriteStringList(tag));
     obj.insert(kDocument, utils::WriteStringList(document));
     obj.insert(kVersion, version);
-    // Status is initialized to 1 by the database.
-    // obj.insert(kStatus, std::to_underlying(status));
+    obj.insert(kStatus, std::to_underlying(NodeStatus::kActive));
 
     return obj;
 }

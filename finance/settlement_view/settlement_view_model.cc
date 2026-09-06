@@ -55,10 +55,30 @@ QVariant Model::data(const QModelIndex& index, int role) const
     const Row& row { rows_.at(index.row()) };
     const Column& column { columns_.at(index.column()) };
 
-    if (column.value_index == -1)
+    switch (column.type) {
+    case ColumnType::kPartner:
         return partner_leaf_path_->value(row.partner_id);
 
-    return row.values.at(column.value_index);
+    case ColumnType::kPreviousBalance:
+        return row.previous_balance;
+
+    case ColumnType::kMonth:
+        return row.months.at(column.month_index);
+
+    case ColumnType::kCurrentAmount:
+        return row.current_amount;
+
+    case ColumnType::kCurrentSettled:
+        return row.current_settled;
+
+    case ColumnType::kCurrentUnsettled:
+        return row.current_unsettled;
+
+    case ColumnType::kCurrentBalance:
+        return row.current_balance;
+    }
+
+    return {};
 }
 
 void Model::sort(int column, Qt::SortOrder order)
@@ -69,11 +89,30 @@ void Model::sort(int column, Qt::SortOrder order)
     const Column& e_column { columns_.at(column) };
 
     auto Compare = [this, e_column, order](const Row& lhs, const Row& rhs) -> bool {
-        if (e_column.value_index == -1) {
+        switch (e_column.type) {
+        case ColumnType::kPartner:
             return utils::CompareString(partner_leaf_path_->value(lhs.partner_id), partner_leaf_path_->value(rhs.partner_id), order);
+
+        case ColumnType::kPreviousBalance:
+            return utils::CompareValue(lhs.previous_balance, rhs.previous_balance, order);
+
+        case ColumnType::kMonth:
+            return utils::CompareValue(lhs.months.at(e_column.month_index), rhs.months.at(e_column.month_index), order);
+
+        case ColumnType::kCurrentAmount:
+            return utils::CompareValue(lhs.current_amount, rhs.current_amount, order);
+
+        case ColumnType::kCurrentSettled:
+            return utils::CompareValue(lhs.current_settled, rhs.current_settled, order);
+
+        case ColumnType::kCurrentUnsettled:
+            return utils::CompareValue(lhs.current_unsettled, rhs.current_unsettled, order);
+
+        case ColumnType::kCurrentBalance:
+            return utils::CompareValue(lhs.current_balance, rhs.current_balance, order);
         }
 
-        return utils::CompareValue(lhs.values.at(e_column.value_index), rhs.values.at(e_column.value_index), order);
+        return false;
     };
 
     emit layoutAboutToBeChanged();
@@ -103,7 +142,7 @@ void Model::Rebuild(const QJsonArray& array)
         new_rows.emplaceBack(std::move(row));
     }
 
-    std::ranges::sort(new_rows, [](const Row& lhs, const Row& rhs) { return utils::CompareValue(lhs.values.back(), rhs.values.back(), Qt::DescendingOrder); });
+    std::ranges::sort(new_rows, [](const Row& lhs, const Row& rhs) { return utils::CompareValue(lhs.months.back(), rhs.months.back(), Qt::DescendingOrder); });
 
     beginResetModel();
 
@@ -122,24 +161,24 @@ void Model::RebuildHeader(const utils::DateRange& date_range)
     columns_.clear();
     rows_.clear();
 
-    columns_.append({ tr("Partner"), -1 });
-    columns_.append({ tr("Previous Balance"), 0 });
+    columns_.append({ ColumnType::kPartner, tr("Partner") });
+    columns_.append({ ColumnType::kPreviousBalance, tr("Previous Balance") });
 
-    int value_index { 1 };
+    int month_index { 0 };
 
     QDate date { date_range.start.year(), date_range.start.month(), 1 };
     const QDate end { date_range.end.year(), date_range.end.month(), 1 };
 
     while (date <= end) {
-        columns_.append({ date.toString(QStringLiteral("yyyy-MM")), value_index++ });
+        columns_.append({ ColumnType::kMonth, date.toString(QStringLiteral("yyyy-MM")), month_index++ });
 
         date = date.addMonths(1);
     }
 
-    columns_.append({ tr("Current Amount"), value_index++ });
-    columns_.append({ tr("Current Settled"), value_index++ });
-    columns_.append({ tr("Current Unsettled"), value_index++ });
-    columns_.append({ tr("Current Balance"), value_index++ });
+    columns_.append({ ColumnType::kCurrentAmount, tr("Current Amount") });
+    columns_.append({ ColumnType::kCurrentSettled, tr("Current Settled") });
+    columns_.append({ ColumnType::kCurrentUnsettled, tr("Current Unsettled") });
+    columns_.append({ ColumnType::kCurrentBalance, tr("Current Balance") });
 
     endResetModel();
 }

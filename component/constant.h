@@ -132,6 +132,12 @@ inline const QString kTotal = QStringLiteral("total");
 inline const QString kTotalArray = QStringLiteral("total_array");
 inline const QString kArray = QStringLiteral("array");
 
+inline const QString kPBalance = QStringLiteral("previous_balance");
+inline const QString kCAmount = QStringLiteral("current_amount");
+inline const QString kCBalance = QStringLiteral("current_balance");
+inline const QString kCSettled = QStringLiteral("current_settled");
+inline const QString kCUnsettled = QStringLiteral("current_unsettled");
+inline const QString kMonths = QStringLiteral("months");
 inline const QString kValues = QStringLiteral("values");
 inline const QString kLevel = QStringLiteral("level");
 inline const QString kTargetField = QStringLiteral("target_field");

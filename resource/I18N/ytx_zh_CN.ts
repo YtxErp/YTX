@@ -1333,7 +1333,7 @@
     <message>
         <location filename="../../mainwindow/mainwindow.ui" line="590"/>
         <location filename="../../mainwindow/mainwindow.ui" line="593"/>
-        <location filename="../../mainwindow/mainwindow.cc" line="197"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="194"/>
         <location filename="../../mainwindow/mainwindow_context.cc" line="58"/>
         <source>Workspace</source>
         <translation>工区</translation>
@@ -1350,7 +1350,7 @@
     </message>
     <message>
         <location filename="../../mainwindow/mainwindow.ui" line="620"/>
-        <location filename="../../mainwindow/mainwindow.cc" line="391"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="388"/>
         <source>Quit</source>
         <translation>退出</translation>
     </message>
@@ -1366,7 +1366,7 @@
     </message>
     <message>
         <location filename="../../mainwindow/mainwindow.ui" line="645"/>
-        <location filename="../../mainwindow/mainwindow.cc" line="198"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="195"/>
         <location filename="../../mainwindow/mainwindow_context.cc" line="59"/>
         <source>Expire Date</source>
         <translation>期限</translation>
@@ -1971,7 +1971,7 @@
         <translation>客户</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="384"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="381"/>
         <source>Show Window</source>
         <translation>显示窗口</translation>
     </message>
@@ -1999,7 +1999,7 @@
     </message>
     <message>
         <location filename="../../mainwindow/mainwindow.ui" line="582"/>
-        <location filename="../../mainwindow/mainwindow.cc" line="196"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="193"/>
         <location filename="../../mainwindow/mainwindow_account.cc" line="29"/>
         <location filename="../../mainwindow/mainwindow_context.cc" line="57"/>
         <location filename="../../mainwindow/mainwindow_header.cc" line="24"/>
@@ -2008,28 +2008,28 @@
         <translation>姓名</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="670"/>
-        <location filename="../../mainwindow/mainwindow.cc" line="677"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="669"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="676"/>
         <source>Update Check</source>
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="670"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="669"/>
         <source>Failed to check updates.</source>
         <translation>检查更新失败。</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="677"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="676"/>
         <source>Invalid update information received.</source>
         <translation>无效的更新信息。</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="689"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="688"/>
         <source>Update Available</source>
         <translation>有可用更新</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="690"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="689"/>
         <source>A new version %1 is available.
 
 Would you like to download it now?</source>
@@ -2038,12 +2038,12 @@ Would you like to download it now?</source>
 是否立即下载？</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="702"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="701"/>
         <source>No Update</source>
         <translation>无需更新</translation>
     </message>
     <message>
-        <location filename="../../mainwindow/mainwindow.cc" line="702"/>
+        <location filename="../../mainwindow/mainwindow.cc" line="701"/>
         <source>You are using the latest version.</source>
         <translation>您使用的已经是最新版本。</translation>
     </message>
@@ -2056,6 +2056,16 @@ Would you like to download it now?</source>
         <location filename="../../mainwindow/mainwindow_order.cc" line="136"/>
         <source>The operation you attempted is invalid because your local data is outdated. Please refresh and try again.</source>
         <translation>本地数据已过期，请刷新后重试。</translation>
+    </message>
+    <message>
+        <location filename="../../mainwindow/mainwindow_order.cc" line="142"/>
+        <source>Permission Denied</source>
+        <translation>权限不足</translation>
+    </message>
+    <message>
+        <location filename="../../mainwindow/mainwindow_order.cc" line="142"/>
+        <source>You do not have permission to perform this operation.</source>
+        <translation>您没有执行此操作的权限。</translation>
     </message>
     <message>
         <location filename="../../mainwindow/mainwindow_tag.cc" line="195"/>
@@ -3619,32 +3629,32 @@ Please recall it before deleting.</source>
 <context>
     <name>settlement_view::Model</name>
     <message>
-        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="125"/>
+        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="161"/>
         <source>Partner</source>
         <translation>合作</translation>
     </message>
     <message>
-        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="126"/>
+        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="162"/>
         <source>Previous Balance</source>
         <translation>期初余额</translation>
     </message>
     <message>
-        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="139"/>
+        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="175"/>
         <source>Current Amount</source>
         <translation>本期金额</translation>
     </message>
     <message>
-        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="140"/>
+        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="176"/>
         <source>Current Settled</source>
         <translation>本期已结</translation>
     </message>
     <message>
-        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="141"/>
+        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="177"/>
         <source>Current Unsettled</source>
         <translation>本期未结</translation>
     </message>
     <message>
-        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="142"/>
+        <location filename="../../finance/settlement_view/settlement_view_model.cc" line="178"/>
         <source>Current Balance</source>
         <translation>期末余额</translation>
     </message>

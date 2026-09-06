@@ -128,8 +128,6 @@ void NodeP::ReadJson(const QJsonObject& object)
         unit = static_cast<NodeUnit>(val.toInt());
     if (const auto val = object.value(kInitialTotal); val.isString())
         initial_total = val.toString().toDouble();
-    if (const auto val = object.value(kPaymentTerm); val.isDouble())
-        payment_term = val.toInt();
     if (const auto val = object.value(kColor); val.isString())
         color = val.toString();
     if (const auto val = object.value(kStatus); val.isDouble())
@@ -153,7 +151,6 @@ QJsonObject NodeP::WriteJson() const
     obj.insert(kKind, std::to_underlying(kind));
     obj.insert(kUnit, std::to_underlying(unit));
     obj.insert(kInitialTotal, QString::number(initial_total, 'f', numeric_const::kDecimalPlaces4));
-    obj.insert(kPaymentTerm, payment_term);
     obj.insert(kColor, color);
     obj.insert(kTag, utils::WriteStringList(tag));
     obj.insert(kDocument, utils::WriteStringList(document));

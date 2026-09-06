@@ -110,9 +110,6 @@ void TreeModelP::sort(int column, Qt::SortOrder order)
     const NodeEnumP e_column { column };
 
     auto Compare = [e_column, order](const Node* lhs, const Node* rhs) -> bool {
-        auto* d_lhs = DerivedPtr<NodeP>(lhs);
-        auto* d_rhs = DerivedPtr<NodeP>(rhs);
-
         switch (e_column) {
         case NodeEnumP::kName:
             return utils::CompareMember(lhs, rhs, &Node::name, order);
@@ -126,8 +123,6 @@ void TreeModelP::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(lhs, rhs, &Node::unit, order);
         case NodeEnumP::kStatus:
             return utils::CompareMember(lhs, rhs, &Node::status, order);
-        case NodeEnumP::kPaymentTerm:
-            return utils::CompareMember(d_lhs, d_rhs, &NodeP::payment_term, order);
         case NodeEnumP::kInitialTotal:
             return utils::CompareMember(lhs, rhs, &Node::initial_total, order);
         case NodeEnumP::kColor:
@@ -135,7 +130,7 @@ void TreeModelP::sort(int column, Qt::SortOrder order)
         case NodeEnumP::kTag:
             return utils::CompareMember(lhs, rhs, &Node::tag, order);
         case NodeEnumP::kDocument:
-            return (order == Qt::AscendingOrder) ? (d_lhs->document.size() < d_rhs->document.size()) : (d_lhs->document.size() > d_rhs->document.size());
+            return (order == Qt::AscendingOrder) ? (lhs->document.size() < rhs->document.size()) : (lhs->document.size() > rhs->document.size());
         }
     };
 
@@ -152,34 +147,32 @@ QVariant TreeModelP::data(const QModelIndex& index, int role) const
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
-    auto* d_node { static_cast<NodeP*>(index.internalPointer()) };
-    Q_ASSERT(d_node != nullptr);
+    auto* node { static_cast<Node*>(index.internalPointer()) };
+    Q_ASSERT(node != nullptr);
 
     const NodeEnumP column { index.column() };
 
     switch (column) {
     case NodeEnumP::kName:
-        return d_node->name;
+        return node->name;
     case NodeEnumP::kCode:
-        return d_node->code;
+        return node->code;
     case NodeEnumP::kDescription:
-        return d_node->description;
+        return node->description;
     case NodeEnumP::kKind:
-        return std::to_underlying(d_node->kind);
+        return std::to_underlying(node->kind);
     case NodeEnumP::kTag:
-        return d_node->tag;
+        return node->tag;
     case NodeEnumP::kUnit:
-        return std::to_underlying(d_node->unit);
-    case NodeEnumP::kPaymentTerm:
-        return d_node->payment_term;
+        return std::to_underlying(node->unit);
     case NodeEnumP::kInitialTotal:
-        return d_node->initial_total;
+        return node->initial_total;
     case NodeEnumP::kColor:
-        return d_node->color;
+        return node->color;
     case NodeEnumP::kDocument:
-        return d_node->document;
+        return node->document;
     case NodeEnumP::kStatus:
-        return std::to_underlying(d_node->status);
+        return std::to_underlying(node->status);
     }
 }
 
@@ -192,10 +185,7 @@ bool TreeModelP::setData(const QModelIndex& index, const QVariant& value, int ro
         return false;
 
     auto* node { static_cast<Node*>(index.internalPointer()) };
-    auto* d_node { static_cast<NodeP*>(node) };
-
     Q_ASSERT(node != nullptr);
-    Q_ASSERT(d_node != nullptr);
 
     const QUuid id { node->id };
     auto& update { pending_updates_[id] };
@@ -213,9 +203,6 @@ bool TreeModelP::setData(const QModelIndex& index, const QVariant& value, int ro
         break;
     case NodeEnumP::kDescription:
         node::UpdateField(changes, node, kDescription, value.toString(), &Node::description, [id, this]() { RestartTimer(id); });
-        break;
-    case NodeEnumP::kPaymentTerm:
-        node::UpdateField(changes, d_node, kPaymentTerm, value.toInt(), &NodeP::payment_term, [id, this]() { RestartTimer(id); });
         break;
     case NodeEnumP::kColor:
         node::UpdateField(changes, node, kColor, value.toString(), &Node::color, [id, this]() { RestartTimer(id); });
@@ -264,7 +251,6 @@ Qt::ItemFlags TreeModelP::flags(const QModelIndex& index) const
         flags &= ~Qt::ItemIsEditable;
         break;
     case NodeEnumP::kStatus:
-    case NodeEnumP::kPaymentTerm:
     case NodeEnumP::kCode:
     case NodeEnumP::kDescription:
         flags |= Qt::ItemIsEditable;

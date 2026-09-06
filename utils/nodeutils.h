@@ -159,7 +159,7 @@ constexpr std::pair<int, int> CacheColumnRange(Section section)
     case Section::kTask:
         return { std::to_underlying(NodeEnumT::kCode), std::to_underlying(NodeEnumT::kDocument) };
     case Section::kPartner:
-        return { std::to_underlying(NodeEnumP::kCode), std::to_underlying(NodeEnumP::kPaymentTerm) };
+        return { std::to_underlying(NodeEnumP::kCode), std::to_underlying(NodeEnumP::kStatus) };
     case Section::kInventory:
         return { std::to_underlying(NodeEnumI::kCode), std::to_underlying(NodeEnumI::kCommission) };
     case Section::kSale:

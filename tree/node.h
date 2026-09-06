@@ -85,8 +85,6 @@ struct NodeI final : Node {
 struct NodeT final : Node { };
 
 struct NodeP final : Node {
-    int payment_term {};
-
     void Reset() override;
 
     void ReadJson(const QJsonObject& object) override;

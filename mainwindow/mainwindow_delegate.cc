@@ -13,7 +13,6 @@
 #include "delegate/double.h"
 #include "delegate/filterunit.h"
 #include "delegate/financeroledelegate.h"
-#include "delegate/int.h"
 #include "delegate/intstring.h"
 #include "delegate/issuedtime.h"
 #include "delegate/line.h"
@@ -174,9 +173,6 @@ void MainWindow::TreeDelegateP(QTreeView* tree_view, CSectionInfo& info, CSectio
         info.section, section.amount_decimal, sc_f_.shared_config.default_unit, sc_f_.info.unit_symbol_map, string_const::kEightDigits, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kInitialTotal), amount);
     connect(amount, &AmountOrderHistoryR::SShowOrderHistoryWidget, this, &MainWindow::RShowOrderHistoryWidget);
-
-    auto* payment_term { new Int(0, 36500, tree_view) }; // one hundred years
-    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kPaymentTerm), payment_term);
 
     auto* tag { new TagDelegate(sc_p_.tag_icon_hash, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumP::kTag), tag);

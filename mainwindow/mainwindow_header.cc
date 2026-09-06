@@ -207,7 +207,6 @@ void MainWindow::InitHeader(SectionInfo& finance, SectionInfo& inventory, Sectio
         tr("Color"),
         tr("Document"),
         tr("Status"),
-        tr("Payment Term"),
         tr("Kind"),
         tr("Unit"),
         tr("Unpaid Total"),

@@ -32,8 +32,6 @@ QVariant NodeModelP::data(const QModelIndex& index, int role) const
         return std::to_underlying(d_node->kind);
     case NodeEnumP::kUnit:
         return std::to_underlying(d_node->unit);
-    case NodeEnumP::kPaymentTerm:
-        return d_node->payment_term;
     case NodeEnumP::kInitialTotal:
         return d_node->initial_total;
     case NodeEnumP::kStatus:
@@ -64,8 +62,6 @@ void NodeModelP::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(lhs, rhs, &Node::unit, order);
         case NodeEnumP::kColor:
             return utils::CompareMember(lhs, rhs, &Node::color, order);
-        case NodeEnumP::kPaymentTerm:
-            return utils::CompareMember(d_lhs, d_rhs, &NodeP::payment_term, order);
         case NodeEnumP::kInitialTotal:
             return utils::CompareMember(lhs, rhs, &Node::initial_total, order);
         case NodeEnumP::kDocument:

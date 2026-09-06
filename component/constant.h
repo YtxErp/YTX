@@ -218,7 +218,6 @@ inline const QString kIssuedTime = QStringLiteral("issued_time");
 inline const QString kStatus = QStringLiteral("status");
 inline const QString kKind = QStringLiteral("kind");
 inline const QString kNote = QStringLiteral("note");
-inline const QString kPaymentTerm = QStringLiteral("payment_term");
 inline const QString kRhsNode = QStringLiteral("rhs_node");
 inline const QString kLhsNode = QStringLiteral("lhs_node");
 inline const QString kState = QStringLiteral("state");

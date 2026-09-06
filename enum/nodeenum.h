@@ -268,7 +268,6 @@ enum class NodeEnumP {
     kColor,
     kDocument,
     kStatus,
-    kPaymentTerm,
     kKind,
     kUnit,
     kInitialTotal,

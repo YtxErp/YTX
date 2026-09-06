@@ -25,7 +25,6 @@
 
 #include "component/config.h"
 #include "component/sectioncontex.h"
-#include "delegate/int.h"
 #include "delegate/readonly/boolstringr.h"
 #include "delegate/readonly/colorr.h"
 #include "delegate/readonly/documentr.h"
@@ -99,7 +98,6 @@ protected:
     StatusR* check_ {};
     ColorR* color_ {};
     SearchPathTableR* table_path_ {};
-    Int* int_ {};
     TagDelegate* tag_ {};
 
     CSectionConfig& config_;

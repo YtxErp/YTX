@@ -31,7 +31,6 @@ void InsertNodeP::IniDialog(UnitModel* unit_model)
     this->setMinimumSize(270, 360);
 
     ui->comboUnit->setModel(unit_model);
-    ui->spinPaymentTerm->setRange(0, std::numeric_limits<int>::max());
 
     ui->rBtnBranch->setShortcut(QKeySequence(Qt::ALT | Qt::Key_B));
     ui->rBtnLeaf->setShortcut(QKeySequence(Qt::ALT | Qt::Key_L));
@@ -77,7 +76,5 @@ void InsertNodeP::on_comboUnit_currentIndexChanged(int index)
     Q_UNUSED(index)
     node_->unit = NodeUnit(ui->comboUnit->currentData().toInt());
 }
-
-void InsertNodeP::on_spinPaymentTerm_editingFinished() { node_->payment_term = ui->spinPaymentTerm->value(); }
 
 void InsertNodeP::RKindGroupClicked(int id) { node_->kind = NodeKind(id); }

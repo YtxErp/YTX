@@ -111,7 +111,6 @@ void SearchDialog::InitDelegate()
     table_path_ = new SearchPathTableR(tree_model_, this);
     issued_time_ = new IssuedTimeR(config_.date_format, this);
     document_ = new DocumentR(this);
-    int_ = new Int(0, 36500, this);
     tag_ = new TagDelegate(tag_icon_hash_, this);
 }
 

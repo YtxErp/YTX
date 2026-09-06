@@ -457,6 +457,7 @@ void MainWindow::SetUniqueConnection() const
     connect(WebSocket::Instance(), &WebSocket::SOrderRecall, this, &MainWindow::RRecallOrder);
     connect(WebSocket::Instance(), &WebSocket::SOrderSave, this, &MainWindow::RSaveOrder);
     connect(WebSocket::Instance(), &WebSocket::SOperationDeny, this, &MainWindow::RDenyOperation);
+    connect(WebSocket::Instance(), &WebSocket::SPermissionDeny, this, &MainWindow::RPermissionDeny);
     connect(WebSocket::Instance(), &WebSocket::SNodeSelect, this, &MainWindow::RSelectNode);
     connect(WebSocket::Instance(), &WebSocket::SNodeLocate, this, &MainWindow::RLocateNode);
     connect(WebSocket::Instance(), &WebSocket::STreeSyncFinish, this, &MainWindow::RFinishTreeSync);

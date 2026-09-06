@@ -182,6 +182,7 @@ void WebSocket::InitHandler()
     handler_obj_[WsKey::kSettlementRecall] = [this](const QJsonObject& obj) { RecallSettlement(obj); };
     handler_obj_[WsKey::kSettlementView] = [this](const QJsonObject& obj) { OnSettlementView(obj); };
     handler_obj_[WsKey::kOperationDeny] = [this](const QJsonObject& /*obj*/) { DenyOperation(); };
+    handler_obj_[WsKey::kPermissionDeny] = [this](const QJsonObject& /*obj*/) { OnPermissionDeny(); };
     handler_obj_[WsKey::kTreeApply] = [this](const QJsonObject& obj) { ApplyTree(obj); };
 
     handler_obj_[WsKey::kTagApply] = [this](const QJsonObject& obj) { ApplyTag(obj); };
@@ -384,6 +385,8 @@ void WebSocket::NotifyLoginOutcome(const QJsonObject& obj)
 }
 
 void WebSocket::DenyOperation() { emit SOperationDeny(); }
+
+void WebSocket::OnPermissionDeny() { emit SPermissionDeny(); }
 
 void WebSocket::FinishTreeSync() { emit STreeSyncFinish(); }
 

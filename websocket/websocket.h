@@ -85,6 +85,7 @@ signals:
     void SOrderRecall(Section section, const QUuid& node_id, int version);
     void SOrderSave(Section section, const QUuid& node_id, int version);
     void SOperationDeny();
+    void SPermissionDeny();
     void SNodeSelect(Section section, const QUuid& node_id);
     void SNodeLocate(Section section, const QUuid& node_id);
     void STreeSyncFinish();
@@ -172,6 +173,7 @@ private:
     void DenyLeafDelete(const QJsonObject& obj);
     void DenyDefaultUnit(const QJsonObject& obj);
     void DenyOperation();
+    void OnPermissionDeny();
     void FinishTreeSync();
 
 private:

@@ -136,6 +136,12 @@ void MainWindow::RDenyOperation()
         tr("The operation you attempted is invalid because your local data is outdated. Please refresh and try again."), time_const::kAutoCloseMs);
 }
 
+void MainWindow::RPermissionDeny()
+{
+    utils::ShowMessage(
+        QMessageBox::Information, tr("Permission Denied"), tr("You do not have permission to perform this operation."), time_const::kAutoCloseMs);
+}
+
 void MainWindow::RSelectNode(Section section, const QUuid& node_id)
 {
     auto* sc { GetSectionContex(section) };

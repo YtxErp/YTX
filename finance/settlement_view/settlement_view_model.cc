@@ -122,8 +122,6 @@ void Model::sort(int column, Qt::SortOrder order)
 
 void Model::Rebuild(const QJsonArray& array)
 {
-    Q_ASSERT(date_range_.IsValid());
-
     if (array.isEmpty())
         qDebug() << Q_FUNC_INFO << "Received empty array";
 
@@ -146,7 +144,6 @@ void Model::Rebuild(const QJsonArray& array)
 
     beginResetModel();
 
-    RebuildHeader(date_range_);
     rows_ = std::move(new_rows);
 
     endResetModel();

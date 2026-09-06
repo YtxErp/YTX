@@ -180,6 +180,7 @@ void WebSocket::InitHandler()
     handler_obj_[WsKey::kSettlementInsert] = [this](const QJsonObject& obj) { InsertSettlement(obj); };
     handler_obj_[WsKey::kSettlementUpdate] = [this](const QJsonObject& obj) { UpdateSettlement(obj); };
     handler_obj_[WsKey::kSettlementRecall] = [this](const QJsonObject& obj) { RecallSettlement(obj); };
+    handler_obj_[WsKey::kSettlementView] = [this](const QJsonObject& obj) { OnSettlementView(obj); };
     handler_obj_[WsKey::kOperationDeny] = [this](const QJsonObject& /*obj*/) { DenyOperation(); };
     handler_obj_[WsKey::kTreeApply] = [this](const QJsonObject& obj) { ApplyTree(obj); };
 
@@ -1330,6 +1331,15 @@ void WebSocket::RecallSettlement(const QJsonObject& obj)
 
         partner_model->UpdateAmount(partner_id, initial_delta);
     }
+}
+
+void WebSocket::OnSettlementView(const QJsonObject& obj)
+{
+    const Section section { obj.value(kSection).toInt() };
+    const QUuid widget_id { QUuid(obj.value(kWidgetId).toString()) };
+    const QJsonArray array { obj.value(kArray).toArray() };
+
+    emit SSettlementView(section, widget_id, array);
 }
 
 void WebSocket::MarkEntries(const QJsonObject& obj)

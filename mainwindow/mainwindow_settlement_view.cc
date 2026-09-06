@@ -25,3 +25,17 @@ void MainWindow::on_actionSettlementView_triggered()
 
     RegisterWidget(widget, widget_id, WidgetRole::kSettlementView);
 }
+
+void MainWindow::RSettlementView(Section section, const QUuid& widget_id, const QJsonArray& array)
+{
+    auto* sc { GetSectionContex(section) };
+
+    auto widget { sc->widget_hash.value(widget_id).widget };
+    if (!widget)
+        return;
+
+    auto* d_widget { static_cast<SettlementViewWidget*>(widget.data()) };
+
+    auto* model { d_widget->Model() };
+    model->Rebuild(array);
+}

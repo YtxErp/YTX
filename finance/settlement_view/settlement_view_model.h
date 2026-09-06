@@ -53,8 +53,6 @@ private:
     QList<Column> columns_ {};
     QList<Row> rows_ {};
 
-    utils::DateRange date_range_ {};
-
     const QHash<QUuid, QString>* partner_leaf_path_ {};
 };
 

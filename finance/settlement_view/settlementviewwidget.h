@@ -42,6 +42,7 @@ public:
     ~SettlementViewWidget() override;
 
     QTableView* View() const;
+    settlement_view::Model* Model() const { return model_; }
 
 private slots:
     void on_pBtnFetch_clicked();

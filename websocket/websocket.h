@@ -80,6 +80,7 @@ signals:
     void SSettlementInsert(const QJsonObject& obj);
     void SSettlementRecall(const QJsonObject& obj);
     void SSettlementUpdate(const QJsonObject& obj);
+    void SSettlementView(Section section, const QUuid& widget_id, const QJsonArray& array);
     void SOrderRelease(Section section, const QUuid& node_id, int version);
     void SOrderRecall(Section section, const QUuid& node_id, int version);
     void SOrderSave(Section section, const QUuid& node_id, int version);
@@ -208,6 +209,7 @@ private:
     void InsertSettlement(const QJsonObject& obj);
     void UpdateSettlement(const QJsonObject& obj);
     void RecallSettlement(const QJsonObject& obj);
+    void OnSettlementView(const QJsonObject& obj);
 
     void UpdateDocumentDir(const QJsonObject& obj);
     void UpdateDefaultUnit(const QJsonObject& obj);

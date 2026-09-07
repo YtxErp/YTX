@@ -32,15 +32,6 @@ struct Info {
     QHash<int, QString> level_hash {};
     QHash<int, QString> target_type_hash {};
     QHash<int, QString> target_field_hash {};
-
-    const QHash<QUuid, QString>* f_leaf_path {};
-    const QHash<QUuid, QString>* f_branch_path {};
-    const QHash<QUuid, QString>* i_leaf_path {};
-    const QHash<QUuid, QString>* i_branch_path {};
-    const QHash<QUuid, QString>* p_leaf_path {};
-    const QHash<QUuid, QString>* p_branch_path {};
-    const QHash<QUuid, QString>* t_leaf_path {};
-    const QHash<QUuid, QString>* t_branch_path {};
 };
 
 }

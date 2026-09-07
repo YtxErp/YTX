@@ -4,7 +4,7 @@
 
 namespace settlement_view {
 
-Model::Model(const QHash<QUuid, QString>* partner_leaf_path, QObject* parent)
+Model::Model(const QHash<QUuid, QString>& partner_leaf_path, QObject* parent)
     : QAbstractItemModel(parent)
     , partner_leaf_path_ { partner_leaf_path }
 {
@@ -57,7 +57,7 @@ QVariant Model::data(const QModelIndex& index, int role) const
 
     switch (column.type) {
     case ColumnType::kPartner:
-        return partner_leaf_path_->value(row.partner_id);
+        return partner_leaf_path_.value(row.partner_id);
 
     case ColumnType::kPreviousBalance:
         return row.previous_balance;
@@ -91,7 +91,7 @@ void Model::sort(int column, Qt::SortOrder order)
     auto Compare = [this, e_column, order](const Row& lhs, const Row& rhs) -> bool {
         switch (e_column.type) {
         case ColumnType::kPartner:
-            return utils::CompareString(partner_leaf_path_->value(lhs.partner_id), partner_leaf_path_->value(rhs.partner_id), order);
+            return utils::CompareString(partner_leaf_path_.value(lhs.partner_id), partner_leaf_path_.value(rhs.partner_id), order);
 
         case ColumnType::kPreviousBalance:
             return utils::CompareValue(lhs.previous_balance, rhs.previous_balance, order);

@@ -38,7 +38,7 @@ class SettlementViewWidget final : public QWidget {
 
 public:
     explicit SettlementViewWidget(
-        const QHash<QUuid, QString>* partner_leaf_path, CUuid& widget_id, const int& amount_decimal, Section section, QWidget* parent = nullptr);
+        const QHash<QUuid, QString>& partner_leaf_path, CUuid& widget_id, const int& amount_decimal, Section section, QWidget* parent = nullptr);
     ~SettlementViewWidget() override;
 
     QTableView* View() const;

@@ -7,10 +7,12 @@
 
 namespace audit {
 
-Model::Model(const Info& info, const QStringList& header, Section section, QObject* parent)
+Model::Model(const Info& info, const QStringList& header, CUuidString& leaf, CUuidString& branch, Section section, QObject* parent)
     : QAbstractItemModel(parent)
     , section_ { section }
     , info_ { info }
+    , leaf_path_ { leaf }
+    , branch_path_ { branch }
     , header_ { header }
 {
 }
@@ -59,9 +61,9 @@ QVariant Model::data(const QModelIndex& index, int role) const
     case RowField::kTargetType:
         return info_.target_type_hash.value(row->target_type);
     case RowField::kLhsNode:
-        return ResolveNode(row->lhs_node);
+        return NodePath(row->lhs_node);
     case RowField::kRhsNode:
-        return ResolveNode(row->rhs_node);
+        return NodePath(row->rhs_node);
     case RowField::kTargetField:
         return info_.target_field_hash.value(row->target_field);
     }
@@ -143,33 +145,16 @@ void Model::Rebuild(const QJsonArray& array)
     endResetModel();
 }
 
-const QString Model::NodePath(const QHash<QUuid, QString>* leaf, const QHash<QUuid, QString>* branch, const QUuid& node_id) const
+const QString Model::NodePath(const QUuid& node_id) const
 {
-    if (const auto it = leaf->constFind(node_id); it != leaf->constEnd())
+    if (const auto it = leaf_path_.constFind(node_id); it != leaf_path_.constEnd())
         return it.value();
 
-    if (const auto it = branch->constFind(node_id); it != branch->constEnd())
+    if (const auto it = branch_path_.constFind(node_id); it != branch_path_.constEnd())
         return it.value();
 
     static const QString kEmpty {};
     return kEmpty;
-}
-
-QVariant Model::ResolveNode(const QUuid& node_id) const
-{
-    switch (section_) {
-    case Section::kFinance:
-        return NodePath(info_.f_leaf_path, info_.f_branch_path, node_id);
-    case Section::kTask:
-        return NodePath(info_.t_leaf_path, info_.t_branch_path, node_id);
-    case Section::kInventory:
-        return NodePath(info_.i_leaf_path, info_.i_branch_path, node_id);
-    case Section::kPartner:
-    case Section::kSale:
-    case Section::kPurchase:
-        return NodePath(info_.p_leaf_path, info_.p_branch_path, node_id);
-    }
-    return QVariant();
 }
 
 QString Model::JsonValueToString(const QJsonValue& value)

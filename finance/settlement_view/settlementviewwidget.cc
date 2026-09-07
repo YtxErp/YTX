@@ -7,7 +7,7 @@
 #include "websocket/websocket.h"
 
 SettlementViewWidget::SettlementViewWidget(
-    const QHash<QUuid, QString>* partner_leaf_path, CUuid& widget_id, const int& amount_decimal, Section section, QWidget* parent)
+    const QHash<QUuid, QString>& partner_leaf_path, CUuid& widget_id, const int& amount_decimal, Section section, QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::SettlementViewWidget)
     , range_(DefaultRange())

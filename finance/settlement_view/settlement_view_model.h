@@ -30,7 +30,7 @@ class Model final : public QAbstractItemModel {
     Q_OBJECT
 
 public:
-    explicit Model(const QHash<QUuid, QString>* partner_leaf_path, QObject* parent = nullptr);
+    explicit Model(const QHash<QUuid, QString>& partner_leaf_path, QObject* parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -53,7 +53,7 @@ private:
     QList<Column> columns_ {};
     QList<Row> rows_ {};
 
-    const QHash<QUuid, QString>* partner_leaf_path_ {};
+    const QHash<QUuid, QString>& partner_leaf_path_;
 };
 
 }

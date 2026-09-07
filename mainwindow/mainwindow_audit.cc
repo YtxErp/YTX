@@ -7,7 +7,29 @@ void MainWindow::on_actionAuditLog_triggered()
     qInfo() << Q_FUNC_INFO;
 
     const QUuid widget_id { QUuid::createUuidV7() };
-    audit::Model* model { new audit::Model(audit_info_, header_info_.audit, start_, this) };
+
+    TreeModel* tree_model {};
+
+    switch (start_) {
+    case Section::kFinance:
+        tree_model = sc_f_.tree_model;
+        break;
+    case Section::kTask:
+        tree_model = sc_t_.tree_model;
+        break;
+    case Section::kInventory:
+        tree_model = sc_i_.tree_model;
+        break;
+    case Section::kPartner:
+    case Section::kSale:
+    case Section::kPurchase:
+        tree_model = sc_p_.tree_model;
+        break;
+    }
+
+    Q_ASSERT(tree_model);
+
+    audit::Model* model { new audit::Model(audit_info_, header_info_.audit, tree_model->LeafPath(), tree_model->BranchPath(), start_, this) };
 
     auto* dialog { new AuditDialog(model, widget_id, audit_info_.section_hash.value(std::to_underlying(start_)), start_, this) };
 
@@ -47,15 +69,6 @@ void MainWindow::RAuditLogAck(const QUuid& widget_id, const QJsonArray& log_arra
 void MainWindow::InitAuditInfo()
 {
     using namespace audit;
-
-    audit_info_.f_leaf_path = sc_f_.tree_model->LeafPath();
-    audit_info_.f_branch_path = sc_f_.tree_model->BranchPath();
-    audit_info_.i_leaf_path = sc_i_.tree_model->LeafPath();
-    audit_info_.i_branch_path = sc_i_.tree_model->BranchPath();
-    audit_info_.p_leaf_path = sc_p_.tree_model->LeafPath();
-    audit_info_.p_branch_path = sc_p_.tree_model->BranchPath();
-    audit_info_.t_leaf_path = sc_t_.tree_model->LeafPath();
-    audit_info_.t_branch_path = sc_t_.tree_model->BranchPath();
 
     audit_info_.section_hash = {
         { std::to_underlying(Section::kFinance), tr("Finance") },

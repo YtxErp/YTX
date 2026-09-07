@@ -55,9 +55,11 @@ private:
         const auto today { QDate::currentDate() };
 
         const auto start_month { today.addMonths(-2) };
-        const QDate start { start_month.year(), start_month.month(), 1 };
 
-        return { start, today };
+        const QDate start { start_month.year(), start_month.month(), 1 };
+        const QDate end { today.year(), today.month(), today.daysInMonth() };
+
+        return { start, end };
     }
 
     void IniWidget();

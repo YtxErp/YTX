@@ -27,7 +27,15 @@
 
 namespace settlement_view {
 
+enum class RowType {
+    kData,
+    kSpacer,
+    kTotal,
+};
+
 struct Row final {
+    RowType type { RowType::kData };
+
     QUuid partner_id {};
 
     double previous_balance {};
@@ -39,6 +47,8 @@ struct Row final {
 
     void Reset() { *this = Row {}; }
     void ReadJson(const QJsonObject& object);
+
+    void Accumulate(const Row& other);
 };
 
 enum class ColumnType {
@@ -86,6 +96,21 @@ inline void Row::ReadJson(const QJsonObject& object)
 
     if (const auto val = object.value(kCBalance); val.isString())
         current_balance = val.toString().toDouble();
+}
+
+inline void Row::Accumulate(const Row& other)
+{
+    previous_balance += other.previous_balance;
+
+    Q_ASSERT(months.size() == other.months.size());
+
+    for (int i = 0; i != months.size(); ++i)
+        months[i] += other.months[i];
+
+    current_amount += other.current_amount;
+    current_settled += other.current_settled;
+    current_unsettled += other.current_unsettled;
+    current_balance += other.current_balance;
 }
 
 }

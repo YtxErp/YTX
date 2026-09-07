@@ -55,6 +55,12 @@ QVariant Model::data(const QModelIndex& index, int role) const
     const Row& row { rows_.at(index.row()) };
     const Column& column { columns_.at(index.column()) };
 
+    if (row.type == RowType::kSpacer)
+        return {};
+
+    if (row.type == RowType::kTotal && column.type == ColumnType::kPartner)
+        return tr("Total");
+
     switch (column.type) {
     case ColumnType::kPartner:
         return partner_leaf_path_.value(row.partner_id);
@@ -115,18 +121,34 @@ void Model::sort(int column, Qt::SortOrder order)
         return false;
     };
 
+    if (rows_.size() <= 2)
+        return;
+
     emit layoutAboutToBeChanged();
-    std::ranges::sort(rows_, Compare);
+    std::ranges::sort(rows_.begin(), rows_.end() - 2, Compare);
     emit layoutChanged();
 }
 
+// Settlement view presentation:
+// - Month columns show order amounts grouped by issued time.
+// - Current Amount equals the sum of all month columns.
+// - Spacer and Total rows are always kept at the bottom.
+// - Sorting applies only to data rows.
 void Model::Rebuild(const QJsonArray& array)
 {
-    if (array.isEmpty())
+    if (array.isEmpty()) {
         qDebug() << Q_FUNC_INFO << "Received empty array";
+        return;
+    }
 
     QList<Row> new_rows {};
-    new_rows.reserve(array.size());
+    new_rows.reserve(array.size() + 2);
+
+    Row total {};
+    total.type = RowType::kTotal;
+
+    const auto month_count { std::ranges::count_if(columns_, [](const Column& column) { return column.type == ColumnType::kMonth; }) };
+    total.months.resize(month_count);
 
     for (const auto& value : array) {
         if (!value.isObject()) {
@@ -137,16 +159,21 @@ void Model::Rebuild(const QJsonArray& array)
         Row row {};
         row.ReadJson(value.toObject());
 
+        total.Accumulate(row);
         new_rows.emplaceBack(std::move(row));
     }
 
-    std::ranges::sort(new_rows, [](const Row& lhs, const Row& rhs) { return utils::CompareValue(lhs.months.back(), rhs.months.back(), Qt::DescendingOrder); });
+    if (!new_rows.isEmpty()) {
+        std::ranges::sort(
+            new_rows, [](const Row& lhs, const Row& rhs) { return utils::CompareValue(lhs.months.back(), rhs.months.back(), Qt::DescendingOrder); });
 
-    beginResetModel();
+        new_rows.emplaceBack(Row { .type = RowType::kSpacer });
+        new_rows.emplaceBack(std::move(total));
 
-    rows_ = std::move(new_rows);
-
-    endResetModel();
+        beginResetModel();
+        rows_ = std::move(new_rows);
+        endResetModel();
+    }
 }
 
 void Model::RebuildHeader(const utils::DateRange& date_range)

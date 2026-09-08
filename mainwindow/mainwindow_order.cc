@@ -250,7 +250,14 @@ void MainWindow::CreateLeafO(SectionContext* sc, const QUuid& node_id)
     const QString partner_name { tree_model_p->Name(partner_id) };
     const int tab_index { tab_widget->addTab(widget, partner_name) };
 
-    tab_bar->setTabToolTip(tab_index, sc_->tree_model->Path(node->parent->id) + app_config_.separator + partner_name);
+    QString path { sc_->tree_model->Path(node->parent->id) };
+
+    if (!path.isEmpty())
+        path += app_config_.separator;
+
+    path += partner_name;
+
+    tab_bar->setTabToolTip(tab_index, path);
     tab_bar->setTabData(tab_index, node_id);
 
     // Configure view

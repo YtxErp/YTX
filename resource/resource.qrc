@@ -50,6 +50,7 @@
         <file>solarized_dark/quit.png</file>
         <file>solarized_dark/tag.png</file>
         <file>solarized_dark/handle-v.png</file>
+        <file>solarized_dark/settlement_view.png</file>
     </qresource>
     <qresource prefix="/policies">
         <file>policies/privacy_policy.html</file>

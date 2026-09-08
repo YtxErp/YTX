@@ -35,6 +35,7 @@ void MainWindow::SetAction(bool enable) const
     ui->actionClearColor->setEnabled(enable);
     ui->actionNewBranch->setEnabled(enable);
     ui->actionJumpEntry->setEnabled(enable);
+    ui->actionSettlementView->setEnabled(enable);
 }
 
 void MainWindow::SetLoginAction(bool enable) const

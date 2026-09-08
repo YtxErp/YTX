@@ -135,19 +135,19 @@ void MainWindow::RSelectEntry(const QUuid& node_id, const QUuid& entry_id)
     if (entry_id.isNull() || node_id.isNull())
         return;
 
-    auto widget { qobject_cast<TableWidget*>(sc_->widget_hash.value(node_id).widget) };
+    auto* widget { qobject_cast<TableWidget*>(sc_->widget_hash.value(node_id).widget) };
     Q_ASSERT(widget);
 
     auto* view { widget->View() };
-    auto index { widget->Model()->GetIndex(entry_id) };
+    const auto index { widget->Model()->GetIndex(entry_id) };
 
     if (!index.isValid())
         return;
 
-    view->setCurrentIndex(index);
-    view->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    view->scrollTo(index.siblingAtColumn(std::to_underlying(EntryEnum::kIssuedTime)), QAbstractItemView::PositionAtCenter);
-    view->closePersistentEditor(index);
+    const auto target { index.siblingAtColumn(std::to_underlying(EntryEnum::kIssuedTime)) };
+
+    view->setCurrentIndex(target);
+    view->scrollTo(target, QAbstractItemView::PositionAtCenter);
 }
 
 void MainWindow::CreateLeafFIPT(SectionContext* sc, CUuid& node_id)

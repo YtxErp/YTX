@@ -154,10 +154,7 @@ void Model::Rebuild(const QJsonArray& array)
     total->months.resize(month_count);
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* row { ResourcePool<Row>::Instance().Allocate() };
         row->ReadJson(value.toObject());
@@ -166,19 +163,18 @@ void Model::Rebuild(const QJsonArray& array)
         new_rows.emplaceBack(row);
     }
 
-    if (new_rows.isEmpty()) {
+    if (!new_rows.isEmpty()) {
+        std::ranges::sort(
+            new_rows, [](const Row* lhs, const Row* rhs) { return utils::CompareValue(lhs->current_balance, rhs->current_balance, Qt::DescendingOrder); });
+
+        auto* spacer { ResourcePool<Row>::Instance().Allocate() };
+        spacer->type = RowType::kSpacer;
+
+        new_rows.emplaceBack(spacer);
+        new_rows.emplaceBack(total);
+    } else {
         ResourcePool<Row>::Instance().Recycle(total);
-        return;
     }
-
-    std::ranges::sort(
-        new_rows, [](const Row* lhs, const Row* rhs) { return utils::CompareValue(lhs->months.back(), rhs->months.back(), Qt::DescendingOrder); });
-
-    auto* spacer { ResourcePool<Row>::Instance().Allocate() };
-    spacer->type = RowType::kSpacer;
-
-    new_rows.emplaceBack(spacer);
-    new_rows.emplaceBack(total);
 
     beginResetModel();
 
@@ -191,6 +187,12 @@ void Model::Rebuild(const QJsonArray& array)
 void Model::RebuildHeader(const utils::DateRange& date_range)
 {
     Q_ASSERT(date_range.IsValid());
+
+    if (range_.start == date_range.start && range_.end == date_range.end) {
+        return;
+    }
+
+    qDebug() << Q_FUNC_INFO;
 
     beginResetModel();
 
@@ -215,6 +217,8 @@ void Model::RebuildHeader(const utils::DateRange& date_range)
     columns_.append({ ColumnType::kCurrentSettled, tr("Current Settled") });
     columns_.append({ ColumnType::kCurrentUnsettled, tr("Current Unsettled") });
     columns_.append({ ColumnType::kCurrentBalance, tr("Current Balance") });
+
+    range_ = date_range;
 
     endResetModel();
 }

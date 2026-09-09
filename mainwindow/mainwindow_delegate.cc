@@ -29,7 +29,9 @@
 #include "delegate/readonly/intstringnonezeror.h"
 #include "delegate/readonly/intstringr.h"
 #include "delegate/readonly/issuedtimer.h"
+#include "delegate/readonly/issuedtimetotalr.h"
 #include "delegate/readonly/nodenamer.h"
+#include "delegate/readonly/nodenametotalr.h"
 #include "delegate/readonly/nodepathr.h"
 #include "delegate/readonly/percentagedelegater.h"
 #include "delegate/readonly/statusr.h"
@@ -436,7 +438,7 @@ void MainWindow::DelegateStatementPrimary(QTableView* table_view, CSectionConfig
     auto* amount { new DoubleNoneZeroR(config.amount_decimal, string_const::kEightDigits, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::PrimaryField::kAmount), amount);
 
-    auto* name { new NodeNameR(sc_p_.tree_model, table_view) };
+    auto* name { new NodeNameTotalR(sc_p_.tree_model, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::PrimaryField::kPartner), name);
 }
 
@@ -456,7 +458,7 @@ void MainWindow::DelegateStatementSecondary(QTableView* table_view, CSectionConf
         QEvent::MouseButtonRelease, std::to_underlying(EntryStatus::kUnmarked), std::to_underlying(EntryStatus::kMarked), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::SecondaryField::kStatus), status);
 
-    auto* issued_time { new IssuedTimeR(sc_sale_.section_config.date_format, table_view) };
+    auto* issued_time { new IssuedTimeTotalR(sc_sale_.section_config.date_format, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::SecondaryField::kIssuedTime), issued_time);
 }
 
@@ -476,7 +478,7 @@ void MainWindow::DelegateStatementTertiary(QTableView* table_view, CSectionConfi
         QEvent::MouseButtonRelease, std::to_underlying(EntryStatus::kUnmarked), std::to_underlying(EntryStatus::kMarked), table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::TertiaryField::kStatus), status);
 
-    auto* issued_time { new IssuedTimeR(sc_sale_.section_config.date_format, table_view) };
+    auto* issued_time { new IssuedTimeTotalR(sc_sale_.section_config.date_format, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::TertiaryField::kIssuedTime), issued_time);
 
     auto* node_path { new NodePathR(sc_i_.tree_model, table_view) };

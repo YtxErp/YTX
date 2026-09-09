@@ -52,6 +52,12 @@ QVariant TertiaryModel::data(const QModelIndex& index, int role) const
     const TertiaryField column { index.column() };
     auto* statement { static_cast<TertiaryRow*>(index.internalPointer()) };
 
+    if (statement->type == RowType::kSpacer)
+        return {};
+
+    if (statement->type == RowType::kTotal && column == TertiaryField::kIssuedTime)
+        return tr("Total");
+
     switch (column) {
     case TertiaryField::kIssuedTime:
         return statement->issued_time;
@@ -116,6 +122,9 @@ QVariant TertiaryModel::headerData(int section, Qt::Orientation orientation, int
 
 void TertiaryModel::sort(int column, Qt::SortOrder order)
 {
+    if (column < 0 || column >= columnCount())
+        return;
+
     const TertiaryField e_column { column };
 
     auto Compare = [e_column, order](const TertiaryRow* lhs, const TertiaryRow* rhs) -> bool {
@@ -143,8 +152,11 @@ void TertiaryModel::sort(int column, Qt::SortOrder order)
         }
     };
 
+    if (list_.size() <= 2)
+        return;
+
     emit layoutAboutToBeChanged();
-    std::ranges::sort(list_, Compare);
+    std::ranges::sort(list_.begin(), list_.end() - 2, Compare);
     emit layoutChanged();
 }
 
@@ -155,7 +167,10 @@ void TertiaryModel::Rebuild(const QJsonArray& array)
     }
 
     QList<TertiaryRow*> new_list {};
-    new_list.reserve(array.size());
+    new_list.reserve(array.size() + 2);
+
+    auto* total { ResourcePool<TertiaryRow>::Instance().Allocate() };
+    total->type = RowType::kTotal;
 
     for (const auto& value : array) {
         if (!value.isObject()) {
@@ -166,10 +181,22 @@ void TertiaryModel::Rebuild(const QJsonArray& array)
         auto* statement { ResourcePool<TertiaryRow>::Instance().Allocate() };
         statement->ReadJson(value.toObject());
 
+        total->Accumulate(*statement);
         new_list.emplaceBack(statement);
     }
 
-    std::ranges::sort(new_list, [](const auto* lhs, const auto* rhs) { return utils::CompareMember(lhs, rhs, &TertiaryRow::issued_time, Qt::AscendingOrder); });
+    if (!new_list.isEmpty()) {
+        std::ranges::sort(
+            new_list, [](const auto* lhs, const auto* rhs) { return utils::CompareMember(lhs, rhs, &TertiaryRow::issued_time, Qt::AscendingOrder); });
+
+        auto* spacer { ResourcePool<TertiaryRow>::Instance().Allocate() };
+        spacer->type = RowType::kSpacer;
+
+        new_list.emplaceBack(spacer);
+        new_list.emplaceBack(total);
+    } else {
+        ResourcePool<TertiaryRow>::Instance().Recycle(total);
+    }
 
     beginResetModel();
 

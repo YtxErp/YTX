@@ -157,7 +157,9 @@ set(HEADERS
     delegate/readonly/intstringnonezeror.h
     delegate/readonly/intstringr.h
     delegate/readonly/issuedtimer.h
+    delegate/readonly/issuedtimetotalr.h
     delegate/readonly/nodenamer.h
+    delegate/readonly/nodenametotalr.h
     delegate/readonly/nodepathr.h
     delegate/readonly/percentagedelegater.h
     delegate/readonly/statusr.h
@@ -360,7 +362,9 @@ set(SOURCES
     delegate/readonly/intstringnonezeror.cc
     delegate/readonly/intstringr.cc
     delegate/readonly/issuedtimer.cc
+    delegate/readonly/issuedtimetotalr.cc
     delegate/readonly/nodenamer.cc
+    delegate/readonly/nodenametotalr.cc
     delegate/readonly/nodepathr.cc
     delegate/readonly/percentagedelegater.cc
     delegate/readonly/statusr.cc

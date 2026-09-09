@@ -49,7 +49,13 @@ QVariant PrimaryModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const PrimaryField column { index.column() };
-    auto* statement { static_cast<PrimaryRow*>(index.internalPointer()) };
+    const auto* statement { static_cast<PrimaryRow*>(index.internalPointer()) };
+
+    if (statement->type == RowType::kSpacer)
+        return {};
+
+    if (statement->type == RowType::kTotal && column == PrimaryField::kPartner)
+        return tr("Total");
 
     switch (column) {
     case PrimaryField::kPartner:
@@ -75,6 +81,9 @@ QVariant PrimaryModel::headerData(int section, Qt::Orientation orientation, int 
 
 void PrimaryModel::sort(int column, Qt::SortOrder order)
 {
+    if (column < 0 || column >= columnCount())
+        return;
+
     const PrimaryField e_column { column };
 
     auto Compare = [e_column, order](const PrimaryRow* lhs, const PrimaryRow* rhs) -> bool {
@@ -92,8 +101,11 @@ void PrimaryModel::sort(int column, Qt::SortOrder order)
         }
     };
 
+    if (list_.size() <= 2)
+        return;
+
     emit layoutAboutToBeChanged();
-    std::ranges::sort(list_, Compare);
+    std::ranges::sort(list_.begin(), list_.end() - 2, Compare);
     emit layoutChanged();
 }
 
@@ -104,21 +116,32 @@ void PrimaryModel::Rebuild(const QJsonArray& array)
     }
 
     QList<PrimaryRow*> new_list {};
-    new_list.reserve(array.size());
+    new_list.reserve(array.size() + 2);
+
+    auto* total { ResourcePool<PrimaryRow>::Instance().Allocate() };
+    total->type = RowType::kTotal;
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* statement { ResourcePool<PrimaryRow>::Instance().Allocate() };
         statement->ReadJson(value.toObject());
 
+        total->Accumulate(*statement);
         new_list.emplaceBack(statement);
     }
 
-    std::ranges::sort(new_list, [](const auto* lhs, const auto* rhs) { return utils::CompareMember(lhs, rhs, &PrimaryRow::amount, Qt::DescendingOrder); });
+    if (!new_list.isEmpty()) {
+        std::ranges::sort(new_list, [](const auto* lhs, const auto* rhs) { return utils::CompareMember(lhs, rhs, &PrimaryRow::amount, Qt::DescendingOrder); });
+
+        auto* spacer { ResourcePool<PrimaryRow>::Instance().Allocate() };
+        spacer->type = RowType::kSpacer;
+
+        new_list.emplaceBack(spacer);
+        new_list.emplaceBack(total);
+    } else {
+        ResourcePool<PrimaryRow>::Instance().Recycle(total);
+    }
 
     beginResetModel();
 

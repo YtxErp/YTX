@@ -27,7 +27,15 @@
 
 namespace statement {
 
+enum class RowType {
+    kData,
+    kSpacer,
+    kTotal,
+};
+
 struct PrimaryRow final {
+    RowType type { RowType::kData };
+
     QUuid partner_id {};
     double count {};
     double measure {};
@@ -35,6 +43,8 @@ struct PrimaryRow final {
 
     void Reset();
     void ReadJson(const QJsonObject& object);
+
+    void Accumulate(const PrimaryRow& other);
 };
 
 inline void PrimaryRow::Reset() { *this = PrimaryRow {}; }
@@ -51,7 +61,16 @@ inline void PrimaryRow::ReadJson(const QJsonObject& object)
         amount = val.toString().toDouble();
 }
 
+inline void PrimaryRow::Accumulate(const PrimaryRow& other)
+{
+    count += other.count;
+    measure += other.measure;
+    amount += other.amount;
+}
+
 struct SecondaryRow final {
+    RowType type { RowType::kData };
+
     QDateTime issued_time {};
     QString code {};
     double count {};
@@ -64,6 +83,8 @@ struct SecondaryRow final {
 
     void Reset();
     void ReadJson(const QJsonObject& object);
+
+    void Accumulate(const SecondaryRow& other);
 };
 
 inline void SecondaryRow::Reset() { *this = SecondaryRow {}; }
@@ -86,7 +107,16 @@ inline void SecondaryRow::ReadJson(const QJsonObject& object)
         employee_id = QUuid(val.toString());
 }
 
+inline void SecondaryRow::Accumulate(const SecondaryRow& other)
+{
+    count += other.count;
+    measure += other.measure;
+    amount += other.amount;
+}
+
 struct TertiaryRow final {
+    RowType type { RowType::kData };
+
     QDateTime issued_time {};
     QString code {};
     QUuid internal_sku {};
@@ -100,6 +130,7 @@ struct TertiaryRow final {
 
     void Reset();
     void ReadJson(const QJsonObject& object);
+    void Accumulate(const TertiaryRow& other);
 };
 
 inline void TertiaryRow::Reset() { *this = TertiaryRow {}; }
@@ -122,6 +153,13 @@ inline void TertiaryRow::ReadJson(const QJsonObject& object)
         description = val.toString();
     if (const auto val = object.value(kCode); val.isString())
         code = val.toString();
+}
+
+inline void TertiaryRow::Accumulate(const TertiaryRow& other)
+{
+    count += other.count;
+    measure += other.measure;
+    amount += other.amount;
 }
 
 using CTertiaryList = const QList<TertiaryRow*>;

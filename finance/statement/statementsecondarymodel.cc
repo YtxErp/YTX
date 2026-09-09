@@ -52,7 +52,13 @@ QVariant SecondaryModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const SecondaryField column { index.column() };
-    auto* statement { static_cast<SecondaryRow*>(index.internalPointer()) };
+    const auto* statement { static_cast<SecondaryRow*>(index.internalPointer()) };
+
+    if (statement->type == RowType::kSpacer)
+        return {};
+
+    if (statement->type == RowType::kTotal && column == SecondaryField::kIssuedTime)
+        return tr("Total");
 
     switch (column) {
     case SecondaryField::kDescription:
@@ -109,6 +115,9 @@ QVariant SecondaryModel::headerData(int section, Qt::Orientation orientation, in
 
 void SecondaryModel::sort(int column, Qt::SortOrder order)
 {
+    if (column < 0 || column >= columnCount())
+        return;
+
     const SecondaryField e_column { column };
 
     auto Compare = [e_column, order](const SecondaryRow* lhs, const SecondaryRow* rhs) -> bool {
@@ -132,8 +141,11 @@ void SecondaryModel::sort(int column, Qt::SortOrder order)
         }
     };
 
+    if (list_.size() <= 2)
+        return;
+
     emit layoutAboutToBeChanged();
-    std::ranges::sort(list_, Compare);
+    std::ranges::sort(list_.begin(), list_.end() - 2, Compare);
     emit layoutChanged();
 }
 
@@ -144,22 +156,33 @@ void SecondaryModel::Rebuild(const QJsonArray& array)
     }
 
     QList<SecondaryRow*> new_list {};
-    new_list.reserve(array.size());
+    new_list.reserve(array.size() + 2);
+
+    auto* total { ResourcePool<SecondaryRow>::Instance().Allocate() };
+    total->type = RowType::kTotal;
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* statement { ResourcePool<SecondaryRow>::Instance().Allocate() };
         statement->ReadJson(value.toObject());
 
+        total->Accumulate(*statement);
         new_list.emplaceBack(statement);
     }
 
-    std::ranges::sort(
-        new_list, [](const auto* lhs, const auto* rhs) { return utils::CompareMember(lhs, rhs, &SecondaryRow::issued_time, Qt::AscendingOrder); });
+    if (!new_list.isEmpty()) {
+        std::ranges::sort(
+            new_list, [](const auto* lhs, const auto* rhs) { return utils::CompareMember(lhs, rhs, &SecondaryRow::issued_time, Qt::AscendingOrder); });
+
+        auto* spacer { ResourcePool<SecondaryRow>::Instance().Allocate() };
+        spacer->type = RowType::kSpacer;
+
+        new_list.emplaceBack(spacer);
+        new_list.emplaceBack(total);
+    } else {
+        ResourcePool<SecondaryRow>::Instance().Recycle(total);
+    }
 
     beginResetModel();
 

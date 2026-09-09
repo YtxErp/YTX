@@ -8,10 +8,7 @@ QList<path::Dto> path::Parse(const QJsonArray& array)
     paths.reserve(array.size());
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid path, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         Dto path {};
         path.ReadJson(value.toObject());

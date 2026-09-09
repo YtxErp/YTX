@@ -156,10 +156,7 @@ void PrimaryModel::Rebuild(const QJsonArray& array)
     new_list.reserve(array.size());
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* settlement { ResourcePool<PrimaryRow>::Instance().Allocate() };
         settlement->ReadJson(value.toObject());

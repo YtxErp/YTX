@@ -84,8 +84,7 @@ void EntryHubP::PushEntry(const QUuid& node_id)
 void EntryHubP::ApplyPartnerEntry(const QJsonArray& array)
 {
     for (const auto& value : array) {
-        if (!value.isObject())
-            continue;
+        Q_ASSERT(value.isObject());
 
         const QJsonObject obj { value.toObject() };
         const QUuid id { QUuid(obj.value(kId).toString()) };

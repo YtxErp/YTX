@@ -139,10 +139,7 @@ void SecondaryModel::Rebuild(const QJsonArray& array)
     new_cache.reserve(array.size());
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* settlement { ResourcePool<SecondaryRow>::Instance().Allocate() };
         settlement->ReadJson(value.toObject());

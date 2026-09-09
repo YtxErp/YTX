@@ -142,10 +142,7 @@ void Model::Rebuild(const QJsonArray& node_array)
     new_list.reserve(node_array.size());
 
     for (const auto& value : node_array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* node { ResourcePool<Row>::Instance().Allocate() };
         node->ReadJson(value.toObject());

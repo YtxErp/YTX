@@ -164,10 +164,7 @@ void Model::Rebuild(const QJsonArray& node_array, const QJsonArray& path_array)
         new_hash.reserve(node_array.size());
 
         for (const auto& value : node_array) {
-            if (!value.isObject()) {
-                qWarning() << Q_FUNC_INFO << "Invalid node, expected object:" << value;
-                continue;
-            }
+            Q_ASSERT(value.isObject());
 
             auto* node { ResourcePool<Row>::Instance().Allocate() };
             node->ReadJson(value.toObject());

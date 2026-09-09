@@ -976,10 +976,7 @@ void TreeModel::BuildTreeData(const QJsonObject& data, QHash<QUuid, Node*>& node
     node_hash.reserve(node_array.size());
 
     for (const auto& value : node_array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid node, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* node { NodePool::Instance().Allocate(section_) };
         node->ReadJson(value.toObject());

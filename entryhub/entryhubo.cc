@@ -35,8 +35,7 @@ EntryList EntryHubO::ProcessEntryArray(const QJsonArray& array)
     EntryList list {};
 
     for (const auto& value : array) {
-        if (!value.isObject())
-            continue;
+        Q_ASSERT(value.isObject());
 
         const QJsonObject obj { value.toObject() };
 

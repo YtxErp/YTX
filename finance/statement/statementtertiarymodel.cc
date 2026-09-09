@@ -173,10 +173,7 @@ void TertiaryModel::Rebuild(const QJsonArray& array)
     total->type = RowType::kTotal;
 
     for (const auto& value : array) {
-        if (!value.isObject()) {
-            qWarning() << Q_FUNC_INFO << "Invalid data, expected object:" << value;
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         auto* statement { ResourcePool<TertiaryRow>::Instance().Allocate() };
         statement->ReadJson(value.toObject());

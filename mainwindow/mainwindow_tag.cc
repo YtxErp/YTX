@@ -57,10 +57,7 @@ void MainWindow::RApplyTag(const QJsonObject& obj)
     const QJsonArray tag_array { obj.value(kTagArray).toArray() };
 
     for (const QJsonValue& value : tag_array) {
-        if (!value.isObject()) {
-            qWarning() << "RApplyTag: tag is not an object";
-            continue;
-        }
+        Q_ASSERT(value.isObject());
 
         const QJsonObject tag_obj { value.toObject() };
         const QUuid id { tag_obj.value(kId).toString() };

@@ -116,7 +116,6 @@ void MainWindow::InitHeader()
         tr("Description"),
         tr("Status"),
         tr("Employee"),
-        tr("Settlement"),
     };
 
     header_info_.statement_tertiary = {

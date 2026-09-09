@@ -61,7 +61,6 @@ struct SecondaryRow final {
     int status {};
     QString description {};
     QUuid employee_id {};
-    double settlement {};
 
     void Reset();
     void ReadJson(const QJsonObject& object);
@@ -85,8 +84,6 @@ inline void SecondaryRow::ReadJson(const QJsonObject& object)
         code = val.toString();
     if (const auto val = object.value(kEmployeeId); val.isString())
         employee_id = QUuid(val.toString());
-    if (const auto val = object.value(kSettlement); val.isString())
-        settlement = val.toString().toDouble();
 }
 
 struct TertiaryRow final {

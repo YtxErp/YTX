@@ -71,8 +71,6 @@ QVariant SecondaryModel::data(const QModelIndex& index, int role) const
         return statement->status;
     case SecondaryField::kAmount:
         return statement->amount;
-    case SecondaryField::kSettlement:
-        return statement->settlement;
     }
 }
 
@@ -94,7 +92,6 @@ bool SecondaryModel::setData(const QModelIndex& index, const QVariant& value, in
     case SecondaryField::kDescription:
     case SecondaryField::kMeasure:
     case SecondaryField::kEmployee:
-    case SecondaryField::kSettlement:
     case SecondaryField::kCode:
         return false;
     }
@@ -130,8 +127,6 @@ void SecondaryModel::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(lhs, rhs, &SecondaryRow::measure, order);
         case SecondaryField::kStatus:
             return utils::CompareMember(lhs, rhs, &SecondaryRow::status, order);
-        case SecondaryField::kSettlement:
-            return utils::CompareMember(lhs, rhs, &SecondaryRow::settlement, order);
         case SecondaryField::kAmount:
             return utils::CompareMember(lhs, rhs, &SecondaryRow::amount, order);
         }

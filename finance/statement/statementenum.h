@@ -39,7 +39,6 @@ enum class SecondaryField {
     kDescription,
     kStatus,
     kEmployee,
-    kSettlement,
 };
 
 enum class TertiaryField {

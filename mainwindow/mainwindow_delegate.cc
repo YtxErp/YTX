@@ -448,7 +448,6 @@ void MainWindow::DelegateStatementSecondary(QTableView* table_view, CSectionConf
 
     auto* amount { new DoubleNoneZeroR(config.amount_decimal, string_const::kEightDigits, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::SecondaryField::kAmount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(statement::SecondaryField::kSettlement), amount);
 
     auto* employee { new NodeNameR(sc_p_.tree_model, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(statement::SecondaryField::kEmployee), employee);

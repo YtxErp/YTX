@@ -306,8 +306,8 @@ bool TableModel::UpdateLinkedNode(EntryShadow* shadow, const QUuid& value, int r
 
         QJsonObject update {};
         update.insert(field, value.toString(QUuid::WithoutBraces));
-        update.insert(kVersion, *shadow->version);
 
+        message.insert(kVersion, *shadow->version);
         message.insert(kUpdate, update);
         message.insert(kInputSide, std::to_underlying(input_side));
 

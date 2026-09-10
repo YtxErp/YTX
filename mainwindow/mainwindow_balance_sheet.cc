@@ -11,7 +11,7 @@ void MainWindow::on_actionBalanceSheet_triggered()
     auto* model { new balance_sheet::Model(header_info_.balance_sheet, this) };
     const QUuid widget_id { QUuid::createUuidV7() };
 
-    auto* dialog { new BalanceSheetDialog(sc_f_.tree_model, model, widget_id, this) };
+    auto* dialog { new BalanceSheetDialog(sc_f_.tree_model, model, widget_id) };
 
     {
         auto* view { dialog->View() };
@@ -20,7 +20,6 @@ void MainWindow::on_actionBalanceSheet_triggered()
     }
 
     utils::ManageDialog(sc_f_.widget_hash, dialog, widget_id);
-
     dialog->show();
 }
 

@@ -17,8 +17,8 @@ void MainWindow::on_actionProfile_triggered()
     static QPointer<UserProfileDialog> dialog {};
 
     if (!dialog) {
-        dialog = new UserProfileDialog(this);
-        utils::ManageDialog(sc_->widget_hash, dialog);
+        dialog = new UserProfileDialog();
+        utils::ManageDialog(widget_hash_, dialog);
     }
 
     dialog->show();
@@ -66,7 +66,7 @@ void MainWindow::on_actionWorkspaceManager_triggered()
     static QPointer<WorkspaceDialog> dialog {};
 
     if (!dialog) {
-        dialog = new WorkspaceDialog(header_info_.workspace, this);
+        dialog = new WorkspaceDialog(header_info_.workspace);
 
         const auto widget_id { utils::ManageDialog(widget_hash_, dialog) };
         const auto message { JsonGen::WorkspaceMemberAck(widget_id, LoginInfo::Instance().Workspace()) };

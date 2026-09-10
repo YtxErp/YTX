@@ -19,7 +19,7 @@ void MainWindow::on_actionCashFlowStatement_triggered()
     auto* special_model { new cash_flow::SpecialModel(header_info_.cash_flow_statement, this) };
     auto* wrong_model { new cash_flow::WrongModel(header_info_.cash_flow_statement_wrong, this) };
 
-    auto* dialog { new CashFlowStatementDialog(model, carrier_model, special_model, wrong_model, widget_id, this) };
+    auto* dialog { new CashFlowStatementDialog(model, carrier_model, special_model, wrong_model, widget_id) };
 
     {
         auto* view { dialog->View() };

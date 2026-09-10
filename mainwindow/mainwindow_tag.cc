@@ -23,8 +23,7 @@ void MainWindow::on_actionTags_triggered()
         auto* model { new tag::Model(start_, header_info_.tag, this) };
         connect(model, &tag::Model::SInsertLocalTag, this, &MainWindow::RInsertLocalTag);
 
-        dialog = new TagDialog(model, this);
-
+        dialog = new TagDialog(model);
         utils::ManageDialog(sc_->widget_hash, dialog);
 
         auto* view { dialog->View() };

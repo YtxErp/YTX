@@ -11,7 +11,7 @@ void MainWindow::on_actionHeatPartner_triggered()
     auto* model { new partner_heat::Model(header_info_.partner_heat, this) };
     const QUuid widget_id { QUuid::createUuidV7() };
 
-    auto* dialog { new PartnerHeatDialog(model, widget_id, this) };
+    auto* dialog { new PartnerHeatDialog(model, widget_id) };
 
     {
         auto* view { dialog->View() };

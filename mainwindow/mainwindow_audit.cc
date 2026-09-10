@@ -1,6 +1,7 @@
 #include "audit/auditdialog.h"
 #include "audit/auditenum.h"
 #include "mainwindow.h"
+#include "utils/mainwindowutils.h"
 
 void MainWindow::on_actionAuditLog_triggered()
 {
@@ -31,13 +32,7 @@ void MainWindow::on_actionAuditLog_triggered()
 
     audit::Model* model { new audit::Model(audit_info_, header_info_.audit, tree_model->LeafPath(), tree_model->BranchPath(), start_, this) };
 
-    auto* dialog { new AuditDialog(model, widget_id, audit_info_.section_hash.value(std::to_underlying(start_)), start_, this) };
-
-    {
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        WidgetContext wc { dialog, widget_id, WidgetRole::kDialog };
-        widget_hash_.insert(widget_id, wc);
-    }
+    auto* dialog { new AuditDialog(model, widget_id, audit_info_.section_hash.value(std::to_underlying(start_)), start_) };
 
     {
         auto* view { dialog->View() };
@@ -48,6 +43,7 @@ void MainWindow::on_actionAuditLog_triggered()
         DelegateAuditLog(view);
     }
 
+    utils::ManageDialog(widget_hash_, dialog, widget_id);
     dialog->show();
 }
 

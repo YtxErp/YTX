@@ -54,7 +54,10 @@ void EditDocument::on_pBtnAdd_clicked()
 
 void EditDocument::on_pBtnDelete_clicked()
 {
-    auto index { ui->listView->currentIndex() };
+    const auto index { ui->listView->currentIndex() };
+    if (!index.isValid())
+        return;
+
     list_model_->removeRow(index.row(), QModelIndex());
 }
 
@@ -62,11 +65,12 @@ void EditDocument::on_pBtnOk_clicked() { document_ = list_model_->stringList(); 
 
 void EditDocument::on_listView_doubleClicked(const QModelIndex& index)
 {
-    QString file_path { QDir::homePath() + QDir::separator() + index.data().toString() };
-    auto file_url { QUrl::fromLocalFile(file_path) };
+    const QString base_path { QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) };
+    const QString document_path { QDir(base_path).filePath(document_path_) };
+    const QString file_path { QDir(document_path).filePath(index.data().toString()) };
 
     if (QFile::exists(file_path)) {
-        QDesktopServices::openUrl(file_url);
+        QDesktopServices::openUrl(QUrl::fromLocalFile(file_path));
         return;
     }
 

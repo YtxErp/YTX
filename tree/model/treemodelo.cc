@@ -166,32 +166,18 @@ void TreeModelO::UnregisterNode(Node* node, Node* parent_node)
     const NodeKind kind { d_node->kind };
 
     switch (kind) {
-    case NodeKind::kBranch: {
+    case NodeKind::kBranch:
         for (auto* child : std::as_const(node->children)) {
             child->parent = parent_node;
             parent_node->children.emplace_back(child);
         }
 
         UpdateSubtreePath(node);
-
         branch_path_.remove(node_id);
-    } break;
-    case NodeKind::kLeaf: {
-        if (d_node->order_status == OrderStatus::kReleased) {
-            const node::Delta delta {
-                .initial = -d_node->initial_total,
-                .final = -d_node->final_total,
-                .count = -d_node->count_total,
-                .measure = -d_node->measure_total,
-                .discount = -d_node->discount_total,
-            };
-
-            const auto affected_ids { UpdateAncestorTotal(node, delta) };
-            EmitNumericChanged(affected_ids);
-
-            emit SFreeWidget(section_, node_id);
-        }
-    } break;
+        break;
+    case NodeKind::kLeaf:
+        emit SFreeWidget(section_, node_id);
+        break;
     }
 }
 

@@ -166,9 +166,7 @@ void NodeO::InvertTotal()
 {
     count_total = -count_total;
     measure_total = -measure_total;
-    discount_total = -discount_total;
     initial_total = -initial_total;
-    final_total = -final_total;
 }
 
 void NodeO::ReadJson(const QJsonObject& object)
@@ -203,10 +201,6 @@ void NodeO::ReadJson(const QJsonObject& object)
 
     if (const auto val = object.value(kInitialTotal); val.isString())
         initial_total = val.toString().toDouble();
-    if (const auto val = object.value(kDiscountTotal); val.isString())
-        discount_total = val.toString().toDouble();
-    if (const auto val = object.value(kFinalTotal); val.isString())
-        final_total = val.toString().toDouble();
     if (const auto val = object.value(kCountTotal); val.isString())
         count_total = val.toString().toDouble();
     if (const auto val = object.value(kMeasureTotal); val.isString())
@@ -232,9 +226,7 @@ QJsonObject NodeO::WriteJson() const
     obj.insert(kKind, std::to_underlying(kind));
     obj.insert(kDirectionRule, direction_rule);
     obj.insert(kUnit, std::to_underlying(unit));
-    obj.insert(kFinalTotal, QString::number(final_total, 'f', numeric_const::kDecimalPlaces4));
     obj.insert(kInitialTotal, QString::number(initial_total, 'f', numeric_const::kDecimalPlaces4));
-    obj.insert(kDiscountTotal, QString::number(discount_total, 'f', numeric_const::kDecimalPlaces4));
     obj.insert(kEmployeeId, employee_id.toString(QUuid::WithoutBraces));
     obj.insert(kPartnerId, partner_id.toString(QUuid::WithoutBraces));
     obj.insert(kIssuedTime, issued_time.toUTC().toString(Qt::ISODate));

@@ -65,7 +65,7 @@ signals:
 
 public slots:
     // receive from TableModelOrder
-    void RSyncDeltaO(const QUuid& node_id, double initial_delta, double final_delta, double count_delta, double measure_delta, double discount_delta);
+    void RSyncDeltaO(const QUuid& node_id, double initial_delta, double count_delta, double measure_delta);
 
 public:
     TableModel* Model() const override { return table_model_order_; }

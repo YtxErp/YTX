@@ -90,28 +90,22 @@ bool TableWidgetO::HasPendingUpdate() const
     return node_pending || entry_pending;
 }
 
-void TableWidgetO::RSyncDeltaO(const QUuid& node_id, double initial_delta, double final_delta, double count_delta, double measure_delta, double discount_delta)
+void TableWidgetO::RSyncDeltaO(const QUuid& node_id, double initial_delta, double count_delta, double measure_delta)
 {
     Q_ASSERT(node_id_ == node_id && "RSyncDelta called with mismatched node_id");
 
     {
         if (tmp_node_->direction_rule == direction_rule::kRO) {
             initial_delta *= -1;
-            final_delta *= -1;
             count_delta *= -1;
             measure_delta *= -1;
-            discount_delta *= -1;
         }
     }
-
-    const double adjusted_final_delta { tmp_node_->unit == NodeUnit::OImmediate ? final_delta : 0.0 };
 
     {
         tmp_node_->count_total += count_delta;
         tmp_node_->measure_total += measure_delta;
         tmp_node_->initial_total += initial_delta;
-        tmp_node_->discount_total += discount_delta;
-        tmp_node_->final_total += adjusted_final_delta;
 
         InitUiValue();
     }
@@ -139,20 +133,14 @@ void TableWidgetO::InitWidget()
     }
 
     {
-        ui->dSpinDiscountTotal->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
         ui->dSpinInitialTotal->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
-        ui->dSpinFinalTotal->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
         ui->dSpinMeasureTotal->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
         ui->dSpinCountTotal->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
 
-        ui->dSpinDiscountTotal->setDecimals(config_.amount_decimal);
         ui->dSpinInitialTotal->setDecimals(config_.amount_decimal);
-        ui->dSpinFinalTotal->setDecimals(config_.amount_decimal);
         ui->dSpinMeasureTotal->setDecimals(config_.quantity_decimal);
         ui->dSpinCountTotal->setDecimals(config_.quantity_decimal);
 
-        ui->dSpinDiscountTotal->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        ui->dSpinFinalTotal->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         ui->dSpinCountTotal->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         ui->dSpinMeasureTotal->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     }
@@ -261,8 +249,6 @@ void TableWidgetO::LockWidgets(OrderStatus value)
 
 void TableWidgetO::InitUiValue()
 {
-    ui->dSpinFinalTotal->setValue(tmp_node_->final_total);
-    ui->dSpinDiscountTotal->setValue(tmp_node_->discount_total);
     ui->dSpinCountTotal->setValue(tmp_node_->count_total);
     ui->dSpinMeasureTotal->setValue(tmp_node_->measure_total);
     ui->dSpinInitialTotal->setValue(tmp_node_->initial_total);
@@ -353,8 +339,6 @@ void TableWidgetO::RRuleGroupClicked(int id)
     tmp_node_->count_total *= -1;
     tmp_node_->measure_total *= -1;
     tmp_node_->initial_total *= -1;
-    tmp_node_->discount_total *= -1;
-    tmp_node_->final_total *= -1;
 
     InitUiValue();
 
@@ -367,22 +351,7 @@ void TableWidgetO::RUnitGroupClicked(int id)
 {
     const NodeUnit unit { id };
 
-    switch (unit) {
-    case NodeUnit::OImmediate:
-        tmp_node_->final_total = tmp_node_->initial_total - tmp_node_->discount_total;
-        break;
-    case NodeUnit::OMonthly:
-        tmp_node_->final_total = 0.0;
-        break;
-    case NodeUnit::OPending:
-        tmp_node_->final_total = 0.0;
-        break;
-    default:
-        break;
-    }
-
-    tmp_node_->unit = NodeUnit(id);
-    ui->dSpinFinalTotal->setValue(tmp_node_->final_total);
+    tmp_node_->unit = unit;
 
     const bool is_pending { unit == NodeUnit::OPending };
     ui->pBtnRelease->setEnabled(!is_pending);
@@ -446,9 +415,6 @@ void TableWidgetO::BuildNodeInsert(QJsonObject& order_message)
 
 void TableWidgetO::BuildNodeUpdate(QJsonObject& order_message)
 {
-    if (pending_update_.contains(kUnit))
-        pending_update_.insert(kFinalTotal, QString::number(tmp_node_->final_total, 'f', numeric_const::kDecimalPlaces4));
-
     order_message.insert(kVersion, tmp_node_->version);
     order_message.insert(kNodeId, node_id_.toString(QUuid::WithoutBraces));
     order_message.insert(kPartnerId, tmp_node_->partner_id.toString(QUuid::WithoutBraces));

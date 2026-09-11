@@ -82,17 +82,14 @@ enum class EntryEnumO {
     kLhsNode,
     // --- Visible ---
     kRhsNode,
-    kDescription,
-    kTag,
-    kStatus,
     kCount,
     kMeasure,
     kUnitPrice,
+    kStatus,
+    kDescription,
+    kTag,
     kExternalSku,
-    kUnitDiscount,
     kInitial,
-    kDiscount,
-    kFinal,
 };
 
 enum class FullEntryEnum {

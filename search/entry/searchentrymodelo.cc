@@ -36,14 +36,8 @@ QVariant EntryModelO::data(const QModelIndex& index, int role) const
         return d_entry->count;
     case EntryEnumO::kMeasure:
         return d_entry->measure;
-    case EntryEnumO::kUnitDiscount:
-        return d_entry->unit_discount;
     case EntryEnumO::kInitial:
         return d_entry->initial;
-    case EntryEnumO::kDiscount:
-        return d_entry->discount;
-    case EntryEnumO::kFinal:
-        return d_entry->final;
     case EntryEnumO::kStatus:
         return d_entry->status;
     }
@@ -70,14 +64,8 @@ void EntryModelO::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(d_lhs, d_rhs, &EntryO::unit_price, order);
         case EntryEnumO::kMeasure:
             return utils::CompareMember(d_lhs, d_rhs, &EntryO::measure, order);
-        case EntryEnumO::kUnitDiscount:
-            return utils::CompareMember(d_lhs, d_rhs, &EntryO::unit_discount, order);
         case EntryEnumO::kInitial:
             return utils::CompareMember(d_lhs, d_rhs, &EntryO::initial, order);
-        case EntryEnumO::kFinal:
-            return utils::CompareMember(d_lhs, d_rhs, &EntryO::final, order);
-        case EntryEnumO::kDiscount:
-            return utils::CompareMember(d_lhs, d_rhs, &EntryO::discount, order);
         case EntryEnumO::kTag:
             return utils::CompareMember(lhs, rhs, &Entry::tag, order);
         case EntryEnumO::kExternalSku:

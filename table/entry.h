@@ -79,9 +79,6 @@ struct EntryO final : Entry {
     double measure {};
 
     double initial {};
-    double final {};
-    double discount {};
-    double unit_discount {};
 
     void Reset() override;
     void ReadJson(const QJsonObject& object) override;

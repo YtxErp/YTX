@@ -18,8 +18,6 @@ SearchDialogO::SearchDialogO(
 void SearchDialogO::TreeViewDelegate(QTableView* view)
 {
     view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kInitialTotal), amount_);
-    view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kFinalTotal), amount_);
-    view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDiscountTotal), amount_);
     view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kCountTotal), quantity_);
     view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kMeasureTotal), quantity_);
     view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kUnit), unit_);
@@ -38,13 +36,10 @@ void SearchDialogO::TableViewDelegate(QTableView* view)
 {
     view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kCount), quantity_);
     view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kMeasure), quantity_);
-    view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kDiscount), amount_);
     view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kInitial), amount_);
-    view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kFinal), amount_);
     view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kTag), tag_);
 
     view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kUnitPrice), rate_);
-    view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kUnitDiscount), rate_);
 
     view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kLhsNode), table_path_);
 

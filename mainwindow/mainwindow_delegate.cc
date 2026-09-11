@@ -196,8 +196,6 @@ void MainWindow::TreeDelegateO(QTreeView* tree_view, CSectionInfo& info, CSectio
 
     auto* amount { new AmountR(section.amount_decimal, sc_f_.shared_config.default_unit, sc_f_.info.unit_symbol_map, string_const::kEightDigits, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kInitialTotal), amount);
-    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kFinalTotal), amount);
-    tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kDiscountTotal), amount);
 
     auto* quantity_r { new DoubleNoneZeroR(section.quantity_decimal, string_const::kFourDigits, tree_view) };
     tree_view->setItemDelegateForColumn(std::to_underlying(NodeEnumO::kMeasureTotal), quantity_r);
@@ -368,7 +366,6 @@ void MainWindow::TableDelegateO(QTableView* table_view, CSectionInfo& info, CSec
 
     auto* price { new Double(config.rate_decimal, 0.0, kDoubleMax, string_const::kFourDigits, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kUnitPrice), price);
-    table_view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kUnitDiscount), price);
 
     auto* quantity { new Double(config.quantity_decimal, kDoubleLowest, kDoubleMax, string_const::kFourDigits, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kCount), quantity);
@@ -376,8 +373,6 @@ void MainWindow::TableDelegateO(QTableView* table_view, CSectionInfo& info, CSec
 
     auto* amount { new DoubleNoneZeroR(config.amount_decimal, string_const::kEightDigits, table_view) };
     table_view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kInitial), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kDiscount), amount);
-    table_view->setItemDelegateForColumn(std::to_underlying(EntryEnumO::kFinal), amount);
 
     const auto& sc { info.section == Section::kSale ? sc_sale_ : sc_purchase_ };
     auto* tag { new TagDelegate(sc.tag_icon_hash, table_view) };

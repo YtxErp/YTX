@@ -224,8 +224,6 @@ void MainWindow::InitHeader(SectionInfo& finance, SectionInfo& inventory, Sectio
         tr("Count Total"),
         tr("Measure Total"),
         tr("Gross Total"),
-        tr("Discount Total"),
-        tr("Net Total"),
     };
 
     // Entry
@@ -291,17 +289,14 @@ void MainWindow::InitHeader(SectionInfo& finance, SectionInfo& inventory, Sectio
     sale.entry_header = {
         tr("LHS Node"),
         tr("Internal SKU"),
-        tr("Description"),
-        tr("Tag"),
-        tr("Status"),
         tr("Count"),
         tr("Measure"),
         tr("Unit Price"),
+        tr("Status"),
+        tr("Description"),
+        tr("Tag"),
         tr("External SKU"),
-        tr("Unit Discount"),
         tr("Gross"),
-        tr("Discount"),
-        tr("Net"),
     };
 
     // Full Entry

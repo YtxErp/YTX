@@ -83,7 +83,7 @@ public:
 
 signals:
     // send to TableWidgetO
-    void SSyncDeltaO(const QUuid& node_id, double initial_delta, double final_delta, double count_delta, double measure_delta, double discount_delta);
+    void SSyncDeltaO(const QUuid& node_id, double initial_delta, double count_delta, double measure_delta);
 
 public slots:
     void RAppendEntries(const EntryList& entry_list) override;
@@ -111,14 +111,11 @@ public:
 
 private:
     bool UpdateInternalSku(Entry* entry, const QUuid& value, int row) override;
-    bool UpdateUnitPrice(EntryO* entry, double value, int row);
-    bool UpdateUnitDiscount(EntryO* entry, double value, int row);
-    bool UpdateMeasure(EntryO* entry, double value, int row);
+    bool UpdateUnitPrice(EntryO* entry, double value);
+    bool UpdateMeasure(EntryO* entry, double value);
     bool UpdateCount(EntryO* entry, double value);
     bool UpdateDescription(EntryO* entry, const QString& value);
     bool UpdateTag(EntryO* entry, const QStringList& value);
-
-    static void RecalculateAmount(EntryO* entry);
 
 private:
     const NodeO* d_node_ {};

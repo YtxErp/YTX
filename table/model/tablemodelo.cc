@@ -131,14 +131,8 @@ QVariant TableModelO::data(const QModelIndex& index, int role) const
         return d_entry->description;
     case EntryEnumO::kCount:
         return d_entry->count;
-    case EntryEnumO::kFinal:
-        return d_entry->final;
-    case EntryEnumO::kDiscount:
-        return d_entry->discount;
     case EntryEnumO::kInitial:
         return d_entry->initial;
-    case EntryEnumO::kUnitDiscount:
-        return d_entry->unit_discount;
     case EntryEnumO::kExternalSku:
         return PartnerInventoryRegistry::Instance().ExternalSku(d_node_->partner_id, d_entry->rhs_node);
     case EntryEnumO::kTag:
@@ -173,34 +167,24 @@ bool TableModelO::setData(const QModelIndex& index, const QVariant& value, int r
     auto* d_entry { static_cast<EntryO*>(entry) };
     const double old_count { d_entry->count };
     const double old_measure { d_entry->measure };
-    const double old_discount { d_entry->discount };
     const double old_initial { d_entry->initial };
-    const double old_final { d_entry->final };
     const int row { index.row() };
-
-    bool count_changed { false };
-    bool measure_changed { false };
-    bool unit_price_changed { false };
-    bool unit_discount_changed { false };
 
     switch (column) {
     case EntryEnumO::kDescription:
         UpdateDescription(d_entry, value.toString());
         break;
     case EntryEnumO::kRhsNode:
-        unit_price_changed = UpdateInternalSku(entry, value.toUuid(), row);
+        UpdateInternalSku(entry, value.toUuid(), row);
         break;
     case EntryEnumO::kUnitPrice:
-        unit_price_changed = UpdateUnitPrice(d_entry, value.toDouble(), row);
+        UpdateUnitPrice(d_entry, value.toDouble());
         break;
     case EntryEnumO::kMeasure:
-        measure_changed = UpdateMeasure(d_entry, value.toDouble(), row);
+        UpdateMeasure(d_entry, value.toDouble());
         break;
     case EntryEnumO::kCount:
-        count_changed = UpdateCount(d_entry, value.toDouble());
-        break;
-    case EntryEnumO::kUnitDiscount:
-        unit_discount_changed = UpdateUnitDiscount(d_entry, value.toDouble(), row);
+        UpdateCount(d_entry, value.toDouble());
         break;
     case EntryEnumO::kTag:
         UpdateTag(d_entry, value.toStringList());
@@ -209,42 +193,21 @@ bool TableModelO::setData(const QModelIndex& index, const QVariant& value, int r
     case EntryEnumO::kLhsNode:
     case EntryEnumO::kExternalSku:
     case EntryEnumO::kInitial:
-    case EntryEnumO::kDiscount:
-    case EntryEnumO::kFinal:
         return false;
     }
 
     emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
 
-    if (count_changed)
-        emit SSyncDeltaO(d_entry->lhs_node, 0.0, 0.0, d_entry->count - old_count, 0.0, 0.0);
+    const double count_delta { d_entry->count - old_count };
+    const double measure_delta { d_entry->measure - old_measure };
+    const double initial_delta { d_entry->initial - old_initial };
 
-    if (measure_changed) {
-        const double measure_delta { d_entry->measure - old_measure };
-        const double initial_delta { d_entry->initial - old_initial };
-        const double discount_delta { d_entry->discount - old_discount };
-        const double final_delta { d_entry->final - old_final };
-
-        if (!qFuzzyIsNull(measure_delta) || !qFuzzyIsNull(initial_delta) || !qFuzzyIsNull(discount_delta) || !qFuzzyIsNull(final_delta)) {
-            emit SSyncDeltaO(d_entry->lhs_node, initial_delta, final_delta, 0.0, measure_delta, discount_delta);
-        }
+    if (!qFuzzyIsNull(initial_delta) || !qFuzzyIsNull(count_delta) || !qFuzzyIsNull(measure_delta)) {
+        emit SSyncDeltaO(d_entry->lhs_node, initial_delta, count_delta, measure_delta);
     }
 
-    if (unit_price_changed) {
-        const double initial_delta { d_entry->initial - old_initial };
-        const double final_delta { d_entry->final - old_final };
-
-        if (!qFuzzyIsNull(initial_delta) || !qFuzzyIsNull(final_delta))
-            emit SSyncDeltaO(d_entry->lhs_node, initial_delta, final_delta, 0.0, 0.0, 0.0);
-    }
-
-    if (unit_discount_changed) {
-        const double discount_delta { d_entry->discount - old_discount };
-        const double final_delta { d_entry->final - old_final };
-
-        if (!qFuzzyIsNull(discount_delta) || !qFuzzyIsNull(final_delta))
-            emit SSyncDeltaO(d_entry->lhs_node, 0.0, final_delta, 0.0, 0.0, discount_delta);
-    }
+    if (!qFuzzyIsNull(initial_delta))
+        EmitDataChanged(row, row, std::to_underlying(EntryEnumO::kInitial), std::to_underlying(EntryEnumO::kInitial));
 
     return true;
 }
@@ -268,14 +231,8 @@ void TableModelO::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(d_lhs, d_rhs, &EntryO::count, order);
         case EntryEnumO::kMeasure:
             return utils::CompareMember(d_lhs, d_rhs, &EntryO::measure, order);
-        case EntryEnumO::kFinal:
-            return utils::CompareMember(d_lhs, d_rhs, &EntryO::final, order);
         case EntryEnumO::kInitial:
             return utils::CompareMember(d_lhs, d_rhs, &EntryO::initial, order);
-        case EntryEnumO::kUnitDiscount:
-            return utils::CompareMember(d_lhs, d_rhs, &EntryO::unit_discount, order);
-        case EntryEnumO::kDiscount:
-            return utils::CompareMember(d_lhs, d_rhs, &EntryO::discount, order);
         case EntryEnumO::kTag:
             return utils::CompareMember(lhs, rhs, &EntryP::tag, order);
         case EntryEnumO::kStatus:
@@ -302,8 +259,6 @@ Qt::ItemFlags TableModelO::flags(const QModelIndex& index) const
     switch (column) {
     case EntryEnumO::kLhsNode:
     case EntryEnumO::kInitial:
-    case EntryEnumO::kDiscount:
-    case EntryEnumO::kFinal:
     case EntryEnumO::kTag:
     case EntryEnumO::kExternalSku:
     case EntryEnumO::kStatus:
@@ -314,7 +269,6 @@ Qt::ItemFlags TableModelO::flags(const QModelIndex& index) const
     case EntryEnumO::kCount:
     case EntryEnumO::kMeasure:
     case EntryEnumO::kUnitPrice:
-    case EntryEnumO::kUnitDiscount:
         flags |= Qt::ItemIsEditable;
         break;
     }
@@ -370,13 +324,10 @@ bool TableModelO::removeRows(int row, int /*count*/, const QModelIndex& parent)
     if (!rhs_node.isNull()) {
         const double count_delta { -d_entry->count };
         const double measure_delta { -d_entry->measure };
-        const double discount_delta { -d_entry->discount };
         const double initial_delta { -d_entry->initial };
-        const double final_delta { -d_entry->final };
 
-        if (!qFuzzyIsNull(count_delta) || !qFuzzyIsNull(measure_delta) || !qFuzzyIsNull(discount_delta) || !qFuzzyIsNull(initial_delta)
-            || !qFuzzyIsNull(final_delta)) {
-            emit SSyncDeltaO(lhs_node, initial_delta, final_delta, count_delta, measure_delta, discount_delta);
+        if (!qFuzzyIsNull(count_delta) || !qFuzzyIsNull(measure_delta) || !qFuzzyIsNull(initial_delta)) {
+            emit SSyncDeltaO(lhs_node, initial_delta, count_delta, measure_delta);
         }
     }
 
@@ -410,8 +361,9 @@ bool TableModelO::UpdateInternalSku(Entry* entry, const QUuid& value, int row)
 
     const bool price_changed { !qFuzzyIsNull(old_unit_price - d_entry->unit_price) };
 
-    if (price_changed)
-        RecalculateAmount(d_entry);
+    if (price_changed) {
+        d_entry->initial = d_entry->measure * d_entry->unit_price;
+    }
 
     if (d_entry->sync_state == SyncState::kSynced)
         d_entry->sync_state = SyncState::kUpdating;
@@ -423,60 +375,37 @@ bool TableModelO::UpdateInternalSku(Entry* entry, const QUuid& value, int row)
     }
 
     if (price_changed) {
-        EmitDataChanged(row, row, std::to_underlying(EntryEnumO::kUnitPrice), std::to_underlying(EntryEnumO::kFinal));
+        EmitDataChanged(row, row, std::to_underlying(EntryEnumO::kUnitPrice), std::to_underlying(EntryEnumO::kInitial));
     }
 
     return price_changed;
 }
 
-bool TableModelO::UpdateUnitPrice(EntryO* entry, double value, int row)
+bool TableModelO::UpdateUnitPrice(EntryO* entry, double value)
 {
     if (qFuzzyCompare(entry->unit_price, value))
         return false;
 
     entry->initial = entry->measure * value;
-    entry->final = entry->initial - entry->discount;
     entry->unit_price = value;
 
     if (entry->sync_state == SyncState::kSynced)
         entry->sync_state = SyncState::kUpdating;
 
-    EmitDataChanged(row, row, std::to_underlying(EntryEnumO::kInitial), std::to_underlying(EntryEnumO::kFinal));
-
     return true;
 }
 
-bool TableModelO::UpdateUnitDiscount(EntryO* entry, double value, int row)
-{
-    if (qFuzzyCompare(entry->unit_discount, value))
-        return false;
-
-    entry->discount = entry->measure * value;
-    entry->final = entry->initial - entry->discount;
-    entry->unit_discount = value;
-
-    if (entry->sync_state == SyncState::kSynced)
-        entry->sync_state = SyncState::kUpdating;
-
-    EmitDataChanged(row, row, std::to_underlying(EntryEnumO::kDiscount), std::to_underlying(EntryEnumO::kFinal));
-    return true;
-}
-
-bool TableModelO::UpdateMeasure(EntryO* entry, double value, int row)
+bool TableModelO::UpdateMeasure(EntryO* entry, double value)
 {
     if (qFuzzyCompare(entry->measure, value))
         return false;
 
     entry->initial = entry->unit_price * value;
-    entry->discount = entry->unit_discount * value;
-    entry->final = (entry->unit_price - entry->unit_discount) * value;
-
     entry->measure = value;
 
     if (entry->sync_state == SyncState::kSynced)
         entry->sync_state = SyncState::kUpdating;
 
-    EmitDataChanged(row, row, std::to_underlying(EntryEnumO::kInitial), std::to_underlying(EntryEnumO::kFinal));
     return true;
 }
 
@@ -517,24 +446,6 @@ bool TableModelO::UpdateTag(EntryO* entry, const QStringList& value)
         entry->sync_state = SyncState::kUpdating;
 
     return true;
-}
-
-void TableModelO::RecalculateAmount(EntryO* entry)
-{
-    if (!entry)
-        return;
-
-    const double measure { entry->measure };
-    const double unit_price { entry->unit_price };
-    const double unit_discount { entry->unit_discount };
-
-    const double discount { measure * unit_discount };
-    const double gross_amount { measure * unit_price };
-    const double net_amount { gross_amount - discount };
-
-    entry->initial = gross_amount;
-    entry->final = net_amount;
-    entry->discount = discount;
 }
 
 // Purify newly inserted entries:

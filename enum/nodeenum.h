@@ -287,6 +287,5 @@ enum class NodeEnumO {
     kCountTotal,
     kMeasureTotal,
     kInitialTotal,
-    kDiscountTotal,
-    kFinalTotal,
+    kSettlement
 };

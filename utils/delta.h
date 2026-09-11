@@ -10,9 +10,8 @@ struct Delta final {
 
     double count {};
     double measure {};
-    double discount {};
 
-    bool IsNull() const { return qFuzzyIsNull(initial) && qFuzzyIsNull(final) && qFuzzyIsNull(count) && qFuzzyIsNull(measure) && qFuzzyIsNull(discount); }
+    bool IsNull() const { return qFuzzyIsNull(initial) && qFuzzyIsNull(final) && qFuzzyIsNull(count) && qFuzzyIsNull(measure); }
 };
 
 }

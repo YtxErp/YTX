@@ -101,7 +101,6 @@ struct NodeO final : Node {
     QDateTime issued_time {};
     double count_total {};
     double measure_total {};
-    double discount_total {};
     OrderStatus order_status {};
 
     void Reset() override;

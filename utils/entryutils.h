@@ -210,7 +210,7 @@ constexpr std::pair<int, int> NumericColumnRange(Section section)
         return { -1, -1 };
     case Section::kSale:
     case Section::kPurchase:
-        return { std::to_underlying(EntryEnumO::kInitial), std::to_underlying(EntryEnumO::kFinal) };
+        return { std::to_underlying(EntryEnumO::kInitial), std::to_underlying(EntryEnumO::kInitial) };
     }
 
     Q_UNREACHABLE();

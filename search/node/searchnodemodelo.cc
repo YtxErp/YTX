@@ -75,14 +75,10 @@ QVariant NodeModelO::data(const QModelIndex& index, int role) const
         return d_node->count_total;
     case NodeEnumO::kMeasureTotal:
         return d_node->measure_total;
-    case NodeEnumO::kDiscountTotal:
-        return d_node->discount_total;
     case NodeEnumO::kStatus:
         return std::to_underlying(d_node->order_status);
     case NodeEnumO::kInitialTotal:
         return d_node->initial_total;
-    case NodeEnumO::kFinalTotal:
-        return d_node->final_total;
     case NodeEnumO::kTag:
         return d_node->tag;
     }
@@ -119,14 +115,10 @@ void NodeModelO::sort(int column, Qt::SortOrder order)
             return utils::CompareMember(d_lhs, d_rhs, &NodeO::count_total, order);
         case NodeEnumO::kMeasureTotal:
             return utils::CompareMember(d_lhs, d_rhs, &NodeO::measure_total, order);
-        case NodeEnumO::kDiscountTotal:
-            return utils::CompareMember(d_lhs, d_rhs, &NodeO::discount_total, order);
         case NodeEnumO::kStatus:
             return utils::CompareMember(d_lhs, d_rhs, &NodeO::order_status, order);
         case NodeEnumO::kInitialTotal:
             return utils::CompareMember(lhs, rhs, &Node::initial_total, order);
-        case NodeEnumO::kFinalTotal:
-            return utils::CompareMember(lhs, rhs, &Node::final_total, order);
         case NodeEnumO::kTag:
             return utils::CompareMember(lhs, rhs, &Node::tag, order);
         }

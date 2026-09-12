@@ -60,8 +60,6 @@ void TreeModelO::InsertSettlement(const QSet<QUuid>& settled_set, const QUuid& s
     if (settled_set.isEmpty() || settlement_id.isNull())
         return;
 
-    QSet<QUuid> affected_ids {};
-
     for (auto it = node_hash_.constBegin(); it != node_hash_.constEnd(); ++it) {
         auto* node = it.value();
         Q_ASSERT(node != nullptr);
@@ -74,19 +72,13 @@ void TreeModelO::InsertSettlement(const QSet<QUuid>& settled_set, const QUuid& s
 
         d_node->settlement_id = settlement_id;
         d_node->version += 1;
-
-        affected_ids.insert(d_node->id);
     }
-
-    EmitColumnChanged(std::to_underlying(NodeEnumO::kSettlement), affected_ids);
 }
 
 void TreeModelO::RecallSettlement(const QUuid& settlement_id)
 {
     if (settlement_id.isNull())
         return;
-
-    QSet<QUuid> affected_ids {};
 
     for (auto it = node_hash_.constBegin(); it != node_hash_.constEnd(); ++it) {
         auto* node = it.value();
@@ -100,11 +92,7 @@ void TreeModelO::RecallSettlement(const QUuid& settlement_id)
 
         d_node->settlement_id = QUuid();
         d_node->version += 1;
-
-        affected_ids.insert(d_node->id);
     }
-
-    EmitColumnChanged(std::to_underlying(NodeEnumO::kSettlement), affected_ids);
 }
 
 void TreeModelO::RegisterNode(Node* node)
